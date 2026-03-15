@@ -1,0 +1,11562 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  LogIn,
+  LogOut,
+  Menu,
+  Search,
+  ShoppingBag,
+  Store,
+  UserCog
+} from 'lucide-react';
+import { BarQrCard, PageShell, ProductImage, SectionTitle, SellerQrCard } from './components/site/SitePrimitives.jsx';
+import {
+  CommunityStandardsPage,
+  ContactPage,
+  CustomRequestsPage,
+  FaqPage,
+  FindPage,
+  HowToApplyPage,
+  OrderHelpPage,
+  PortfolioSetupPage,
+  PrivacyPackagingPage,
+  PrivacyPolicyPage,
+  RefundEvidencePage,
+  RefundPolicyPage,
+  SellerGuidelinesPage,
+  SellerPortfoliosPage,
+  SellerStandardsPage,
+  ShippingPolicyPage,
+  TermsPage,
+  WorldwideShippingPage,
+} from './pages/StaticPages.jsx';
+import { AccountPage, AdminPage, AppealsPage, CheckoutPage, SellerDashboardPage, SellerFeedPage } from './pages/DashboardPages.jsx';
+import {
+  COLOR_OPTIONS,
+  CONDITION_OPTIONS,
+  COVERAGE_OPTIONS,
+  CUSTOM_REQUEST_FEE_THB,
+  DAYS_WORN_OPTIONS,
+  localizeOptionLabel,
+  formatPriceTHB,
+  MESSAGE_FEE_THB,
+  MIN_CUSTOM_REQUEST_PURCHASE_THB,
+  MIN_SELLER_PRICE_THB,
+  FABRIC_OPTIONS,
+  SCENT_LEVEL_OPTIONS,
+  SELLER_LANGUAGE_OPTIONS,
+  SELLER_SPECIALTY_OPTIONS,
+  SIZE_OPTIONS,
+  STYLE_OPTIONS,
+  WAIST_RISE_OPTIONS,
+} from './productOptions.js';
+import { formatDateTimeNoSeconds, normalizeTimeFormat, setStoredTimeFormat } from './utils/timeFormat.js';
+import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from './utils/walletTopUp.js';
+
+const SHARED_NAV_I18N = {
+  en: { home: 'Home', sellers: 'Sellers', bars: 'Bars', find: 'Find', sellerFeed: 'Seller Feed', customRequests: 'Custom Requests', faq: 'FAQ', contact: 'Contact', account: 'Account', messages: 'Messages', login: 'Login', register: 'Register', logout: 'Logout' },
+  th: { home: 'หน้าแรก', sellers: 'ผู้ขาย', bars: 'บาร์', find: 'ค้นหา', sellerFeed: 'ฟีดผู้ขาย', customRequests: 'คำขอพิเศษ', faq: 'คำถามที่พบบ่อย', contact: 'ติดต่อ', account: 'บัญชี', messages: 'ข้อความ', login: 'เข้าสู่ระบบ', register: 'สมัครสมาชิก', logout: 'ออกจากระบบ' },
+  my: { home: 'ပင်မ', sellers: 'ရောင်းသူများ', bars: 'bars', find: 'ရှာဖွေရန်', sellerFeed: 'seller feed', customRequests: 'custom request များ', faq: 'မေးလေ့ရှိသော မေးခွန်းများ', contact: 'ဆက်သွယ်ရန်', account: 'အကောင့်', messages: 'မက်ဆေ့ချ်များ', login: 'အကောင့်ဝင်ရန်', register: 'စာရင်းသွင်းရန်', logout: 'ထွက်ရန်' },
+  ru: { home: 'Главная', sellers: 'Продавцы', bars: 'Бары', find: 'Поиск', sellerFeed: 'Лента продавцов', customRequests: 'Индивидуальные запросы', faq: 'FAQ', contact: 'Контакты', account: 'Аккаунт', messages: 'Сообщения', login: 'Войти', register: 'Регистрация', logout: 'Выйти' },
+};
+
+const BAR_DASHBOARD_I18N = {
+  en: {
+    title: 'Manage your bar profile',
+    subtitle: 'Update your bar details, share specials, and post live bar photos.',
+    language: 'Language',
+    profileTitle: 'Bar profile',
+    profileImage: 'Bar profile image',
+    locationPlaceholder: 'Bar location',
+    aboutPlaceholder: 'About your bar',
+    specialsPlaceholder: 'Current specials and events',
+    mapEmbedPlaceholder: 'Map embed URL (Google Maps embed)',
+    mapLinkPlaceholder: 'Map link URL',
+    saveProfile: 'Save bar profile',
+    feedTitle: 'Bar photo feed',
+    feedSubtitle: 'Use this like the live feed: post photos, updates, and specials from your venue.',
+    feedPlaceholder: "Share tonight's vibe, specials, or event updates...",
+    preview: 'Bar post preview',
+    postButton: 'Post to bar feed',
+    posting: 'Posting...',
+    noPosts: 'No bar posts yet. Create your first post above.',
+    noCaption: 'No caption added.',
+    deleting: 'Deleting...',
+    delete: 'Delete',
+    affiliationsTitle: 'Seller affiliations',
+    affiliationsSubtitle: 'Approve seller requests, invite sellers to your bar, and remove affiliations when needed.',
+    pendingRequestsTitle: 'Pending seller requests',
+    noPendingRequests: 'No pending seller requests.',
+    requestedPrefix: 'Requested',
+    approve: 'Approve',
+    reject: 'Reject',
+    inviteSellerTitle: 'Invite seller to join',
+    currentlyPrefix: 'currently',
+    sendInvite: 'Send invite',
+    noOutgoingInvites: 'No outgoing invites.',
+    cancelInvite: 'Cancel invite',
+    affiliatedSellersTitle: 'Affiliated sellers',
+    noAffiliatedSellers: 'No affiliated sellers yet.',
+    removeFromBar: 'Remove from bar',
+    affiliationNotificationsTitle: 'Affiliation notifications',
+    affiliationNotificationsSubtitle: 'Recent updates for add/remove and approval activity.',
+    noAffiliationNotifications: 'No affiliation notifications yet.',
+  },
+  th: {
+    title: 'จัดการโปรไฟล์บาร์ของคุณ',
+    subtitle: 'อัปเดตรายละเอียดบาร์ แชร์โปรโมชั่น และโพสต์ภาพสดจากร้านของคุณ',
+    language: 'ภาษา',
+    profileTitle: 'โปรไฟล์บาร์',
+    profileImage: 'รูปโปรไฟล์บาร์',
+    locationPlaceholder: 'ที่ตั้งบาร์',
+    aboutPlaceholder: 'เกี่ยวกับบาร์ของคุณ',
+    specialsPlaceholder: 'โปรโมชั่นและอีเวนต์ปัจจุบัน',
+    mapEmbedPlaceholder: 'ลิงก์ฝังแผนที่ (Google Maps embed)',
+    mapLinkPlaceholder: 'ลิงก์แผนที่',
+    saveProfile: 'บันทึกโปรไฟล์บาร์',
+    feedTitle: 'ฟีดภาพบาร์',
+    feedSubtitle: 'ใช้งานเหมือนฟีดสด: โพสต์รูปภาพ อัปเดต และโปรโมชั่นจากร้านคุณ',
+    feedPlaceholder: 'แชร์บรรยากาศคืนนี้ โปรโมชั่น หรืออัปเดตงานอีเวนต์...',
+    preview: 'ตัวอย่างโพสต์บาร์',
+    postButton: 'โพสต์ลงฟีดบาร์',
+    posting: 'กำลังโพสต์...',
+    noPosts: 'ยังไม่มีโพสต์บาร์ สร้างโพสต์แรกของคุณได้ด้านบน',
+    noCaption: 'ยังไม่มีคำบรรยาย',
+    deleting: 'กำลังลบ...',
+    delete: 'ลบ',
+    affiliationsTitle: 'การสังกัดผู้ขาย',
+    affiliationsSubtitle: 'อนุมัติคำขอผู้ขาย เชิญผู้ขายเข้าบาร์ และยกเลิกการสังกัดได้เมื่อจำเป็น',
+    pendingRequestsTitle: 'คำขอผู้ขายที่รออนุมัติ',
+    noPendingRequests: 'ไม่มีคำขอผู้ขายที่รออนุมัติ',
+    requestedPrefix: 'ส่งคำขอเมื่อ',
+    approve: 'อนุมัติ',
+    reject: 'ปฏิเสธ',
+    inviteSellerTitle: 'เชิญผู้ขายเข้าร่วม',
+    currentlyPrefix: 'ปัจจุบัน',
+    sendInvite: 'ส่งคำเชิญ',
+    noOutgoingInvites: 'ยังไม่มีคำเชิญที่ส่งออก',
+    cancelInvite: 'ยกเลิกคำเชิญ',
+    affiliatedSellersTitle: 'ผู้ขายที่สังกัด',
+    noAffiliatedSellers: 'ยังไม่มีผู้ขายที่สังกัด',
+    removeFromBar: 'นำออกจากบาร์',
+    affiliationNotificationsTitle: 'การแจ้งเตือนการสังกัด',
+    affiliationNotificationsSubtitle: 'อัปเดตล่าสุดเกี่ยวกับการเพิ่ม/ลบและการอนุมัติ',
+    noAffiliationNotifications: 'ยังไม่มีการแจ้งเตือนการสังกัด',
+  },
+  my: {
+    title: 'သင့် bar ပရိုဖိုင်ကို စီမံပါ',
+    subtitle: 'bar အချက်အလက်များ အပ်ဒိတ်လုပ်ပြီး အထူးအစီအစဉ်များနှင့် တိုက်ရိုက်ဓာတ်ပုံများ မျှဝေပါ',
+    language: 'ဘာသာစကား',
+    profileTitle: 'bar ပရိုဖိုင်',
+    profileImage: 'bar ပရိုဖိုင်ပုံ',
+    locationPlaceholder: 'bar တည်နေရာ',
+    aboutPlaceholder: 'သင့် bar အကြောင်း',
+    specialsPlaceholder: 'လက်ရှိ promotions နှင့် events',
+    mapEmbedPlaceholder: 'Map embed URL (Google Maps embed)',
+    mapLinkPlaceholder: 'Map link URL',
+    saveProfile: 'bar ပရိုဖိုင် သိမ်းမည်',
+    feedTitle: 'bar ဓာတ်ပုံဖိဒ်',
+    feedSubtitle: 'live feed လို အသုံးပြုပါ - ဓာတ်ပုံများ၊ updates နှင့် specials မျှဝေပါ',
+    feedPlaceholder: 'ယနေ့ည vibe၊ specials သို့မဟုတ် event updates မျှဝေပါ...',
+    preview: 'bar post preview',
+    postButton: 'bar feed သို့ တင်မည်',
+    posting: 'တင်နေသည်...',
+    noPosts: 'bar posts မရှိသေးပါ။ အပေါ်တွင် ပထမ post တင်ပါ။',
+    noCaption: 'caption မရှိပါ',
+    deleting: 'ဖျက်နေသည်...',
+    delete: 'ဖျက်မည်',
+    affiliationsTitle: 'Seller affiliation များ',
+    affiliationsSubtitle: 'seller request များကို approve လုပ်ပါ၊ seller များကို သင့် bar သို့ ဖိတ်ခေါ်ပါ၊ လိုအပ်သည့်အခါ affiliation ဖယ်ရှားပါ။',
+    pendingRequestsTitle: 'စောင့်ဆိုင်းနေသော seller requests',
+    noPendingRequests: 'စောင့်ဆိုင်းနေသော seller request မရှိပါ။',
+    requestedPrefix: 'Requested',
+    approve: 'Approve',
+    reject: 'Reject',
+    inviteSellerTitle: 'seller ကို ဖိတ်ခေါ်ရန်',
+    currentlyPrefix: 'currently',
+    sendInvite: 'invite ပို့မည်',
+    noOutgoingInvites: 'ပို့ပြီး invite မရှိသေးပါ။',
+    cancelInvite: 'invite ပယ်ဖျက်မည်',
+    affiliatedSellersTitle: 'Affiliated sellers',
+    noAffiliatedSellers: 'Affiliated sellers မရှိသေးပါ။',
+    removeFromBar: 'bar မှ ဖယ်ရှားမည်',
+    affiliationNotificationsTitle: 'Affiliation notifications',
+    affiliationNotificationsSubtitle: 'add/remove နှင့် approval activity အပ်ဒိတ်များ',
+    noAffiliationNotifications: 'Affiliation notification မရှိသေးပါ။',
+  },
+  ru: {
+    title: 'Управляйте профилем бара',
+    subtitle: 'Обновляйте данные бара, публикуйте акции и фото из заведения.',
+    language: 'Язык',
+    profileTitle: 'Профиль бара',
+    profileImage: 'Фото профиля бара',
+    locationPlaceholder: 'Локация бара',
+    aboutPlaceholder: 'О вашем баре',
+    specialsPlaceholder: 'Текущие акции и события',
+    mapEmbedPlaceholder: 'Ссылка embed карты (Google Maps)',
+    mapLinkPlaceholder: 'Ссылка на карту',
+    saveProfile: 'Сохранить профиль бара',
+    feedTitle: 'Фото-лента бара',
+    feedSubtitle: 'Используйте как live-ленту: публикуйте фото, обновления и акции.',
+    feedPlaceholder: 'Поделитесь атмосферой вечера, акциями или обновлениями событий...',
+    preview: 'Предпросмотр поста бара',
+    postButton: 'Опубликовать в ленту бара',
+    posting: 'Публикация...',
+    noPosts: 'Постов бара пока нет. Создайте первый пост выше.',
+    noCaption: 'Подпись не добавлена.',
+    deleting: 'Удаление...',
+    delete: 'Удалить',
+    affiliationsTitle: 'Привязки продавцов',
+    affiliationsSubtitle: 'Одобряйте заявки продавцов, приглашайте продавцов в бар и удаляйте привязки при необходимости.',
+    pendingRequestsTitle: 'Ожидающие заявки продавцов',
+    noPendingRequests: 'Нет ожидающих заявок продавцов.',
+    requestedPrefix: 'Запрошено',
+    approve: 'Одобрить',
+    reject: 'Отклонить',
+    inviteSellerTitle: 'Пригласить продавца',
+    currentlyPrefix: 'сейчас',
+    sendInvite: 'Отправить приглашение',
+    noOutgoingInvites: 'Исходящих приглашений нет.',
+    cancelInvite: 'Отменить приглашение',
+    affiliatedSellersTitle: 'Привязанные продавцы',
+    noAffiliatedSellers: 'Привязанных продавцов пока нет.',
+    removeFromBar: 'Удалить из бара',
+    affiliationNotificationsTitle: 'Уведомления о привязках',
+    affiliationNotificationsSubtitle: 'Последние обновления по добавлению/удалению и одобрениям.',
+    noAffiliationNotifications: 'Пока нет уведомлений о привязках.',
+  },
+};
+
+const PUBLIC_SITE_I18N = {
+  en: {
+    heroBadge: 'Discreet premium marketplace',
+    heroTitle: 'Thailand Panties connects buyers with premium used underwear sellers in Thailand.',
+    heroSubtitle: 'Browse premium listings, use transparent filters, and message sellers in a respectful way to build real connections, with discreet worldwide shipping from Thailand.',
+    browseListings: 'Browse Listings',
+    meetSellers: 'Meet Sellers',
+    curatedListings: 'Curated listings',
+    shippingAvailable: 'Shipping available',
+    resaleQuality: 'Resale quality',
+    featuredSellers: 'Featured sellers',
+    sellerFallback: 'Seller',
+    sellerPortfolioPages: 'Seller Portfolio Pages',
+    sellerPortfolioCardDesc: 'Professional bios, highlighted strengths, language support, and faster profile discovery.',
+    exploreSellerPortfolios: 'Explore seller portfolios ->',
+    liveDiscoverySnapshot: 'Live discovery snapshot',
+    smartProductDiscovery: 'Smart Product Discovery',
+    smartProductCardDesc: 'Filter by type, size, color, wear details, condition, and price with live catalog counts.',
+    openSmartDiscovery: 'Open smart discovery ->',
+    marketplace: 'Marketplace',
+    shopWithRealFilters: 'Shop with real filters',
+    resultsFoundSuffix: 'results found',
+    searchStylesSellersColors: 'Search styles, sellers, colors',
+    resetFilters: 'Reset Filters',
+    premiumVerifiedSellers: 'Premium used underwear from verified independent sellers',
+    byPrefix: 'by',
+    sizeLabel: 'Size',
+    wornLabel: 'Worn',
+    riseLabel: 'Rise',
+    coverageLabel: 'Coverage',
+    scentLabel: 'Scent',
+    viewListing: 'View listing',
+    bundleAvailableBadge: 'Bundle option available',
+    viewBundleOption: 'View bundle option',
+    add: 'Add',
+    inCartLabel: 'Added',
+    addedToCartNotice: 'Added to cart.',
+    alreadyInCartNotice: 'This item is already in your cart.',
+    sellerFeed: 'Seller Feed',
+    latestSellerUpdates: 'Latest seller updates',
+    recentLifestylePosts: 'Recent lifestyle posts from active sellers.',
+    viewFullFeed: 'View full feed',
+    noRecentSellerPosts: 'No recent seller posts yet.',
+    unlockFor: 'Unlock for',
+    privatePostUnlock: 'Private post. Unlock to view.',
+    savePost: 'Save post',
+    saved: 'Saved',
+    savedFeed: 'Saved Feed',
+    yourSavedSellerPosts: 'Your saved seller posts',
+    quickAccessBookmarked: 'Quick access to bookmarked posts.',
+    openSavedTab: 'Open saved tab',
+    noSavedPostsHome: 'No saved posts yet. Tap "Save post" on feed cards.',
+    bars: 'Bars',
+    partnerBars: 'Partner bars',
+    barsSubtitle: 'Discover bars, specials, and locations connected to seller profiles.',
+    locationComingSoon: 'Location coming soon',
+    affiliatedSellersSuffix: 'affiliated seller(s)',
+    barProfileSoon: 'Bar profile details coming soon.',
+    viewBarProfile: 'View bar profile',
+    backToBars: 'Back to Bars',
+    currentSpecials: 'Current specials',
+    noSpecialsYet: 'No specials posted yet.',
+    affiliatedSellers: 'Affiliated sellers',
+    noAffiliatedSellersListed: 'No affiliated sellers listed yet.',
+    affiliatedSellerFallback: 'Affiliated seller',
+    locationMap: 'Location map',
+    mapNotSet: 'Map link not set yet.',
+    openMap: 'Open map',
+    barPhotoFeed: 'Bar photo feed',
+    noBarPhotosYet: 'No bar photos yet.',
+    barPrefix: 'Bar:',
+    liveNights: 'Live nights',
+    weeklySpecials: 'Weekly specials',
+    partnerSellers: 'Partner sellers',
+    backToSellers: 'Back to Sellers',
+    followersLabel: 'Followers',
+    messageSellerTitle: 'Message seller',
+    buyerMessagesCostPrefix: 'Buyer messages cost',
+    buyerMessagesCostSuffix: 'each and are delivered inside the platform.',
+    balanceLabel: 'Balance',
+    autoRefreshOn: 'Auto refresh on',
+    loginBuyerToMessage: 'Login as a buyer to start a conversation.',
+    sellerInboxReviewHint: 'Seller accounts can review messages in the seller dashboard inbox.',
+    noMessagesYetStart: 'No messages yet. Start the conversation below.',
+    showTranslation: 'Show translation',
+    showOriginal: 'Show original',
+    sendMessageToPrefix: 'Send a message to',
+    send: 'Send',
+    markThreadRead: 'Mark thread as read',
+    customRequestsTitle: 'Custom requests',
+    customRequestExplainPrefix: 'Looking for a specific piece from',
+    customRequestExplainMiddle: 'Requests cost',
+    customRequestExplainSuffix: 'to send. Custom request messages also cost',
+    customRequestExplainEnd: 'each.',
+    yourName: 'Your name',
+    email: 'Email',
+    customDetailsPlaceholder: 'Panty type, size, style, activities, or photo ideas',
+    shippingCountry: 'Shipping country',
+    describeRequestForPrefix: 'Describe your request for',
+    customRequestSubmitted: 'Custom request submitted.',
+    sendCustomRequest: 'Send Custom Request',
+    walletNeedsAtLeastPrefix: 'You need at least',
+    walletNeedsAtLeastSuffix: 'in your wallet to send this request.',
+    listingsByPrefix: 'Listings by',
+    listingsReservedTitle: 'Temporarily reserved',
+    listingsReservedSubtitle: 'All current listings from this seller are in active carts. If an item is removed from cart, it will appear again automatically.',
+    lifestylePostsByPrefix: 'Lifestyle posts by',
+    noLifestylePostsYet: 'No lifestyle posts from this seller yet.',
+    backToShop: 'Back to Shop',
+    sizeField: 'Size',
+    colorField: 'Color',
+    styleField: 'Style',
+    fabricField: 'Fabric',
+    daysWornField: 'Days worn',
+    waistRiseField: 'Waist rise',
+    coverageField: 'Coverage',
+    conditionField: 'Condition',
+    scentLevelField: 'Scent level',
+    addToCart: 'Add to Cart',
+    viewSellerProfile: 'View Seller Profile',
+    productNotFoundTitle: 'Product not found',
+    productNotFoundSubtitle: 'This product could not be found in the current catalog.',
+  },
+  th: {
+    heroBadge: 'มาร์เก็ตเพลสพรีเมียมแบบเป็นส่วนตัว',
+    heroTitle: 'Thailand Panties เชื่อมผู้ซื้อกับผู้ขายชุดชั้นในใช้แล้วพรีเมียมในไทย',
+    heroSubtitle: 'เลือกดูรายการพรีเมียม ใช้ตัวกรองที่โปร่งใส และส่งข้อความหาผู้ขายอย่างสุภาพ พร้อมการจัดส่งแบบเป็นส่วนตัวทั่วโลกจากประเทศไทย',
+    browseListings: 'ดูรายการสินค้า',
+    meetSellers: 'พบผู้ขาย',
+    curatedListings: 'รายการคัดสรร',
+    shippingAvailable: 'จัดส่งได้',
+    resaleQuality: 'คุณภาพคัดสรร',
+    featuredSellers: 'ผู้ขายแนะนำ',
+    sellerFallback: 'ผู้ขาย',
+    sellerPortfolioPages: 'หน้าโปรไฟล์ผู้ขาย',
+    sellerPortfolioCardDesc: 'ไบโอมืออาชีพ จุดเด่นชัดเจน รองรับภาษา และค้นหาโปรไฟล์ได้เร็วขึ้น',
+    exploreSellerPortfolios: 'สำรวจโปรไฟล์ผู้ขาย ->',
+    liveDiscoverySnapshot: 'ภาพรวมการค้นหาแบบสด',
+    smartProductDiscovery: 'ค้นหาสินค้าอัจฉริยะ',
+    smartProductCardDesc: 'กรองตามประเภท ไซซ์ สี รายละเอียดการสวม สภาพ และราคา พร้อมจำนวนรายการแบบเรียลไทม์',
+    openSmartDiscovery: 'เปิดการค้นหาอัจฉริยะ ->',
+    marketplace: 'มาร์เก็ตเพลส',
+    shopWithRealFilters: 'ช้อปด้วยตัวกรองจริง',
+    resultsFoundSuffix: 'ผลลัพธ์',
+    searchStylesSellersColors: 'ค้นหาสไตล์ ผู้ขาย สี',
+    resetFilters: 'รีเซ็ตตัวกรอง',
+    premiumVerifiedSellers: 'ชุดชั้นในใช้แล้วพรีเมียมจากผู้ขายอิสระที่ผ่านการยืนยัน',
+    byPrefix: 'โดย',
+    sizeLabel: 'ไซซ์',
+    wornLabel: 'การสวม',
+    riseLabel: 'เอว',
+    coverageLabel: 'การปกปิด',
+    scentLabel: 'กลิ่น',
+    viewListing: 'ดูรายการ',
+    bundleAvailableBadge: 'มีตัวเลือกแบบบันเดิล',
+    viewBundleOption: 'ดูตัวเลือกบันเดิล',
+    add: 'เพิ่ม',
+    inCartLabel: 'เพิ่มแล้ว',
+    addedToCartNotice: 'เพิ่มลงตะกร้าแล้ว',
+    alreadyInCartNotice: 'สินค้านี้อยู่ในตะกร้าแล้ว',
+    sellerFeed: 'ฟีดผู้ขาย',
+    latestSellerUpdates: 'อัปเดตล่าสุดจากผู้ขาย',
+    recentLifestylePosts: 'โพสต์ไลฟ์สไตล์ล่าสุดจากผู้ขายที่ใช้งานอยู่',
+    viewFullFeed: 'ดูฟีดทั้งหมด',
+    noRecentSellerPosts: 'ยังไม่มีโพสต์ล่าสุดจากผู้ขาย',
+    unlockFor: 'ปลดล็อกในราคา',
+    privatePostUnlock: 'โพสต์ส่วนตัว ปลดล็อกเพื่อดู',
+    savePost: 'บันทึกโพสต์',
+    saved: 'บันทึกแล้ว',
+    savedFeed: 'ฟีดที่บันทึก',
+    yourSavedSellerPosts: 'โพสต์ผู้ขายที่คุณบันทึก',
+    quickAccessBookmarked: 'เข้าถึงโพสต์ที่บันทึกไว้อย่างรวดเร็ว',
+    openSavedTab: 'เปิดแท็บที่บันทึก',
+    noSavedPostsHome: 'ยังไม่มีโพสต์ที่บันทึก กด "บันทึกโพสต์" ที่การ์ดฟีด',
+    bars: 'บาร์',
+    partnerBars: 'บาร์พาร์ทเนอร์',
+    barsSubtitle: 'ค้นพบบาร์ โปรโมชั่น และสถานที่ที่เชื่อมกับโปรไฟล์ผู้ขาย',
+    locationComingSoon: 'กำลังอัปเดตสถานที่',
+    affiliatedSellersSuffix: 'ผู้ขายในสังกัด',
+    barProfileSoon: 'รายละเอียดโปรไฟล์บาร์กำลังอัปเดต',
+    viewBarProfile: 'ดูโปรไฟล์บาร์',
+    backToBars: 'กลับไปหน้าบาร์',
+    currentSpecials: 'โปรโมชั่นปัจจุบัน',
+    noSpecialsYet: 'ยังไม่มีโปรโมชั่น',
+    affiliatedSellers: 'ผู้ขายในสังกัด',
+    noAffiliatedSellersListed: 'ยังไม่มีรายชื่อผู้ขายในสังกัด',
+    affiliatedSellerFallback: 'ผู้ขายในสังกัด',
+    locationMap: 'แผนที่สถานที่',
+    mapNotSet: 'ยังไม่ได้ตั้งค่าลิงก์แผนที่',
+    openMap: 'เปิดแผนที่',
+    barPhotoFeed: 'ฟีดภาพบาร์',
+    noBarPhotosYet: 'ยังไม่มีภาพบาร์',
+    barPrefix: 'บาร์:',
+    liveNights: 'คืนไลฟ์',
+    weeklySpecials: 'โปรประจำสัปดาห์',
+    partnerSellers: 'ผู้ขายพาร์ทเนอร์',
+    backToSellers: 'กลับไปหน้าผู้ขาย',
+    followersLabel: 'ผู้ติดตาม',
+    messageSellerTitle: 'ส่งข้อความหาผู้ขาย',
+    buyerMessagesCostPrefix: 'ข้อความจากผู้ซื้อมีค่าใช้จ่าย',
+    buyerMessagesCostSuffix: 'ต่อข้อความ และส่งภายในแพลตฟอร์ม',
+    balanceLabel: 'ยอดคงเหลือ',
+    autoRefreshOn: 'รีเฟรชอัตโนมัติเปิดอยู่',
+    loginBuyerToMessage: 'เข้าสู่ระบบเป็นผู้ซื้อเพื่อเริ่มการสนทนา',
+    sellerInboxReviewHint: 'บัญชีผู้ขายสามารถตรวจสอบข้อความได้ในกล่องข้อความแดชบอร์ดผู้ขาย',
+    noMessagesYetStart: 'ยังไม่มีข้อความ เริ่มการสนทนาได้ด้านล่าง',
+    showTranslation: 'แสดงคำแปล',
+    showOriginal: 'แสดงต้นฉบับ',
+    sendMessageToPrefix: 'ส่งข้อความถึง',
+    send: 'ส่ง',
+    markThreadRead: 'ทำเครื่องหมายเธรดว่าอ่านแล้ว',
+    customRequestsTitle: 'คำขอพิเศษ',
+    customRequestExplainPrefix: 'กำลังมองหาชิ้นเฉพาะจาก',
+    customRequestExplainMiddle: 'คำขอมีค่าใช้จ่าย',
+    customRequestExplainSuffix: 'ต่อการส่ง และข้อความในคำขอพิเศษมีค่าใช้จ่าย',
+    customRequestExplainEnd: 'ต่อข้อความ',
+    yourName: 'ชื่อของคุณ',
+    email: 'อีเมล',
+    customDetailsPlaceholder: 'ประเภท ไซซ์ สไตล์ กิจกรรม หรือไอเดียรูปภาพ',
+    shippingCountry: 'ประเทศปลายทาง',
+    describeRequestForPrefix: 'อธิบายคำขอของคุณสำหรับ',
+    customRequestSubmitted: 'ส่งคำขอพิเศษแล้ว',
+    sendCustomRequest: 'ส่งคำขอพิเศษ',
+    walletNeedsAtLeastPrefix: 'คุณต้องมีอย่างน้อย',
+    walletNeedsAtLeastSuffix: 'ในกระเป๋าเพื่อส่งคำขอนี้',
+    listingsByPrefix: 'รายการสินค้าของ',
+    listingsReservedTitle: 'ถูกจองชั่วคราว',
+    listingsReservedSubtitle: 'รายการสินค้าปัจจุบันของผู้ขายรายนี้อยู่ในตะกร้าที่กำลังใช้งานทั้งหมด หากมีการนำสินค้าออกจากตะกร้า สินค้าจะกลับมาแสดงโดยอัตโนมัติ',
+    lifestylePostsByPrefix: 'โพสต์ไลฟ์สไตล์ของ',
+    noLifestylePostsYet: 'ยังไม่มีโพสต์ไลฟ์สไตล์จากผู้ขายรายนี้',
+    backToShop: 'กลับไปหน้าร้าน',
+    sizeField: 'ไซซ์',
+    colorField: 'สี',
+    styleField: 'สไตล์',
+    fabricField: 'เนื้อผ้า',
+    daysWornField: 'จำนวนวันที่สวม',
+    waistRiseField: 'ระดับเอว',
+    coverageField: 'การปกปิด',
+    conditionField: 'สภาพ',
+    scentLevelField: 'ระดับกลิ่น',
+    addToCart: 'เพิ่มลงตะกร้า',
+    viewSellerProfile: 'ดูโปรไฟล์ผู้ขาย',
+    productNotFoundTitle: 'ไม่พบสินค้า',
+    productNotFoundSubtitle: 'ไม่พบสินค้านี้ในแคตตาล็อกปัจจุบัน',
+  },
+  my: {
+    heroBadge: 'သီးသန့် ပရီမီယမ် marketplace',
+    heroTitle: 'Thailand Panties သည် ထိုင်းနိုင်ငံရှိ premium used underwear seller များနှင့် buyer များကို ချိတ်ဆက်ပေးသည်။',
+    heroSubtitle: 'premium listing များကို ကြည့်ရှုပါ၊ တိကျသော filter များဖြင့် ရှာဖွေပါ၊ seller များနှင့် လေးစားမှုရှိစွာ စကားပြောပါ၊ ထိုင်းမှ discreet worldwide shipping ဖြင့် ပို့ဆောင်ပေးပါသည်။',
+    browseListings: 'Listing များကြည့်ရန်',
+    meetSellers: 'Seller များတွေ့ရန်',
+    curatedListings: 'ရွေးချယ်ထားသော listing များ',
+    shippingAvailable: 'Shipping ရနိုင်သည်',
+    resaleQuality: 'အရည်အသွေးကောင်း',
+    featuredSellers: 'ထူးခြား seller များ',
+    sellerFallback: 'Seller',
+    sellerPortfolioPages: 'Seller Portfolio စာမျက်နှာများ',
+    sellerPortfolioCardDesc: 'ပရော်ဖက်ရှင်နယ် bio များ၊ ထင်ရှားသောအားသာချက်များ၊ language support နှင့် ပိုမိုမြန်သော profile ရှာဖွေမှု',
+    exploreSellerPortfolios: 'Seller portfolio များကို ရှာဖွေပါ ->',
+    liveDiscoverySnapshot: 'Live discovery snapshot',
+    smartProductDiscovery: 'Smart Product Discovery',
+    smartProductCardDesc: 'type, size, color, wear details, condition နှင့် price အလိုက် live count ဖြင့် filter လုပ်ပါ',
+    openSmartDiscovery: 'Smart discovery ဖွင့်ရန် ->',
+    marketplace: 'Marketplace',
+    shopWithRealFilters: 'Filter ဖြင့် စျေးဝယ်ပါ',
+    resultsFoundSuffix: 'ရလဒ်',
+    searchStylesSellersColors: 'style, seller, color များရှာရန်',
+    resetFilters: 'Filter ပြန်တင်ရန်',
+    premiumVerifiedSellers: 'အတည်ပြု independent seller များထံမှ premium used underwear',
+    byPrefix: 'by',
+    sizeLabel: 'Size',
+    wornLabel: 'Worn',
+    riseLabel: 'Rise',
+    coverageLabel: 'Coverage',
+    scentLabel: 'Scent',
+    viewListing: 'Listing ကြည့်ရန်',
+    bundleAvailableBadge: 'Bundle option available',
+    viewBundleOption: 'View bundle option',
+    add: 'ထည့်ရန်',
+    inCartLabel: 'ထည့်ပြီး',
+    addedToCartNotice: 'Cart ထဲသို့ ထည့်ပြီးပါပြီ',
+    alreadyInCartNotice: 'ဤပစ္စည်းသည် cart ထဲတွင် ရှိနေပြီးဖြစ်သည်',
+    sellerFeed: 'Seller Feed',
+    latestSellerUpdates: 'Seller update အသစ်များ',
+    recentLifestylePosts: 'active seller များ၏ lifestyle post အသစ်များ',
+    viewFullFeed: 'Feed အပြည့်ကြည့်ရန်',
+    noRecentSellerPosts: 'seller post အသစ် မရှိသေးပါ',
+    unlockFor: 'Unlock for',
+    privatePostUnlock: 'Private post ဖြစ်သည်။ ကြည့်ရန် unlock လုပ်ပါ။',
+    savePost: 'Post သိမ်းရန်',
+    saved: 'သိမ်းပြီး',
+    savedFeed: 'Saved Feed',
+    yourSavedSellerPosts: 'သင်သိမ်းထားသော seller post များ',
+    quickAccessBookmarked: 'bookmark လုပ်ထားသော post များကို မြန်မြန်ဝင်ရောက်နိုင်သည်',
+    openSavedTab: 'Saved tab ဖွင့်ရန်',
+    noSavedPostsHome: 'သိမ်းထားသော post မရှိသေးပါ။ feed card တွင် "Save post" ကိုနှိပ်ပါ။',
+    bars: 'Bars',
+    partnerBars: 'Partner bars',
+    barsSubtitle: 'seller profile များနှင့်ဆက်စပ်သော bar များ၊ special များနှင့် location များကို ရှာဖွေပါ',
+    locationComingSoon: 'တည်နေရာ မကြာမီ',
+    affiliatedSellersSuffix: 'affiliated seller(s)',
+    barProfileSoon: 'bar profile အသေးစိတ် မကြာမီ',
+    viewBarProfile: 'Bar profile ကြည့်ရန်',
+    backToBars: 'Bars သို့ ပြန်ရန်',
+    currentSpecials: 'လက်ရှိ special များ',
+    noSpecialsYet: 'special မရှိသေးပါ',
+    affiliatedSellers: 'Affiliated sellers',
+    noAffiliatedSellersListed: 'affiliated seller များ မရှိသေးပါ',
+    affiliatedSellerFallback: 'Affiliated seller',
+    locationMap: 'Location map',
+    mapNotSet: 'map link မသတ်မှတ်ရသေးပါ',
+    openMap: 'Map ဖွင့်ရန်',
+    barPhotoFeed: 'Bar photo feed',
+    noBarPhotosYet: 'bar photo မရှိသေးပါ',
+    barPrefix: 'Bar:',
+    liveNights: 'Live nights',
+    weeklySpecials: 'အပတ်စဉ် special များ',
+    partnerSellers: 'Partner sellers',
+    backToSellers: 'Sellers သို့ ပြန်ရန်',
+    followersLabel: 'Followers',
+    messageSellerTitle: 'Seller သို့ message ပို့ရန်',
+    buyerMessagesCostPrefix: 'Buyer message တစ်ခုလျှင်',
+    buyerMessagesCostSuffix: 'ကုန်ကျပြီး platform အတွင်းပို့ပေးသည်',
+    balanceLabel: 'Balance',
+    autoRefreshOn: 'Auto refresh ဖွင့်ထားသည်',
+    loginBuyerToMessage: 'စကားဝိုင်းစတင်ရန် buyer အဖြစ် login လုပ်ပါ',
+    sellerInboxReviewHint: 'seller account များသည် seller dashboard inbox တွင် message များကို ကြည့်ရှုနိုင်သည်',
+    noMessagesYetStart: 'message မရှိသေးပါ။ အောက်တွင် စတင်ပါ။',
+    showTranslation: 'ဘာသာပြန်ကိုပြရန်',
+    showOriginal: 'မူရင်းကိုပြရန်',
+    sendMessageToPrefix: 'Message ပို့ရန်',
+    send: 'ပို့မည်',
+    markThreadRead: 'thread ကို read အဖြစ် မှတ်ရန်',
+    customRequestsTitle: 'Custom requests',
+    customRequestExplainPrefix: 'သတ်မှတ်ထားသော item တစ်ခုကို',
+    customRequestExplainMiddle: 'request ပို့ရန်',
+    customRequestExplainSuffix: 'ကုန်ကျပြီး custom request message များလည်း',
+    customRequestExplainEnd: 'တစ်ခုလျှင် ကုန်ကျသည်',
+    yourName: 'သင့်အမည်',
+    email: 'အီးမေးလ်',
+    customDetailsPlaceholder: 'panty type, size, style, activities သို့မဟုတ် photo idea',
+    shippingCountry: 'ပို့မည့်နိုင်ငံ',
+    describeRequestForPrefix: 'သင့် request ကို ဖော်ပြပါ',
+    customRequestSubmitted: 'Custom request ပို့ပြီးပါပြီ',
+    sendCustomRequest: 'Custom Request ပို့ရန်',
+    walletNeedsAtLeastPrefix: 'ဤ request ပို့ရန် အနည်းဆုံး',
+    walletNeedsAtLeastSuffix: 'wallet ထဲတွင်လိုအပ်သည်',
+    listingsByPrefix: 'Listings by',
+    listingsReservedTitle: 'ယာယီ reserved',
+    listingsReservedSubtitle: 'ဤ seller ၏ လက်ရှိ listing များအားလုံးကို active cart များတွင် ထည့်ထားပါသည်။ item တစ်ခုကို cart မှ ဖယ်ရှားလျှင် အလိုအလျောက် ပြန်ပေါ်လာမည်။',
+    lifestylePostsByPrefix: 'Lifestyle posts by',
+    noLifestylePostsYet: 'ဤ seller ၏ lifestyle post မရှိသေးပါ',
+    backToShop: 'Shop သို့ ပြန်ရန်',
+    sizeField: 'Size',
+    colorField: 'Color',
+    styleField: 'Style',
+    fabricField: 'Fabric',
+    daysWornField: 'Days worn',
+    waistRiseField: 'Waist rise',
+    coverageField: 'Coverage',
+    conditionField: 'Condition',
+    scentLevelField: 'Scent level',
+    addToCart: 'Cart ထဲသို့ ထည့်ရန်',
+    viewSellerProfile: 'Seller Profile ကြည့်ရန်',
+    productNotFoundTitle: 'Product မတွေ့ပါ',
+    productNotFoundSubtitle: 'ယခု catalog တွင် product မတွေ့ပါ',
+  },
+  ru: {
+    heroBadge: 'Премиум маркетплейс с конфиденциальностью',
+    heroTitle: 'Thailand Panties соединяет покупателей с продавцами премиального ношеного белья в Таиланде.',
+    heroSubtitle: 'Просматривайте премиальные листинги, используйте прозрачные фильтры и общайтесь с продавцами уважительно. Доступна скрытая доставка по миру из Таиланда.',
+    browseListings: 'Смотреть листинги',
+    meetSellers: 'Познакомиться с продавцами',
+    curatedListings: 'Отобранные листинги',
+    shippingAvailable: 'Доставка доступна',
+    resaleQuality: 'Проверенное качество',
+    featuredSellers: 'Рекомендуемые продавцы',
+    sellerFallback: 'Продавец',
+    sellerPortfolioPages: 'Страницы портфолио продавцов',
+    sellerPortfolioCardDesc: 'Профессиональные био, сильные стороны, поддержка языков и более быстрый поиск профилей.',
+    exploreSellerPortfolios: 'Открыть портфолио продавцов ->',
+    liveDiscoverySnapshot: 'Снимок живого поиска',
+    smartProductDiscovery: 'Умный поиск товаров',
+    smartProductCardDesc: 'Фильтруйте по типу, размеру, цвету, деталям носки, состоянию и цене с живыми счетчиками.',
+    openSmartDiscovery: 'Открыть умный поиск ->',
+    marketplace: 'Маркетплейс',
+    shopWithRealFilters: 'Покупки с точными фильтрами',
+    resultsFoundSuffix: 'результатов',
+    searchStylesSellersColors: 'Поиск по стилям, продавцам, цветам',
+    resetFilters: 'Сбросить фильтры',
+    premiumVerifiedSellers: 'Премиальное ношеное белье от проверенных независимых продавцов',
+    byPrefix: 'от',
+    sizeLabel: 'Размер',
+    wornLabel: 'Ношение',
+    riseLabel: 'Посадка',
+    coverageLabel: 'Покрытие',
+    scentLabel: 'Запах',
+    viewListing: 'Открыть листинг',
+    bundleAvailableBadge: 'Доступен вариант бандла',
+    viewBundleOption: 'Открыть вариант бандла',
+    add: 'Добавить',
+    inCartLabel: 'Уже добавлено',
+    addedToCartNotice: 'Добавлено в корзину.',
+    alreadyInCartNotice: 'Этот товар уже в корзине.',
+    sellerFeed: 'Лента продавцов',
+    latestSellerUpdates: 'Последние обновления продавцов',
+    recentLifestylePosts: 'Свежие lifestyle-посты активных продавцов.',
+    viewFullFeed: 'Смотреть всю ленту',
+    noRecentSellerPosts: 'Пока нет свежих постов продавцов.',
+    unlockFor: 'Разблокировать за',
+    privatePostUnlock: 'Приватный пост. Разблокируйте для просмотра.',
+    savePost: 'Сохранить пост',
+    saved: 'Сохранено',
+    savedFeed: 'Сохраненная лента',
+    yourSavedSellerPosts: 'Ваши сохраненные посты продавцов',
+    quickAccessBookmarked: 'Быстрый доступ к сохраненным постам.',
+    openSavedTab: 'Открыть сохраненные',
+    noSavedPostsHome: 'Пока нет сохраненных постов. Нажмите "Сохранить пост" в карточках ленты.',
+    bars: 'Бары',
+    partnerBars: 'Партнерские бары',
+    barsSubtitle: 'Откройте бары, акции и локации, связанные с профилями продавцов.',
+    locationComingSoon: 'Локация скоро появится',
+    affiliatedSellersSuffix: 'привязанных продавцов',
+    barProfileSoon: 'Данные профиля бара скоро появятся.',
+    viewBarProfile: 'Открыть профиль бара',
+    backToBars: 'Назад к барам',
+    currentSpecials: 'Текущие акции',
+    noSpecialsYet: 'Пока нет акций.',
+    affiliatedSellers: 'Привязанные продавцы',
+    noAffiliatedSellersListed: 'Пока нет привязанных продавцов.',
+    affiliatedSellerFallback: 'Привязанный продавец',
+    locationMap: 'Карта локации',
+    mapNotSet: 'Ссылка на карту еще не задана.',
+    openMap: 'Открыть карту',
+    barPhotoFeed: 'Фото-лента бара',
+    noBarPhotosYet: 'Пока нет фото бара.',
+    barPrefix: 'Бар:',
+    liveNights: 'Живые ночи',
+    weeklySpecials: 'Недельные акции',
+    partnerSellers: 'Партнерские продавцы',
+    backToSellers: 'Назад к продавцам',
+    followersLabel: 'Подписчики',
+    messageSellerTitle: 'Написать продавцу',
+    buyerMessagesCostPrefix: 'Сообщения покупателя стоят',
+    buyerMessagesCostSuffix: 'за сообщение и доставляются внутри платформы.',
+    balanceLabel: 'Баланс',
+    autoRefreshOn: 'Автообновление включено',
+    loginBuyerToMessage: 'Войдите как покупатель, чтобы начать диалог.',
+    sellerInboxReviewHint: 'Аккаунты продавцов могут просматривать сообщения во входящих продавца.',
+    noMessagesYetStart: 'Сообщений пока нет. Начните диалог ниже.',
+    showTranslation: 'Показать перевод',
+    showOriginal: 'Показать оригинал',
+    sendMessageToPrefix: 'Отправить сообщение',
+    send: 'Отправить',
+    markThreadRead: 'Отметить тред прочитанным',
+    customRequestsTitle: 'Индивидуальные запросы',
+    customRequestExplainPrefix: 'Ищете конкретную вещь у',
+    customRequestExplainMiddle: 'Запрос стоит',
+    customRequestExplainSuffix: 'за отправку. Сообщения по запросу также стоят',
+    customRequestExplainEnd: 'каждое.',
+    yourName: 'Ваше имя',
+    email: 'Email',
+    customDetailsPlaceholder: 'Тип, размер, стиль, активности или идеи для фото',
+    shippingCountry: 'Страна доставки',
+    describeRequestForPrefix: 'Опишите ваш запрос для',
+    customRequestSubmitted: 'Индивидуальный запрос отправлен.',
+    sendCustomRequest: 'Отправить запрос',
+    walletNeedsAtLeastPrefix: 'Нужно минимум',
+    walletNeedsAtLeastSuffix: 'на балансе, чтобы отправить этот запрос.',
+    listingsByPrefix: 'Листинги продавца',
+    listingsReservedTitle: 'Временно зарезервировано',
+    listingsReservedSubtitle: 'Все текущие листинги этого продавца сейчас находятся в активных корзинах. Если товар удалят из корзины, он снова станет доступен автоматически.',
+    lifestylePostsByPrefix: 'Lifestyle-посты продавца',
+    noLifestylePostsYet: 'У этого продавца пока нет lifestyle-постов.',
+    backToShop: 'Назад в магазин',
+    sizeField: 'Размер',
+    colorField: 'Цвет',
+    styleField: 'Стиль',
+    fabricField: 'Ткань',
+    daysWornField: 'Дней ношения',
+    waistRiseField: 'Посадка по талии',
+    coverageField: 'Покрытие',
+    conditionField: 'Состояние',
+    scentLevelField: 'Уровень запаха',
+    addToCart: 'Добавить в корзину',
+    viewSellerProfile: 'Открыть профиль продавца',
+    productNotFoundTitle: 'Товар не найден',
+    productNotFoundSubtitle: 'Этот товар не найден в текущем каталоге.',
+  },
+};
+
+function publicSiteText(uiLanguage = 'en') {
+  return PUBLIC_SITE_I18N[uiLanguage] || PUBLIC_SITE_I18N.en;
+}
+
+const SELLER_BIO_TEMPLATES = [
+  'Offers premium used panties with clear listing details, responsive communication, and discreet shipping.',
+  'Shares curated used panties with accurate notes, fast replies, and discreet packaging.',
+  'Provides premium used panties with clear sizing, honest condition details, and smooth communication.',
+  'Lists quality used panties with transparent descriptions and discreet dispatch from Thailand.',
+  'Focuses on premium used panties, clear photos, and reliable response times.',
+  'Offers everyday and premium used panties with straightforward listings and discreet fulfillment.',
+  'Maintains clear used panty listings with detailed notes and fast support in chat.',
+  'Specializes in used panties with consistent quality details and discreet shipping.',
+  'Provides used panty drops with accurate fit notes, clear expectations, and quick updates.',
+  'Offers curated used panties with responsive communication and secure discreet packaging.',
+  'Shares premium used panties with detailed listing info and dependable seller messaging.',
+  'Delivers used panties with clear condition notes, fair pricing, and discreet handling.',
+  'Focuses on used panties with transparent listing details and consistent communication.',
+  'Offers premium used panties with clear post information and quick seller replies.',
+  'Lists used panties with accurate descriptions, flexible options, and discreet fulfillment.',
+  'Provides quality used panties with clear listing standards and reliable turnaround.',
+  'Offers used panty selections with detailed notes and straightforward communication.',
+  'Maintains premium used panties listings with discreet dispatch and fast responses.',
+  'Curates used panties with clear sizing details, honest condition notes, and smooth support.',
+  'Offers used panties with transparent listing details and dependable shipping updates.',
+  'Shares premium used panties with strong communication and discreet worldwide dispatch.',
+  'Provides used panties with clear fit and condition details plus responsive service.',
+  'Lists curated used panties with concise descriptions and buyer-friendly communication.',
+  'Offers used panties with reliable listing quality and discreet packaging practices.',
+  'Focuses on premium used panties with detailed posts and timely responses.',
+  'Provides everyday used panties with clear listing information and discreet delivery.',
+  'Offers used panties with transparent details, consistent quality notes, and quick follow-up.',
+  'Maintains premium used panties listings with clear expectations and dependable communication.',
+  'Shares used panties with accurate post details, smooth messaging, and discreet handling.',
+  'Offers curated used panties with responsive support and clear listing standards.',
+  'Provides premium used panties with honest notes, reliable updates, and discreet dispatch.',
+];
+
+function randomSellerBio() {
+  return SELLER_BIO_TEMPLATES[Math.floor(Math.random() * SELLER_BIO_TEMPLATES.length)];
+}
+
+const LOW_WALLET_BALANCE_THB = 300;
+const SALE_SPLIT = {
+  sellerWithBar: 0.7,
+  sellerWithoutBar: 0.8,
+  bar: 0.1,
+  admin: 0.2,
+};
+
+const DEFAULT_EMAIL_TEMPLATES = [
+  {
+    key: 'buyer_message_received',
+    name: 'Buyer receives seller message',
+    audience: 'buyer',
+    enabled: true,
+    ctaLabel: 'Open your messages',
+    ctaPath: '/account',
+    subject: 'New message from {{senderName}} waiting for you',
+    body: 'Hi {{recipientName}},\n\nGood news - {{senderName}} just sent you a new message.\n\nIf you want to keep the conversation moving, open your inbox here:\n{{actionUrl}}\n\nConversation reference: {{conversationId}}\n\nThanks for keeping things respectful and friendly.\n\n- ThP',
+  },
+  {
+    key: 'seller_message_received',
+    name: 'Seller receives buyer message',
+    audience: 'seller',
+    enabled: true,
+    ctaLabel: 'Open seller inbox',
+    ctaPath: '/account',
+    subject: 'You got a new buyer message from {{senderName}}',
+    body: 'Hi {{recipientName}},\n\nA buyer just reached out: {{senderName}}.\n\nJump into your inbox to reply:\n{{actionUrl}}\n\nConversation reference: {{conversationId}}\n\nFast, clear replies help build trust and repeat buyers.\n\n- ThP',
+  },
+  {
+    key: 'custom_request_received',
+    name: 'Seller receives custom request',
+    audience: 'seller',
+    enabled: true,
+    ctaLabel: 'Open custom requests',
+    ctaPath: '/custom-requests',
+    subject: 'New custom request from {{buyerName}}',
+    body: 'Hi {{recipientName}},\n\nYou have a fresh custom request from {{buyerName}}.\n\nReview details and respond here:\n{{actionUrl}}\n\nRequest ID: {{requestId}}\n\nA thoughtful reply goes a long way.\n\n- ThP',
+  },
+  {
+    key: 'custom_request_status_changed',
+    name: 'Buyer custom request status updated',
+    audience: 'buyer',
+    enabled: true,
+    ctaLabel: 'View custom request',
+    ctaPath: '/custom-requests',
+    subject: 'Update: your custom request is now {{requestStatus}}',
+    body: 'Hi {{recipientName}},\n\nQuick update - your custom request status changed to: {{requestStatus}}.\n\nOpen your request thread here:\n{{actionUrl}}\n\nRequest ID: {{requestId}}\n\nIf action is needed, you can continue the conversation right away.\n\n- ThP',
+  },
+  {
+    key: 'wallet_top_up_completed',
+    name: 'Wallet top-up completed',
+    audience: 'buyer_or_seller',
+    enabled: true,
+    ctaLabel: 'Open your account',
+    ctaPath: '/account',
+    subject: 'Wallet top-up successful - {{amount}} added',
+    body: 'Hi {{recipientName}},\n\nYour top-up is complete.\n\nAmount added: {{amount}}\nCurrent wallet balance: {{walletBalance}}\n\nView your account and activity here:\n{{actionUrl}}\n\nYou are all set for your next action.\n\n- ThP',
+  },
+  {
+    key: 'wallet_low_balance',
+    name: 'Wallet low balance warning',
+    audience: 'buyer_or_seller',
+    enabled: true,
+    ctaLabel: 'Top up wallet',
+    ctaPath: '/account',
+    subject: 'Heads up: wallet balance is low ({{walletBalance}})',
+    body: 'Hi {{recipientName}},\n\nFriendly reminder: your wallet balance is currently {{walletBalance}}.\n\nTo keep messaging, requests, and unlocks running smoothly, top up here:\n{{actionUrl}}\n\nA quick top-up now can prevent interruptions later.\n\n- ThP',
+  },
+  {
+    key: 'order_shipped',
+    name: 'Order shipped update',
+    audience: 'buyer',
+    enabled: true,
+    ctaLabel: 'Track your shipment',
+    ctaPath: '/account',
+    subject: 'Your order {{orderId}} has shipped',
+    body: 'Hi {{recipientName}},\n\nGreat news - your order {{orderId}} is now on the way.\n\nCarrier: {{trackingCarrier}}\nTracking code: {{trackingNumber}}\nTrack here: {{trackingUrl}}\n\nYou can also view shipment updates in your account:\n{{actionUrl}}\n\nThank you for shopping with ThP.\n\n- ThP',
+  },
+  {
+    key: 'order_placed',
+    name: 'Order placed confirmation',
+    audience: 'buyer',
+    enabled: true,
+    ctaLabel: 'View your order',
+    ctaPath: '/account',
+    subject: 'Order placed successfully: {{orderId}}',
+    body: 'Hi {{recipientName}},\n\nYour order {{orderId}} is confirmed.\n\nItems: {{itemCount}}\nShipping: {{shippingFee}}\nTotal charged: {{orderTotal}}\n\nYou can review order tracking in your account:\n{{actionUrl}}\n\nThanks for your purchase.\n\n- ThP',
+  },
+  {
+    key: 'seller_application_approved',
+    name: 'Seller application approved',
+    audience: 'seller',
+    enabled: true,
+    ctaLabel: 'Open seller dashboard',
+    ctaPath: '/seller-dashboard',
+    subject: 'Your seller application was approved',
+    body: 'Hi {{recipientName}},\n\nGreat news - your seller application has been approved.\n\nYou can now access your seller dashboard and publish listings:\n{{actionUrl}}\n\nWelcome aboard.\n\n- ThP',
+  },
+  {
+    key: 'seller_application_rejected',
+    name: 'Seller application rejected',
+    audience: 'seller',
+    enabled: true,
+    ctaLabel: 'View account status',
+    ctaPath: '/account',
+    subject: 'Update on your seller application',
+    body: 'Hi {{recipientName}},\n\nYour seller application was not approved this time.\n\nReason: {{reason}}\n\nYou can review your account status and reapply later:\n{{actionUrl}}\n\n- ThP',
+  },
+  {
+    key: 'bar_affiliation_approved',
+    name: 'Bar affiliation approved',
+    audience: 'seller_or_bar',
+    enabled: true,
+    ctaLabel: 'Open your account',
+    ctaPath: '/account',
+    subject: 'Bar affiliation approved: {{sellerName}} and {{barName}}',
+    body: 'Hi {{recipientName}},\n\nThe affiliation between {{sellerName}} and {{barName}} has been approved.\n\nYou can review the latest affiliation status in your account:\n{{actionUrl}}\n\n- ThP',
+  },
+  {
+    key: 'bar_affiliation_rejected',
+    name: 'Bar affiliation rejected',
+    audience: 'seller_or_bar',
+    enabled: true,
+    ctaLabel: 'Open your account',
+    ctaPath: '/account',
+    subject: 'Bar affiliation update: request declined',
+    body: 'Hi {{recipientName}},\n\nThe affiliation request between {{sellerName}} and {{barName}} was declined.\n\nOpen your account to review details:\n{{actionUrl}}\n\n- ThP',
+  },
+  {
+    key: 'refund_claim_decision',
+    name: 'Refund claim decision',
+    audience: 'buyer',
+    enabled: true,
+    ctaLabel: 'View account activity',
+    ctaPath: '/account',
+    subject: 'Refund claim {{decision}} for order {{orderId}}',
+    body: 'Hi {{recipientName}},\n\nYour refund claim for order {{orderId}} was {{decision}}.\n\n{{decisionSummary}}\n\nView your order and wallet activity here:\n{{actionUrl}}\n\n- ThP',
+  },
+];
+
+const EMAIL_TEMPLATE_KEYS = new Set(DEFAULT_EMAIL_TEMPLATES.map((template) => template.key));
+
+function getDefaultEmailTemplateByKey(key) {
+  return DEFAULT_EMAIL_TEMPLATES.find((template) => template.key === key) || null;
+}
+
+const REGISTER_I18N = {
+  en: {
+    title: 'Create your account',
+    subtitle: 'Choose your role and register in a few steps.',
+    language: 'Language',
+    fullName: 'Full name',
+    email: 'Email',
+    password: 'Password',
+    accountTypePlaceholder: 'Select account type',
+    buyerAccount: 'Buyer account',
+    sellerAccount: 'Seller account',
+    barAccount: 'Bar account',
+    city: 'City',
+    country: 'Country',
+    sellerNote: 'Seller registration requires name, email, password, city, and country.',
+    barNote: 'Bar registration requires bar name, email, password, city, and country.',
+    createAccount: 'Create Account',
+    haveAccount: 'Already have an account? Login',
+    chooseRoleError: 'Please choose an account type.',
+    sellerRequiredError: 'Seller registration requires name, email, password, city, and country.',
+    barRequiredError: 'Bar registration requires bar name, email, password, city, and country.',
+    buyerRequiredError: 'Name, email, and password are required.',
+    buyerTermsRequiredError: 'Buyer signup requires accepting respectful behavior and no-refund terms.',
+    buyerRespectfulCheckbox: 'I agree to be respectful in messages and interactions.',
+    buyerNoRefundCheckbox: 'I understand and accept that all purchases are final (no refunds).',
+    emailExistsError: 'This email is already registered.',
+    sellerPendingSuccess: 'Seller application submitted. We will notify you after review.',
+    buyerSuccess: 'Account created. You can now login.',
+    barSuccess: 'Bar account created. You can now manage your bar page.',
+  },
+  th: {
+    title: 'สร้างบัญชีของคุณ',
+    subtitle: 'เลือกรูปแบบบัญชีและสมัครใช้งานได้ในไม่กี่ขั้นตอน',
+    language: 'ภาษา',
+    fullName: 'ชื่อ-นามสกุล',
+    email: 'อีเมล',
+    password: 'รหัสผ่าน',
+    accountTypePlaceholder: 'เลือกประเภทบัญชี',
+    buyerAccount: 'บัญชีผู้ซื้อ',
+    sellerAccount: 'บัญชีผู้ขาย',
+    barAccount: 'บัญชีบาร์',
+    city: 'เมือง',
+    country: 'ประเทศ',
+    sellerNote: 'การสมัครผู้ขายต้องมีชื่อ อีเมล รหัสผ่าน เมือง และประเทศ',
+    barNote: 'การสมัครบัญชีบาร์ต้องมีชื่อบาร์ อีเมล รหัสผ่าน เมือง และประเทศ',
+    createAccount: 'สร้างบัญชี',
+    haveAccount: 'มีบัญชีอยู่แล้ว? เข้าสู่ระบบ',
+    chooseRoleError: 'โปรดเลือกประเภทบัญชี',
+    sellerRequiredError: 'การสมัครผู้ขายต้องมีชื่อ อีเมล รหัสผ่าน เมือง และประเทศ',
+    barRequiredError: 'การสมัครบัญชีบาร์ต้องมีชื่อบาร์ อีเมล รหัสผ่าน เมือง และประเทศ',
+    buyerRequiredError: 'ต้องกรอกชื่อ อีเมล และรหัสผ่าน',
+    buyerTermsRequiredError: 'การสมัครผู้ซื้อต้องยอมรับข้อกำหนดเรื่องความสุภาพและไม่มีการคืนเงิน',
+    buyerRespectfulCheckbox: 'ฉันยินยอมที่จะสื่อสารอย่างสุภาพและให้เกียรติ',
+    buyerNoRefundCheckbox: 'ฉันเข้าใจและยอมรับว่ายอดซื้อทั้งหมดไม่สามารถขอคืนเงินได้',
+    emailExistsError: 'อีเมลนี้ถูกใช้งานแล้ว',
+    sellerPendingSuccess: 'ส่งคำขอผู้ขายแล้ว เราจะแจ้งผลหลังการตรวจสอบ',
+    buyerSuccess: 'สร้างบัญชีเรียบร้อยแล้ว สามารถเข้าสู่ระบบได้',
+    barSuccess: 'สร้างบัญชีบาร์เรียบร้อยแล้ว สามารถจัดการหน้าโปรไฟล์บาร์ได้ทันที',
+  },
+  my: {
+    title: 'အကောင့်ဖန်တီးရန်',
+    subtitle: 'သင့် account type ကိုရွေးပြီး လျင်မြန်စွာ စာရင်းသွင်းပါ',
+    language: 'ဘာသာစကား',
+    fullName: 'အမည်အပြည့်အစုံ',
+    email: 'အီးမေးလ်',
+    password: 'စကားဝှက်',
+    accountTypePlaceholder: 'အကောင့်အမျိုးအစားရွေးပါ',
+    buyerAccount: 'ဝယ်သူအကောင့်',
+    sellerAccount: 'ရောင်းသူအကောင့်',
+    barAccount: 'bar အကောင့်',
+    city: 'မြို့',
+    country: 'နိုင်ငံ',
+    sellerNote: 'seller စာရင်းသွင်းရန် အမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
+    barNote: 'bar စာရင်းသွင်းရန် ဘားအမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
+    createAccount: 'အကောင့်ဖန်တီးမည်',
+    haveAccount: 'အကောင့်ရှိပြီးသားလား? ဝင်မည်',
+    chooseRoleError: 'အကောင့်အမျိုးအစား ရွေးပါ',
+    sellerRequiredError: 'seller စာရင်းသွင်းရန် အမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
+    barRequiredError: 'bar စာရင်းသွင်းရန် ဘားအမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
+    buyerRequiredError: 'အမည်၊ အီးမေးလ်နှင့် စကားဝှက် လိုအပ်သည်',
+    buyerTermsRequiredError: 'buyer စာရင်းသွင်းရန် လေးစားသောဆက်သွယ်ရေးနှင့် no-refund စည်းကမ်းများကို လက်ခံရန် လိုအပ်သည်',
+    buyerRespectfulCheckbox: 'မက်ဆေ့ချ်နှင့် ဆက်ဆံမှုများတွင် လေးစားစွာ ပြုမူမည်ဟု လက်ခံပါသည်',
+    buyerNoRefundCheckbox: 'ဝယ်ယူမှုအားလုံးမှာ အပြီးသတ်ဖြစ်ပြီး ပြန်အမ်းမရှိကြောင်း နားလည်လက်ခံပါသည်',
+    emailExistsError: 'ဤအီးမေးလ်ကို အသုံးပြုပြီးဖြစ်သည်',
+    sellerPendingSuccess: 'seller လျှောက်လွှာ ပို့ပြီးပါပြီ၊ စစ်ဆေးပြီးနောက် အသိပေးပါမည်',
+    buyerSuccess: 'အကောင့်ဖန်တီးပြီးပါပြီ၊ ယခု ဝင်နိုင်ပါပြီ',
+    barSuccess: 'bar အကောင့် ဖန်တီးပြီးပါပြီ။ ယခု bar page ကို စီမံနိုင်ပါသည်',
+  },
+  ru: {
+    title: 'Создание аккаунта',
+    subtitle: 'Выберите тип аккаунта и зарегистрируйтесь за несколько шагов.',
+    language: 'Язык',
+    fullName: 'Полное имя',
+    email: 'Email',
+    password: 'Пароль',
+    accountTypePlaceholder: 'Выберите тип аккаунта',
+    buyerAccount: 'Аккаунт покупателя',
+    sellerAccount: 'Аккаунт продавца',
+    barAccount: 'Аккаунт бара',
+    city: 'Город',
+    country: 'Страна',
+    sellerNote: 'Для регистрации продавца нужны имя, email, пароль, город и страна.',
+    barNote: 'Для регистрации бара нужны название бара, email, пароль, город и страна.',
+    createAccount: 'Создать аккаунт',
+    haveAccount: 'Уже есть аккаунт? Войти',
+    chooseRoleError: 'Пожалуйста, выберите тип аккаунта.',
+    sellerRequiredError: 'Для регистрации продавца нужны имя, email, пароль, город и страна.',
+    barRequiredError: 'Для регистрации бара нужны название, email, пароль, город и страна.',
+    buyerRequiredError: 'Имя, email и пароль обязательны.',
+    buyerTermsRequiredError: 'Для регистрации покупателя нужно принять условия уважительного общения и отсутствия возвратов.',
+    buyerRespectfulCheckbox: 'Я согласен(на) соблюдать уважительное общение в сообщениях и взаимодействиях.',
+    buyerNoRefundCheckbox: 'Я понимаю и принимаю, что все покупки окончательные (без возврата).',
+    emailExistsError: 'Этот email уже зарегистрирован.',
+    sellerPendingSuccess: 'Заявка продавца отправлена. Мы сообщим после проверки.',
+    buyerSuccess: 'Аккаунт создан. Теперь вы можете войти.',
+    barSuccess: 'Аккаунт бара создан. Теперь вы можете управлять страницей бара.',
+  },
+};
+
+const LOGIN_I18N = {
+  en: {
+    title: 'Sign in',
+    subtitle: 'Login to your buyer, seller, bar, or admin account.',
+    language: 'Language',
+    email: 'Email',
+    password: 'Password',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    submit: 'Sign In',
+    registerCta: 'Need an account? Register',
+    invalidCredentials: 'Invalid email or password.',
+    blocked: 'This account is blocked. Contact admin for support.',
+    sellerRejectedPrefix: 'Your seller application was rejected.',
+    sellerRejectedFallback: 'Please update your details and reapply.',
+    sellerPending: 'Your seller account is pending admin approval.',
+    welcomeBack: 'Welcome back',
+  },
+  th: {
+    title: 'เข้าสู่ระบบ',
+    subtitle: 'เข้าสู่ระบบบัญชีผู้ซื้อ ผู้ขาย บาร์ หรือผู้ดูแลระบบ',
+    language: 'ภาษา',
+    email: 'อีเมล',
+    password: 'รหัสผ่าน',
+    showPassword: 'แสดงรหัสผ่าน',
+    hidePassword: 'ซ่อนรหัสผ่าน',
+    submit: 'เข้าสู่ระบบ',
+    registerCta: 'ยังไม่มีบัญชี? สมัครสมาชิก',
+    invalidCredentials: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+    blocked: 'บัญชีนี้ถูกระงับ โปรดติดต่อผู้ดูแลระบบ',
+    sellerRejectedPrefix: 'คำขอเปิดบัญชีผู้ขายของคุณถูกปฏิเสธ',
+    sellerRejectedFallback: 'โปรดอัปเดตรายละเอียดและสมัครใหม่',
+    sellerPending: 'บัญชีผู้ขายของคุณกำลังรอการอนุมัติจากผู้ดูแลระบบ',
+    welcomeBack: 'ยินดีต้อนรับกลับ',
+  },
+  my: {
+    title: 'ဝင်ရန်',
+    subtitle: 'buyer, seller, bar သို့မဟုတ် admin အကောင့်ဖြင့် ဝင်ပါ',
+    language: 'ဘာသာစကား',
+    email: 'အီးမေးလ်',
+    password: 'စကားဝှက်',
+    showPassword: 'စကားဝှက် ပြရန်',
+    hidePassword: 'စကားဝှက် ဝှက်ရန်',
+    submit: 'ဝင်မည်',
+    registerCta: 'အကောင့်မရှိသေးဘူးလား? စာရင်းသွင်းမည်',
+    invalidCredentials: 'အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ပါ',
+    blocked: 'ဤအကောင့်ကို ပိတ်ထားသည်။ admin ကို ဆက်သွယ်ပါ',
+    sellerRejectedPrefix: 'သင့် seller လျှောက်လွှာကို ငြင်းပယ်ထားသည်',
+    sellerRejectedFallback: 'အသေးစိတ်ကို ပြင်ဆင်ပြီး ထပ်မံလျှောက်ထားပါ',
+    sellerPending: 'သင့် seller အကောင့်သည် admin အတည်ပြုမှုကို စောင့်နေသည်',
+    welcomeBack: 'ပြန်လည်ကြိုဆိုပါသည်',
+  },
+  ru: {
+    title: 'Вход',
+    subtitle: 'Войдите как покупатель, продавец, бар или администратор.',
+    language: 'Язык',
+    email: 'Email',
+    password: 'Пароль',
+    showPassword: 'Показать пароль',
+    hidePassword: 'Скрыть пароль',
+    submit: 'Войти',
+    registerCta: 'Нет аккаунта? Зарегистрироваться',
+    invalidCredentials: 'Неверный email или пароль.',
+    blocked: 'Этот аккаунт заблокирован. Обратитесь к администратору.',
+    sellerRejectedPrefix: 'Ваша заявка продавца отклонена.',
+    sellerRejectedFallback: 'Обновите данные и отправьте заявку снова.',
+    sellerPending: 'Ваш аккаунт продавца ожидает одобрения администратора.',
+    welcomeBack: 'С возвращением',
+  },
+};
+
+const SELLER_STATUS_I18N = {
+  en: {
+    profileSaved: 'Profile updates saved.',
+    languageUpdated: 'Language preference updated.',
+    uploadImageBeforePost: 'Please upload an image before publishing your post.',
+    postPublished: 'Post published to seller feed.',
+    postScheduled: ({ when }) => `Post scheduled for ${when}.`,
+    postSavedLocal: 'Post saved locally. It will sync when the connection is restored.',
+    publishPostFailed: 'Could not publish seller post.',
+    completeOnboarding: ({ items }) => `Complete onboarding first: ${items}.`,
+    listingPublished: 'Listing published successfully.',
+    deleteProductConfirm: ({ title }) => `Delete "${title}"? This will remove it from your listings.`,
+    productDeleted: 'Product deleted successfully.',
+    productDeletedLocal: 'Product deleted locally. Server sync is pending.',
+    deleteProductFailed: 'Could not delete product.',
+    deletePostConfirm: 'Delete this seller feed post?',
+    postDeleted: 'Post deleted successfully.',
+    postDeletedLocal: 'Post deleted locally. Server sync is pending.',
+    deleteSellerPostFailed: 'Could not delete seller post.',
+    loginToReport: 'Please login to report a post.',
+    alreadyReported: 'You already reported this post.',
+    postReported: 'Post reported. Our moderation team will review it.',
+    submitReportFailed: 'Could not submit report.',
+    reportResolved: 'Report resolved.',
+    reportResolvedLocal: 'Report resolved locally.',
+    resolveReportFailed: 'Could not resolve report.',
+    resolveAllReportsConfirm: ({ count }) => `Resolve all ${count} open post report(s)?`,
+    productNotFound: 'Product not found.',
+    postNotFound: 'Post not found.',
+    reportNotFound: 'Report not found.',
+    onlyOwnProducts: 'You can only delete your own products.',
+    onlyOwnPosts: 'You can only delete your own posts.',
+    invalidDeleteRequest: 'Invalid delete request.',
+    reportFieldsRequired: 'postId, reporterUserId, and reason are required.',
+    invalidReportPayload: 'Invalid report payload.',
+    adminRoleRequired: 'Admin role is required.',
+    invalidResolveRequest: 'Invalid resolve request.',
+    sellerNotFound: 'Seller not found.',
+    onlineEnabled: 'You are visible as online.',
+    onlineDisabled: 'You are now offline.',
+  },
+  th: {
+    profileSaved: 'บันทึกการอัปเดตโปรไฟล์แล้ว',
+    languageUpdated: 'อัปเดตภาษาที่ต้องการแล้ว',
+    uploadImageBeforePost: 'โปรดอัปโหลดรูปภาพก่อนเผยแพร่โพสต์',
+    postPublished: 'เผยแพร่โพสต์ไปยังฟีดผู้ขายแล้ว',
+    postSavedLocal: 'บันทึกโพสต์ในเครื่องแล้ว ระบบจะซิงก์เมื่อเชื่อมต่ออีกครั้ง',
+    publishPostFailed: 'ไม่สามารถเผยแพร่โพสต์ผู้ขายได้',
+    completeOnboarding: ({ items }) => `กรุณาทำขั้นตอนเริ่มต้นให้ครบก่อน: ${items}.`,
+    listingPublished: 'เผยแพร่รายการสินค้าเรียบร้อยแล้ว',
+    deleteProductConfirm: ({ title }) => `ลบ "${title}"? รายการนี้จะถูกลบออกจากคลังสินค้าของคุณ`,
+    productDeleted: 'ลบสินค้าเรียบร้อยแล้ว',
+    productDeletedLocal: 'ลบสินค้าในเครื่องแล้ว การซิงก์กับเซิร์ฟเวอร์กำลังรออยู่',
+    deleteProductFailed: 'ไม่สามารถลบสินค้าได้',
+    deletePostConfirm: 'ลบโพสต์ฟีดผู้ขายนี้หรือไม่?',
+    postDeleted: 'ลบโพสต์เรียบร้อยแล้ว',
+    postDeletedLocal: 'ลบโพสต์ในเครื่องแล้ว การซิงก์กับเซิร์ฟเวอร์กำลังรออยู่',
+    deleteSellerPostFailed: 'ไม่สามารถลบโพสต์ผู้ขายได้',
+    loginToReport: 'โปรดเข้าสู่ระบบเพื่อรายงานโพสต์',
+    alreadyReported: 'คุณได้รายงานโพสต์นี้แล้ว',
+    postReported: 'รายงานโพสต์แล้ว ทีมดูแลจะตรวจสอบต่อไป',
+    submitReportFailed: 'ไม่สามารถส่งรายงานได้',
+    reportResolved: 'ปิดเคสรายงานแล้ว',
+    reportResolvedLocal: 'ปิดเคสรายงานในเครื่องแล้ว',
+    resolveReportFailed: 'ไม่สามารถปิดเคสรายงานได้',
+    resolveAllReportsConfirm: ({ count }) => `ต้องการปิดเคสรายงานที่เปิดอยู่ทั้งหมด ${count} รายการหรือไม่?`,
+    productNotFound: 'ไม่พบสินค้า',
+    postNotFound: 'ไม่พบโพสต์',
+    reportNotFound: 'ไม่พบรายงาน',
+    onlyOwnProducts: 'คุณสามารถลบได้เฉพาะสินค้าของคุณเอง',
+    onlyOwnPosts: 'คุณสามารถลบได้เฉพาะโพสต์ของคุณเอง',
+    invalidDeleteRequest: 'คำขอลบไม่ถูกต้อง',
+    reportFieldsRequired: 'จำเป็นต้องมี postId, reporterUserId และ reason',
+    invalidReportPayload: 'ข้อมูลรายงานไม่ถูกต้อง',
+    adminRoleRequired: 'จำเป็นต้องมีสิทธิ์ผู้ดูแลระบบ',
+    invalidResolveRequest: 'คำขอปิดเคสไม่ถูกต้อง',
+    sellerNotFound: 'ไม่พบผู้ขาย',
+    onlineEnabled: 'เปิดสถานะออนไลน์แล้ว',
+    onlineDisabled: 'ปิดสถานะออนไลน์แล้ว',
+  },
+  my: {
+    profileSaved: 'ပရိုဖိုင် ပြင်ဆင်ချက်များကို သိမ်းပြီးပါပြီ',
+    languageUpdated: 'ဘာသာစကားရွေးချယ်မှုကို အပ်ဒိတ်လုပ်ပြီးပါပြီ',
+    uploadImageBeforePost: 'post တင်မည့်အချိန်တွင် ပုံတင်ပေးပါ',
+    postPublished: 'seller feed သို့ post တင်ပြီးပါပြီ',
+    postSavedLocal: 'post ကို local တွင် သိမ်းထားပြီး connection ပြန်ရလာသည့်အခါ sync လုပ်ပါမည်',
+    publishPostFailed: 'seller post ကို မတင်နိုင်ပါ',
+    completeOnboarding: ({ items }) => `onboarding ကို အရင်ပြီးအောင်လုပ်ပါ: ${items}.`,
+    listingPublished: 'listing ကို အောင်မြင်စွာ တင်ပြီးပါပြီ',
+    deleteProductConfirm: ({ title }) => `"${title}" ကို ဖျက်မလား? သင့် listing မှ ဖယ်ရှားပါမည်`,
+    productDeleted: 'product ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ',
+    productDeletedLocal: 'product ကို local တွင် ဖျက်ပြီး server sync ကို စောင့်နေသည်',
+    deleteProductFailed: 'product ကို မဖျက်နိုင်ပါ',
+    deletePostConfirm: 'ဒီ seller feed post ကို ဖျက်မလား?',
+    postDeleted: 'post ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ',
+    postDeletedLocal: 'post ကို local တွင် ဖျက်ပြီး server sync ကို စောင့်နေသည်',
+    deleteSellerPostFailed: 'seller post ကို မဖျက်နိုင်ပါ',
+    loginToReport: 'post ကို report လုပ်ရန် login ဝင်ပါ',
+    alreadyReported: 'ဒီ post ကို report လုပ်ပြီးသားဖြစ်သည်',
+    postReported: 'post ကို report လုပ်ပြီး moderation team မှ စိစစ်ပါမည်',
+    submitReportFailed: 'report မတင်နိုင်ပါ',
+    reportResolved: 'report ကို ဖြေရှင်းပြီးပါပြီ',
+    reportResolvedLocal: 'report ကို local တွင် ဖြေရှင်းပြီးပါပြီ',
+    resolveReportFailed: 'report ကို မဖြေရှင်းနိုင်ပါ',
+    resolveAllReportsConfirm: ({ count }) => `open report ${count} ခုလုံးကို resolve လုပ်မလား?`,
+    productNotFound: 'product မတွေ့ပါ',
+    postNotFound: 'post မတွေ့ပါ',
+    reportNotFound: 'report မတွေ့ပါ',
+    onlyOwnProducts: 'သင့် product များကိုသာ ဖျက်နိုင်ပါသည်',
+    onlyOwnPosts: 'သင့် post များကိုသာ ဖျက်နိုင်ပါသည်',
+    invalidDeleteRequest: 'delete request မမှန်ကန်ပါ',
+    reportFieldsRequired: 'postId, reporterUserId နှင့် reason လိုအပ်ပါသည်',
+    invalidReportPayload: 'report payload မမှန်ကန်ပါ',
+    adminRoleRequired: 'admin role လိုအပ်ပါသည်',
+    invalidResolveRequest: 'resolve request မမှန်ကန်ပါ',
+    sellerNotFound: 'seller မတွေ့ပါ',
+    onlineEnabled: 'online status ကို ဖွင့်ပြီးပါပြီ',
+    onlineDisabled: 'offline status သို့ ပြောင်းပြီးပါပြီ',
+  },
+  ru: {
+    profileSaved: 'Изменения профиля сохранены.',
+    languageUpdated: 'Язык интерфейса обновлен.',
+    uploadImageBeforePost: 'Пожалуйста, загрузите изображение перед публикацией поста.',
+    postPublished: 'Пост опубликован в ленте продавца.',
+    postSavedLocal: 'Пост сохранен локально. Синхронизация выполнится после восстановления соединения.',
+    publishPostFailed: 'Не удалось опубликовать пост продавца.',
+    completeOnboarding: ({ items }) => `Сначала завершите онбординг: ${items}.`,
+    listingPublished: 'Объявление успешно опубликовано.',
+    deleteProductConfirm: ({ title }) => `Удалить "${title}"? Товар будет удален из ваших объявлений.`,
+    productDeleted: 'Товар успешно удален.',
+    productDeletedLocal: 'Товар удален локально. Синхронизация с сервером ожидается.',
+    deleteProductFailed: 'Не удалось удалить товар.',
+    deletePostConfirm: 'Удалить этот пост из ленты продавца?',
+    postDeleted: 'Пост успешно удален.',
+    postDeletedLocal: 'Пост удален локально. Синхронизация с сервером ожидается.',
+    deleteSellerPostFailed: 'Не удалось удалить пост продавца.',
+    loginToReport: 'Войдите, чтобы пожаловаться на пост.',
+    alreadyReported: 'Вы уже пожаловались на этот пост.',
+    postReported: 'Жалоба отправлена. Модерация проверит этот пост.',
+    submitReportFailed: 'Не удалось отправить жалобу.',
+    reportResolved: 'Жалоба обработана.',
+    reportResolvedLocal: 'Жалоба обработана локально.',
+    resolveReportFailed: 'Не удалось обработать жалобу.',
+    resolveAllReportsConfirm: ({ count }) => `Обработать все открытые жалобы (${count})?`,
+    productNotFound: 'Товар не найден.',
+    postNotFound: 'Пост не найден.',
+    reportNotFound: 'Жалоба не найдена.',
+    onlyOwnProducts: 'Вы можете удалять только свои товары.',
+    onlyOwnPosts: 'Вы можете удалять только свои посты.',
+    invalidDeleteRequest: 'Некорректный запрос на удаление.',
+    reportFieldsRequired: 'Требуются postId, reporterUserId и reason.',
+    invalidReportPayload: 'Некорректные данные жалобы.',
+    adminRoleRequired: 'Требуется роль администратора.',
+    invalidResolveRequest: 'Некорректный запрос на обработку.',
+    sellerNotFound: 'Продавец не найден.',
+    onlineEnabled: 'Статус онлайн включен.',
+    onlineDisabled: 'Статус офлайн включен.',
+  },
+};
+
+const SEED_DB = {
+  users: [
+    {
+      id: 'admin-1',
+      name: 'Admin',
+      email: 'admin@thailandpanties.com',
+      phone: '+66 2 000 0000',
+      country: 'Thailand',
+      city: 'Bangkok',
+      address: 'Admin Office, Bangkok',
+      walletBalance: 0,
+      role: 'admin',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'admin-2',
+      name: 'Kyle Roof',
+      email: 'kyleroofaff@gmail.com',
+      phone: '',
+      country: '',
+      city: '',
+      address: '',
+      walletBalance: 0,
+      role: 'admin',
+      password: '12345',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-1',
+      name: 'Nina B.',
+      email: 'nina@example.com',
+      phone: '+66 81 111 1111',
+      country: 'Thailand',
+      city: 'Bangkok',
+      address: 'สุขุมวิท, Bangkok',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'nina-b',
+      password: 'demo123',
+      accountStatus: 'active',
+      strikeCount: 1,
+    },
+    {
+      id: 'seller-2',
+      name: 'Mali K.',
+      email: 'mali@example.com',
+      phone: '+66 82 222 2222',
+      country: 'Thailand',
+      city: 'Chiang Mai',
+      address: 'Old City, Chiang Mai',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'mali-k',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-3',
+      name: 'Prae S.',
+      email: 'prae@example.com',
+      phone: '+66 83 333 3333',
+      country: 'Thailand',
+      city: 'Phuket',
+      address: 'Patong, Phuket',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'prae-s',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-4',
+      name: 'Lila R.',
+      email: 'lila@example.com',
+      phone: '+66 84 444 4444',
+      country: 'Thailand',
+      city: 'Pattaya',
+      address: 'Central Pattaya, Chonburi',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'lila-r',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-5',
+      name: 'Anya V.',
+      email: 'anya@example.com',
+      phone: '+66 85 555 5555',
+      country: 'Thailand',
+      city: 'Hat Yai',
+      address: 'Hat Yai City, Songkhla',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'anya-v',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-6',
+      name: 'Sora P.',
+      email: 'sora@example.com',
+      phone: '+66 86 666 6666',
+      country: 'Thailand',
+      city: 'Khon Kaen',
+      address: 'Mueang Khon Kaen',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'sora-p',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-7',
+      name: 'Kiko N.',
+      email: 'kiko@example.com',
+      phone: '+66 87 777 7777',
+      country: 'Thailand',
+      city: 'Bangkok',
+      address: 'Silom, Bangkok',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'kiko-n',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-8',
+      name: 'Dao P.',
+      email: 'dao@example.com',
+      phone: '+66 88 888 8888',
+      country: 'Thailand',
+      city: 'Bangkok',
+      address: 'Sathon, Bangkok',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'dao-p',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-9',
+      name: 'Lina',
+      email: 'lina@example.com',
+      phone: '+66 82 555 0109',
+      country: 'Thailand',
+      city: 'Chiang Mai',
+      address: 'Loh Kroh, Chiang Mai',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'lina-cm',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-10',
+      name: 'Try',
+      email: 'try@example.com',
+      phone: '+66 82 555 0110',
+      country: 'Thailand',
+      city: 'Chiang Mai',
+      address: 'Loh Kroh, Chiang Mai',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'try-cm',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'seller-11',
+      name: 'Noi Na',
+      email: 'noina@example.com',
+      phone: '+66 82 555 0111',
+      country: 'Thailand',
+      city: 'Chiang Mai',
+      address: 'Loh Kroh, Chiang Mai',
+      walletBalance: 0,
+      role: 'seller',
+      sellerId: 'noi-na-cm',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'buyer-1',
+      name: 'Alex T.',
+      email: 'alex@example.com',
+      phone: '+1 202 555 0123',
+      country: 'United States',
+      city: 'Seattle',
+      address: '123 Pine Street',
+      walletBalance: 24.6,
+      role: 'buyer',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'buyer-2',
+      name: 'Steve M.',
+      email: 'steve@example.com',
+      phone: '+1 206 555 0188',
+      country: 'United States',
+      city: 'Portland',
+      address: '77 NW Market Street',
+      walletBalance: 20,
+      role: 'buyer',
+      password: 'demo123',
+      accountStatus: 'active',
+    },
+    {
+      id: 'bar-1',
+      name: 'Small World Chiang Mai',
+      email: 'smallworld.cm@example.com',
+      phone: '+66 82 555 0199',
+      country: 'Thailand',
+      city: 'Chiang Mai',
+      address: 'Loh Kroh Boxing Stadium, Chiang Mai, Thailand',
+      walletBalance: 0,
+      role: 'bar',
+      barId: 'small-world-chiang-mai',
+      password: 'demo123',
+      accountStatus: 'active',
+      preferredLanguage: 'en',
+    },
+  ],
+  sellers: [
+    {
+      id: 'nina-b',
+      name: 'Nina B.',
+      location: 'Bangkok, Thailand',
+      specialty: 'Premium used panties · soft cotton collections',
+      bio: 'Nina offers premium used panties with clear listing details, discreet handling, and respectful communication.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 2–4 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: 'small-world-chiang-mai',
+      languages: ['Thai', 'English'],
+      highlights: ['Premium used pairs', 'Discreet shipping', 'Professional communication'],
+    },
+    {
+      id: 'mali-k',
+      name: 'Mali K.',
+      location: 'Chiang Mai, Thailand',
+      specialty: 'Luxury lace styles · limited premium pairs',
+      bio: 'Mali focuses on premium used underwear listings with a polished experience and dependable worldwide fulfillment.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 3–5 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: 'north-lantern-chiang-mai',
+      languages: ['Thai', 'English'],
+      highlights: ['Lace and premium styles', 'Limited drops', 'Trusted fulfillment'],
+    },
+    {
+      id: 'prae-s',
+      name: 'Prae S.',
+      location: 'Phuket, Thailand',
+      specialty: 'Everyday panties · sporty fits',
+      bio: 'Prae offers premium everyday used underwear listings, consistent quality notes, and fast discreet dispatch.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 1–3 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: 'phuket-moon-lounge',
+      languages: ['Thai', 'English'],
+      highlights: ['Everyday favorites', 'Sport-inspired cuts', 'Fast dispatch'],
+    },
+    {
+      id: 'lila-r',
+      name: 'Lila R.',
+      location: 'Pattaya, Thailand',
+      specialty: 'Luxury',
+      bio: 'Lila curates polished lingerie-inspired listings with elegant details, responsive communication, and discreet worldwide dispatch.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 2-4 days',
+      isOnline: true,
+      feedVisibility: 'public',
+      affiliatedBarId: '',
+      languages: ['Thai', 'English', 'Russian'],
+      highlights: ['Lingerie-inspired looks', 'Curated bundles', 'Premium presentation'],
+    },
+    {
+      id: 'anya-v',
+      name: 'Anya V.',
+      location: 'Hat Yai, Thailand',
+      specialty: 'Everyday',
+      bio: 'Anya focuses on daily-wear favorites and comfort-first styles with clear notes and reliable order prep.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 1-3 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: '',
+      languages: ['Thai', 'English', 'Burmese'],
+      highlights: ['Comfort styles', 'Fast turnaround', 'Friendly communication'],
+    },
+    {
+      id: 'sora-p',
+      name: 'Sora P.',
+      location: 'Khon Kaen, Thailand',
+      specialty: 'Premium',
+      bio: 'Sora offers premium statement pieces and seasonal collections with a detail-rich listing style.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 2-4 days',
+      isOnline: true,
+      feedVisibility: 'public',
+      affiliatedBarId: 'riverlight-social-bkk',
+      languages: ['Thai', 'English'],
+      highlights: ['Seasonal drops', 'Statement pieces', 'Trusted shipping'],
+    },
+    {
+      id: 'kiko-n',
+      name: 'Kiko N.',
+      location: 'Bangkok, Thailand',
+      specialty: 'Premium',
+      bio: 'Kiko runs a versatile catalog that includes intimates, hosiery, and fashion-layer listings for buyers wanting variety.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 3-5 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: '',
+      languages: ['Thai', 'English', 'Russian'],
+      highlights: ['Wide catalog', 'Fashion layers', 'Consistent quality notes'],
+    },
+    {
+      id: 'dao-p',
+      name: 'Dao P.',
+      location: 'Bangkok, Thailand',
+      specialty: 'Premium',
+      bio: 'Dao offers premium used panties with clear listing details, responsive communication, and discreet shipping.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 1-3 days',
+      isOnline: true,
+      feedVisibility: 'public',
+      affiliatedBarId: 'small-world-chiang-mai',
+      languages: ['Thai', 'English'],
+      highlights: ['Curated premium drops', 'Quick responses', 'Discreet packaging'],
+    },
+    {
+      id: 'lina-cm',
+      name: 'Lina',
+      location: 'Chiang Mai, Thailand',
+      specialty: 'Premium',
+      bio: 'Lina shares premium listings with clear details, friendly communication, and discreet shipping.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 1-3 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: 'small-world-chiang-mai',
+      languages: ['Thai', 'English'],
+      highlights: ['Premium quality', 'Fast response', 'Discreet packaging'],
+    },
+    {
+      id: 'try-cm',
+      name: 'Try',
+      location: 'Chiang Mai, Thailand',
+      specialty: 'Everyday',
+      bio: 'Try focuses on everyday styles with reliable fulfillment and respectful buyer communication.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 2-4 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: 'small-world-chiang-mai',
+      languages: ['Thai', 'English'],
+      highlights: ['Everyday styles', 'Reliable shipping', 'Friendly support'],
+    },
+    {
+      id: 'noi-na-cm',
+      name: 'Noi Na',
+      location: 'Chiang Mai, Thailand',
+      specialty: 'Luxury',
+      bio: 'Noi Na offers premium curated drops with polished presentation and dependable turnaround.',
+      shipping: 'Worldwide from Thailand',
+      turnaround: 'Ships in 1-3 days',
+      isOnline: false,
+      feedVisibility: 'public',
+      affiliatedBarId: 'small-world-chiang-mai',
+      languages: ['Thai', 'English'],
+      highlights: ['Curated drops', 'Polished listings', 'Consistent fulfillment'],
+    },
+  ],
+  bars: [
+    {
+      id: 'small-world-chiang-mai',
+      name: 'Small World Chiang Mai',
+      location: 'Loh Kroh Boxing Stadium, Chiang Mai, Thailand',
+      about: 'A nightlife spot based at Loh Kroh Boxing Stadium in Chiang Mai, focused on safe operations and respectful community standards.',
+      specials: 'Fight-night specials and live event nights throughout the week.',
+      mapEmbedUrl: 'https://www.google.com/maps?q=Loh+Kroh+Boxing+Stadium+Chiang+Mai&output=embed',
+      mapLink: 'https://maps.google.com/?q=Loh+Kroh+Boxing+Stadium+Chiang+Mai',
+      profileImage: 'https://placehold.co/1200x900/fbcfe8/831843?text=Small+World+Chiang+Mai',
+      profileImageName: 'small-world-chiang-mai.jpg',
+    },
+    {
+      id: 'north-lantern-chiang-mai',
+      name: 'North Lantern Chiang Mai',
+      location: 'Chiang Mai, Thailand',
+      about: 'Neighborhood bar with warm staff, live acoustic nights, and reliable local support for partnered sellers.',
+      specials: 'Acoustic Thursdays and weekend cocktail flights.',
+      mapEmbedUrl: 'https://www.google.com/maps?q=Chiang+Mai+Thailand&output=embed',
+      mapLink: 'https://maps.google.com/?q=Chiang+Mai+Thailand',
+      profileImage: 'https://placehold.co/1200x900/e0e7ff/3730a3?text=North+Lantern',
+      profileImageName: 'north-lantern.jpg',
+    },
+    {
+      id: 'phuket-moon-lounge',
+      name: 'Moon Lounge Phuket',
+      location: 'Phuket, Thailand',
+      about: 'Modern Phuket lounge known for late-night service, event collabs, and clean, organized operations.',
+      specials: 'Sunset specials from 17:00-19:00 and Saturday showcases.',
+      mapEmbedUrl: 'https://www.google.com/maps?q=Phuket+Thailand&output=embed',
+      mapLink: 'https://maps.google.com/?q=Phuket+Thailand',
+      profileImage: 'https://placehold.co/1200x900/cffafe/155e75?text=Moon+Lounge',
+      profileImageName: 'moon-lounge.jpg',
+    },
+    {
+      id: 'riverlight-social-bkk',
+      name: 'Riverlight Social BKK',
+      location: 'Bangkok, Thailand',
+      about: 'Riverside social bar focused on premium guest experience, clear scheduling, and trusted partner operations.',
+      specials: 'Two-for-one mocktails on Tuesdays and rooftop sessions weekly.',
+      mapEmbedUrl: 'https://www.google.com/maps?q=Riverside+Bangkok+Thailand&output=embed',
+      mapLink: 'https://maps.google.com/?q=Riverside+Bangkok+Thailand',
+      profileImage: 'https://placehold.co/1200x900/fef3c7/92400e?text=Riverlight+Social',
+      profileImageName: 'riverlight-social.jpg',
+    },
+  ],
+  products: [
+    {
+      id: 'product-bikini-blush-cotton',
+      title: 'Blush Cotton Bikini',
+      slug: 'blush-cotton-bikini',
+      sellerId: 'nina-b',
+      price: 1180,
+      size: 'M',
+      color: 'Red',
+      style: 'Bikini',
+      fabric: 'Cotton',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Soft cotton bikini with comfortable daily fit.',
+      features: ['Lightweight cotton', 'Breathable', 'Discreet packaging'],
+      image: 'https://placehold.co/900x1200/fbcfe8/831843?text=Blush+Cotton+Bikini',
+      imageName: 'blush-cotton-bikini.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-lace-briefs-indigo',
+      title: 'Indigo Lace Briefs',
+      slug: 'indigo-lace-briefs',
+      sellerId: 'mali-k',
+      price: 1360,
+      size: 'S',
+      color: 'Blue',
+      style: 'Briefs',
+      fabric: 'Lace Blend',
+      daysWorn: '4-7 days',
+      shipping: 'Worldwide',
+      condition: 'Very Good',
+      description: 'Elegant lace briefs with a premium finish.',
+      features: ['Lace blend', 'Limited style', 'Seller verified'],
+      image: 'https://placehold.co/900x1200/c4b5fd/312e81?text=Indigo+Lace+Briefs',
+      imageName: 'indigo-lace-briefs.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-thong-black-seamless',
+      title: 'Seamless Black Thong',
+      slug: 'seamless-black-thong',
+      sellerId: 'prae-s',
+      price: 1025,
+      size: 'L',
+      color: 'Black',
+      style: 'Thong',
+      fabric: 'Modal Blend',
+      daysWorn: 'Unworn',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Smooth seamless thong with stretch comfort.',
+      features: ['Seamless', 'Stretch fit', 'Soft touch'],
+      image: 'https://placehold.co/900x1200/d4d4d8/27272a?text=Seamless+Black+Thong',
+      imageName: 'seamless-black-thong.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-boyshorts-rose',
+      title: 'Rose Everyday Boyshorts',
+      slug: 'rose-everyday-boyshorts',
+      sellerId: 'nina-b',
+      price: 1240,
+      size: 'M',
+      color: 'Red',
+      style: 'Boyshorts',
+      fabric: 'Cotton',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Everyday boyshorts with soft cotton comfort.',
+      features: ['Full coverage', 'Cotton comfort', 'Durable seams'],
+      image: 'https://placehold.co/900x1200/fda4af/881337?text=Rose+Boyshorts',
+      imageName: 'rose-everyday-boyshorts.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-cheeky-brazilian-coral',
+      title: 'Coral Cheeky Brazilian',
+      slug: 'coral-cheeky-brazilian',
+      sellerId: 'mali-k',
+      price: 1325,
+      size: 'S',
+      color: 'Orange',
+      style: 'Brazilian',
+      fabric: 'Lace Blend',
+      daysWorn: '4-7 days',
+      shipping: 'Worldwide',
+      condition: 'Very Good',
+      description: 'Cheeky brazilian cut with lace blend detail.',
+      features: ['Brazilian cut', 'Lace detail', 'Premium listing'],
+      image: 'https://placehold.co/900x1200/fca5a5/7f1d1d?text=Coral+Cheeky+Brazilian',
+      imageName: 'coral-cheeky-brazilian.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-premium-bra-ivory-lace',
+      title: 'Ivory Lace Balcony Bra',
+      slug: 'ivory-lace-balcony-bra',
+      sellerId: 'lila-r',
+      price: 1490,
+      size: '34B',
+      color: 'White',
+      style: 'Bra',
+      fabric: 'Lace Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Luxury balcony bra with soft lace cups and satin trim.',
+      features: ['Balcony cut', 'Lace texture', 'Adjustable straps'],
+      image: 'https://placehold.co/900x1200/fef3c7/92400e?text=Ivory+Lace+Bra',
+      imageName: 'ivory-lace-balcony-bra.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-bra-panty-set-sapphire',
+      title: 'Sapphire Bra and Panty Set',
+      slug: 'sapphire-bra-panty-set',
+      sellerId: 'sora-p',
+      price: 1890,
+      size: 'M',
+      color: 'Blue',
+      style: 'Bra and Panty Set',
+      fabric: 'Microfiber',
+      daysWorn: 'Unworn',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Matching set with soft support and stretch brief.',
+      features: ['Matching two-piece', 'Soft microfiber', 'Limited release'],
+      image: 'https://placehold.co/900x1200/bfdbfe/1e3a8a?text=Sapphire+Set',
+      imageName: 'sapphire-bra-panty-set.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-pantyhose-charcoal-sheer',
+      title: 'Charcoal Sheer Pantyhose',
+      slug: 'charcoal-sheer-pantyhose',
+      sellerId: 'kiko-n',
+      price: 1110,
+      size: 'L',
+      color: 'Grey',
+      style: 'Pantyhose',
+      fabric: 'Nylon Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Very Good',
+      description: 'Classic sheer pantyhose with smooth finish.',
+      features: ['Sheer finish', 'Light compression', 'Daily wear'],
+      image: 'https://placehold.co/900x1200/e5e7eb/334155?text=Charcoal+Pantyhose',
+      imageName: 'charcoal-sheer-pantyhose.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-07',
+    },
+    {
+      id: 'product-thighhigh-midnight',
+      title: 'Midnight Thigh-High Pantyhose',
+      slug: 'midnight-thigh-high-pantyhose',
+      sellerId: 'mali-k',
+      price: 1275,
+      size: 'M',
+      color: 'Blue',
+      style: 'Thigh-High Pantyhose',
+      fabric: 'Nylon Blend',
+      daysWorn: '4-7 days',
+      shipping: 'Worldwide',
+      condition: 'Very Good',
+      description: 'Thigh-high hosiery with lace top band.',
+      features: ['Thigh-high fit', 'Lace band', 'Elegant style'],
+      image: 'https://placehold.co/900x1200/dbeafe/1d4ed8?text=Thigh-High+Pantyhose',
+      imageName: 'midnight-thigh-high-pantyhose.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-07',
+    },
+    {
+      id: 'product-kneehigh-cream-rib',
+      title: 'Cream Rib Knee-High Socks',
+      slug: 'cream-rib-knee-high-socks',
+      sellerId: 'anya-v',
+      price: 1035,
+      size: 'One Size',
+      color: 'White',
+      style: 'Knee-High Socks',
+      fabric: 'Cotton',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Soft rib-knit knee-high socks for cozy styling.',
+      features: ['Rib knit', 'Comfort stretch', 'Cozy feel'],
+      image: 'https://placehold.co/900x1200/fef9c3/854d0e?text=Cream+Knee-High+Socks',
+      imageName: 'cream-rib-knee-high-socks.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-06',
+    },
+    {
+      id: 'product-anklesock-neon-mix',
+      title: 'Neon Mix Ankle Socks Pack',
+      slug: 'neon-mix-ankle-socks-pack',
+      sellerId: 'prae-s',
+      price: 1065,
+      size: 'S',
+      color: 'Pink',
+      style: 'Ankle Socks',
+      fabric: 'Cotton Blend',
+      daysWorn: 'Unworn',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Bright ankle socks pack with sporty trim.',
+      features: ['Sporty trim', 'Color mix', 'Breathable cotton blend'],
+      image: 'https://placehold.co/900x1200/fecdd3/9f1239?text=Ankle+Socks',
+      imageName: 'neon-mix-ankle-socks-pack.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-06',
+    },
+    {
+      id: 'product-skirt-plaid-mini',
+      title: 'Plaid Mini Skirt',
+      slug: 'plaid-mini-skirt',
+      sellerId: 'kiko-n',
+      price: 1385,
+      size: 'M',
+      color: 'Red',
+      style: 'Skirt',
+      fabric: 'Poly Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'High-waist mini skirt with pleated plaid texture.',
+      features: ['Pleated finish', 'High waist', 'Soft lining'],
+      image: 'https://placehold.co/900x1200/fca5a5/7f1d1d?text=Plaid+Mini+Skirt',
+      imageName: 'plaid-mini-skirt.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-05',
+    },
+    {
+      id: 'product-dress-satin-slip',
+      title: 'Satin Slip Dress',
+      slug: 'satin-slip-dress',
+      sellerId: 'lila-r',
+      price: 1720,
+      size: 'S',
+      color: 'Tan',
+      style: 'Dress',
+      fabric: 'Satin',
+      daysWorn: 'Unworn',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Light satin slip dress with adjustable straps.',
+      features: ['Satin sheen', 'Slim silhouette', 'Adjustable fit'],
+      image: 'https://placehold.co/900x1200/fef3c7/78350f?text=Satin+Slip+Dress',
+      imageName: 'satin-slip-dress.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-05',
+    },
+    {
+      id: 'product-top-crop-ribbed',
+      title: 'Ribbed Crop Top',
+      slug: 'ribbed-crop-top',
+      sellerId: 'sora-p',
+      price: 1195,
+      size: 'XL',
+      color: 'Pink',
+      style: 'Top',
+      fabric: 'Cotton Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Very Good',
+      description: 'Stretch ribbed crop top with square neckline.',
+      features: ['Square neck', 'Stretch rib', 'Easy layering'],
+      image: 'https://placehold.co/900x1200/e9d5ff/581c87?text=Ribbed+Crop+Top',
+      imageName: 'ribbed-crop-top.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-04',
+    },
+    {
+      id: 'product-briefs-forest-soft',
+      title: 'Forest Soft Briefs',
+      slug: 'forest-soft-briefs',
+      sellerId: 'anya-v',
+      price: 1215,
+      size: 'XS',
+      color: 'Green',
+      style: 'Briefs',
+      fabric: 'Bamboo Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Ultra-soft briefs with flexible waistband.',
+      features: ['Bamboo blend', 'Lightweight', 'Comfort waistband'],
+      image: 'https://placehold.co/900x1200/bbf7d0/14532d?text=Forest+Briefs',
+      imageName: 'forest-soft-briefs.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-04',
+    },
+    {
+      id: 'product-bikini-graphite-sport',
+      title: 'Graphite Sport Bikini',
+      slug: 'graphite-sport-bikini',
+      sellerId: 'prae-s',
+      price: 1295,
+      size: 'XXL',
+      color: 'Grey',
+      style: 'Bikini',
+      fabric: 'Modal Blend',
+      daysWorn: '4-7 days',
+      shipping: 'Worldwide',
+      condition: 'Very Good',
+      description: 'Sport-cut bikini with breathable stretch feel.',
+      features: ['Sport silhouette', 'Breathable modal', 'Smooth seams'],
+      image: 'https://placehold.co/900x1200/e2e8f0/0f172a?text=Graphite+Sport+Bikini',
+      imageName: 'graphite-sport-bikini.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-03',
+    },
+    {
+      id: 'product-thong-cherry-lace',
+      title: 'Cherry Lace Thong',
+      slug: 'cherry-lace-thong',
+      sellerId: 'mali-k',
+      price: 1460,
+      size: 'M',
+      color: 'Red',
+      style: 'Thong',
+      fabric: 'Lace Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Fine lace thong with lightweight stretch.',
+      features: ['Fine lace', 'Minimal silhouette', 'Premium feel'],
+      image: 'https://placehold.co/900x1200/fecdd3/881337?text=Cherry+Lace+Thong',
+      imageName: 'cherry-lace-thong.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-03',
+    },
+    {
+      id: 'product-mali-bar-night-bodysuit',
+      title: 'Mali Bar Night Bodysuit',
+      slug: 'mali-bar-night-bodysuit',
+      sellerId: 'mali-k',
+      price: 1690,
+      size: 'M',
+      color: 'Black',
+      style: 'Bodysuit',
+      fabric: 'Lace Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Bar-inspired lace bodysuit styled for Mali K night set photos.',
+      features: ['Bar night styling', 'Lace blend', 'Premium fit'],
+      image: 'https://placehold.co/900x1200/e5e7eb/111827?text=Mali+Bar+Night+Bodysuit',
+      imageName: 'mali-bar-night-bodysuit.jpg',
+      isBundle: false,
+      bundleItemIds: [],
+      status: 'Published',
+      publishedAt: '2026-03-03',
+    },
+    {
+      id: 'product-mali-underwear-velvet-brief',
+      title: 'Mali Velvet Brief',
+      slug: 'mali-velvet-brief',
+      sellerId: 'mali-k',
+      price: 1320,
+      size: 'M',
+      color: 'Red',
+      style: 'Briefs',
+      fabric: 'Modal Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Velvet-tone premium brief from Mali K collection.',
+      features: ['Underwear staple', 'Soft modal blend', 'Premium finish'],
+      image: 'https://placehold.co/900x1200/fecdd3/881337?text=Mali+Velvet+Brief',
+      imageName: 'mali-velvet-brief.jpg',
+      isBundle: false,
+      bundleItemIds: [],
+      status: 'Published',
+      publishedAt: '2026-03-03',
+    },
+    {
+      id: 'product-set-mali-night-bundle',
+      title: 'Mali Night Bar + Brief Bundle',
+      slug: 'mali-night-bar-brief-bundle',
+      sellerId: 'mali-k',
+      price: 2690,
+      size: 'M',
+      color: 'Mixed',
+      style: 'Custom Set',
+      fabric: 'Mixed',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Bundle set featuring Mali Bar Night Bodysuit and Mali Velvet Brief at a combined bundle price.',
+      features: ['2-item bundle', 'Bar look + underwear pair', 'Bundle savings'],
+      image: 'https://placehold.co/900x1200/fbcfe8/9d174d?text=Mali+Night+Bundle',
+      imageName: 'mali-night-bar-brief-bundle.jpg',
+      isBundle: true,
+      bundleItemIds: ['product-mali-bar-night-bodysuit', 'product-mali-underwear-velvet-brief'],
+      status: 'Published',
+      publishedAt: '2026-03-03',
+    },
+    {
+      id: 'product-boyshorts-navy-comfort',
+      title: 'Navy Comfort Boyshorts',
+      slug: 'navy-comfort-boyshorts',
+      sellerId: 'nina-b',
+      price: 1340,
+      size: 'L',
+      color: 'Blue',
+      style: 'Boyshorts',
+      fabric: 'Cotton',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Full-coverage navy boyshorts with everyday comfort.',
+      features: ['Full coverage', 'Soft cotton', 'Stretch waistband'],
+      image: 'https://placehold.co/900x1200/c7d2fe/312e81?text=Navy+Boyshorts',
+      imageName: 'navy-comfort-boyshorts.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-02',
+    },
+    {
+      id: 'product-bra-wirefree-rose',
+      title: 'Rose Wirefree Bra',
+      slug: 'rose-wirefree-bra',
+      sellerId: 'kiko-n',
+      price: 1565,
+      size: '38C',
+      color: 'Red',
+      style: 'Bra',
+      fabric: 'Modal Blend',
+      daysWorn: 'Unworn',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Wirefree bra with soft support and smooth cups.',
+      features: ['Wirefree comfort', 'Smooth cup', 'Light support'],
+      image: 'https://placehold.co/900x1200/fbcfe8/9d174d?text=Rose+Wirefree+Bra',
+      imageName: 'rose-wirefree-bra.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-02',
+    },
+    {
+      id: 'product-set-emerald-luxe',
+      title: 'Emerald Luxe Set',
+      slug: 'emerald-luxe-bra-panty-set',
+      sellerId: 'lila-r',
+      price: 1980,
+      size: 'L',
+      color: 'Green',
+      style: 'Bra and Panty Set',
+      fabric: 'Lace Blend',
+      daysWorn: 'Unworn',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Emerald set with structured bra and matching brief.',
+      features: ['Two-piece set', 'Emerald tone', 'Premium detailing'],
+      image: 'https://placehold.co/900x1200/a7f3d0/065f46?text=Emerald+Luxe+Set',
+      imageName: 'emerald-luxe-bra-panty-set.jpg',
+      status: 'Published',
+      publishedAt: '2026-03-01',
+    },
+  ],
+  sellerPosts: [
+    {
+      id: 'post_seed_nina_1',
+      sellerId: 'nina-b',
+      caption: 'Sunday reset: tea, sunlight, and planning my next listing drop.',
+      image: 'https://placehold.co/1200x900/fbcfe8/881337?text=Nina+Feed+Post',
+      imageName: 'nina-sunday.jpg',
+      createdAt: '2026-03-08T09:30:00.000Z',
+      visibility: 'public',
+      accessPriceUsd: 1,
+    },
+    {
+      id: 'post_seed_mali_1',
+      sellerId: 'mali-k',
+      caption: 'Quick studio prep before photos. New lace favorites coming this week.',
+      image: 'https://placehold.co/1200x900/dbeafe/1e3a8a?text=Mali+Feed+Post',
+      imageName: 'mali-studio.jpg',
+      createdAt: '2026-03-08T10:15:00.000Z',
+      visibility: 'public',
+      accessPriceUsd: 1,
+    },
+    {
+      id: 'post_seed_prae_1',
+      sellerId: 'prae-s',
+      caption: 'Morning gym + shipping prep. Sporty drops are back in stock.',
+      image: 'https://placehold.co/1200x900/e2e8f0/0f172a?text=Prae+Sport+Update',
+      imageName: 'prae-sport-update.jpg',
+      createdAt: '2026-03-08T11:10:00.000Z',
+      visibility: 'public',
+      accessPriceUsd: 1,
+    },
+    {
+      id: 'post_seed_lila_private_1',
+      sellerId: 'lila-r',
+      caption: 'Private behind-the-scenes set styling from tonight\'s shoot.',
+      image: 'https://placehold.co/1200x900/fef3c7/92400e?text=Lila+Private+Set',
+      imageName: 'lila-private-set.jpg',
+      createdAt: '2026-03-08T12:25:00.000Z',
+      visibility: 'private',
+      accessPriceUsd: 2.5,
+    },
+    {
+      id: 'post_seed_sora_private_1',
+      sellerId: 'sora-p',
+      caption: 'Private seasonal preview: premium lace capsule before public release.',
+      image: 'https://placehold.co/1200x900/bfdbfe/1e3a8a?text=Sora+Private+Preview',
+      imageName: 'sora-private-preview.jpg',
+      createdAt: '2026-03-08T13:00:00.000Z',
+      visibility: 'private',
+      accessPriceUsd: 3,
+    },
+    {
+      id: 'post_seed_kiko_1',
+      sellerId: 'kiko-n',
+      caption: 'Catalog update day: tops, skirts, and fresh hosiery options listed.',
+      image: 'https://placehold.co/1200x900/e9d5ff/581c87?text=Kiko+Catalog+Update',
+      imageName: 'kiko-catalog-update.jpg',
+      createdAt: '2026-03-08T14:20:00.000Z',
+      visibility: 'public',
+      accessPriceUsd: 1,
+    },
+    {
+      id: 'post_seed_anya_private_1',
+      sellerId: 'anya-v',
+      caption: 'Private comfort-set diary with custom request samples.',
+      image: 'https://placehold.co/1200x900/fecdd3/9f1239?text=Anya+Private+Diary',
+      imageName: 'anya-private-diary.jpg',
+      createdAt: '2026-03-08T15:05:00.000Z',
+      visibility: 'private',
+      accessPriceUsd: 1.5,
+    },
+  ],
+  barPosts: [
+    {
+      id: 'bar_post_seed_1',
+      barId: 'small-world-chiang-mai',
+      caption: 'Tonight at Small World Chiang Mai: welcome cocktails and live ambient set from 9PM.',
+      image: 'https://placehold.co/1200x900/fbcfe8/831843?text=Small+World+Chiang+Mai+Tonight',
+      imageName: 'small-world-chiang-mai-tonight.jpg',
+      createdAt: '2026-03-09T12:00:00.000Z',
+    },
+    {
+      id: 'bar_post_seed_2',
+      barId: 'north-lantern-chiang-mai',
+      caption: 'Acoustic Thursday lineup is posted. Come early for happy hour seating.',
+      image: 'https://placehold.co/1200x900/e0e7ff/3730a3?text=North+Lantern+Acoustic',
+      imageName: 'north-lantern-acoustic.jpg',
+      createdAt: '2026-03-09T10:30:00.000Z',
+    },
+  ],
+  postReports: [
+    {
+      id: 'post_report_seed_qa_1',
+      postId: 'post_seed_nina_1',
+      targetUserId: 'seller-1',
+      contentType: 'post',
+      contentId: 'post_seed_nina_1',
+      reporterUserId: 'buyer-1',
+      reporterRole: 'buyer',
+      reason: 'QA seed: resolve this report to test automatic second strike and account freeze flow.',
+      status: 'open',
+      createdAt: '2026-03-09T08:00:00.000Z',
+      resolvedAt: null,
+      resolvedByUserId: null,
+    },
+  ],
+  commentReports: [],
+  userStrikes: [
+    {
+      id: 'strike_seed_qa_1',
+      userId: 'seller-1',
+      sourceType: 'post',
+      sourceId: 'post_seed_nina_1',
+      reportId: 'post_report_seed_previous_qa',
+      reason: 'QA seed: prior moderation strike.',
+      status: 'active',
+      createdAt: '2026-03-08T08:00:00.000Z',
+      appliedByUserId: 'admin-1',
+    },
+  ],
+  userAppeals: [],
+  postUnlocks: [],
+  sellerPostLikes: [],
+  sellerPostComments: [],
+  sellerFollows: [],
+  sellerSavedPosts: [],
+  orders: [],
+  walletTransactions: [
+    {
+      id: 'txn_1',
+      userId: 'buyer-1',
+      type: 'top_up',
+      amount: 25,
+      description: 'Stripe wallet top-up',
+      createdAt: '2026-03-01T08:00:00.000Z',
+    },
+  ],
+  messages: [
+    {
+      id: 'msg_1',
+      conversationId: 'buyer-1__nina-b',
+      buyerId: 'buyer-1',
+      sellerId: 'nina-b',
+      senderId: 'buyer-1',
+      senderRole: 'buyer',
+      body: 'Hi Nina, is your soft cotton briefs listing still available?',
+      feeCharged: MESSAGE_FEE_THB,
+      createdAt: '2026-03-06T09:00:00.000Z',
+      readByBuyer: true,
+      readBySeller: false,
+    },
+    {
+      id: 'msg_2',
+      conversationId: 'buyer-1__nina-b',
+      buyerId: 'buyer-1',
+      sellerId: 'nina-b',
+      senderId: 'seller-1',
+      senderRole: 'seller',
+      body: 'Yes, it is available and ready to ship this week.',
+      feeCharged: 0,
+      createdAt: '2026-03-06T09:05:00.000Z',
+      readByBuyer: false,
+      readBySeller: true,
+    },
+  ],
+  notifications: [
+    {
+      id: 'notif_1',
+      userId: 'seller-1',
+      type: 'message',
+      text: 'New buyer message from Alex T.',
+      conversationId: 'buyer-1__nina-b',
+      read: false,
+      createdAt: '2026-03-06T09:00:01.000Z',
+    },
+    {
+      id: 'notif_2',
+      userId: 'buyer-1',
+      type: 'message',
+      text: 'Nina B. replied to your message.',
+      conversationId: 'buyer-1__nina-b',
+      read: false,
+      createdAt: '2026-03-06T09:05:01.000Z',
+    },
+  ],
+  customRequests: [],
+  customRequestMessages: [],
+  refundClaims: [],
+  barAffiliationRequests: [],
+  adminInboxReviews: [],
+  adminInboxFilterPresets: [],
+  adminNotes: [],
+  adminDisputeCases: [],
+  inactivityNudges: [],
+  blocks: [],
+  adminActions: [],
+  stripeEvents: [],
+  emailTemplates: structuredClone(DEFAULT_EMAIL_TEMPLATES),
+  emailDeliveryLog: [],
+};
+
+const SEO_CONFIG = {
+  title: 'Thailand Panties | Premium Used Underwear from Thailand',
+  description:
+    'Thailand Panties is a discreet and professional marketplace for premium used underwear listings from women in Thailand, with trusted messaging and worldwide shipping.',
+  keywords: ['Thailand Panties', 'premium used underwear', 'discreet shipping', 'Thailand sellers', 'buyer seller chat'],
+  ogImage: '/og-thailand-panties.jpg',
+};
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+const STYLE_SCHEMA = `enum<${STYLE_OPTIONS.join('|')}>`;
+const DB_STORAGE_VERSION = '2026-03-11-seller-feed-v1';
+const SHIPPING_COUNTRY_RATES = {
+  thailand: { label: 'Thailand', standard: 6, express: 10 },
+  singapore: { label: 'Singapore', standard: 14, express: 24 },
+  malaysia: { label: 'Malaysia', standard: 14, express: 24 },
+  indonesia: { label: 'Indonesia', standard: 14, express: 24 },
+  philippines: { label: 'Philippines', standard: 14, express: 24 },
+  vietnam: { label: 'Vietnam', standard: 14, express: 24 },
+  cambodia: { label: 'Cambodia', standard: 14, express: 24 },
+  laos: { label: 'Laos', standard: 14, express: 24 },
+  myanmar: { label: 'Myanmar', standard: 14, express: 24 },
+  japan: { label: 'Japan', standard: 14, express: 24 },
+  'south korea': { label: 'South Korea', standard: 14, express: 24 },
+  'hong kong': { label: 'Hong Kong', standard: 14, express: 24 },
+  taiwan: { label: 'Taiwan', standard: 14, express: 24 },
+  india: { label: 'India', standard: 14, express: 24 },
+  china: { label: 'China', standard: 14, express: 24 },
+  australia: { label: 'Australia', standard: 20, express: 32 },
+  'new zealand': { label: 'New Zealand', standard: 20, express: 32 },
+  'united kingdom': { label: 'United Kingdom', standard: 24, express: 38 },
+  ireland: { label: 'Ireland', standard: 24, express: 38 },
+  france: { label: 'France', standard: 24, express: 38 },
+  germany: { label: 'Germany', standard: 24, express: 38 },
+  italy: { label: 'Italy', standard: 24, express: 38 },
+  spain: { label: 'Spain', standard: 24, express: 38 },
+  netherlands: { label: 'Netherlands', standard: 24, express: 38 },
+  belgium: { label: 'Belgium', standard: 24, express: 38 },
+  sweden: { label: 'Sweden', standard: 24, express: 38 },
+  norway: { label: 'Norway', standard: 24, express: 38 },
+  denmark: { label: 'Denmark', standard: 24, express: 38 },
+  switzerland: { label: 'Switzerland', standard: 24, express: 38 },
+  austria: { label: 'Austria', standard: 24, express: 38 },
+  poland: { label: 'Poland', standard: 24, express: 38 },
+  portugal: { label: 'Portugal', standard: 24, express: 38 },
+  greece: { label: 'Greece', standard: 24, express: 38 },
+  finland: { label: 'Finland', standard: 24, express: 38 },
+  'united states': { label: 'United States', standard: 28, express: 44 },
+  canada: { label: 'Canada', standard: 28, express: 44 },
+  mexico: { label: 'Mexico', standard: 28, express: 44 },
+  brazil: { label: 'Brazil', standard: 32, express: 50 },
+  argentina: { label: 'Argentina', standard: 32, express: 50 },
+  chile: { label: 'Chile', standard: 32, express: 50 },
+  colombia: { label: 'Colombia', standard: 32, express: 50 },
+  peru: { label: 'Peru', standard: 32, express: 50 },
+  uruguay: { label: 'Uruguay', standard: 32, express: 50 },
+  paraguay: { label: 'Paraguay', standard: 32, express: 50 },
+  ecuador: { label: 'Ecuador', standard: 32, express: 50 },
+  bolivia: { label: 'Bolivia', standard: 32, express: 50 },
+  venezuela: { label: 'Venezuela', standard: 32, express: 50 },
+  'united arab emirates': { label: 'United Arab Emirates', standard: 30, express: 48 },
+  'saudi arabia': { label: 'Saudi Arabia', standard: 30, express: 48 },
+  qatar: { label: 'Qatar', standard: 30, express: 48 },
+  oman: { label: 'Oman', standard: 30, express: 48 },
+  kuwait: { label: 'Kuwait', standard: 30, express: 48 },
+  bahrain: { label: 'Bahrain', standard: 30, express: 48 },
+  israel: { label: 'Israel', standard: 30, express: 48 },
+  turkey: { label: 'Turkey', standard: 30, express: 48 },
+  'south africa': { label: 'South Africa', standard: 30, express: 48 },
+  egypt: { label: 'Egypt', standard: 30, express: 48 },
+  nigeria: { label: 'Nigeria', standard: 30, express: 48 },
+  kenya: { label: 'Kenya', standard: 30, express: 48 },
+  morocco: { label: 'Morocco', standard: 30, express: 48 },
+};
+const SHIPPING_COUNTRY_OPTIONS = Object.values(SHIPPING_COUNTRY_RATES)
+  .map((entry) => entry.label)
+  .sort((a, b) => a.localeCompare(b));
+
+const NEXTJS_EXPORT_BLUEPRINT = {
+  app: [
+    'layout.tsx',
+    'page.tsx',
+    'account/page.tsx',
+    'checkout/page.tsx',
+    'checkout/success/page.tsx',
+    'seller/[id]/page.tsx',
+    'product/[slug]/page.tsx',
+    'find/page.tsx',
+    'seller-portfolios/page.tsx',
+    'faq/page.tsx',
+    'contact/page.tsx',
+    'privacy-policy/page.tsx',
+    'terms/page.tsx',
+    'shipping-policy/page.tsx',
+    'refund-policy/page.tsx',
+    'community-standards/page.tsx',
+    'api/stripe/create-checkout-session/route.ts',
+    'api/stripe/webhook/route.ts',
+    'api/account/route.ts',
+    'api/orders/route.ts',
+  ],
+  lib: ['db.ts', 'auth.ts', 'stripe.ts', 'seo.ts'],
+  components: ['site-header.tsx', 'site-footer.tsx', 'product-card.tsx', 'account-dashboard.tsx'],
+  prisma: ['schema.prisma'],
+  public: ['logo-placeholder.svg', 'og-thailand-panties.jpg'],
+  env: ['DATABASE_URL', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'],
+};
+
+const CMS_SCHEMA = {
+  Product: {
+    id: 'string',
+    title: 'string',
+    slug: 'string',
+    sellerId: 'relation<Seller>',
+    price: 'number',
+    size: 'enum<S|M|L>',
+    color: 'string',
+    style: STYLE_SCHEMA,
+    fabric: 'string',
+    daysWorn: 'enum<Unworn|1-3 days|4-7 days|8+ days>',
+    waistRise: 'enum<Low-rise|Mid-rise|High-rise>',
+    coverage: 'enum<Minimal|Moderate|Full>',
+    scentLevel: 'enum<Light|Medium|Strong>',
+    shipping: 'string',
+    condition: 'enum<Excellent|Very Good|Good>',
+    description: 'text',
+    features: 'string[]',
+    image: 'asset',
+    imageName: 'string',
+    status: 'enum<Draft|Published>',
+    publishedAt: 'date',
+  },
+  Seller: {
+    id: 'string',
+    name: 'string',
+    location: 'string',
+    specialty: 'string',
+    bio: 'text',
+    shipping: 'string',
+    turnaround: 'string',
+    feedVisibility: 'enum<public|private|per-post>',
+    languages: 'string[]',
+    highlights: 'string[]',
+  },
+  Order: {
+    id: 'string',
+    items: 'Product[]',
+    buyerEmail: 'string',
+    buyerUserId: 'relation<User>',
+    total: 'number',
+    stripeSessionId: 'string',
+    paymentStatus: 'enum<pending|paid>',
+    fulfillmentStatus: 'enum<processing|shipped|delivered>',
+    trackingNumber: 'string',
+    createdAt: 'datetime',
+  },
+  Message: {
+    id: 'string',
+    conversationId: 'string',
+    buyerId: 'relation<User>',
+    sellerId: 'relation<Seller>',
+    senderId: 'relation<User>',
+    senderRole: 'enum<buyer|seller>',
+    body: 'text',
+    feeCharged: 'number',
+    createdAt: 'datetime',
+  },
+  Notification: {
+    id: 'string',
+    userId: 'relation<User>',
+    type: 'enum<message|engagement>',
+    text: 'string',
+    conversationId: 'string',
+    read: 'boolean',
+    createdAt: 'datetime',
+  },
+  CustomRequest: {
+    id: 'string',
+    buyerUserId: 'relation<User>',
+    sellerId: 'relation<Seller>',
+    buyerName: 'string',
+    buyerEmail: 'string',
+    preferredDetails: 'string',
+    shippingCountry: 'string',
+    requestBody: 'text',
+    status: 'enum<open|reviewing|fulfilled|closed>',
+    quotedPriceThb: 'number',
+    quoteStatus: 'enum<none|proposed|countered|accepted|declined>',
+    quoteMessage: 'string',
+    quoteUpdatedAt: 'datetime',
+    quoteUpdatedByUserId: 'relation<User>',
+    quoteAcceptedAt: 'datetime',
+    buyerCounterPriceThb: 'number',
+    quoteAwaitingBuyerPayment: 'boolean',
+    createdAt: 'datetime',
+    updatedAt: 'datetime',
+  },
+  CustomRequestMessage: {
+    id: 'string',
+    requestId: 'relation<CustomRequest>',
+    senderUserId: 'relation<User>',
+    senderRole: 'enum<buyer|seller>',
+    body: 'text',
+    feeCharged: 'number',
+    createdAt: 'datetime',
+  },
+  WalletTransaction: {
+    id: 'string',
+    userId: 'relation<User>',
+    type: 'enum<top_up|order_payment|message_fee|post_unlock>',
+    amount: 'number',
+    description: 'string',
+    createdAt: 'datetime',
+  },
+  SellerPostLike: {
+    id: 'string',
+    postId: 'relation<SellerPost>',
+    userId: 'relation<User>',
+    userRole: 'enum<buyer|seller|admin>',
+    createdAt: 'datetime',
+  },
+  SellerPostComment: {
+    id: 'string',
+    postId: 'relation<SellerPost>',
+    senderUserId: 'relation<User>',
+    senderRole: 'enum<buyer|seller|admin>',
+    body: 'text',
+    createdAt: 'datetime',
+  },
+  SellerFollow: {
+    id: 'string',
+    sellerId: 'relation<Seller>',
+    followerUserId: 'relation<User>',
+    followerRole: 'enum<buyer>',
+    createdAt: 'datetime',
+  },
+  SellerSavedPost: {
+    id: 'string',
+    postId: 'relation<SellerPost>',
+    userId: 'relation<User>',
+    createdAt: 'datetime',
+  },
+  User: {
+    id: 'string',
+    name: 'string',
+    email: 'string',
+    phone: 'string',
+    country: 'string',
+    city: 'string',
+    address: 'string',
+    postalCode: 'string',
+    height: 'string',
+    weight: 'string',
+    braSize: 'string',
+    pantySize: 'string',
+    interests: 'text',
+    hobbies: 'text',
+    walletBalance: 'number',
+    role: 'enum<buyer|seller|bar|admin>',
+  },
+};
+
+function readStore(key, fallback) {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function normalizeCheckoutStep(value) {
+  const numeric = Number(value);
+  return [1, 2, 3].includes(numeric) ? numeric : 1;
+}
+
+function normalizeCheckoutFormDraft(value) {
+  const draft = value && typeof value === 'object' ? value : {};
+  return {
+    fullName: String(draft.fullName || ''),
+    country: String(draft.country || ''),
+    address: String(draft.address || ''),
+    postalCode: String(draft.postalCode || ''),
+    shippingMethod: draft.shippingMethod === 'express' ? 'express' : 'standard',
+    saveAddressToProfile: draft.saveAddressToProfile !== false,
+  };
+}
+
+const SUPPORTED_AUTH_LANGUAGES = ['en', 'th', 'my', 'ru'];
+const DASHBOARD_LANGUAGE_OPTIONS = [
+  { value: 'en', label: 'English' },
+  { value: 'th', label: 'Thai' },
+  { value: 'my', label: 'Burmese' },
+  { value: 'ru', label: 'Russian' },
+];
+
+function normalizeAuthLanguage(language) {
+  return SUPPORTED_AUTH_LANGUAGES.includes(language) ? language : 'en';
+}
+
+function resolveLocalizedText(baseText, translationsByLang, targetLang) {
+  const fallback = String(baseText || '');
+  if (!fallback) return '';
+  if (!SUPPORTED_AUTH_LANGUAGES.includes(targetLang)) return fallback;
+  const translated = translationsByLang?.[targetLang];
+  return typeof translated === 'string' && translated.trim() ? translated : fallback;
+}
+
+function normalizeEmailTemplates(templates) {
+  const byKey = new Map();
+  (Array.isArray(templates) ? templates : []).forEach((template) => {
+    if (!template?.key || !EMAIL_TEMPLATE_KEYS.has(template.key)) return;
+    byKey.set(template.key, {
+      ...template,
+      enabled: template.enabled !== false,
+      subject: String(template.subject || ''),
+      body: String(template.body || ''),
+      ctaLabel: String(template.ctaLabel || ''),
+      ctaPath: String(template.ctaPath || '/account'),
+    });
+  });
+  return DEFAULT_EMAIL_TEMPLATES.map((template) => ({
+    ...template,
+    ...(byKey.get(template.key) || {}),
+  }));
+}
+
+function normalizeMessageTranslations(translations, fallbackBody = '') {
+  const base = String(fallbackBody || '');
+  const normalized = {};
+  if (translations && typeof translations === 'object') {
+    SUPPORTED_AUTH_LANGUAGES.forEach((lang) => {
+      if (typeof translations[lang] === 'string' && translations[lang].trim()) {
+        normalized[lang] = String(translations[lang]);
+      }
+    });
+  }
+  if (!normalized.en) {
+    normalized.en = base;
+  }
+  return normalized;
+}
+
+function normalizeLocalizedMap(translations, fallbackText = '') {
+  const normalized = {};
+  if (translations && typeof translations === 'object') {
+    SUPPORTED_AUTH_LANGUAGES.forEach((lang) => {
+      if (typeof translations[lang] === 'string' && translations[lang].trim()) {
+        normalized[lang] = String(translations[lang]);
+      }
+    });
+  }
+  const fallback = String(fallbackText || '').trim();
+  if (fallback && !normalized.en) {
+    normalized.en = fallback;
+  }
+  return normalized;
+}
+
+function normalizeCustomRequestImageAttachments(imageAttachments) {
+  if (!Array.isArray(imageAttachments)) return [];
+  return imageAttachments
+    .map((item, index) => {
+      const image = String(item?.image || '');
+      if (!image) return null;
+      return {
+        id: String(item?.id || `custom_request_img_${Date.now()}_${index}`),
+        image,
+        imageName: String(item?.imageName || 'attachment.jpg'),
+        uploadedByUserId: String(item?.uploadedByUserId || ''),
+        uploadedByRole: ['buyer', 'seller', 'admin'].includes(item?.uploadedByRole) ? item.uploadedByRole : 'buyer',
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 6);
+}
+
+function normalizeDbState(nextDb) {
+  if (!nextDb || typeof nextDb !== 'object') {
+    return structuredClone(SEED_DB);
+  }
+
+  return {
+    ...structuredClone(SEED_DB),
+    ...nextDb,
+    users: Array.isArray(nextDb.users)
+      ? nextDb.users.map((user) => ({
+          ...user,
+          postalCode: String(user?.postalCode || ''),
+          strikeCount: Math.max(0, Number(user?.strikeCount || 0)),
+          timeFormat: normalizeTimeFormat(user?.timeFormat),
+          notificationPreferences: {
+            message: user?.notificationPreferences?.message !== false,
+            engagement: user?.notificationPreferences?.engagement !== false,
+          },
+        }))
+      : structuredClone(SEED_DB.users),
+    sellers: Array.isArray(nextDb.sellers)
+      ? nextDb.sellers.map((seller) => ({
+          ...seller,
+          isOnline: Boolean(seller?.isOnline),
+          feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
+          affiliatedBarId: String(seller?.affiliatedBarId || ''),
+          specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
+          bioI18n: normalizeLocalizedMap(seller?.bioI18n, seller?.bio),
+        }))
+      : structuredClone(SEED_DB.sellers),
+    bars: Array.isArray(nextDb.bars)
+      ? nextDb.bars.map((bar) => ({
+          ...bar,
+          aboutI18n: normalizeLocalizedMap(bar?.aboutI18n, bar?.about),
+          specialsI18n: normalizeLocalizedMap(bar?.specialsI18n, bar?.specials),
+        }))
+      : structuredClone(SEED_DB.bars || []),
+    barPosts: Array.isArray(nextDb.barPosts) ? nextDb.barPosts : structuredClone(SEED_DB.barPosts || []),
+    products: Array.isArray(nextDb.products)
+      ? nextDb.products.map((product) => ({
+          ...product,
+          price: Math.max(MIN_SELLER_PRICE_THB, Number(product?.price || MIN_SELLER_PRICE_THB)),
+        }))
+      : structuredClone(SEED_DB.products),
+    sellerPosts: Array.isArray(nextDb.sellerPosts)
+      ? nextDb.sellerPosts.map((post) => ({
+          ...post,
+          visibility: post?.visibility === 'private' ? 'private' : 'public',
+          accessPriceUsd: Math.max(MIN_SELLER_PRICE_THB, Number(post?.accessPriceUsd || MIN_SELLER_PRICE_THB)),
+          scheduledFor: typeof post?.scheduledFor === 'string' ? post.scheduledFor : '',
+        }))
+      : structuredClone(SEED_DB.sellerPosts),
+    postReports: Array.isArray(nextDb.postReports) ? nextDb.postReports : [],
+    commentReports: Array.isArray(nextDb.commentReports) ? nextDb.commentReports : [],
+    userStrikes: Array.isArray(nextDb.userStrikes) ? nextDb.userStrikes : [],
+    userAppeals: Array.isArray(nextDb.userAppeals) ? nextDb.userAppeals : [],
+    postUnlocks: Array.isArray(nextDb.postUnlocks) ? nextDb.postUnlocks : [],
+    sellerPostLikes: Array.isArray(nextDb.sellerPostLikes) ? nextDb.sellerPostLikes : [],
+    sellerPostComments: Array.isArray(nextDb.sellerPostComments) ? nextDb.sellerPostComments : [],
+    sellerFollows: Array.isArray(nextDb.sellerFollows) ? nextDb.sellerFollows : [],
+    sellerSavedPosts: Array.isArray(nextDb.sellerSavedPosts) ? nextDb.sellerSavedPosts : [],
+    customRequests: Array.isArray(nextDb.customRequests)
+      ? nextDb.customRequests.map((request) => ({
+          ...request,
+          buyerImageUploadEnabled: Boolean(request?.buyerImageUploadEnabled),
+        }))
+      : [],
+    customRequestMessages: Array.isArray(nextDb.customRequestMessages)
+      ? nextDb.customRequestMessages.map((message) => {
+          const body = String(message?.body || '');
+          const bodyOriginal = String(message?.bodyOriginal || body);
+          return {
+            ...message,
+            body,
+            bodyOriginal,
+            sourceLanguage: SUPPORTED_AUTH_LANGUAGES.includes(message?.sourceLanguage) ? message.sourceLanguage : 'en',
+            translations: normalizeMessageTranslations(message?.translations, bodyOriginal),
+            imageAttachments: normalizeCustomRequestImageAttachments(message?.imageAttachments),
+          };
+        })
+      : [],
+    refundClaims: Array.isArray(nextDb.refundClaims) ? nextDb.refundClaims : [],
+    barAffiliationRequests: Array.isArray(nextDb.barAffiliationRequests) ? nextDb.barAffiliationRequests : [],
+    adminInboxReviews: Array.isArray(nextDb.adminInboxReviews) ? nextDb.adminInboxReviews : [],
+    adminInboxFilterPresets: Array.isArray(nextDb.adminInboxFilterPresets) ? nextDb.adminInboxFilterPresets : [],
+    adminNotes: Array.isArray(nextDb.adminNotes) ? nextDb.adminNotes : [],
+    adminDisputeCases: Array.isArray(nextDb.adminDisputeCases) ? nextDb.adminDisputeCases : [],
+    inactivityNudges: Array.isArray(nextDb.inactivityNudges) ? nextDb.inactivityNudges : [],
+    orders: Array.isArray(nextDb.orders) ? nextDb.orders : [],
+    walletTransactions: Array.isArray(nextDb.walletTransactions) ? nextDb.walletTransactions : [],
+    messages: Array.isArray(nextDb.messages)
+      ? nextDb.messages.map((message) => {
+          const body = String(message?.body || '');
+          const bodyOriginal = String(message?.bodyOriginal || body);
+          return {
+            ...message,
+            body,
+            bodyOriginal,
+            sourceLanguage: SUPPORTED_AUTH_LANGUAGES.includes(message?.sourceLanguage) ? message.sourceLanguage : 'en',
+            translations: normalizeMessageTranslations(message?.translations, bodyOriginal),
+          };
+        })
+      : [],
+    notifications: Array.isArray(nextDb.notifications) ? nextDb.notifications : [],
+    blocks: Array.isArray(nextDb.blocks) ? nextDb.blocks : [],
+    adminActions: Array.isArray(nextDb.adminActions) ? nextDb.adminActions : [],
+    stripeEvents: Array.isArray(nextDb.stripeEvents) ? nextDb.stripeEvents : [],
+    emailTemplates: normalizeEmailTemplates(nextDb.emailTemplates),
+    emailDeliveryLog: Array.isArray(nextDb.emailDeliveryLog) ? nextDb.emailDeliveryLog : [],
+  };
+}
+
+function shouldSendNotificationForType(user, type) {
+  const preferences = user?.notificationPreferences || {};
+  if (type === 'message') return preferences.message !== false;
+  if (type === 'engagement') return preferences.engagement !== false;
+  return true;
+}
+
+function buildAbsoluteActionUrl(path) {
+  const safePath = String(path || '/account').startsWith('/') ? String(path || '/account') : `/${String(path || 'account')}`;
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}${safePath}`;
+  }
+  return `https://thailandpanties.local${safePath}`;
+}
+
+function fillEmailTemplate(templateText, vars) {
+  return String(templateText || '').replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, token) => {
+    const value = vars?.[token];
+    return value === undefined || value === null ? '' : String(value);
+  });
+}
+
+function appendTemplatedEmail(prev, { templateKey, userId, vars = {}, fallbackPath = '/account' }) {
+  const recipient = (prev.users || []).find((user) => user.id === userId);
+  if (!recipient?.email) return prev;
+  const templates = normalizeEmailTemplates(prev.emailTemplates);
+  const template = templates.find((entry) => entry.key === templateKey);
+  if (!template || template.enabled === false) return { ...prev, emailTemplates: templates };
+  const actionPath = vars.actionPath || template.ctaPath || fallbackPath;
+  const actionUrl = buildAbsoluteActionUrl(actionPath);
+  const renderVars = {
+    recipientName: recipient.name || 'there',
+    actionPath,
+    actionUrl,
+    ...vars,
+  };
+  const now = new Date().toISOString();
+  const queuedEmail = {
+    id: `email_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    templateKey,
+    userId,
+    toEmail: recipient.email,
+    toName: recipient.name || '',
+    subject: fillEmailTemplate(template.subject, renderVars),
+    body: fillEmailTemplate(template.body, renderVars),
+    ctaLabel: template.ctaLabel || 'Open in app',
+    actionPath,
+    actionUrl,
+    status: 'queued',
+    createdAt: now,
+  };
+  return {
+    ...prev,
+    emailTemplates: templates,
+    emailDeliveryLog: [queuedEmail, ...((prev.emailDeliveryLog || []).slice(0, 199))],
+  };
+}
+
+function appendLowBalanceEmailIfNeeded(prev, { userId, beforeBalance, afterBalance }) {
+  const before = Number(beforeBalance || 0);
+  const after = Number(afterBalance || 0);
+  if (!(before >= LOW_WALLET_BALANCE_THB && after < LOW_WALLET_BALANCE_THB)) {
+    return prev;
+  }
+  return appendTemplatedEmail(prev, {
+    templateKey: 'wallet_low_balance',
+    userId,
+    vars: {
+      walletBalance: formatPriceTHB(after),
+      threshold: formatPriceTHB(LOW_WALLET_BALANCE_THB),
+      actionPath: '/account',
+    },
+    fallbackPath: '/account',
+  });
+}
+
+function calculateSellerRevenueSplit(prev, { sellerId, grossAmount }) {
+  const gross = Number(Number(grossAmount || 0).toFixed(2));
+  if (!sellerId || !Number.isFinite(gross) || gross <= 0) {
+    return {
+      sellerUserId: null,
+      barUserId: null,
+      adminUserId: null,
+      sellerAmount: 0,
+      barAmount: 0,
+      adminAmount: 0,
+      affiliatedBarId: null,
+    };
+  }
+
+  const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
+  const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
+  const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
+  const barUser = affiliatedBarId
+    ? (prev.users || []).find((user) => user.role === 'bar' && user.barId === affiliatedBarId)
+    : null;
+  const adminUser = (prev.users || []).find((user) => user.role === 'admin');
+
+  const hasPayoutBar = Boolean(barUser?.id);
+  const sellerPct = hasPayoutBar ? SALE_SPLIT.sellerWithBar : SALE_SPLIT.sellerWithoutBar;
+  const barPct = hasPayoutBar ? SALE_SPLIT.bar : 0;
+
+  let sellerAmount = Number((gross * sellerPct).toFixed(2));
+  let barAmount = Number((gross * barPct).toFixed(2));
+  let adminAmount = Number((gross - sellerAmount - barAmount).toFixed(2));
+
+  if (!sellerUser?.id) {
+    adminAmount = Number((adminAmount + sellerAmount).toFixed(2));
+    sellerAmount = 0;
+  }
+  if (!barUser?.id) {
+    adminAmount = Number((adminAmount + barAmount).toFixed(2));
+    barAmount = 0;
+  }
+
+  return {
+    sellerUserId: sellerUser?.id || null,
+    barUserId: barUser?.id || null,
+    adminUserId: adminUser?.id || null,
+    sellerAmount,
+    barAmount,
+    adminAmount,
+    affiliatedBarId: hasPayoutBar ? affiliatedBarId : null,
+  };
+}
+
+function normalizeCountryName(countryValue) {
+  return String(countryValue || '').trim().toLowerCase();
+}
+
+function getShippingRateByCountry(countryValue) {
+  const normalizedCountry = normalizeCountryName(countryValue);
+  if (!normalizedCountry) {
+    return { destinationLabel: 'Select destination', standard: 0, express: 0, supported: false };
+  }
+  const aliases = {
+    thai: 'thailand',
+    burma: 'myanmar',
+    korea: 'south korea',
+    uk: 'united kingdom',
+    usa: 'united states',
+    us: 'united states',
+    uae: 'united arab emirates',
+  };
+  const canonical = aliases[normalizedCountry] || normalizedCountry;
+  const matched = SHIPPING_COUNTRY_RATES[canonical];
+  if (matched) {
+    return { destinationLabel: matched.label, standard: matched.standard, express: matched.express, supported: true };
+  }
+  return { destinationLabel: 'Unsupported destination', standard: 0, express: 0, supported: false };
+}
+
+function parseRoute(pathname) {
+  if (pathname === '/') return { name: 'home' };
+  if (pathname === '/find') return { name: 'find' };
+  if (pathname === '/login') return { name: 'login' };
+  if (pathname === '/register') return { name: 'register' };
+  if (pathname === '/checkout') return { name: 'checkout' };
+  if (pathname === '/checkout/success') return { name: 'checkout-success' };
+  if (pathname === '/admin') return { name: 'admin' };
+  if (pathname === '/seller-dashboard') return { name: 'account' };
+  if (pathname === '/bar-dashboard') return { name: 'bar-dashboard' };
+  if (pathname === '/seller-feed') return { name: 'seller-feed' };
+  if (pathname === '/account') return { name: 'account' };
+  if (pathname === '/bars') return { name: 'bars' };
+  if (pathname === '/appeals') return { name: 'appeals' };
+  if (pathname === '/privacy-policy') return { name: 'privacy-policy' };
+  if (pathname === '/terms') return { name: 'terms' };
+  if (pathname === '/shipping-policy') return { name: 'shipping-policy' };
+  if (pathname === '/refund-policy') return { name: 'refund-policy' };
+  if (pathname === '/refund-evidence') return { name: 'refund-evidence' };
+  if (pathname === '/community-standards') return { name: 'community-standards' };
+  if (pathname === '/seller-standards') return { name: 'seller-standards' };
+  if (pathname === '/contact') return { name: 'contact' };
+  if (pathname === '/faq') return { name: 'faq' };
+  if (pathname === '/custom-requests') return { name: 'custom-requests' };
+  if (pathname === '/worldwide-shipping') return { name: 'worldwide-shipping' };
+  if (pathname === '/seller-portfolios') return { name: 'seller-portfolios' };
+  if (pathname === '/how-to-apply') return { name: 'how-to-apply' };
+  if (pathname === '/seller-guidelines') return { name: 'seller-guidelines' };
+  if (pathname === '/portfolio-setup') return { name: 'portfolio-setup' };
+  if (pathname === '/order-help') return { name: 'order-help' };
+  if (pathname === '/privacy-packaging') return { name: 'privacy-packaging' };
+  if (pathname.startsWith('/product/')) return { name: 'product', slug: pathname.replace('/product/', '') };
+  if (pathname.startsWith('/bar/')) return { name: 'bar', id: pathname.replace('/bar/', '') };
+  if (pathname.startsWith('/seller/')) return { name: 'seller', id: pathname.replace('/seller/', '') };
+  return { name: 'home' };
+}
+
+function removeBundlesContainingSoldItems(products, soldProductIds) {
+  const soldSet = new Set(soldProductIds || []);
+  return (products || []).filter((product) => {
+    if (!product?.isBundle) return true;
+    const bundleItems = Array.isArray(product.bundleItemIds) ? product.bundleItemIds : [];
+    return !bundleItems.some((itemId) => soldSet.has(itemId));
+  });
+}
+
+const MALI_BUNDLE_PRODUCT_ID_SET = new Set([
+  'product-mali-bar-night-bodysuit',
+  'product-mali-underwear-velvet-brief',
+  'product-set-mali-night-bundle',
+]);
+
+function ensureMaliBundleSeedProducts(products) {
+  const currentProducts = Array.isArray(products) ? products : [];
+  const existingIds = new Set(currentProducts.map((product) => product?.id).filter(Boolean));
+  const missingSeedProducts = (SEED_DB.products || []).filter(
+    (product) => MALI_BUNDLE_PRODUCT_ID_SET.has(product?.id) && !existingIds.has(product.id),
+  );
+  return missingSeedProducts.length > 0 ? [...currentProducts, ...missingSeedProducts] : currentProducts;
+}
+
+function applyStrikeAndAutoFreeze(prev, { targetUserId, reason, sourceType, sourceId, reportId, adminUserId }) {
+  const targetUser = (prev.users || []).find((entry) => entry.id === targetUserId);
+  if (!targetUser || targetUser.role === 'admin') {
+    return prev;
+  }
+  const now = new Date().toISOString();
+  const activeStrikeCount = (prev.userStrikes || []).filter((strike) => strike.userId === targetUserId && strike.status === 'active').length;
+  const nextStrikeCount = activeStrikeCount + 1;
+  const shouldFreeze = nextStrikeCount >= 2 && targetUser.accountStatus !== 'blocked';
+  const strike = {
+    id: `strike_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    userId: targetUserId,
+    sourceType,
+    sourceId,
+    reportId,
+    reason: String(reason || '').slice(0, 500),
+    status: 'active',
+    createdAt: now,
+    appliedByUserId: adminUserId || 'admin',
+  };
+
+  return {
+    ...prev,
+    userStrikes: [strike, ...(prev.userStrikes || [])],
+    users: (prev.users || []).map((user) => {
+      if (user.id !== targetUserId) return user;
+      return {
+        ...user,
+        strikeCount: nextStrikeCount,
+        accountStatus: shouldFreeze ? 'frozen' : user.accountStatus,
+        frozenAt: shouldFreeze ? now : user.frozenAt,
+        frozenReason: shouldFreeze ? 'Automatically frozen after receiving two moderation strikes.' : user.frozenReason,
+      };
+    }),
+    notifications: [
+      {
+        id: `notif_${Date.now()}_strike`,
+        userId: targetUserId,
+        type: 'engagement',
+        text: shouldFreeze
+          ? 'Your account is frozen after two moderation strikes. Please submit an appeal.'
+          : `A moderation strike was added to your account (${nextStrikeCount}/2).`,
+        read: false,
+        createdAt: now,
+      },
+      ...(prev.notifications || []),
+    ],
+    adminActions: [
+      ...(prev.adminActions || []),
+      {
+        id: `admin_action_${Date.now()}_strike`,
+        type: 'apply_user_strike',
+        targetUserId,
+        targetReportId: reportId,
+        adminUserId: adminUserId || 'admin',
+        reason: strike.reason,
+        createdAt: now,
+      },
+      ...(shouldFreeze
+        ? [{
+            id: `admin_action_${Date.now()}_auto_freeze`,
+            type: 'auto_freeze_user',
+            targetUserId,
+            targetReportId: reportId,
+            adminUserId: adminUserId || 'admin',
+            reason: 'Reached two moderation strikes.',
+            createdAt: now,
+          }]
+        : []),
+    ],
+  };
+}
+
+export default function ThailandPantiesMarketSite() {
+  const apiIdempotencyKeysRef = useRef({});
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [db, setDb] = useState(() => {
+    const normalized = normalizeDbState(readStore('tlm-db', SEED_DB));
+    return {
+      ...normalized,
+      products: ensureMaliBundleSeedProducts(normalized.products || []),
+    };
+  });
+  const [cart, setCart] = useState(() => readStore('tlm-cart', []));
+  const [cartNotice, setCartNotice] = useState('');
+  const [session, setSession] = useState(() => readStore('tlm-session', { userId: null }));
+  const [apiAuthToken, setApiAuthToken] = useState(() => readStore('tlm-api-token', ''));
+  const [route, setRoute] = useState(() => {
+    if (typeof window === 'undefined') return '/';
+    return window.location.pathname || '/';
+  });
+  const [checkoutStep, setCheckoutStep] = useState(() => normalizeCheckoutStep(readStore('tlm-checkout-step', 1)));
+  const [adminTab, setAdminTab] = useState('overview');
+  const [filters, setFilters] = useState({
+    search: '',
+    size: 'All',
+    color: 'All',
+    style: 'All',
+    fabric: 'All',
+    daysWorn: 'All',
+    waistRise: 'All',
+    coverage: 'All',
+    condition: 'All',
+    scentLevel: 'All',
+    price: 'All',
+    shipping: 'All',
+  });
+  const [uploadDraft, setUploadDraft] = useState({
+    title: '',
+    sellerId: 'nina-b',
+    price: '',
+    size: SIZE_OPTIONS[2],
+    color: COLOR_OPTIONS[0],
+    style: STYLE_OPTIONS[0],
+    fabric: FABRIC_OPTIONS[0],
+    daysWorn: DAYS_WORN_OPTIONS[0],
+    condition: CONDITION_OPTIONS[0],
+    scentLevel: SCENT_LEVEL_OPTIONS[0],
+    image: '',
+    imageName: '',
+  });
+  const [buyerEmail, setBuyerEmail] = useState(() => String(readStore('tlm-checkout-buyer-email', '') || ''));
+  const [checkoutAuthModalOpen, setCheckoutAuthModalOpen] = useState(false);
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [authLanguage, setAuthLanguage] = useState(() => normalizeAuthLanguage(readStore('tlm-auth-language', 'en')));
+  const [registerForm, setRegisterForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: '',
+    city: '',
+    country: '',
+    acceptedRespectfulConduct: false,
+    acceptedNoRefunds: false,
+  });
+  const [authError, setAuthError] = useState('');
+  const [authErrorRefreshKey, setAuthErrorRefreshKey] = useState(0);
+  const [authSuccess, setAuthSuccess] = useState('');
+  const [checkoutForm, setCheckoutForm] = useState(() => normalizeCheckoutFormDraft(readStore('tlm-checkout-form', null)));
+  const [accountForm, setAccountForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    country: '',
+    city: '',
+    address: '',
+    postalCode: '',
+    height: '',
+    weight: '',
+    braSize: '',
+    pantySize: '',
+    interests: '',
+    hobbies: '',
+    timeFormat: '12h',
+  });
+  const [accountSaveMessage, setAccountSaveMessage] = useState('');
+  const [accountSearchQuery, setAccountSearchQuery] = useState('');
+  const [adminUserSearch, setAdminUserSearch] = useState('');
+  const [adminSelectedUserId, setAdminSelectedUserId] = useState('');
+  const [adminSellerReviewFilter, setAdminSellerReviewFilter] = useState('pending');
+  const [adminAuthActionMessage, setAdminAuthActionMessage] = useState('');
+  const [messageDraft, setMessageDraft] = useState('');
+  const [messageError, setMessageError] = useState('');
+  const [showOriginalMarketplaceMessageById, setShowOriginalMarketplaceMessageById] = useState({});
+  const [buyerDashboardConversationId, setBuyerDashboardConversationId] = useState('');
+  const [buyerDashboardMessageDraft, setBuyerDashboardMessageDraft] = useState('');
+  const [buyerDashboardMessageError, setBuyerDashboardMessageError] = useState('');
+  const [buyerMessageSellerSearch, setBuyerMessageSellerSearch] = useState('');
+  const [buyerMessageProductFilters, setBuyerMessageProductFilters] = useState({
+    search: '',
+    size: 'All',
+    style: 'All',
+    fabric: 'All',
+    daysWorn: 'All',
+    price: 'All',
+  });
+  const [topUpAmount, setTopUpAmount] = useState(500);
+  const [walletStatus, setWalletStatus] = useState('idle');
+  const [walletTopUpContext, setWalletTopUpContext] = useState(null);
+  const [sellerSelectedConversationId, setSellerSelectedConversationId] = useState('');
+  const [sellerReplyDraft, setSellerReplyDraft] = useState('');
+  const [sellerCustomRequestDraft, setSellerCustomRequestDraft] = useState({
+    name: '',
+    email: '',
+    preferredDetails: '',
+    shippingCountry: '',
+    requestBody: '',
+  });
+  const [sellerCustomRequestMessage, setSellerCustomRequestMessage] = useState('');
+  const [sellerProfileDraft, setSellerProfileDraft] = useState({
+    location: '',
+    specialties: [],
+    languages: [],
+    bio: '',
+    affiliatedBarId: '',
+    profileImage: '',
+    profileImageName: '',
+  });
+  const [sellerProfileMessage, setSellerProfileMessage] = useState('');
+  const [barProfileDraft, setBarProfileDraft] = useState({
+    location: '',
+    about: '',
+    specials: '',
+    mapEmbedUrl: '',
+    mapLink: '',
+    profileImage: '',
+    profileImageName: '',
+  });
+  const [barProfileMessage, setBarProfileMessage] = useState('');
+  const [barPostDraft, setBarPostDraft] = useState({
+    caption: '',
+    image: '',
+    imageName: '',
+  });
+  const [barInviteSellerId, setBarInviteSellerId] = useState('');
+  const [creatingBarPost, setCreatingBarPost] = useState(false);
+  const [savingBarProfile, setSavingBarProfile] = useState(false);
+  const [deletingBarPostId, setDeletingBarPostId] = useState(null);
+  const [deletingProductId, setDeletingProductId] = useState(null);
+  const [sellerPostDraft, setSellerPostDraft] = useState({
+    caption: '',
+    image: '',
+    imageName: '',
+    scheduledFor: '',
+    visibility: 'public',
+    accessPriceUsd: MIN_SELLER_PRICE_THB,
+  });
+  const [sellerPostDraftSavedAt, setSellerPostDraftSavedAt] = useState('');
+  const [creatingSellerPost, setCreatingSellerPost] = useState(false);
+  const [reportingSellerPostId, setReportingSellerPostId] = useState(null);
+  const [reportingSellerPostCommentId, setReportingSellerPostCommentId] = useState(null);
+  const [deletingSellerPostId, setDeletingSellerPostId] = useState(null);
+  const [resolvingPostReportId, setResolvingPostReportId] = useState(null);
+  const [resolvingAllPostReports, setResolvingAllPostReports] = useState(false);
+  const [resolvingCommentReportId, setResolvingCommentReportId] = useState(null);
+  const [resolvingAllCommentReports, setResolvingAllCommentReports] = useState(false);
+  const [submittingStrikeAppeal, setSubmittingStrikeAppeal] = useState(false);
+  const [reviewingAppealId, setReviewingAppealId] = useState(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState(null);
+  const [lastFrozenPopupUserId, setLastFrozenPopupUserId] = useState(null);
+  const [checkoutError, setCheckoutError] = useState('');
+  const [cartPulse, setCartPulse] = useState(false);
+  const cartNoticeTimerRef = useRef(null);
+  const cartPulseTimerRef = useRef(null);
+  const [messageRefreshTick, setMessageRefreshTick] = useState(0);
+  const [backendStatus, setBackendStatus] = useState('idle');
+  const [feedNow, setFeedNow] = useState(Date.now());
+  const emailDispatchInFlightRef = useRef(false);
+
+  const users = db.users;
+  const sellers = db.sellers;
+  const bars = db.bars || [];
+  const barPosts = db.barPosts || [];
+  const currentUser = users.find((u) => u.id === session.userId) || null;
+  const uiLanguage = ['en', 'th', 'my', 'ru'].includes(currentUser?.preferredLanguage)
+    ? currentUser.preferredLanguage
+    : 'en';
+  const rawProducts = db.products;
+  const rawSellerPosts = db.sellerPosts || [];
+  const products = useMemo(
+    () =>
+      (rawProducts || []).map((product) => ({
+        ...product,
+        title: resolveLocalizedText(product?.title, product?.titleI18n, uiLanguage),
+      })),
+    [rawProducts, uiLanguage]
+  );
+  const sellerPosts = useMemo(
+    () =>
+      (rawSellerPosts || []).map((post) => ({
+        ...post,
+        caption: resolveLocalizedText(post?.caption, post?.captionI18n, uiLanguage),
+      })),
+    [rawSellerPosts, uiLanguage]
+  );
+  const barMap = useMemo(
+    () => Object.fromEntries((bars || []).map((bar) => [bar.id, bar])),
+    [bars],
+  );
+  const postReports = db.postReports || [];
+  const commentReports = db.commentReports || [];
+  const userStrikes = db.userStrikes || [];
+  const userAppeals = db.userAppeals || [];
+  const postUnlocks = db.postUnlocks || [];
+  const sellerPostLikes = db.sellerPostLikes || [];
+  const sellerPostComments = db.sellerPostComments || [];
+  const sellerFollows = db.sellerFollows || [];
+  const sellerSavedPosts = db.sellerSavedPosts || [];
+  const sellerFollowerCountById = useMemo(() => {
+    const counts = {};
+    (sellerFollows || []).forEach((entry) => {
+      if (!entry?.sellerId) return;
+      counts[entry.sellerId] = (counts[entry.sellerId] || 0) + 1;
+    });
+    return counts;
+  }, [sellerFollows]);
+  const customRequests = db.customRequests || [];
+  const customRequestMessages = db.customRequestMessages || [];
+  const refundClaims = db.refundClaims || [];
+  const barAffiliationRequests = db.barAffiliationRequests || [];
+  const adminInboxReviews = db.adminInboxReviews || [];
+  const adminInboxFilterPresets = db.adminInboxFilterPresets || [];
+  const adminNotes = db.adminNotes || [];
+  const adminDisputeCases = db.adminDisputeCases || [];
+  const inactivityNudges = db.inactivityNudges || [];
+  const orders = db.orders;
+  const walletTransactions = db.walletTransactions || [];
+  const messages = db.messages || [];
+  const notifications = db.notifications || [];
+  const blocks = db.blocks || [];
+  const adminActions = db.adminActions || [];
+  const stripeEvents = db.stripeEvents;
+  const emailTemplates = db.emailTemplates || [];
+  const emailDeliveryLog = db.emailDeliveryLog || [];
+
+  const navText = SHARED_NAV_I18N[uiLanguage] || SHARED_NAV_I18N.en;
+  const publicText = publicSiteText(uiLanguage);
+  const sellerUserBySellerId = useMemo(() => {
+    const map = {};
+    (users || []).forEach((user) => {
+      if (user.role === 'seller' && user.sellerId) map[user.sellerId] = user;
+    });
+    return map;
+  }, [users]);
+  const barUserByBarId = useMemo(() => {
+    const map = {};
+    (users || []).forEach((user) => {
+      if (user.role === 'bar' && user.barId) map[user.barId] = user;
+    });
+    return map;
+  }, [users]);
+  const sellerStatus = (key, params = {}) => {
+    const dict = SELLER_STATUS_I18N[uiLanguage] || SELLER_STATUS_I18N.en;
+    const template = dict[key] ?? SELLER_STATUS_I18N.en[key] ?? key;
+    return typeof template === 'function' ? template(params) : template;
+  };
+  const loginText = LOGIN_I18N[authLanguage] || LOGIN_I18N.en;
+  const registerText = REGISTER_I18N[authLanguage] || REGISTER_I18N.en;
+  const localizeSellerApiError = (apiErrorMessage, fallbackKey) => {
+    const normalized = String(apiErrorMessage || '').trim();
+    const keyByApiError = {
+      'Product not found.': 'productNotFound',
+      'Post not found.': 'postNotFound',
+      'Report not found.': 'reportNotFound',
+      'You can only delete your own products.': 'onlyOwnProducts',
+      'You can only delete your own posts.': 'onlyOwnPosts',
+      'Invalid delete request.': 'invalidDeleteRequest',
+      'postId, reporterUserId, and reason are required.': 'reportFieldsRequired',
+      'Invalid report payload.': 'invalidReportPayload',
+      'Admin role is required.': 'adminRoleRequired',
+      'Invalid resolve request.': 'invalidResolveRequest',
+      'Seller not found.': 'sellerNotFound',
+      'You already reported this post.': 'alreadyReported',
+    };
+    const mappedKey = keyByApiError[normalized];
+    if (mappedKey) return sellerStatus(mappedKey);
+    if (normalized) return normalized;
+    return sellerStatus(fallbackKey);
+  };
+  const getApiHeaders = (baseHeaders = {}) => (
+    apiAuthToken
+      ? { ...baseHeaders, Authorization: `Bearer ${apiAuthToken}` }
+      : { ...baseHeaders }
+  );
+  const createIdempotencyKey = (scope = 'req') => (
+    (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+      ? `${scope}_${crypto.randomUUID()}`
+      : `${scope}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+  );
+  async function apiRequestJson(path, {
+    method = 'GET',
+    body,
+    headers = {},
+    idempotencyScope = '',
+    stableIdempotency = false,
+  } = {}) {
+    const nextHeaders = { ...headers };
+    if (idempotencyScope && !nextHeaders['Idempotency-Key']) {
+      const stableKey = stableIdempotency
+        ? (apiIdempotencyKeysRef.current[idempotencyScope] || createIdempotencyKey(idempotencyScope))
+        : createIdempotencyKey(idempotencyScope);
+      nextHeaders['Idempotency-Key'] = stableKey;
+      if (stableIdempotency) {
+        apiIdempotencyKeysRef.current[idempotencyScope] = stableKey;
+      }
+    }
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: getApiHeaders(nextHeaders),
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (stableIdempotency && idempotencyScope && response.ok) {
+      delete apiIdempotencyKeysRef.current[idempotencyScope];
+    }
+    if (response.status === 401 || response.status === 403) {
+      setApiAuthToken('');
+    }
+    return { ok: response.ok, status: response.status, payload };
+  }
+  async function requestTextTranslation(text, targetLang) {
+    const normalizedText = String(text || '').trim();
+    if (!normalizedText) return '';
+    if (!SUPPORTED_AUTH_LANGUAGES.includes(targetLang)) return '';
+    const response = await fetch(`${API_BASE_URL}/api/translate`, {
+      method: 'POST',
+      headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ text: normalizedText, targetLang }),
+    });
+    if (!response.ok) return '';
+    const payload = await response.json().catch(() => ({}));
+    return String(payload?.translatedText || '').trim();
+  }
+
+  async function buildTextTranslations(text) {
+    const normalizedText = String(text || '').trim();
+    if (!normalizedText || backendStatus !== 'connected') return {};
+    const entries = await Promise.all(
+      SUPPORTED_AUTH_LANGUAGES.map(async (lang) => {
+        const translated = await requestTextTranslation(normalizedText, lang).catch(() => '');
+        return [lang, translated || normalizedText];
+      })
+    );
+    return Object.fromEntries(entries);
+  }
+
+  async function buildBilingualSellerEmailText(baseText, preferredLanguage) {
+    const normalizedBase = String(baseText || '').trim();
+    const normalizedLang = SUPPORTED_AUTH_LANGUAGES.includes(preferredLanguage) ? preferredLanguage : 'en';
+    if (!normalizedBase || normalizedLang === 'en') return normalizedBase;
+    const translated = await requestTextTranslation(normalizedBase, normalizedLang).catch(() => '');
+    const normalizedTranslated = String(translated || '').trim();
+    if (!normalizedTranslated) return normalizedBase;
+    const languageLabel = {
+      th: 'Thai',
+      my: 'Burmese',
+      ru: 'Russian',
+    }[normalizedLang] || normalizedLang.toUpperCase();
+    return `English:\n${normalizedBase}\n\n---\n${languageLabel}:\n${normalizedTranslated}`;
+  }
+
+  async function buildMessageTranslationsForRecipient(messageBody, senderUser, recipientUser) {
+    const base = String(messageBody || '').trim();
+    if (!base) return { sourceLanguage: 'en', translations: { en: '' } };
+    const senderLanguage = SUPPORTED_AUTH_LANGUAGES.includes(senderUser?.preferredLanguage)
+      ? senderUser.preferredLanguage
+      : 'en';
+    const recipientLanguage = SUPPORTED_AUTH_LANGUAGES.includes(recipientUser?.preferredLanguage)
+      ? recipientUser.preferredLanguage
+      : 'en';
+    const translations = {
+      [senderLanguage]: base,
+    };
+    const requiredLanguages = new Set(['en', recipientLanguage]);
+    requiredLanguages.delete(senderLanguage);
+    if (backendStatus === 'connected') {
+      for (const language of requiredLanguages) {
+        if (!SUPPORTED_AUTH_LANGUAGES.includes(language)) continue;
+        const translated = await requestTextTranslation(base, language).catch(() => '');
+        if (translated) {
+          translations[language] = translated;
+        }
+      }
+    }
+    if (!translations.en) translations.en = base;
+    if (!translations[recipientLanguage]) translations[recipientLanguage] = base;
+    return {
+      sourceLanguage: senderLanguage,
+      translations: normalizeMessageTranslations(translations, base),
+    };
+  }
+
+  const currentSellerId = currentUser?.sellerId || 'nina-b';
+  const currentBarId = currentUser?.barId || '';
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const raw = window.localStorage.getItem('tlm-seller-post-drafts');
+    if (!raw) {
+      setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_SELLER_PRICE_THB }));
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      const draft = parsed?.[currentSellerId];
+      if (!draft) {
+        setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_SELLER_PRICE_THB }));
+        return;
+      }
+      setSellerPostDraft({
+        caption: String(draft.caption || '').slice(0, 500),
+        image: String(draft.image || ''),
+        imageName: String(draft.imageName || ''),
+        scheduledFor: String(draft.scheduledFor || ''),
+        visibility: draft.visibility === 'private' ? 'private' : 'public',
+        accessPriceUsd: Number.isFinite(Number(draft.accessPriceUsd)) && Number(draft.accessPriceUsd) >= MIN_SELLER_PRICE_THB
+          ? Number(Number(draft.accessPriceUsd).toFixed(2))
+          : MIN_SELLER_PRICE_THB,
+      });
+      setSellerPostDraftSavedAt(String(draft.savedAt || ''));
+    } catch {
+      setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_SELLER_PRICE_THB }));
+    }
+  }, [currentSellerId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !currentSellerId) return;
+    const savedAt = new Date().toISOString();
+    setSellerPostDraftSavedAt(savedAt);
+    const raw = window.localStorage.getItem('tlm-seller-post-drafts');
+    let parsed = {};
+    try {
+      parsed = raw ? JSON.parse(raw) : {};
+    } catch {
+      parsed = {};
+    }
+    parsed[currentSellerId] = {
+      caption: sellerPostDraft.caption || '',
+      image: sellerPostDraft.image || '',
+      imageName: sellerPostDraft.imageName || '',
+      scheduledFor: sellerPostDraft.scheduledFor || '',
+      savedAt,
+    };
+    window.localStorage.setItem('tlm-seller-post-drafts', JSON.stringify(parsed));
+  }, [sellerPostDraft, currentSellerId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const intervalId = window.setInterval(() => setFeedNow(Date.now()), 30000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const rawSellerMap = useMemo(
+    () =>
+      Object.fromEntries(
+        sellers.map((seller) => {
+          const resolvedImage = seller.profileImage || '';
+          const resolvedImageName = seller.profileImageName || `${seller.name} profile`;
+          return [
+            seller.id,
+            {
+              ...seller,
+              affiliatedBarName: seller.affiliatedBarId ? (barMap[seller.affiliatedBarId]?.name || '') : '',
+              profileImageResolved: resolvedImage,
+              profileImageNameResolved: resolvedImageName,
+            },
+          ];
+        }),
+      ),
+    [sellers, barMap],
+  );
+  const sellerMap = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.values(rawSellerMap).map((seller) => [
+          seller.id,
+          {
+            ...seller,
+            specialty: resolveLocalizedText(seller?.specialty, seller?.specialtyI18n, uiLanguage),
+            bio: resolveLocalizedText(seller?.bio, seller?.bioI18n, uiLanguage),
+          },
+        ]),
+      ),
+    [rawSellerMap, uiLanguage],
+  );
+  const localizedBarMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (bars || []).map((bar) => [
+          bar.id,
+          {
+            ...bar,
+            about: resolveLocalizedText(bar?.about, bar?.aboutI18n, uiLanguage),
+            specials: resolveLocalizedText(bar?.specials, bar?.specialsI18n, uiLanguage),
+          },
+        ]),
+      ),
+    [bars, uiLanguage],
+  );
+  const routeInfo = parseRoute(route);
+  const selectedBar = routeInfo.name === 'bar' ? localizedBarMap[routeInfo.id] || null : null;
+  const reservedProductIdSet = useMemo(() => new Set(cart), [cart]);
+  const availableProducts = useMemo(
+    () => products.filter((product) => !reservedProductIdSet.has(product.id)),
+    [products, reservedProductIdSet],
+  );
+  const selectedBarAffiliatedSellers = useMemo(() => {
+    if (!selectedBar) return [];
+    return (sellers || [])
+      .filter((seller) => seller.affiliatedBarId === selectedBar.id)
+      .map((seller) => sellerMap[seller.id] || seller);
+  }, [selectedBar, sellers, sellerMap]);
+  const selectedSeller = routeInfo.name === 'seller' ? sellerMap[routeInfo.id] || null : null;
+  const sortProductsNewestFirst = (items) =>
+    [...(items || [])].sort((a, b) => {
+      const aTs = new Date(a?.publishedAt || a?.createdAt || 0).getTime();
+      const bTs = new Date(b?.publishedAt || b?.createdAt || 0).getTime();
+      return bTs - aTs;
+    });
+  const selectedSellerAllProducts = useMemo(
+    () => (selectedSeller ? sortProductsNewestFirst(products.filter((product) => product.sellerId === selectedSeller.id)) : []),
+    [products, selectedSeller],
+  );
+  const selectedSellerAvailableProducts = useMemo(
+    () => (selectedSeller ? sortProductsNewestFirst(availableProducts.filter((product) => product.sellerId === selectedSeller.id)) : []),
+    [availableProducts, selectedSeller],
+  );
+  const selectedProduct = routeInfo.name === 'product' ? products.find((product) => product.slug === routeInfo.slug) || null : null;
+  const bundlesByItemId = useMemo(() => {
+    const map = {};
+    (products || []).forEach((product) => {
+      if (!product?.isBundle) return;
+      const itemIds = Array.isArray(product.bundleItemIds) ? product.bundleItemIds : [];
+      itemIds.forEach((itemId) => {
+        if (!map[itemId]) map[itemId] = [];
+        map[itemId].push(product);
+      });
+    });
+    return map;
+  }, [products]);
+  const selectedProductRelatedBundles = useMemo(() => {
+    if (!selectedProduct || selectedProduct.isBundle) return [];
+    return bundlesByItemId[selectedProduct.id] || [];
+  }, [selectedProduct, bundlesByItemId]);
+  const selectedProductPrimaryBundle = selectedProductRelatedBundles[0] || null;
+  const getPrimaryBundleForProduct = (productId) => {
+    if (!productId) return null;
+    const matches = bundlesByItemId[productId] || [];
+    return matches[0] || null;
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!currentUser || currentUser.accountStatus !== 'frozen') return;
+    if (routeInfo.name === 'appeals') return;
+    if (lastFrozenPopupUserId === currentUser.id) return;
+    setLastFrozenPopupUserId(currentUser.id);
+    window.alert('Your account is frozen after two moderation strikes. Please submit an appeal to continue.');
+    navigate('/appeals');
+  }, [currentUser, routeInfo.name, lastFrozenPopupUserId]);
+
+  const buyerOrders = useMemo(() => {
+    if (!currentUser) return [];
+    return orders.filter((order) => order.buyerUserId === currentUser.id || order.buyerEmail === currentUser.email);
+  }, [orders, currentUser]);
+  const recentBuyerOrders = useMemo(
+    () => [...buyerOrders].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
+    [buyerOrders],
+  );
+  const currentWalletBalance = Number(currentUser?.walletBalance || 0);
+  const buyerLedger = useMemo(() => {
+    if (!currentUser) return [];
+    return [...walletTransactions]
+      .filter((transaction) => transaction.userId === currentUser.id)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [walletTransactions, currentUser]);
+  const selectedConversationId = selectedSeller && currentUser?.role === 'buyer' ? `${currentUser.id}__${selectedSeller.id}` : null;
+  const selectedConversationMessages = useMemo(() => {
+    if (!selectedConversationId) return [];
+    return [...messages]
+      .filter((message) => message.conversationId === selectedConversationId)
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  }, [messages, selectedConversationId]);
+  const buyerConversations = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'buyer') return [];
+    const grouped = {};
+    messages.filter((message) => message.buyerId === currentUser.id).forEach((message) => {
+      if (!grouped[message.conversationId]) grouped[message.conversationId] = [];
+      grouped[message.conversationId].push(message);
+    });
+    return Object.entries(grouped)
+      .map(([conversationId, conversation]) => {
+        const sorted = [...conversation].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        const latest = sorted[0];
+        const unreadCount = conversation.filter((message) => !message.readByBuyer && message.senderRole === 'seller').length;
+        return {
+          conversationId,
+          sellerId: latest?.sellerId || '',
+          latestBody: latest?.body || '',
+          latestAt: latest?.createdAt || null,
+          latestSenderRole: latest?.senderRole || 'seller',
+          unreadCount,
+        };
+      })
+      .sort((a, b) => new Date(b.latestAt || 0) - new Date(a.latestAt || 0));
+  }, [messages, currentUser]);
+  const buyerSellerDirectory = useMemo(
+    () => [...Object.values(sellerMap)].sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''))),
+    [sellerMap],
+  );
+  const quickSellerResults = useMemo(() => {
+    const query = accountSearchQuery.trim().toLowerCase();
+    const source = query
+      ? Object.values(sellerMap).filter((seller) =>
+          [seller.name, seller.location, seller.specialty, seller.bio].some((value) => (value || '').toLowerCase().includes(query)),
+        )
+      : Object.values(sellerMap);
+    return source.slice(0, 6);
+  }, [sellerMap, accountSearchQuery]);
+  const quickProductResults = useMemo(() => {
+    const query = accountSearchQuery.trim().toLowerCase();
+    const source = query
+      ? products.filter((product) => {
+          const sellerName = sellerMap[product.sellerId]?.name || '';
+          return [product.title, product.style, product.fabric, sellerName].some((value) =>
+            (value || '').toLowerCase().includes(query),
+          );
+        })
+      : products;
+    return source.slice(0, 8);
+  }, [products, sellerMap, accountSearchQuery]);
+  const buyerMessageSellerResults = useMemo(() => {
+    const query = buyerMessageSellerSearch.trim().toLowerCase();
+    if (!query) return buyerSellerDirectory.slice(0, 8);
+    return buyerSellerDirectory
+      .filter((seller) => [seller.name, seller.location, seller.specialty, seller.bio].some((value) => (value || '').toLowerCase().includes(query)))
+      .slice(0, 8);
+  }, [buyerSellerDirectory, buyerMessageSellerSearch]);
+  const buyerMessageFilterOptions = useMemo(
+    () => ({
+      size: ['All', ...new Set([...SIZE_OPTIONS, ...products.map((product) => product.size || 'Not specified')])],
+      style: ['All', ...new Set(products.map((product) => product.style || 'Not specified'))],
+      fabric: ['All', ...new Set([...FABRIC_OPTIONS, ...products.map((product) => product.fabric || 'Not specified')])],
+      daysWorn: ['All', ...new Set([...DAYS_WORN_OPTIONS, ...products.map((product) => product.daysWorn || 'Not specified')])],
+    }),
+    [products],
+  );
+  const buyerMessageProductResults = useMemo(() => {
+    const query = buyerMessageProductFilters.search.trim().toLowerCase();
+    return products
+      .filter((product) => {
+        const sellerName = sellerMap[product.sellerId]?.name || '';
+        const matchesSearch = !query || [product.title, product.style, product.fabric, sellerName].some((value) => (value || '').toLowerCase().includes(query));
+        const matchesSize = buyerMessageProductFilters.size === 'All' || product.size === buyerMessageProductFilters.size;
+        const matchesStyle = buyerMessageProductFilters.style === 'All' || product.style === buyerMessageProductFilters.style;
+        const matchesFabric = buyerMessageProductFilters.fabric === 'All' || product.fabric === buyerMessageProductFilters.fabric;
+        const productDaysWorn = product.daysWorn || 'Not specified';
+        const matchesDaysWorn = buyerMessageProductFilters.daysWorn === 'All' || productDaysWorn === buyerMessageProductFilters.daysWorn;
+        const matchesPrice =
+          buyerMessageProductFilters.price === 'All' ||
+          (buyerMessageProductFilters.price === `Under ${formatPriceTHB(1400)}` && product.price < 1400) ||
+          (buyerMessageProductFilters.price === `${formatPriceTHB(1400)}-${formatPriceTHB(2000)}` && product.price >= 1400 && product.price <= 2000) ||
+          (buyerMessageProductFilters.price === `${formatPriceTHB(2000)}+` && product.price >= 2000);
+        return matchesSearch && matchesSize && matchesStyle && matchesFabric && matchesDaysWorn && matchesPrice;
+      })
+      .slice(0, 10);
+  }, [products, sellerMap, buyerMessageProductFilters]);
+  const buyerDashboardConversationMessages = useMemo(() => {
+    if (!buyerDashboardConversationId) return [];
+    return [...messages]
+      .filter((message) => message.conversationId === buyerDashboardConversationId)
+      .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+  }, [messages, buyerDashboardConversationId]);
+  const pendingSellerApprovals = useMemo(
+    () => users.filter((user) => user.role === 'seller' && user.accountStatus === 'pending'),
+    [users],
+  );
+  const rejectedSellerApplications = useMemo(
+    () => users.filter((user) => user.role === 'seller' && user.accountStatus === 'rejected'),
+    [users],
+  );
+  const todayIsoDate = new Date().toISOString().slice(0, 10);
+  const approvedTodaySellers = useMemo(
+    () =>
+      users.filter(
+        (user) => user.role === 'seller' && user.accountStatus === 'active' && (user.approvedAt || '').slice(0, 10) === todayIsoDate,
+      ),
+    [users, todayIsoDate],
+  );
+  const adminSellerReviewItems = useMemo(() => {
+    const source =
+      adminSellerReviewFilter === 'rejected'
+        ? rejectedSellerApplications
+        : adminSellerReviewFilter === 'approved_today'
+          ? approvedTodaySellers
+          : adminSellerReviewFilter === 'all'
+            ? users.filter((user) => user.role === 'seller')
+            : pendingSellerApprovals;
+    return [...source].sort((a, b) => new Date(a.sellerApplicationAt || a.createdAt || 0) - new Date(b.sellerApplicationAt || b.createdAt || 0));
+  }, [adminSellerReviewFilter, rejectedSellerApplications, approvedTodaySellers, users, pendingSellerApprovals]);
+  const currentSellerProfile = rawSellerMap[currentSellerId] || null;
+  const currentBarProfile = barMap[currentBarId] || null;
+  const sellerProfileChecklist = useMemo(() => {
+    if (!currentSellerProfile) return ['Seller profile not found'];
+    const checklist = [];
+    if (!currentSellerProfile.location || currentSellerProfile.location === 'To be updated') checklist.push('Add location');
+    if (!(Array.isArray(currentSellerProfile.specialties) && currentSellerProfile.specialties.length > 0) && (!currentSellerProfile.specialty || currentSellerProfile.specialty === 'Pending profile details')) checklist.push('Add specialty');
+    if (!(Array.isArray(currentSellerProfile.languages) && currentSellerProfile.languages.length > 0)) checklist.push('Add language');
+    if (!currentSellerProfile.bio || currentSellerProfile.bio.length < 20) checklist.push('Add a stronger bio');
+    return checklist;
+  }, [currentSellerProfile]);
+  const adminSalesSummary = useMemo(() => {
+    const productSales = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const customRequestSales = customRequests.reduce((sum, request) => {
+      if ((request?.quoteStatus || '') !== 'accepted') return sum;
+      if ((request?.status || '') === 'cancelled') return sum;
+      return sum + Number(request?.quotedPriceThb || 0);
+    }, 0);
+    const totalSales = Number((productSales + customRequestSales).toFixed(2));
+    return {
+      totalSales,
+      productSales: Number(productSales.toFixed(2)),
+      customRequestSales: Number(customRequestSales.toFixed(2)),
+      totalOrders: orders.length,
+      customRequestOrders: customRequests.filter((request) => (request?.quoteStatus || '') === 'accepted' && (request?.status || '') !== 'cancelled').length,
+      totalBuyers: users.filter((user) => user.role === 'buyer').length,
+      totalSellers: users.filter((user) => user.role === 'seller').length,
+    };
+  }, [orders, customRequests, users]);
+  const sellerSalesRows = useMemo(() => {
+    const productPriceById = Object.fromEntries(products.map((product) => [product.id, Number(product.price || 0)]));
+    return users
+      .filter((user) => user.role === 'seller' && user.sellerId)
+      .map((sellerUser) => {
+        const sellerProductIds = products.filter((product) => product.sellerId === sellerUser.sellerId).map((product) => product.id);
+        const sellerOrders = orders.filter((order) => (order.items || []).some((itemId) => sellerProductIds.includes(itemId)));
+        const productSalesValue = sellerOrders.reduce((sum, order) => {
+          const sellerItemTotal = (order.items || [])
+            .filter((itemId) => sellerProductIds.includes(itemId))
+            .reduce((itemSum, itemId) => itemSum + (productPriceById[itemId] || 0), 0);
+          return sum + sellerItemTotal;
+        }, 0);
+        const customRequestSalesValue = customRequests.reduce((sum, request) => {
+          if (request?.sellerId !== sellerUser.sellerId) return sum;
+          if ((request?.quoteStatus || '') !== 'accepted') return sum;
+          if ((request?.status || '') === 'cancelled') return sum;
+          return sum + Number(request?.quotedPriceThb || 0);
+        }, 0);
+        const salesValue = productSalesValue + customRequestSalesValue;
+        return {
+          userId: sellerUser.id,
+          sellerId: sellerUser.sellerId,
+          name: sellerUser.name,
+          email: sellerUser.email,
+          orderCount: sellerOrders.length,
+          customRequestOrderCount: customRequests.filter((request) => request?.sellerId === sellerUser.sellerId && (request?.quoteStatus || '') === 'accepted' && (request?.status || '') !== 'cancelled').length,
+          productSalesValue: Number(productSalesValue.toFixed(2)),
+          customRequestSalesValue: Number(customRequestSalesValue.toFixed(2)),
+          salesValue: Number(salesValue.toFixed(2)),
+        };
+      })
+      .sort((a, b) => b.salesValue - a.salesValue);
+  }, [users, products, orders, customRequests]);
+  const adminUserResults = useMemo(() => {
+    const query = adminUserSearch.trim().toLowerCase();
+    return users
+      .filter((user) => user.role === 'buyer' || user.role === 'seller' || user.role === 'bar')
+      .filter((user) => {
+        if (!query) return true;
+        return [user.name, user.email, user.role, user.sellerId, user.barId]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(query));
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [users, adminUserSearch]);
+  const adminSelectedUser = useMemo(() => {
+    if (adminSelectedUserId) {
+      const selected = users.find((user) => user.id === adminSelectedUserId);
+      if (selected) return selected;
+    }
+    return adminUserResults[0] || null;
+  }, [users, adminSelectedUserId, adminUserResults]);
+  const adminSelectedUserOrderHistory = useMemo(() => {
+    if (!adminSelectedUser) return [];
+    if (adminSelectedUser.role === 'buyer') {
+      return orders
+        .filter((order) => order.buyerUserId === adminSelectedUser.id || order.buyerEmail === adminSelectedUser.email)
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+    const sellerProductIds = products.filter((product) => product.sellerId === adminSelectedUser.sellerId).map((product) => product.id);
+    return orders
+      .filter((order) => (order.items || []).some((itemId) => sellerProductIds.includes(itemId)))
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [adminSelectedUser, orders, products]);
+  const adminSelectedUserMessageHistory = useMemo(() => {
+    if (!adminSelectedUser) return [];
+    return messages
+      .filter((message) => {
+        if (adminSelectedUser.role === 'buyer') return message.buyerId === adminSelectedUser.id;
+        return message.sellerId === adminSelectedUser.sellerId;
+      })
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [adminSelectedUser, messages]);
+  const sellerInbox = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'seller') return [];
+    const grouped = {};
+    messages.filter((message) => message.sellerId === currentUser.sellerId).forEach((message) => {
+      if (!grouped[message.conversationId]) grouped[message.conversationId] = [];
+      grouped[message.conversationId].push(message);
+    });
+    return Object.values(grouped)
+      .map((conversation) => {
+        const sortedConversation = [...conversation].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        const latestMessage = sortedConversation[0];
+        const hasUnread = sortedConversation.some((message) => !message.readBySeller);
+        return { ...latestMessage, hasUnread };
+      })
+      .sort((a, b) => {
+        const unreadPriorityDiff = Number(Boolean(b.hasUnread)) - Number(Boolean(a.hasUnread));
+        if (unreadPriorityDiff !== 0) return unreadPriorityDiff;
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
+  }, [messages, currentUser]);
+  const sellerMessageHistory = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'seller') return [];
+    return [...messages]
+      .filter((message) => message.sellerId === currentUser.sellerId)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [messages, currentUser]);
+  const sellerCustomRequests = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'seller') return [];
+    return [...customRequests]
+      .filter((request) => request.sellerId === currentUser.sellerId)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [customRequests, currentUser]);
+  const buyerCustomRequests = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'buyer') return [];
+    return [...customRequests]
+      .filter((request) => request.buyerUserId === currentUser.id)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [customRequests, currentUser]);
+  const customRequestMessagesByRequestId = useMemo(() => {
+    const grouped = {};
+    (customRequestMessages || []).forEach((message) => {
+      if (!grouped[message.requestId]) grouped[message.requestId] = [];
+      grouped[message.requestId].push(message);
+    });
+    Object.keys(grouped).forEach((requestId) => {
+      grouped[requestId] = grouped[requestId].sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+    });
+    return grouped;
+  }, [customRequestMessages]);
+  const sellerActiveConversationId = sellerSelectedConversationId || sellerInbox[0]?.conversationId || '';
+  const sellerActiveConversationMessages = useMemo(() => {
+    if (!sellerActiveConversationId) return [];
+    return [...messages]
+      .filter((message) => message.conversationId === sellerActiveConversationId)
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  }, [messages, sellerActiveConversationId]);
+  const unreadMessageCount = useMemo(() => {
+    if (!currentUser) return 0;
+    if (currentUser.role === 'buyer') {
+      return messages.filter((message) => message.buyerId === currentUser.id && message.senderRole === 'seller' && !message.readByBuyer).length;
+    }
+    if (currentUser.role === 'seller') {
+      return messages.filter((message) => message.sellerId === currentUser.sellerId && message.senderRole === 'buyer' && !message.readBySeller).length;
+    }
+    return 0;
+  }, [messages, currentUser]);
+
+  useEffect(() => {
+    if (currentUser?.role === 'seller' && !sellerSelectedConversationId && sellerInbox[0]?.conversationId) {
+      setSellerSelectedConversationId(sellerInbox[0].conversationId);
+    }
+  }, [currentUser, sellerInbox, sellerSelectedConversationId, messageRefreshTick]);
+
+  useEffect(() => {
+    if (!currentSellerProfile) return;
+    setSellerProfileDraft({
+      location: currentSellerProfile.location || '',
+      specialties: Array.isArray(currentSellerProfile.specialties) && currentSellerProfile.specialties.length > 0
+        ? currentSellerProfile.specialties.filter(Boolean)
+        : currentSellerProfile.specialty
+          ? [currentSellerProfile.specialty]
+          : [],
+      languages: Array.isArray(currentSellerProfile.languages) && currentSellerProfile.languages.length > 0
+        ? currentSellerProfile.languages.filter(Boolean)
+        : [],
+      bio: currentSellerProfile.bio || '',
+      affiliatedBarId: currentSellerProfile.affiliatedBarId || '',
+      profileImage: currentSellerProfile.profileImage || '',
+      profileImageName: currentSellerProfile.profileImageName || '',
+    });
+  }, [currentSellerProfile?.id]);
+
+  useEffect(() => {
+    if (!currentBarProfile) return;
+    setBarProfileDraft({
+      location: currentBarProfile.location || '',
+      about: currentBarProfile.about || '',
+      specials: currentBarProfile.specials || '',
+      mapEmbedUrl: currentBarProfile.mapEmbedUrl || '',
+      mapLink: currentBarProfile.mapLink || '',
+      profileImage: currentBarProfile.profileImage || '',
+      profileImageName: currentBarProfile.profileImageName || '',
+    });
+  }, [currentBarProfile?.id]);
+
+  useEffect(() => {
+    if (currentUser?.role !== 'buyer') return;
+    if (!buyerDashboardConversationId && buyerConversations[0]?.conversationId) {
+      setBuyerDashboardConversationId(buyerConversations[0].conversationId);
+    }
+  }, [currentUser, buyerConversations, buyerDashboardConversationId]);
+
+  useEffect(() => {
+    if (currentUser?.role !== 'buyer' || !buyerDashboardConversationId) return;
+    markNotificationsReadForConversation(buyerDashboardConversationId);
+  }, [currentUser?.role, buyerDashboardConversationId]);
+
+  useEffect(() => {
+    if (currentUser?.role === 'buyer') {
+      setSellerCustomRequestDraft((prev) => ({
+        ...prev,
+        name: currentUser.name || '',
+        email: currentUser.email || '',
+      }));
+    }
+  }, [currentUser?.id, currentUser?.role]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const storedVersion = window.localStorage.getItem('tlm-db-version');
+    if (storedVersion === DB_STORAGE_VERSION) return;
+
+    // One-time migration: clear stale local data so refreshed seed/options are applied.
+    window.localStorage.setItem('tlm-db-version', DB_STORAGE_VERSION);
+    window.localStorage.removeItem('tlm-db');
+    window.localStorage.removeItem('tlm-cart');
+    window.localStorage.removeItem('tlm-checkout-step');
+    window.localStorage.removeItem('tlm-checkout-buyer-email');
+    window.localStorage.removeItem('tlm-checkout-form');
+    window.localStorage.removeItem('tlm-session');
+    window.localStorage.removeItem('tlm-api-token');
+    setDb(structuredClone(SEED_DB));
+    setCart([]);
+    setCheckoutStep(1);
+    setBuyerEmail('');
+    setCheckoutForm(normalizeCheckoutFormDraft(null));
+    setSession({ userId: null });
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const loadBootstrap = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/bootstrap`);
+        if (!response.ok) return;
+        const payload = await response.json();
+        const hasLocalDb = !!window.localStorage.getItem('tlm-db');
+        if (!hasLocalDb && payload?.db) {
+          setDb(normalizeDbState(payload.db));
+        }
+        setBackendStatus('connected');
+      } catch {
+        setBackendStatus('offline');
+      }
+    };
+
+    loadBootstrap();
+  }, []);
+
+  useEffect(() => {
+    if (backendStatus !== 'connected') return;
+    if (emailDispatchInFlightRef.current) return;
+    const queuedEmails = (emailDeliveryLog || []).filter((entry) => entry.status === 'queued').slice(0, 5);
+    if (queuedEmails.length === 0) return;
+
+    emailDispatchInFlightRef.current = true;
+    const dispatchEmails = async () => {
+      try {
+        for (const queued of queuedEmails) {
+          const markSendingAt = new Date().toISOString();
+          setDb((prev) => ({
+            ...prev,
+            emailDeliveryLog: (prev.emailDeliveryLog || []).map((entry) => (
+              entry.id === queued.id && entry.status === 'queued'
+                ? { ...entry, status: 'sending', sendingStartedAt: markSendingAt }
+                : entry
+            )),
+          }));
+
+          try {
+            const recipientUser = (users || []).find((user) => user.id === queued.userId);
+            let outboundSubject = queued.subject;
+            let outboundText = queued.body;
+            const recipientLang = SUPPORTED_AUTH_LANGUAGES.includes(recipientUser?.preferredLanguage)
+              ? recipientUser.preferredLanguage
+              : 'en';
+            if (recipientUser?.role === 'seller' && recipientLang !== 'en') {
+              const [translatedSubject, bilingualBody] = await Promise.all([
+                requestTextTranslation(outboundSubject, recipientLang).catch(() => ''),
+                buildBilingualSellerEmailText(outboundText, recipientLang),
+              ]);
+              outboundSubject = translatedSubject
+                ? `${outboundSubject} | ${translatedSubject}`
+                : outboundSubject;
+              outboundText = bilingualBody || outboundText;
+            }
+            const response = await fetch(`${API_BASE_URL}/api/notifications/platform-email`, {
+              method: 'POST',
+              headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+              body: JSON.stringify({
+                toEmail: queued.toEmail,
+                toName: queued.toName,
+                subject: outboundSubject,
+                text: outboundText,
+                templateKey: queued.templateKey,
+                actionUrl: queued.actionUrl,
+              }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            const emailResult = payload?.email || {};
+            const delivered = Boolean(emailResult.delivered);
+            const mocked = Boolean(emailResult.mock) && !delivered;
+            const nextStatus = delivered ? 'sent' : mocked ? 'mocked' : 'failed';
+            const dispatchedAt = new Date().toISOString();
+            setDb((prev) => ({
+              ...prev,
+              emailDeliveryLog: (prev.emailDeliveryLog || []).map((entry) => (
+                entry.id === queued.id
+                  ? {
+                      ...entry,
+                      status: nextStatus,
+                      dispatchedAt,
+                      dispatchedSubject: outboundSubject,
+                      dispatchedBody: outboundText,
+                      deliveryMode: emailResult.mode || null,
+                      recipients: emailResult.recipients || [queued.toEmail],
+                      lastError: !delivered ? (emailResult.reason || `request_failed_${response.status}`) : null,
+                    }
+                  : entry
+              )),
+            }));
+          } catch {
+            const dispatchedAt = new Date().toISOString();
+            setDb((prev) => ({
+              ...prev,
+              emailDeliveryLog: (prev.emailDeliveryLog || []).map((entry) => (
+                entry.id === queued.id
+                  ? {
+                      ...entry,
+                      status: 'failed',
+                      dispatchedAt,
+                      lastError: 'network_error',
+                    }
+                  : entry
+              )),
+            }));
+          }
+        }
+      } finally {
+        emailDispatchInFlightRef.current = false;
+      }
+    };
+
+    dispatchEmails();
+  }, [backendStatus, emailDeliveryLog]);
+
+  useEffect(() => {
+    const nowMs = Date.now();
+    const staleThresholdMs = 24 * 60 * 60 * 1000;
+    const existingNudges = new Set(
+      (inactivityNudges || [])
+        .filter((entry) => (nowMs - new Date(entry.nudgedAt || 0).getTime()) < staleThresholdMs)
+        .map((entry) => entry.nudgeKey),
+    );
+    const usersById = {};
+    const sellerUserBySellerId = {};
+    (users || []).forEach((user) => {
+      usersById[user.id] = user;
+      if (user.role === 'seller' && user.sellerId) {
+        sellerUserBySellerId[user.sellerId] = user;
+      }
+    });
+
+    const candidates = [];
+
+    const latestMessageByConversation = {};
+    (messages || []).forEach((message) => {
+      const existing = latestMessageByConversation[message.conversationId];
+      if (!existing || new Date(message.createdAt || 0).getTime() > new Date(existing.createdAt || 0).getTime()) {
+        latestMessageByConversation[message.conversationId] = message;
+      }
+    });
+    Object.values(latestMessageByConversation).forEach((latest) => {
+      const latestAtMs = new Date(latest.createdAt || 0).getTime();
+      if (!latestAtMs || (nowMs - latestAtMs) < staleThresholdMs) return;
+      const sellerUser = sellerUserBySellerId[latest.sellerId];
+      const recipientUserId = latest.senderRole === 'buyer' ? sellerUser?.id : latest.buyerId;
+      const recipient = usersById[recipientUserId];
+      if (!recipient || recipient.accountStatus !== 'active') return;
+      const nudgeKey = `dm:${latest.conversationId}:${recipientUserId}`;
+      if (existingNudges.has(nudgeKey)) return;
+      candidates.push({
+        nudgeKey,
+        recipientUserId,
+        notificationType: 'message',
+        notificationText: `Reply reminder: conversation ${latest.conversationId} has been waiting for over 24 hours.`,
+        templateKey: recipient.role === 'seller' ? 'seller_message_received' : 'buyer_message_received',
+        vars: {
+          senderName: 'ThP Support',
+          conversationId: latest.conversationId,
+          actionPath: '/account',
+        },
+        fallbackPath: '/account',
+      });
+    });
+
+    (customRequests || []).forEach((request) => {
+      if (!['open', 'reviewing'].includes(request.status)) return;
+      const staleAt = new Date(request.updatedAt || request.createdAt || 0).getTime();
+      if (!staleAt || (nowMs - staleAt) < staleThresholdMs) return;
+      const sellerUser = sellerUserBySellerId[request.sellerId];
+      if (!sellerUser || sellerUser.accountStatus !== 'active') return;
+      const nudgeKey = `custom_request_status:${request.id}:${sellerUser.id}`;
+      if (existingNudges.has(nudgeKey)) return;
+      candidates.push({
+        nudgeKey,
+        recipientUserId: sellerUser.id,
+        notificationType: 'message',
+        notificationText: `Review reminder: custom request ${request.id} has been waiting over 24 hours.`,
+        templateKey: 'custom_request_received',
+        vars: {
+          buyerName: request.buyerName || 'Buyer',
+          requestId: request.id,
+          actionPath: '/custom-requests',
+        },
+        fallbackPath: '/custom-requests',
+      });
+    });
+
+    const latestCustomRequestMessageByRequestId = {};
+    (customRequestMessages || []).forEach((message) => {
+      const existing = latestCustomRequestMessageByRequestId[message.requestId];
+      if (!existing || new Date(message.createdAt || 0).getTime() > new Date(existing.createdAt || 0).getTime()) {
+        latestCustomRequestMessageByRequestId[message.requestId] = message;
+      }
+    });
+    Object.values(latestCustomRequestMessageByRequestId).forEach((latest) => {
+      const latestAtMs = new Date(latest.createdAt || 0).getTime();
+      if (!latestAtMs || (nowMs - latestAtMs) < staleThresholdMs) return;
+      const request = (customRequests || []).find((entry) => entry.id === latest.requestId);
+      if (!request || ['fulfilled', 'closed'].includes(request.status)) return;
+      const sellerUser = sellerUserBySellerId[request.sellerId];
+      const recipientUserId = latest.senderRole === 'buyer' ? sellerUser?.id : request.buyerUserId;
+      const recipient = usersById[recipientUserId];
+      if (!recipient || recipient.accountStatus !== 'active') return;
+      const nudgeKey = `custom_request_message:${latest.requestId}:${recipientUserId}`;
+      if (existingNudges.has(nudgeKey)) return;
+      candidates.push({
+        nudgeKey,
+        recipientUserId,
+        notificationType: 'message',
+        notificationText: `Reply reminder: custom request ${latest.requestId} has had no response for over 24 hours.`,
+        templateKey: recipient.role === 'seller' ? 'seller_message_received' : 'buyer_message_received',
+        vars: {
+          senderName: 'ThP Support',
+          conversationId: latest.requestId,
+          actionPath: '/custom-requests',
+        },
+        fallbackPath: '/custom-requests',
+      });
+    });
+
+    if (candidates.length === 0) return;
+
+    setDb((prev) => {
+      const refreshedNudgeSet = new Set(
+        (prev.inactivityNudges || [])
+          .filter((entry) => (nowMs - new Date(entry.nudgedAt || 0).getTime()) < staleThresholdMs)
+          .map((entry) => entry.nudgeKey),
+      );
+      const due = candidates.filter((candidate) => !refreshedNudgeSet.has(candidate.nudgeKey)).slice(0, 8);
+      if (due.length === 0) return prev;
+      const nudgedAt = new Date().toISOString();
+      let next = { ...prev };
+      due.forEach((candidate) => {
+        const recipient = (next.users || []).find((user) => user.id === candidate.recipientUserId);
+        if (!recipient) return;
+        if (shouldSendNotificationForType(recipient, candidate.notificationType)) {
+          next = {
+            ...next,
+            notifications: [
+              ...(next.notifications || []),
+              {
+                id: `notif_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                userId: candidate.recipientUserId,
+                type: candidate.notificationType,
+                text: candidate.notificationText,
+                read: false,
+                createdAt: nudgedAt,
+              },
+            ],
+          };
+        }
+        next = appendTemplatedEmail(next, {
+          templateKey: candidate.templateKey,
+          userId: candidate.recipientUserId,
+          vars: candidate.vars,
+          fallbackPath: candidate.fallbackPath,
+        });
+      });
+      return {
+        ...next,
+        inactivityNudges: [
+          ...due.map((candidate) => ({
+            id: `inactivity_nudge_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            nudgeKey: candidate.nudgeKey,
+            recipientUserId: candidate.recipientUserId,
+            nudgedAt,
+          })),
+          ...(next.inactivityNudges || []),
+        ].slice(0, 2500),
+      };
+    });
+  }, [messages, customRequests, customRequestMessages, users, inactivityNudges]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-db', JSON.stringify(db));
+  }, [db]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-cart', JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-checkout-step', JSON.stringify(normalizeCheckoutStep(checkoutStep)));
+  }, [checkoutStep]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-checkout-buyer-email', JSON.stringify(String(buyerEmail || '')));
+  }, [buyerEmail]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-checkout-form', JSON.stringify(normalizeCheckoutFormDraft(checkoutForm)));
+  }, [checkoutForm]);
+
+  useEffect(() => () => {
+    if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
+    if (cartPulseTimerRef.current) clearTimeout(cartPulseTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-session', JSON.stringify(session));
+  }, [session]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-api-token', JSON.stringify(apiAuthToken || ''));
+  }, [apiAuthToken]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-auth-language', JSON.stringify(authLanguage));
+  }, [authLanguage]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const syncFromStorage = () => {
+      const nextCart = readStore('tlm-cart', []);
+      const nextCheckoutStep = normalizeCheckoutStep(readStore('tlm-checkout-step', 1));
+      const nextCheckoutBuyerEmail = String(readStore('tlm-checkout-buyer-email', '') || '');
+      const nextCheckoutForm = normalizeCheckoutFormDraft(readStore('tlm-checkout-form', null));
+      const nextSession = readStore('tlm-session', { userId: null });
+      const nextApiAuthToken = String(readStore('tlm-api-token', '') || '');
+      const nextAuthLanguage = normalizeAuthLanguage(readStore('tlm-auth-language', 'en'));
+      setCart((prev) => JSON.stringify(prev) === JSON.stringify(nextCart) ? prev : nextCart);
+      setCheckoutStep((prev) => (prev === nextCheckoutStep ? prev : nextCheckoutStep));
+      setBuyerEmail((prev) => (prev === nextCheckoutBuyerEmail ? prev : nextCheckoutBuyerEmail));
+      setCheckoutForm((prev) => (JSON.stringify(prev) === JSON.stringify(nextCheckoutForm) ? prev : nextCheckoutForm));
+      setSession((prev) => JSON.stringify(prev) === JSON.stringify(nextSession) ? prev : nextSession);
+      setApiAuthToken((prev) => prev === nextApiAuthToken ? prev : nextApiAuthToken);
+      setAuthLanguage((prev) => prev === nextAuthLanguage ? prev : nextAuthLanguage);
+      setMessageRefreshTick((tick) => tick + 1);
+    };
+
+    const onStorage = (event) => {
+      if (!event.key || ['tlm-cart', 'tlm-checkout-step', 'tlm-checkout-buyer-email', 'tlm-checkout-form', 'tlm-session', 'tlm-api-token', 'tlm-auth-language'].includes(event.key)) {
+        syncFromStorage();
+      }
+    };
+
+    const onFocusOrVisible = () => syncFromStorage();
+    const intervalId = window.setInterval(syncFromStorage, 2500);
+
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('focus', onFocusOrVisible);
+    document.addEventListener('visibilitychange', onFocusOrVisible);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('focus', onFocusOrVisible);
+      document.removeEventListener('visibilitychange', onFocusOrVisible);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onPop = () => setRoute(window.location.pathname || '/');
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    document.title = SEO_CONFIG.title;
+
+    const ensureMeta = (name, content, attr = 'name') => {
+      let tag = document.head.querySelector(`meta[${attr}="${name}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute(attr, name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    };
+
+    ensureMeta('description', SEO_CONFIG.description);
+    ensureMeta('keywords', SEO_CONFIG.keywords.join(', '));
+    ensureMeta('og:title', SEO_CONFIG.title, 'property');
+    ensureMeta('og:description', SEO_CONFIG.description, 'property');
+    ensureMeta('og:image', SEO_CONFIG.ogImage, 'property');
+    ensureMeta('twitter:card', 'summary_large_image', 'name');
+    ensureMeta('twitter:title', SEO_CONFIG.title, 'name');
+    ensureMeta('twitter:description', SEO_CONFIG.description, 'name');
+  }, []);
+
+  useEffect(() => {
+    if (currentUser?.role === 'seller') {
+      setUploadDraft((prev) => ({ ...prev, sellerId: currentUser.sellerId }));
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    setAccountForm({
+      name: currentUser?.name || '',
+      email: currentUser?.email || '',
+      phone: currentUser?.phone || '',
+      country: currentUser?.country || '',
+      city: currentUser?.city || '',
+      address: currentUser?.address || '',
+      postalCode: currentUser?.postalCode || '',
+      height: currentUser?.height || '',
+      weight: currentUser?.weight || '',
+      braSize: currentUser?.braSize || '',
+      pantySize: currentUser?.pantySize || '',
+      interests: currentUser?.interests || '',
+      hobbies: currentUser?.hobbies || '',
+      timeFormat: normalizeTimeFormat(currentUser?.timeFormat),
+    });
+  }, [currentUser]);
+
+  useEffect(() => {
+    const nextTimeFormat = currentUser?.role === 'buyer'
+      ? normalizeTimeFormat(currentUser?.timeFormat)
+      : '12h';
+    setStoredTimeFormat(nextTimeFormat);
+  }, [currentUser?.id, currentUser?.role, currentUser?.timeFormat]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setBuyerEmail('');
+      setCheckoutForm(normalizeCheckoutFormDraft(null));
+      setCheckoutStep(1);
+      return;
+    }
+    const storedBuyerEmail = String(readStore('tlm-checkout-buyer-email', '') || '').trim();
+    const storedCheckoutForm = normalizeCheckoutFormDraft(readStore('tlm-checkout-form', null));
+    const hasStoredCheckoutDraft = Boolean(
+      storedBuyerEmail
+      || storedCheckoutForm.fullName
+      || storedCheckoutForm.country
+      || storedCheckoutForm.address
+      || storedCheckoutForm.postalCode
+    );
+    if (hasStoredCheckoutDraft) return;
+    setBuyerEmail(currentUser.email || '');
+    setCheckoutForm({
+      fullName: currentUser.name || '',
+      country: currentUser.country || '',
+      address: currentUser.address || '',
+      postalCode: currentUser.postalCode || '',
+      shippingMethod: 'standard',
+      saveAddressToProfile: true,
+    });
+  }, [currentUser?.id]);
+
+  const filterOptions = useMemo(
+    () => ({
+      size: ['All', ...new Set([...SIZE_OPTIONS, ...availableProducts.map((p) => p.size || 'Not specified')])],
+      color: ['All', ...new Set([...COLOR_OPTIONS, ...availableProducts.map((p) => p.color || 'Not specified')])],
+      style: ['All', ...new Set(availableProducts.map((p) => p.style || 'Not specified'))],
+      fabric: ['All', ...new Set([...FABRIC_OPTIONS, ...availableProducts.map((p) => p.fabric || 'Not specified')])],
+      daysWorn: ['All', ...new Set([...DAYS_WORN_OPTIONS, ...availableProducts.map((p) => p.daysWorn || 'Not specified')])],
+      waistRise: ['All', ...new Set([...WAIST_RISE_OPTIONS, ...availableProducts.map((p) => p.waistRise || 'Not specified')])],
+      coverage: ['All', ...new Set([...COVERAGE_OPTIONS, ...availableProducts.map((p) => p.coverage || 'Not specified')])],
+      condition: ['All', ...new Set([...CONDITION_OPTIONS, ...availableProducts.map((p) => p.condition || 'Not specified')])],
+      scentLevel: ['All', ...new Set([...SCENT_LEVEL_OPTIONS, ...availableProducts.map((p) => p.scentLevel || 'Not specified')])],
+      shipping: ['All', ...new Set(availableProducts.map((p) => p.shipping))],
+      price: ['All', `Under ${formatPriceTHB(1400)}`, `${formatPriceTHB(1400)}-${formatPriceTHB(2000)}`, `${formatPriceTHB(2000)}+`],
+    }),
+    [availableProducts],
+  );
+
+  const filteredProducts = useMemo(() => {
+    return availableProducts.filter((product) => {
+      const seller = sellerMap[product.sellerId];
+      const q = filters.search.trim().toLowerCase();
+      const matchesSearch =
+        q === '' ||
+        product.title.toLowerCase().includes(q) ||
+        seller?.name.toLowerCase().includes(q) ||
+        product.color.toLowerCase().includes(q) ||
+        product.style.toLowerCase().includes(q);
+
+      const matchesSize = filters.size === 'All' || product.size === filters.size;
+      const matchesColor = filters.color === 'All' || product.color === filters.color;
+      const matchesStyle = filters.style === 'All' || product.style === filters.style;
+      const matchesFabric = filters.fabric === 'All' || product.fabric === filters.fabric;
+      const productDaysWorn = product.daysWorn || 'Not specified';
+      const matchesDaysWorn = filters.daysWorn === 'All' || productDaysWorn === filters.daysWorn;
+      const productWaistRise = product.waistRise || 'Not specified';
+      const productCoverage = product.coverage || 'Not specified';
+      const productCondition = product.condition || 'Not specified';
+      const productScentLevel = product.scentLevel || 'Not specified';
+      const matchesWaistRise = filters.waistRise === 'All' || productWaistRise === filters.waistRise;
+      const matchesCoverage = filters.coverage === 'All' || productCoverage === filters.coverage;
+      const matchesCondition = filters.condition === 'All' || productCondition === filters.condition;
+      const matchesScentLevel = filters.scentLevel === 'All' || productScentLevel === filters.scentLevel;
+      const matchesShipping = filters.shipping === 'All' || product.shipping === filters.shipping;
+      const matchesPrice =
+        filters.price === 'All' ||
+        (filters.price === `Under ${formatPriceTHB(1400)}` && product.price < 1400) ||
+        (filters.price === `${formatPriceTHB(1400)}-${formatPriceTHB(2000)}` && product.price >= 1400 && product.price <= 2000) ||
+        (filters.price === `${formatPriceTHB(2000)}+` && product.price >= 2000);
+
+      return matchesSearch && matchesSize && matchesColor && matchesStyle && matchesFabric && matchesDaysWorn && matchesWaistRise && matchesCoverage && matchesCondition && matchesScentLevel && matchesShipping && matchesPrice;
+    });
+  }, [filters, availableProducts, sellerMap]);
+  const homeTopTypes = useMemo(() => {
+    const counts = {};
+    availableProducts.forEach((product) => {
+      const type = (product.style || '').trim();
+      if (!type) return;
+      counts[type] = (counts[type] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([type, count]) => ({ type, count }));
+  }, [availableProducts]);
+  const homeTopSizes = useMemo(() => {
+    const counts = {};
+    availableProducts.forEach((product) => {
+      const size = (product.size || '').trim();
+      if (!size) return;
+      counts[size] = (counts[size] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([size, count]) => ({ size, count }));
+  }, [availableProducts]);
+  const homeFeaturedSellers = useMemo(
+    () =>
+      Object.values(sellerMap)
+        .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')))
+        .slice(0, 3),
+    [sellerMap],
+  );
+  const sellerCountByBarId = useMemo(() => {
+    const counts = {};
+    (sellers || []).forEach((seller) => {
+      const barId = String(seller?.affiliatedBarId || '').trim();
+      if (!barId) return;
+      counts[barId] = (counts[barId] || 0) + 1;
+    });
+    return counts;
+  }, [sellers]);
+  const barFeedPosts = useMemo(
+    () => [...barPosts].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
+    [barPosts],
+  );
+  const barDashboardPosts = useMemo(
+    () => barFeedPosts.filter((post) => post.barId === currentBarId),
+    [barFeedPosts, currentBarId],
+  );
+
+  const sellerDashboardProducts = products.filter((product) => product.sellerId === currentSellerId);
+  const sellerAllPosts = useMemo(
+    () => [...sellerPosts].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
+    [sellerPosts],
+  );
+  const sellerFeedPosts = useMemo(
+    () =>
+      sellerAllPosts.filter((post) => {
+        if (!post?.scheduledFor) return true;
+        return new Date(post.scheduledFor).getTime() <= feedNow;
+      }),
+    [sellerAllPosts, feedNow],
+  );
+  const savedHomePreviewPosts = useMemo(() => {
+    if (!currentUser) return [];
+    const savedIds = new Set(
+      (sellerSavedPosts || [])
+        .filter((entry) => entry.userId === currentUser.id)
+        .map((entry) => entry.postId),
+    );
+    return sellerFeedPosts.filter((post) => savedIds.has(post.id)).slice(0, 6);
+  }, [currentUser, sellerSavedPosts, sellerFeedPosts]);
+  const homeFeedPreviewPosts = sellerFeedPosts.slice(0, 6);
+  const sellerDashboardPosts = useMemo(
+    () => sellerAllPosts.filter((post) => post.sellerId === currentSellerId),
+    [sellerAllPosts, currentSellerId],
+  );
+  const sellerPostAnalytics = useMemo(() => {
+    const lockedPosts = sellerDashboardPosts.filter((post) => isSellerPostPrivate(post));
+    const scheduledPosts = sellerDashboardPosts.filter((post) => post?.scheduledFor && new Date(post.scheduledFor).getTime() > feedNow);
+    const unlockedRows = postUnlocks.filter((entry) => {
+      const post = sellerPosts.find((candidate) => candidate.id === entry.postId);
+      return post?.sellerId === currentSellerId;
+    });
+    const unlockCount = unlockedRows.length;
+    const unlockRevenue = unlockedRows.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+    const sellerUserId = users.find((user) => user.sellerId === currentSellerId)?.id;
+    const messageRevenue = (walletTransactions || [])
+      .filter((entry) => entry.userId === sellerUserId && entry.type === 'message_fee' && Number(entry.amount || 0) > 0)
+      .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+    const unlocksByPost = {};
+    unlockedRows.forEach((entry) => {
+      unlocksByPost[entry.postId] = (unlocksByPost[entry.postId] || 0) + 1;
+    });
+    let topPostId = null;
+    let topUnlocks = 0;
+    Object.entries(unlocksByPost).forEach(([postId, count]) => {
+      if (count > topUnlocks) {
+        topUnlocks = count;
+        topPostId = postId;
+      }
+    });
+    const topPost = sellerDashboardPosts.find((post) => post.id === topPostId) || null;
+    const sellerPostIdSet = new Set(sellerDashboardPosts.map((post) => post.id));
+    const sellerLikeRows = sellerPostLikes.filter((entry) => sellerPostIdSet.has(entry.postId));
+    const sellerCommentRows = sellerPostComments.filter((entry) => sellerPostIdSet.has(entry.postId));
+    const followerCount = sellerFollowerCountById[currentSellerId] || 0;
+    const now = feedNow;
+    const dayMs = 24 * 60 * 60 * 1000;
+    const recentStart = now - (7 * dayMs);
+    const previousStart = now - (14 * dayMs);
+    const recentEngagement =
+      sellerLikeRows.filter((entry) => new Date(entry.createdAt || 0).getTime() >= recentStart).length +
+      sellerCommentRows.filter((entry) => new Date(entry.createdAt || 0).getTime() >= recentStart).length;
+    const previousEngagement =
+      sellerLikeRows.filter((entry) => {
+        const ts = new Date(entry.createdAt || 0).getTime();
+        return ts >= previousStart && ts < recentStart;
+      }).length +
+      sellerCommentRows.filter((entry) => {
+        const ts = new Date(entry.createdAt || 0).getTime();
+        return ts >= previousStart && ts < recentStart;
+      }).length;
+    const engagementTrendPct = previousEngagement === 0
+      ? (recentEngagement > 0 ? 100 : 0)
+      : Math.round(((recentEngagement - previousEngagement) / previousEngagement) * 100);
+    return {
+      lockedPostCount: lockedPosts.length,
+      scheduledPostCount: scheduledPosts.length,
+      unlockCount,
+      unlockRevenue,
+      messageRevenue,
+      totalRevenue: Number((unlockRevenue + messageRevenue).toFixed(2)),
+      topPostTitle: topPost?.caption?.slice(0, 60) || topPost?.id || 'No unlocked posts yet',
+      topPostUnlocks: topUnlocks,
+      likeCount: sellerLikeRows.length,
+      commentCount: sellerCommentRows.length,
+      followerCount,
+      recentEngagement,
+      engagementTrendPct,
+    };
+  }, [sellerDashboardPosts, postUnlocks, sellerPosts, currentSellerId, sellerPostLikes, sellerPostComments, sellerFollowerCountById, walletTransactions, users, feedNow]);
+  const cartItems = cart.map((id) => products.find((product) => product.id === id)).filter(Boolean);
+  const checkoutBundleSuggestion = useMemo(() => {
+    if (cartItems.length !== 1) return null;
+    const selectedItem = cartItems[0];
+    if (!selectedItem || selectedItem.isBundle) return null;
+    const matchingBundles = bundlesByItemId[selectedItem.id] || [];
+    const firstAvailableBundle = matchingBundles.find((bundle) => !cart.includes(bundle.id)) || null;
+    if (!firstAvailableBundle) return null;
+    return {
+      selectedItem,
+      bundle: firstAvailableBundle,
+    };
+  }, [cartItems, bundlesByItemId, cart]);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+  const shippingBaseRates = getShippingRateByCountry(checkoutForm.country);
+  const shippingSupported = shippingBaseRates.supported;
+  const additionalItems = Math.max(cartItems.length - 1, 0);
+  const shippingRates = {
+    standard: shippingSupported ? shippingBaseRates.standard + additionalItems * 2 : 0,
+    express: shippingSupported ? shippingBaseRates.express + additionalItems * 3 : 0,
+  };
+  const shippingFee = cartItems.length > 0
+    ? shippingRates[checkoutForm.shippingMethod] ?? shippingRates.standard
+    : 0;
+  const total = subtotal + shippingFee;
+
+  function navigate(path) {
+    setRoute(path);
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', path);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    setMobileMenuOpen(false);
+    setAccountMenuOpen(false);
+  }
+
+  function openWalletTopUpForFlow(shortfallAmount, returnTo = '/checkout', source = 'checkout') {
+    const normalizedShortfall = Math.max(0, Number(shortfallAmount || 0));
+    const requiredTopUp = getRequiredTopUpAmount(normalizedShortfall);
+    setWalletTopUpContext({
+      source,
+      topupRequired: requiredTopUp,
+      returnTo: returnTo || '/checkout',
+    });
+    navigate('/account');
+  }
+
+  function openWalletTopUpFromCheckout(shortfallAmount) {
+    openWalletTopUpForFlow(shortfallAmount, '/checkout', 'checkout');
+  }
+
+  function updateFilter(key, value) {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function resetFilters() {
+    setFilters({
+      search: '',
+      size: 'All',
+      color: 'All',
+      style: 'All',
+      fabric: 'All',
+      daysWorn: 'All',
+      waistRise: 'All',
+      coverage: 'All',
+      condition: 'All',
+      scentLevel: 'All',
+      price: 'All',
+      shipping: 'All',
+    });
+  }
+
+  function addToCart(productId) {
+    if (currentUser?.role === 'bar') {
+      if (typeof window !== 'undefined') window.alert('Bar accounts cannot buy or sell marketplace products.');
+      return;
+    }
+    let itemWasAdded = false;
+    setCart((prev) => {
+      if (prev.includes(productId)) {
+        setCartNotice(publicText.alreadyInCartNotice);
+        return prev;
+      }
+      itemWasAdded = true;
+      setCartNotice(publicText.addedToCartNotice);
+      return [...prev, productId];
+    });
+    if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
+    cartNoticeTimerRef.current = setTimeout(() => setCartNotice(''), 1800);
+    if (itemWasAdded) {
+      setCartPulse(true);
+      if (cartPulseTimerRef.current) clearTimeout(cartPulseTimerRef.current);
+      cartPulseTimerRef.current = setTimeout(() => setCartPulse(false), 450);
+    }
+  }
+
+  function addBundleToCartFromSingleItem(bundleProductId, sourceItemId) {
+    if (!bundleProductId) return;
+    if (currentUser?.role === 'bar') {
+      if (typeof window !== 'undefined') window.alert('Bar accounts cannot buy or sell marketplace products.');
+      return;
+    }
+    let changed = false;
+    setCart((prev) => {
+      if (prev.includes(bundleProductId)) {
+        setCartNotice('Bundle is already in your cart.');
+        return prev;
+      }
+      const next = prev.includes(sourceItemId)
+        ? prev.map((id) => (id === sourceItemId ? bundleProductId : id))
+        : [...prev, bundleProductId];
+      changed = true;
+      setCartNotice(prev.includes(sourceItemId) ? 'Switched to bundle in cart.' : 'Bundle added to cart.');
+      return next;
+    });
+    if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
+    cartNoticeTimerRef.current = setTimeout(() => setCartNotice(''), 1800);
+    if (changed) {
+      setCartPulse(true);
+      if (cartPulseTimerRef.current) clearTimeout(cartPulseTimerRef.current);
+      cartPulseTimerRef.current = setTimeout(() => setCartPulse(false), 450);
+    }
+  }
+
+  function removeFromCart(indexToRemove) {
+    setCart((prev) => prev.filter((_, index) => index !== indexToRemove));
+  }
+
+  async function notifyAdminOfSellerApplication({ name, email, requestedAt }) {
+    try {
+      await fetch(`${API_BASE_URL}/api/notifications/seller-approval-request`, {
+        method: 'POST',
+        headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          sellerName: name,
+          sellerEmail: email,
+          requestedAt,
+        }),
+      });
+    } catch {
+      // Keep registration working even if notification delivery fails.
+    }
+  }
+
+  async function loginWithCredentials(event) {
+    event.preventDefault();
+    setAuthErrorRefreshKey((prev) => prev + 1);
+    const email = loginForm.email.trim().toLowerCase();
+    const password = loginForm.password;
+    const user = users.find((candidate) => candidate.email.toLowerCase() === email);
+    if (!user || user.password !== password) {
+      setAuthError(loginText.invalidCredentials);
+      setAuthSuccess('');
+      return;
+    }
+    if (user.accountStatus === 'blocked') {
+      setAuthError(loginText.blocked);
+      setAuthSuccess('');
+      return;
+    }
+    if (user.role === 'seller' && user.accountStatus === 'rejected') {
+      setAuthError(`${loginText.sellerRejectedPrefix} ${user.rejectionReason || loginText.sellerRejectedFallback}`);
+      setAuthSuccess('');
+      return;
+    }
+    if (user.role === 'seller' && user.accountStatus === 'pending') {
+      setAuthError(loginText.sellerPending);
+      setAuthSuccess('');
+      return;
+    }
+    setSession({ userId: user.id });
+    try {
+      const authResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (authResponse.ok) {
+        const authPayload = await authResponse.json();
+        const token = String(authPayload?.token || '');
+        setApiAuthToken(token);
+      } else {
+        setApiAuthToken('');
+      }
+    } catch {
+      setApiAuthToken('');
+    }
+    setAuthError('');
+    setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
+    setCheckoutAuthModalOpen(false);
+    if (user.role === 'admin') {
+      navigate('/admin');
+      return;
+    }
+    if (user.role === 'seller') {
+      navigate('/account');
+      return;
+    }
+    if (user.role === 'bar') {
+      navigate('/bar-dashboard');
+      return;
+    }
+    navigate('/account');
+  }
+
+  async function registerAccount(event) {
+    event.preventDefault();
+    const name = registerForm.name.trim();
+    const email = registerForm.email.trim().toLowerCase();
+    const role = registerForm.role;
+    const city = registerForm.city.trim();
+    const country = registerForm.country.trim();
+    const password = registerForm.password;
+    if (!['buyer', 'seller', 'bar'].includes(role)) {
+      setAuthError(registerText.chooseRoleError);
+      setAuthSuccess('');
+      return;
+    }
+    if (role === 'seller' && (!name || !email || !password || !city || !country)) {
+      setAuthError(registerText.sellerRequiredError);
+      setAuthSuccess('');
+      return;
+    }
+    if (role === 'buyer' && (!name || !email || !password)) {
+      setAuthError(registerText.buyerRequiredError);
+      setAuthSuccess('');
+      return;
+    }
+    if (role === 'buyer' && (!registerForm.acceptedRespectfulConduct || !registerForm.acceptedNoRefunds)) {
+      setAuthError(registerText.buyerTermsRequiredError || registerText.buyerRequiredError);
+      setAuthSuccess('');
+      return;
+    }
+    if (role === 'bar' && (!name || !email || !password || !city || !country)) {
+      setAuthError(registerText.barRequiredError || registerText.sellerRequiredError);
+      setAuthSuccess('');
+      return;
+    }
+    const exists = users.some((user) => user.email.toLowerCase() === email);
+    if (exists) {
+      setAuthError(registerText.emailExistsError);
+      setAuthSuccess('');
+      return;
+    }
+    const now = new Date().toISOString();
+    const userId = `user_${Date.now()}`;
+    const requestedSellerSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'new-seller';
+    const requestedBarSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'new-bar';
+    const newUser = {
+      id: userId,
+      role,
+      name,
+      email,
+      password,
+      phone: '',
+      country: role === 'seller' || role === 'bar' ? country : '',
+      city: role === 'seller' || role === 'bar' ? city : '',
+      address: '',
+      postalCode: '',
+      height: '',
+      weight: '',
+      braSize: '',
+      pantySize: '',
+      interests: '',
+      hobbies: '',
+      walletBalance: 0,
+      timeFormat: '12h',
+      notificationPreferences: {
+        message: true,
+        engagement: true,
+      },
+      ...(role === 'seller'
+        ? {
+            accountStatus: 'pending',
+            sellerApplicationAt: now,
+            sellerApplicationStatus: 'pending',
+            requestedSellerSlug,
+          }
+        : role === 'bar'
+          ? {
+              accountStatus: 'active',
+              barId: requestedBarSlug,
+            }
+          : {
+              accountStatus: 'active',
+              acceptedBuyerTermsAt: now,
+            }),
+    };
+    setDb((prev) => {
+      let nextUser = { ...newUser };
+      let nextBars = prev.bars || [];
+      if (role === 'bar') {
+        let barId = requestedBarSlug;
+        let suffix = 1;
+        while ((nextBars || []).some((bar) => bar.id === barId)) {
+          suffix += 1;
+          barId = `${requestedBarSlug}-${suffix}`;
+        }
+        nextUser = { ...nextUser, barId };
+        nextBars = [
+          ...nextBars,
+          {
+            id: barId,
+            name,
+            location: [city, country].filter(Boolean).join(', '),
+            about: '',
+            specials: '',
+            mapEmbedUrl: '',
+            mapLink: '',
+            profileImage: '',
+            profileImageName: '',
+          },
+        ];
+      }
+      return {
+        ...prev,
+        users: [...prev.users, nextUser],
+        bars: nextBars,
+        notifications: [
+          ...(prev.notifications || []),
+          {
+            id: `notif_${Date.now()}`,
+            userId,
+            text: role === 'seller' ? 'Seller application submitted for review.' : role === 'bar' ? 'Welcome. Your bar page is ready to set up.' : 'Welcome to Thailand Panties.',
+            read: false,
+            createdAt: now,
+          },
+        ],
+      };
+    });
+    setRegisterForm({
+      name: '',
+      email: '',
+      password: '',
+      role: '',
+      city: '',
+      country: '',
+      acceptedRespectfulConduct: false,
+      acceptedNoRefunds: false,
+    });
+    setAuthError('');
+    if (role === 'seller') {
+      await notifyAdminOfSellerApplication({ name, email, requestedAt: now });
+      setAuthSuccess(registerText.sellerPendingSuccess);
+      navigate('/login');
+      return;
+    }
+    setSession({ userId });
+    setAuthSuccess(role === 'bar' ? (registerText.barSuccess || registerText.buyerSuccess) : registerText.buyerSuccess);
+    setCheckoutAuthModalOpen(false);
+    navigate(role === 'bar' ? '/bar-dashboard' : '/account');
+  }
+
+  function approveSellerAccount(userId) {
+    setDb((prev) => {
+      const user = prev.users.find((candidate) => candidate.id === userId);
+      if (!user || user.role !== 'seller' || (user.accountStatus !== 'pending' && user.accountStatus !== 'rejected')) return prev;
+      const slugBase = user.requestedSellerSlug || user.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'new-seller';
+      let sellerId = user.sellerId || slugBase;
+      if (!user.sellerId) {
+        let count = 1;
+        while (prev.sellers.some((seller) => seller.id === sellerId)) {
+          count += 1;
+          sellerId = `${slugBase}-${count}`;
+        }
+      }
+      const now = new Date().toISOString();
+      const existingSeller = prev.sellers.find((seller) => seller.id === sellerId);
+      const base = {
+        ...prev,
+        users: prev.users.map((candidate) =>
+          candidate.id === userId
+            ? {
+                ...candidate,
+                accountStatus: 'active',
+                sellerId,
+                approvedAt: now,
+                rejectedAt: undefined,
+                rejectionReason: undefined,
+                sellerApplicationStatus: 'approved',
+              }
+            : candidate,
+        ),
+        sellers: existingSeller
+          ? prev.sellers
+          : [
+              ...prev.sellers,
+              {
+                id: sellerId,
+                name: `${user.name} Studio`,
+                location: [user.city, user.country].filter(Boolean).join(', ') || '',
+                specialty: 'Everyday',
+                specialties: ['Everyday'],
+                bio: randomSellerBio(),
+                shipping: 'Worldwide',
+                turnaround: 'Ships in 1-3 days',
+                isOnline: false,
+                feedVisibility: 'public',
+                languages: ['English'],
+                highlights: ['New seller'],
+                portfolioUrl: '',
+              },
+            ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'approve_seller',
+            targetUserId: userId,
+            adminUserId: currentUser?.id || 'admin',
+            createdAt: now,
+          },
+        ],
+      };
+      return appendTemplatedEmail(base, {
+        templateKey: 'seller_application_approved',
+        userId,
+        vars: {
+          actionPath: '/seller-dashboard',
+        },
+        fallbackPath: '/seller-dashboard',
+      });
+    });
+    setAdminAuthActionMessage('Seller account approved.');
+  }
+
+  function approveAllPendingSellers() {
+    if (!pendingSellerApprovals.length) return;
+    if (typeof window !== 'undefined' && !window.confirm(`Approve all ${pendingSellerApprovals.length} pending sellers?`)) return;
+    pendingSellerApprovals.forEach((user) => approveSellerAccount(user.id));
+    setAdminAuthActionMessage(`Approved ${pendingSellerApprovals.length} seller application(s).`);
+  }
+
+  function rejectSellerAccount(userId, reason = 'Not a fit right now') {
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const targetUser = prev.users.find((candidate) => (
+        candidate.id === userId && candidate.role === 'seller' && candidate.accountStatus === 'pending'
+      ));
+      if (!targetUser) return prev;
+      const base = {
+        ...prev,
+        users: prev.users.map((candidate) =>
+          candidate.id === userId
+            ? {
+                ...candidate,
+                accountStatus: 'rejected',
+                sellerApplicationStatus: 'rejected',
+                rejectedAt: now,
+                rejectionReason: reason,
+              }
+            : candidate,
+        ),
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'reject_seller',
+            targetUserId: userId,
+            adminUserId: currentUser?.id || 'admin',
+            reason,
+            createdAt: now,
+          },
+        ],
+      };
+      return appendTemplatedEmail(base, {
+        templateKey: 'seller_application_rejected',
+        userId,
+        vars: {
+          reason: String(reason || 'Not a fit right now'),
+          actionPath: '/account',
+        },
+        fallbackPath: '/account',
+      });
+    });
+    setAdminAuthActionMessage('Seller application marked as rejected.');
+  }
+
+  function updateBarProfileByAdmin(barId, updates = {}) {
+    if (!currentUser || currentUser.role !== 'admin' || !barId) return;
+    const now = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      bars: (prev.bars || []).map((bar) => (
+        bar.id === barId
+          ? {
+              ...bar,
+              name: String(updates.name ?? bar.name ?? '').trim(),
+              location: String(updates.location ?? bar.location ?? '').trim(),
+              about: String(updates.about ?? bar.about ?? '').trim(),
+              specials: String(updates.specials ?? bar.specials ?? '').trim(),
+              mapEmbedUrl: String(updates.mapEmbedUrl ?? bar.mapEmbedUrl ?? '').trim(),
+              mapLink: String(updates.mapLink ?? bar.mapLink ?? '').trim(),
+            }
+          : bar
+      )),
+      adminActions: [
+        ...(prev.adminActions || []),
+        {
+          id: `admin_action_${Date.now()}_bar_update`,
+          type: 'update_bar_profile',
+          targetBarId: barId,
+          adminUserId: currentUser.id,
+          createdAt: now,
+        },
+      ],
+    }));
+    setAdminAuthActionMessage('Bar profile updated.');
+  }
+
+  function setSellerBarAffiliationByAdmin(sellerId, barId) {
+    if (!currentUser || currentUser.role !== 'admin' || !sellerId) return;
+    const normalizedBarId = String(barId || '').trim();
+    const barExists = !normalizedBarId || (bars || []).some((bar) => bar.id === normalizedBarId);
+    if (!barExists) return;
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
+      const previousBarId = String(seller?.affiliatedBarId || '').trim();
+      const nextBar = (prev.bars || []).find((bar) => bar.id === normalizedBarId);
+      const previousBar = (prev.bars || []).find((bar) => bar.id === previousBarId);
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
+      const nextBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === normalizedBarId);
+      const previousBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === previousBarId);
+      const nextNotifications = [...(prev.notifications || [])];
+      if (sellerUser?.id) {
+        nextNotifications.push(
+          buildInAppNotification(
+            sellerUser.id,
+            normalizedBarId
+              ? `Admin set your affiliation to ${nextBar?.name || 'a bar'}.`
+              : 'Admin set your affiliation to Independent.',
+            now,
+          )
+        );
+      }
+      if (normalizedBarId && nextBarUser?.id) {
+        nextNotifications.push(
+          buildInAppNotification(nextBarUser.id, `${seller?.name || 'Seller'} is now affiliated with ${nextBar?.name || 'your bar'}.`, now)
+        );
+      }
+      if (previousBarId && previousBarId !== normalizedBarId && previousBarUser?.id) {
+        nextNotifications.push(
+          buildInAppNotification(previousBarUser.id, `${seller?.name || 'Seller'} is no longer affiliated with ${previousBar?.name || 'your bar'}.`, now)
+        );
+      }
+      return {
+        ...prev,
+        sellers: (prev.sellers || []).map((entry) => (
+          entry.id === sellerId
+            ? { ...entry, affiliatedBarId: normalizedBarId }
+            : entry
+        )),
+        notifications: nextNotifications,
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}_seller_bar`,
+            type: 'set_seller_bar_affiliation',
+            targetSellerId: sellerId,
+            targetBarId: normalizedBarId || null,
+            adminUserId: currentUser.id,
+            createdAt: now,
+          },
+        ],
+      };
+    });
+    setAdminAuthActionMessage(normalizedBarId ? 'Seller affiliation updated.' : 'Seller set to Independent.');
+  }
+
+  function removeBarByAdmin(barId) {
+    if (!currentUser || currentUser.role !== 'admin' || !barId) return;
+    const now = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      bars: (prev.bars || []).filter((bar) => bar.id !== barId),
+      barPosts: (prev.barPosts || []).filter((post) => post.barId !== barId),
+      sellers: (prev.sellers || []).map((seller) => (
+        seller.affiliatedBarId === barId
+          ? { ...seller, affiliatedBarId: '' }
+          : seller
+      )),
+      adminActions: [
+        ...(prev.adminActions || []),
+        {
+          id: `admin_action_${Date.now()}_bar_remove`,
+          type: 'remove_bar',
+          targetBarId: barId,
+          adminUserId: currentUser.id,
+          createdAt: now,
+        },
+      ],
+    }));
+    setAdminAuthActionMessage('Bar removed. Linked sellers set to Independent.');
+  }
+
+  function toggleAdminBlockUser(userId) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    const target = users.find((user) => user.id === userId);
+    if (!target || target.role === 'admin') return;
+    const isBlocked = target.accountStatus === 'blocked';
+    const now = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      users: prev.users.map((user) => {
+        if (user.id !== userId) return user;
+        if (isBlocked) {
+          return {
+            ...user,
+            accountStatus: user.statusBeforeBlocked || 'active',
+            statusBeforeBlocked: undefined,
+            blockedAt: undefined,
+          };
+        }
+        return {
+          ...user,
+          statusBeforeBlocked: user.accountStatus || 'active',
+          accountStatus: 'blocked',
+          blockedAt: now,
+        };
+      }),
+      blocks: isBlocked
+        ? (prev.blocks || []).filter((entry) => !(entry.blockerUserId === currentUser.id && entry.blockedUserId === userId))
+        : [
+            ...(prev.blocks || []),
+            {
+              id: `block_${Date.now()}`,
+              blockerUserId: currentUser.id,
+              blockedUserId: userId,
+              createdAt: now,
+              reason: 'admin_action',
+            },
+          ],
+      notifications: [
+        ...(prev.notifications || []),
+        {
+          id: `notif_${Date.now()}`,
+          userId,
+          text: isBlocked ? 'Your account has been unblocked by admin.' : 'Your account has been blocked by admin.',
+          read: false,
+          createdAt: now,
+        },
+      ],
+      adminActions: [
+        ...(prev.adminActions || []),
+        {
+          id: `admin_action_${Date.now()}`,
+          type: isBlocked ? 'unblock_user' : 'block_user',
+          targetUserId: userId,
+          adminUserId: currentUser.id,
+          createdAt: now,
+        },
+      ],
+    }));
+  }
+
+  function logout() {
+    setSession({ userId: null });
+    setApiAuthToken('');
+    apiIdempotencyKeysRef.current = {};
+    setAuthError('');
+    setAuthSuccess('');
+    navigate('/');
+  }
+
+  function updateAccountField(key, value) {
+    if (['address', 'city', 'country', 'postalCode', 'timeFormat'].includes(key)) {
+      setAccountSaveMessage('');
+    }
+    setAccountForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function updateCheckoutField(key, value) {
+    if (key === 'country' || key === 'shippingMethod' || key === 'postalCode') {
+      setCheckoutError('');
+    }
+    setCheckoutForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function updateSellerProfileField(key, value) {
+    setSellerProfileMessage('');
+    setSellerProfileDraft((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function makeRuntimeId(prefix) {
+    return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  }
+
+  function buildInAppNotification(userId, text, createdAt, type = 'engagement', extra = {}) {
+    return {
+      id: makeRuntimeId('notif'),
+      userId,
+      type,
+      text,
+      read: false,
+      createdAt,
+      ...extra,
+    };
+  }
+
+  async function saveSellerProfile() {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const specialties = (sellerProfileDraft.specialties || [])
+      .map((value) => (value || '').trim())
+      .filter((value) => SELLER_SPECIALTY_OPTIONS.includes(value));
+    const languages = (sellerProfileDraft.languages || [])
+      .map((value) => (value || '').trim())
+      .filter((value) => SELLER_LANGUAGE_OPTIONS.includes(value));
+    const requestedBarId = String(sellerProfileDraft.affiliatedBarId || '').trim();
+    const normalizedAffiliatedBarId = requestedBarId && bars.some((bar) => bar.id === requestedBarId) ? requestedBarId : '';
+    const previousAffiliatedBarId = String(currentSellerProfile?.affiliatedBarId || '').trim();
+    const isAffiliationChange = normalizedAffiliatedBarId !== previousAffiliatedBarId;
+    const isJoinRequest = Boolean(normalizedAffiliatedBarId && isAffiliationChange);
+    const isLeavingBar = Boolean(!normalizedAffiliatedBarId && previousAffiliatedBarId);
+    const now = new Date().toISOString();
+    const specialtyText = specialties.join(' · ') || 'Pending profile details';
+    const bioText = sellerProfileDraft.bio.trim();
+    const [specialtyI18n, bioI18n] = await Promise.all([
+      buildTextTranslations(specialtyText),
+      buildTextTranslations(bioText),
+    ]);
+    setDb((prev) => {
+      const nextNotifications = [...(prev.notifications || [])];
+      const nextAdminActions = [...(prev.adminActions || [])];
+      const nextRequests = [...(prev.barAffiliationRequests || [])];
+      const prevSeller = (prev.sellers || []).find((seller) => seller.id === currentSellerId);
+      const prevSellerName = prevSeller?.name || currentUser?.name || 'Seller';
+      const requestedBar = (prev.bars || []).find((bar) => bar.id === normalizedAffiliatedBarId);
+      const previousBar = (prev.bars || []).find((bar) => bar.id === previousAffiliatedBarId);
+      const requestedBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === normalizedAffiliatedBarId);
+      const previousBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === previousAffiliatedBarId);
+
+      let sellerMessage = sellerStatus('profileSaved');
+      if (isJoinRequest) {
+        const duplicateRequest = nextRequests.some((request) =>
+          request.status === 'pending'
+          && request.direction === 'seller_to_bar'
+          && request.sellerId === currentSellerId
+          && request.barId === normalizedAffiliatedBarId
+        );
+        if (!duplicateRequest) {
+          nextRequests.push({
+            id: makeRuntimeId('bar_affiliation_request'),
+            direction: 'seller_to_bar',
+            sellerId: currentSellerId,
+            barId: normalizedAffiliatedBarId,
+            requestedByUserId: currentUser.id,
+            requestedByRole: 'seller',
+            status: 'pending',
+            createdAt: now,
+            respondedAt: null,
+            respondedByUserId: null,
+          });
+          if (requestedBarUser?.id) {
+            nextNotifications.push(
+              buildInAppNotification(
+                requestedBarUser.id,
+                `${prevSellerName} requested to join ${requestedBar?.name || 'your bar'}.`,
+                now,
+              )
+            );
+          }
+          nextAdminActions.push({
+            id: makeRuntimeId('admin_action'),
+            type: 'seller_requested_bar_affiliation',
+            targetSellerId: currentSellerId,
+            targetBarId: normalizedAffiliatedBarId,
+            actorUserId: currentUser.id,
+            createdAt: now,
+          });
+          sellerMessage = requestedBar?.name
+            ? `Affiliation request sent to ${requestedBar.name}.`
+            : 'Affiliation request sent.';
+        } else {
+          sellerMessage = requestedBar?.name
+            ? `You already have a pending request for ${requestedBar.name}.`
+            : 'You already have a pending affiliation request.';
+        }
+      }
+
+      if (isLeavingBar && previousBarUser?.id) {
+        nextNotifications.push(
+          buildInAppNotification(
+            previousBarUser.id,
+            `${prevSellerName} is no longer affiliated with ${previousBar?.name || 'your bar'}.`,
+            now,
+          )
+        );
+        nextAdminActions.push({
+          id: makeRuntimeId('admin_action'),
+          type: 'seller_left_bar_affiliation',
+          targetSellerId: currentSellerId,
+          targetBarId: previousAffiliatedBarId,
+          actorUserId: currentUser.id,
+          createdAt: now,
+        });
+      }
+
+      setSellerProfileMessage(sellerMessage);
+      return {
+        ...prev,
+        sellers: (prev.sellers || []).map((seller) =>
+          seller.id === currentSellerId
+            ? {
+                ...seller,
+                location: sellerProfileDraft.location.trim(),
+                specialties,
+                specialty: specialtyText,
+                specialtyI18n: specialtyI18n && Object.keys(specialtyI18n).length > 0 ? specialtyI18n : normalizeLocalizedMap(seller?.specialtyI18n, specialtyText),
+                languages,
+                bio: bioText,
+                bioI18n: bioI18n && Object.keys(bioI18n).length > 0 ? bioI18n : normalizeLocalizedMap(seller?.bioI18n, bioText),
+                affiliatedBarId: isJoinRequest ? previousAffiliatedBarId : normalizedAffiliatedBarId,
+                shipping: 'Worldwide via international carriers',
+                turnaround: 'Ships in 1-3 days',
+                portfolioUrl: '',
+                profileImage: sellerProfileDraft.profileImage || '',
+                profileImageName: sellerProfileDraft.profileImageName || '',
+              }
+            : seller,
+        ),
+        barAffiliationRequests: nextRequests,
+        notifications: nextNotifications,
+        adminActions: nextAdminActions,
+      };
+    });
+  }
+
+  function requestSellerAffiliationByBar(sellerId) {
+    if (!currentUser || currentUser.role !== 'bar' || !currentBarId || !sellerId) return;
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
+      const bar = (prev.bars || []).find((entry) => entry.id === currentBarId);
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
+      if (!seller || !bar) return prev;
+      if (String(seller.affiliatedBarId || '').trim() === currentBarId) {
+        setBarProfileMessage(`${seller.name} is already affiliated with ${bar.name}.`);
+        return prev;
+      }
+      const hasPending = (prev.barAffiliationRequests || []).some((request) =>
+        request.status === 'pending'
+        && request.direction === 'bar_to_seller'
+        && request.sellerId === sellerId
+        && request.barId === currentBarId
+      );
+      if (hasPending) {
+        setBarProfileMessage(`A pending invite already exists for ${seller.name}.`);
+        return prev;
+      }
+      const nextRequest = {
+        id: makeRuntimeId('bar_affiliation_request'),
+        direction: 'bar_to_seller',
+        sellerId,
+        barId: currentBarId,
+        requestedByUserId: currentUser.id,
+        requestedByRole: 'bar',
+        status: 'pending',
+        createdAt: now,
+        respondedAt: null,
+        respondedByUserId: null,
+      };
+      setBarProfileMessage(`Invite sent to ${seller.name}.`);
+      return {
+        ...prev,
+        barAffiliationRequests: [...(prev.barAffiliationRequests || []), nextRequest],
+        notifications: sellerUser?.id
+          ? [
+              ...(prev.notifications || []),
+              buildInAppNotification(
+                sellerUser.id,
+                `${bar.name} requested to add you as an affiliated seller.`,
+                now,
+              ),
+            ]
+          : (prev.notifications || []),
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: makeRuntimeId('admin_action'),
+            type: 'bar_requested_seller_affiliation',
+            targetSellerId: sellerId,
+            targetBarId: currentBarId,
+            actorUserId: currentUser.id,
+            createdAt: now,
+          },
+        ],
+      };
+    });
+  }
+
+  function respondToBarAffiliationRequest(requestId, decision) {
+    if (!requestId || !['approved', 'rejected'].includes(decision)) return;
+    if (!currentUser || !['bar', 'seller', 'admin'].includes(currentUser.role)) return;
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const request = (prev.barAffiliationRequests || []).find((entry) => entry.id === requestId);
+      if (!request || request.status !== 'pending') return prev;
+      const seller = (prev.sellers || []).find((entry) => entry.id === request.sellerId);
+      const bar = (prev.bars || []).find((entry) => entry.id === request.barId);
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === request.sellerId);
+      const barUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === request.barId);
+      if (!seller || !bar) return prev;
+      const actorIsBarApprover = request.direction === 'seller_to_bar' && currentUser.role === 'bar' && currentUser.barId === request.barId;
+      const actorIsSellerApprover = request.direction === 'bar_to_seller' && currentUser.role === 'seller' && currentUser.sellerId === request.sellerId;
+      const actorIsAdminApprover = currentUser.role === 'admin';
+      if (!actorIsBarApprover && !actorIsSellerApprover && !actorIsAdminApprover) return prev;
+
+      const previousBarId = String(seller.affiliatedBarId || '').trim();
+      const nextNotifications = [...(prev.notifications || [])];
+      const nextAdminActions = [...(prev.adminActions || [])];
+      const nextRequests = (prev.barAffiliationRequests || []).map((entry) => (
+        entry.id === requestId
+          ? {
+              ...entry,
+              status: decision,
+              respondedAt: now,
+              respondedByUserId: currentUser.id,
+            }
+          : entry
+      ));
+
+      if (decision === 'approved') {
+        if (sellerUser?.id) {
+          nextNotifications.push(
+            buildInAppNotification(
+              sellerUser.id,
+              actorIsAdminApprover
+                ? `Admin approved your affiliation with ${bar.name}.`
+                : `${bar.name} affiliation approved. You are now linked to this bar.`,
+              now,
+            )
+          );
+        }
+        if (barUser?.id) {
+          nextNotifications.push(
+            buildInAppNotification(
+              barUser.id,
+              actorIsAdminApprover
+                ? `Admin approved ${seller.name}'s affiliation with ${bar.name}.`
+                : `${seller.name} is now affiliated with ${bar.name}.`,
+              now,
+            )
+          );
+        }
+        if (previousBarId && previousBarId !== bar.id) {
+          const previousBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === previousBarId);
+          const previousBar = (prev.bars || []).find((entry) => entry.id === previousBarId);
+          if (previousBarUser?.id) {
+            nextNotifications.push(
+              buildInAppNotification(
+                previousBarUser.id,
+                `${seller.name} is no longer affiliated with ${previousBar?.name || 'your bar'}.`,
+                now,
+              )
+            );
+          }
+        }
+      } else {
+        if (request.direction === 'seller_to_bar' && sellerUser?.id) {
+          nextNotifications.push(
+            buildInAppNotification(
+              sellerUser.id,
+              actorIsAdminApprover
+                ? `Admin rejected your affiliation request for ${bar.name}.`
+                : `${bar.name} declined your affiliation request.`,
+              now,
+            )
+          );
+        }
+        if (request.direction === 'bar_to_seller' && barUser?.id) {
+          nextNotifications.push(
+            buildInAppNotification(
+              barUser.id,
+              actorIsAdminApprover
+                ? `Admin rejected the affiliation request for ${seller.name}.`
+                : `${seller.name} declined your affiliation request.`,
+              now,
+            )
+          );
+        }
+      }
+
+      nextAdminActions.push({
+        id: makeRuntimeId('admin_action'),
+        type: decision === 'approved' ? 'approve_bar_affiliation_request' : 'reject_bar_affiliation_request',
+        targetSellerId: request.sellerId,
+        targetBarId: request.barId,
+        actorUserId: currentUser.id,
+        requestId: request.id,
+        createdAt: now,
+      });
+      if (decision === 'approved') {
+        setBarProfileMessage(`Approved affiliation for ${seller.name}.`);
+        setSellerProfileMessage(`${bar.name} affiliation confirmed.`);
+      } else {
+        setBarProfileMessage(`Rejected affiliation request for ${seller.name}.`);
+        setSellerProfileMessage(`Affiliation request for ${bar.name} was rejected.`);
+      }
+
+      const base = {
+        ...prev,
+        barAffiliationRequests: nextRequests,
+        sellers: (prev.sellers || []).map((entry) => (
+          decision === 'approved' && entry.id === request.sellerId
+            ? { ...entry, affiliatedBarId: request.barId }
+            : entry
+        )),
+        notifications: nextNotifications,
+        adminActions: nextAdminActions,
+      };
+      let withEmails = base;
+      const templateKey = decision === 'approved' ? 'bar_affiliation_approved' : 'bar_affiliation_rejected';
+      if (sellerUser?.id) {
+        withEmails = appendTemplatedEmail(withEmails, {
+          templateKey,
+          userId: sellerUser.id,
+          vars: {
+            sellerName: seller.name || 'Seller',
+            barName: bar.name || 'Bar',
+            actionPath: '/account',
+          },
+          fallbackPath: '/account',
+        });
+      }
+      if (barUser?.id) {
+        withEmails = appendTemplatedEmail(withEmails, {
+          templateKey,
+          userId: barUser.id,
+          vars: {
+            sellerName: seller.name || 'Seller',
+            barName: bar.name || 'Bar',
+            actionPath: '/account',
+          },
+          fallbackPath: '/account',
+        });
+      }
+      return withEmails;
+    });
+  }
+
+  function cancelBarAffiliationRequest(requestId) {
+    if (!requestId || !currentUser) return;
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const request = (prev.barAffiliationRequests || []).find((entry) => entry.id === requestId);
+      if (!request || request.status !== 'pending') return prev;
+      const seller = (prev.sellers || []).find((entry) => entry.id === request.sellerId);
+      const bar = (prev.bars || []).find((entry) => entry.id === request.barId);
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === request.sellerId);
+      const barUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === request.barId);
+      const actorIsSellerRequester = currentUser.role === 'seller'
+        && request.direction === 'seller_to_bar'
+        && request.requestedByUserId === currentUser.id;
+      const actorIsBarRequester = currentUser.role === 'bar'
+        && request.direction === 'bar_to_seller'
+        && request.requestedByUserId === currentUser.id;
+      if (!actorIsSellerRequester && !actorIsBarRequester) return prev;
+      setBarProfileMessage('Affiliation request cancelled.');
+      setSellerProfileMessage('Affiliation request cancelled.');
+      return {
+        ...prev,
+        barAffiliationRequests: (prev.barAffiliationRequests || []).map((entry) => (
+          entry.id === requestId
+            ? { ...entry, status: 'cancelled', respondedAt: now, respondedByUserId: currentUser.id }
+            : entry
+        )),
+        notifications: [
+          ...(prev.notifications || []),
+          ...(actorIsSellerRequester && barUser?.id
+            ? [buildInAppNotification(barUser.id, `${seller?.name || 'Seller'} cancelled their affiliation request.`, now)]
+            : []),
+          ...(actorIsBarRequester && sellerUser?.id
+            ? [buildInAppNotification(sellerUser.id, `${bar?.name || 'A bar'} cancelled their affiliation invite.`, now)]
+            : []),
+        ],
+      };
+    });
+  }
+
+  function removeSellerFromCurrentBarBySeller() {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const seller = (prev.sellers || []).find((entry) => entry.id === currentSellerId);
+      const oldBarId = String(seller?.affiliatedBarId || '').trim();
+      if (!oldBarId) return prev;
+      const oldBar = (prev.bars || []).find((entry) => entry.id === oldBarId);
+      const oldBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === oldBarId);
+      setSellerProfileMessage(`Removed affiliation with ${oldBar?.name || 'bar'}.`);
+      setSellerProfileDraft((draft) => ({ ...draft, affiliatedBarId: '' }));
+      return {
+        ...prev,
+        sellers: (prev.sellers || []).map((entry) => (
+          entry.id === currentSellerId ? { ...entry, affiliatedBarId: '' } : entry
+        )),
+        notifications: [
+          ...(prev.notifications || []),
+          ...(oldBarUser?.id
+            ? [buildInAppNotification(oldBarUser.id, `${seller?.name || 'Seller'} is no longer affiliated with ${oldBar?.name || 'your bar'}.`, now)]
+            : []),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: makeRuntimeId('admin_action'),
+            type: 'seller_removed_self_from_bar',
+            targetSellerId: currentSellerId,
+            targetBarId: oldBarId,
+            actorUserId: currentUser.id,
+            createdAt: now,
+          },
+        ],
+      };
+    });
+  }
+
+  function removeSellerFromCurrentBarByBar(sellerId) {
+    if (!currentUser || currentUser.role !== 'bar' || !currentBarId || !sellerId) return;
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
+      if (!seller || String(seller.affiliatedBarId || '').trim() !== currentBarId) return prev;
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
+      const bar = (prev.bars || []).find((entry) => entry.id === currentBarId);
+      setBarProfileMessage(`${seller.name} removed from ${bar?.name || 'your bar'}.`);
+      return {
+        ...prev,
+        sellers: (prev.sellers || []).map((entry) => (
+          entry.id === sellerId ? { ...entry, affiliatedBarId: '' } : entry
+        )),
+        notifications: [
+          ...(prev.notifications || []),
+          ...(sellerUser?.id
+            ? [buildInAppNotification(sellerUser.id, `You were removed from ${bar?.name || 'your bar'} affiliation.`, now)]
+            : []),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: makeRuntimeId('admin_action'),
+            type: 'bar_removed_seller_affiliation',
+            targetSellerId: sellerId,
+            targetBarId: currentBarId,
+            actorUserId: currentUser.id,
+            createdAt: now,
+          },
+        ],
+      };
+    });
+  }
+
+  function updateBarProfileField(key, value) {
+    setBarProfileMessage('');
+    setBarProfileDraft((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function saveBarProfile() {
+    if (!currentUser || currentUser.role !== 'bar' || !currentBarId) return;
+    if (savingBarProfile) return;
+    setSavingBarProfile(true);
+    try {
+      const aboutText = String(barProfileDraft.about || '').trim();
+      const specialsText = String(barProfileDraft.specials || '').trim();
+      const [aboutI18n, specialsI18n] = await Promise.all([
+        buildTextTranslations(aboutText),
+        buildTextTranslations(specialsText),
+      ]);
+      setDb((prev) => ({
+        ...prev,
+        bars: (prev.bars || []).map((bar) => (
+          bar.id === currentBarId
+            ? {
+                ...bar,
+                location: String(barProfileDraft.location || '').trim(),
+                about: aboutText,
+                aboutI18n: aboutI18n && Object.keys(aboutI18n).length > 0 ? aboutI18n : normalizeLocalizedMap(bar?.aboutI18n, aboutText),
+                specials: specialsText,
+                specialsI18n: specialsI18n && Object.keys(specialsI18n).length > 0 ? specialsI18n : normalizeLocalizedMap(bar?.specialsI18n, specialsText),
+                mapEmbedUrl: String(barProfileDraft.mapEmbedUrl || '').trim(),
+                mapLink: String(barProfileDraft.mapLink || '').trim(),
+                profileImage: barProfileDraft.profileImage || '',
+                profileImageName: barProfileDraft.profileImageName || '',
+              }
+            : bar
+        )),
+      }));
+      setBarProfileMessage(`Bar profile saved at ${formatDateTimeNoSeconds(new Date().toISOString())}.`);
+    } catch {
+      setBarProfileMessage('Could not save bar profile. Please try again.');
+    } finally {
+      setSavingBarProfile(false);
+    }
+  }
+
+  function handleBarProfileImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBarProfileDraft((prev) => ({
+        ...prev,
+        profileImage: typeof reader.result === 'string' ? reader.result : '',
+        profileImageName: file.name,
+      }));
+      setBarProfileMessage('');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleBarPostImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBarPostDraft((prev) => ({
+        ...prev,
+        image: typeof reader.result === 'string' ? reader.result : '',
+        imageName: file.name,
+      }));
+      setBarProfileMessage('');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function createBarPost() {
+    if (!currentUser || currentUser.role !== 'bar' || !currentBarId) return;
+    if (!barPostDraft.image) {
+      setBarProfileMessage('Please upload a bar image before posting.');
+      return;
+    }
+    if (creatingBarPost) return;
+    setCreatingBarPost(true);
+    const now = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      barPosts: [
+        {
+          id: `bar_post_${Date.now()}`,
+          barId: currentBarId,
+          caption: String(barPostDraft.caption || '').trim().slice(0, 500),
+          image: barPostDraft.image,
+          imageName: barPostDraft.imageName,
+          createdAt: now,
+        },
+        ...(prev.barPosts || []),
+      ],
+    }));
+    setBarPostDraft({ caption: '', image: '', imageName: '' });
+    setBarProfileMessage('Bar photo posted.');
+    setCreatingBarPost(false);
+  }
+
+  function deleteBarPost(postId) {
+    if (!currentUser || currentUser.role !== 'bar' || !currentBarId) return;
+    if (!postId || deletingBarPostId === postId) return;
+    setDeletingBarPostId(postId);
+    setDb((prev) => ({
+      ...prev,
+      barPosts: (prev.barPosts || []).filter((post) => !(post.id === postId && post.barId === currentBarId)),
+    }));
+    setBarProfileMessage('Bar post removed.');
+    setDeletingBarPostId(null);
+  }
+
+  function handleSellerProfileImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSellerProfileDraft((prev) => ({
+        ...prev,
+        profileImage: typeof reader.result === 'string' ? reader.result : '',
+        profileImageName: file.name,
+      }));
+      setSellerProfileMessage('');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateSellerLanguage(languageCode) {
+    if (!currentUser || currentUser.role !== 'seller') return;
+    const supported = ['en', 'th', 'my', 'ru'];
+    const nextLanguage = supported.includes(languageCode) ? languageCode : 'en';
+    setDb((prev) => ({
+      ...prev,
+      users: prev.users.map((user) =>
+        user.id === currentUser.id
+          ? { ...user, preferredLanguage: nextLanguage }
+          : user
+      ),
+    }));
+    setSellerProfileMessage(sellerStatus('languageUpdated'));
+  }
+
+  function updateBarLanguage(languageCode) {
+    if (!currentUser || currentUser.role !== 'bar') return;
+    const nextLanguage = SUPPORTED_AUTH_LANGUAGES.includes(languageCode) ? languageCode : 'en';
+    setDb((prev) => ({
+      ...prev,
+      users: prev.users.map((user) =>
+        user.id === currentUser.id
+          ? { ...user, preferredLanguage: nextLanguage }
+          : user
+      ),
+    }));
+    setBarProfileMessage('Bar language updated.');
+  }
+
+  function toggleSellerOnlineStatus() {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const currentlyOnline = Boolean(currentSellerProfile?.isOnline);
+    const nextOnline = !currentlyOnline;
+    setDb((prev) => ({
+      ...prev,
+      sellers: prev.sellers.map((seller) => (
+        seller.id === currentSellerId
+          ? { ...seller, isOnline: nextOnline }
+          : seller
+      )),
+    }));
+    setSellerProfileMessage(nextOnline ? sellerStatus('onlineEnabled') : sellerStatus('onlineDisabled'));
+  }
+
+  function setSellerFeedVisibility(nextVisibility) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    if (!['public', 'private', 'per-post'].includes(nextVisibility)) return;
+    setDb((prev) => ({
+      ...prev,
+      sellers: prev.sellers.map((seller) => (
+        seller.id === currentSellerId
+          ? { ...seller, feedVisibility: nextVisibility }
+          : seller
+      )),
+    }));
+    if (nextVisibility === 'public' || nextVisibility === 'private') {
+      setSellerPostDraft((prev) => ({ ...prev, visibility: nextVisibility }));
+    }
+    if (nextVisibility === 'private') setSellerProfileMessage('Entire feed set to private.');
+    else if (nextVisibility === 'public') setSellerProfileMessage('Entire feed set to public.');
+    else setSellerProfileMessage('Feed set to choose-per-post mode.');
+  }
+
+  function updateSellerPostVisibility(postId, visibility, nextPriceInput) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    if (!['public', 'private'].includes(visibility)) return;
+    const parsedPrice = Number(nextPriceInput);
+    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_SELLER_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_SELLER_PRICE_THB;
+    setDb((prev) => ({
+      ...prev,
+      sellerPosts: (prev.sellerPosts || []).map((post) => (
+        post.id === postId && post.sellerId === currentSellerId
+          ? { ...post, visibility, accessPriceUsd: normalizedPrice }
+          : post
+      )),
+    }));
+    setSellerProfileMessage(visibility === 'private' ? 'Post set to private.' : 'Post set to public.');
+  }
+
+  function updateSellerPostPrice(postId, nextPriceInput) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const parsedPrice = Number(nextPriceInput);
+    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_SELLER_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_SELLER_PRICE_THB;
+    setDb((prev) => ({
+      ...prev,
+      sellerPosts: (prev.sellerPosts || []).map((post) => (
+        post.id === postId && post.sellerId === currentSellerId
+          ? { ...post, accessPriceUsd: normalizedPrice }
+          : post
+      )),
+    }));
+  }
+
+  function updateAllPrivatePostPrices(nextPriceInput) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const parsedPrice = Number(nextPriceInput);
+    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_SELLER_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_SELLER_PRICE_THB;
+    setDb((prev) => ({
+      ...prev,
+      sellerPosts: (prev.sellerPosts || []).map((post) => (
+        post.sellerId === currentSellerId && post.visibility === 'private'
+          ? { ...post, accessPriceUsd: normalizedPrice }
+          : post
+      )),
+    }));
+    setSellerProfileMessage(`Updated all private post prices to ${formatPriceTHB(normalizedPrice)}.`);
+  }
+
+  function unscheduleSellerPost(postId) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    setDb((prev) => ({
+      ...prev,
+      sellerPosts: (prev.sellerPosts || []).map((post) => (
+        post.id === postId && post.sellerId === currentSellerId
+          ? { ...post, scheduledFor: '' }
+          : post
+      )),
+    }));
+    setSellerProfileMessage('Post unscheduled.');
+  }
+
+  function publishSellerPostNow(postId) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const nowIso = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      sellerPosts: (prev.sellerPosts || []).map((post) => (
+        post.id === postId && post.sellerId === currentSellerId
+          ? { ...post, scheduledFor: '', createdAt: nowIso }
+          : post
+      )),
+    }));
+    setSellerProfileMessage('Scheduled post published now.');
+  }
+
+  function isSellerPostPrivate(post) {
+    const seller = sellerMap[post?.sellerId];
+    if (!post || !seller) return false;
+    if (seller.feedVisibility === 'private') return true;
+    if (seller.feedVisibility === 'public') return false;
+    return post.visibility === 'private';
+  }
+
+  function canViewSellerPost(post) {
+    if (!post) return false;
+    if (!isSellerPostPrivate(post)) return true;
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return true;
+    if (currentUser.role === 'seller' && currentUser.sellerId === post.sellerId) return true;
+    return postUnlocks.some((entry) => entry.postId === post.id && entry.buyerUserId === currentUser.id);
+  }
+
+  function toggleSellerPostLike(postId) {
+    if (!currentUser) {
+      setSellerProfileMessage('Please login to like posts.');
+      return false;
+    }
+    const post = sellerPosts.find((candidate) => candidate.id === postId);
+    if (!post || !canViewSellerPost(post)) return false;
+    const alreadyLiked = sellerPostLikes.some((entry) => entry.postId === postId && entry.userId === currentUser.id);
+    const createdAt = new Date().toISOString();
+    const sellerUser = users.find((entry) => entry.sellerId === post.sellerId);
+    const sellerUserId = sellerUser?.id;
+    setDb((prev) => {
+      const likes = prev.sellerPostLikes || [];
+      const recipient = (prev.users || []).find((entry) => entry.id === sellerUserId);
+      return {
+        ...prev,
+        sellerPostLikes: alreadyLiked
+          ? likes.filter((entry) => !(entry.postId === postId && entry.userId === currentUser.id))
+          : [
+              {
+                id: `post_like_${Date.now()}`,
+                postId,
+                userId: currentUser.id,
+                userRole: currentUser.role,
+                createdAt,
+              },
+              ...likes,
+            ],
+        notifications: !alreadyLiked && sellerUserId && sellerUserId !== currentUser.id && shouldSendNotificationForType(recipient, 'engagement')
+          ? [
+              {
+                id: `notif_${Date.now()}`,
+                userId: sellerUserId,
+                type: 'engagement',
+                text: `${currentUser.name || 'A user'} liked your seller feed post.`,
+                read: false,
+                createdAt,
+              },
+              ...(prev.notifications || []),
+            ]
+          : prev.notifications,
+      };
+    });
+    return true;
+  }
+
+  function addSellerPostComment(postId, body) {
+    if (!currentUser) {
+      setSellerProfileMessage('Please login to comment on posts.');
+      return false;
+    }
+    if (currentUser.accountStatus !== 'active') {
+      setSellerProfileMessage('Your account must be active to post comments.');
+      return false;
+    }
+    if (currentUser.role !== 'buyer') {
+      setSellerProfileMessage('Only buyer accounts can post paid comments.');
+      return false;
+    }
+    const post = sellerPosts.find((candidate) => candidate.id === postId);
+    if (!post || !canViewSellerPost(post)) return false;
+    const trimmedBody = String(body || '').trim();
+    if (!trimmedBody) return false;
+    const commentFee = MESSAGE_FEE_THB;
+    if (Number(currentUser.walletBalance || 0) < commentFee) {
+      setSellerProfileMessage(`You need at least ${formatPriceTHB(commentFee)} in your wallet to comment.`);
+      return false;
+    }
+    const createdAt = new Date().toISOString();
+    const sellerUser = users.find((entry) => entry.sellerId === post.sellerId);
+    const sellerUserId = sellerUser?.id;
+    setDb((prev) => {
+      const buyerBefore = Number((prev.users || []).find((entry) => entry.id === currentUser.id)?.walletBalance || 0);
+      const buyerAfter = Number((buyerBefore - commentFee).toFixed(2));
+      const payout = calculateSellerRevenueSplit(prev, {
+        sellerId: post.sellerId,
+        grossAmount: commentFee,
+      });
+      const recipient = (prev.users || []).find((entry) => entry.id === sellerUserId);
+      const base = {
+        ...prev,
+        users: (prev.users || []).map((user) => {
+          if (user.id === currentUser.id) {
+            return { ...user, walletBalance: buyerAfter };
+          }
+          if (payout.sellerUserId && user.id === payout.sellerUserId && payout.sellerUserId !== currentUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.sellerAmount).toFixed(2)) };
+          }
+          if (payout.barUserId && user.id === payout.barUserId && payout.barUserId !== currentUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.barAmount).toFixed(2)) };
+          }
+          if (payout.adminUserId && user.id === payout.adminUserId && payout.adminUserId !== currentUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.adminAmount).toFixed(2)) };
+          }
+          return user;
+        }),
+        sellerPostComments: [
+        {
+          id: `post_comment_${Date.now()}`,
+          postId,
+          senderUserId: currentUser.id,
+          senderRole: currentUser.role,
+          body: trimmedBody.slice(0, 400),
+          feeCharged: commentFee,
+          createdAt,
+        },
+        ...(prev.sellerPostComments || []),
+      ],
+        walletTransactions: [
+          ...(payout.sellerUserId && payout.sellerAmount > 0 && payout.sellerUserId !== currentUser.id
+            ? [{
+                id: `txn_${Date.now()}_seller_comment`,
+                userId: payout.sellerUserId,
+                type: 'message_fee',
+                amount: payout.sellerAmount,
+                description: `Comment earning from ${currentUser.name || 'Buyer'}`,
+                createdAt,
+              }]
+            : []),
+          ...(payout.barUserId && payout.barAmount > 0 && payout.barUserId !== currentUser.id
+            ? [{
+                id: `txn_${Date.now()}_bar_comment`,
+                userId: payout.barUserId,
+                type: 'message_fee',
+                amount: payout.barAmount,
+                description: `Bar commission from seller comment fee`,
+                createdAt,
+              }]
+            : []),
+          ...(payout.adminUserId && payout.adminAmount > 0 && payout.adminUserId !== currentUser.id
+            ? [{
+                id: `txn_${Date.now()}_admin_comment`,
+                userId: payout.adminUserId,
+                type: 'message_fee',
+                amount: payout.adminAmount,
+                description: `Platform commission from seller comment fee`,
+                createdAt,
+              }]
+            : []),
+          {
+            id: `txn_${Date.now()}_buyer_comment`,
+            userId: currentUser.id,
+            type: 'message_fee',
+            amount: -commentFee,
+            description: `Comment fee for post ${postId}`,
+            createdAt,
+          },
+          ...(prev.walletTransactions || []),
+        ],
+        notifications: sellerUserId && sellerUserId !== currentUser.id && shouldSendNotificationForType(recipient, 'engagement')
+        ? [
+            {
+              id: `notif_${Date.now()}`,
+              userId: sellerUserId,
+              type: 'engagement',
+              text: `${currentUser.name || 'A user'} commented on your seller feed post.`,
+              read: false,
+              createdAt,
+            },
+            ...(prev.notifications || []),
+          ]
+        : prev.notifications,
+      };
+      return appendLowBalanceEmailIfNeeded(base, {
+        userId: currentUser.id,
+        beforeBalance: buyerBefore,
+        afterBalance: buyerAfter,
+      });
+    });
+    return true;
+  }
+
+  function deleteSellerPostComment(commentId) {
+    if (!currentUser) return false;
+    const comment = sellerPostComments.find((entry) => entry.id === commentId);
+    if (!comment) return false;
+    const canDelete = currentUser.role === 'admin' || comment.senderUserId === currentUser.id;
+    if (!canDelete) return false;
+    setDb((prev) => ({
+      ...prev,
+      sellerPostComments: (prev.sellerPostComments || []).filter((entry) => entry.id !== commentId),
+    }));
+    return true;
+  }
+
+  function toggleSellerFollow(sellerId) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      setSellerProfileMessage('Login as a buyer to follow sellers.');
+      return false;
+    }
+    const seller = sellerMap[sellerId];
+    if (!seller) return false;
+    const alreadyFollowing = sellerFollows.some((entry) => entry.sellerId === sellerId && entry.followerUserId === currentUser.id);
+    const sellerUser = users.find((entry) => entry.sellerId === sellerId);
+    const sellerUserId = sellerUser?.id;
+    const createdAt = new Date().toISOString();
+    setDb((prev) => {
+      const follows = prev.sellerFollows || [];
+      const recipient = (prev.users || []).find((entry) => entry.id === sellerUserId);
+      return {
+        ...prev,
+        sellerFollows: alreadyFollowing
+          ? follows.filter((entry) => !(entry.sellerId === sellerId && entry.followerUserId === currentUser.id))
+          : [
+              {
+                id: `seller_follow_${Date.now()}`,
+                sellerId,
+                followerUserId: currentUser.id,
+                followerRole: 'buyer',
+                createdAt,
+              },
+              ...follows,
+            ],
+        notifications: !alreadyFollowing && sellerUserId && sellerUserId !== currentUser.id && shouldSendNotificationForType(recipient, 'engagement')
+          ? [
+              {
+                id: `notif_${Date.now()}`,
+                userId: sellerUserId,
+                type: 'engagement',
+                text: `${currentUser.name || 'A buyer'} started following your seller profile.`,
+                read: false,
+                createdAt,
+              },
+              ...(prev.notifications || []),
+            ]
+          : prev.notifications,
+      };
+    });
+    return true;
+  }
+
+  function toggleSavedSellerPost(postId) {
+    if (!currentUser) {
+      setSellerProfileMessage('Please login to save posts.');
+      return false;
+    }
+    const post = sellerPosts.find((entry) => entry.id === postId);
+    if (!post || !canViewSellerPost(post)) return false;
+    const alreadySaved = sellerSavedPosts.some((entry) => entry.postId === postId && entry.userId === currentUser.id);
+    const createdAt = new Date().toISOString();
+    setDb((prev) => {
+      const rows = prev.sellerSavedPosts || [];
+      return {
+        ...prev,
+        sellerSavedPosts: alreadySaved
+          ? rows.filter((entry) => !(entry.postId === postId && entry.userId === currentUser.id))
+          : [
+              {
+                id: `saved_post_${Date.now()}`,
+                postId,
+                userId: currentUser.id,
+                createdAt,
+              },
+              ...rows,
+            ],
+      };
+    });
+    return true;
+  }
+
+  function unlockPrivatePost(postId) {
+    const post = sellerPosts.find((candidate) => candidate.id === postId);
+    if (!post || !isSellerPostPrivate(post)) return;
+    const unlockPrice = Math.max(MIN_SELLER_PRICE_THB, Number(post.accessPriceUsd || MIN_SELLER_PRICE_THB));
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
+    if (currentUser.role !== 'buyer') {
+      if (typeof window !== 'undefined') window.alert('Only buyer accounts can unlock private posts.');
+      return;
+    }
+    const alreadyUnlocked = postUnlocks.some((entry) => entry.postId === postId && entry.buyerUserId === currentUser.id);
+    if (alreadyUnlocked) return;
+    if (currentWalletBalance < unlockPrice) {
+      if (typeof window !== 'undefined') window.alert(`You need at least ${formatPriceTHB(unlockPrice)} in your wallet to unlock this post.`);
+      return;
+    }
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const buyerBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
+      const buyerAfter = Number((buyerBefore - unlockPrice).toFixed(2));
+      const base = {
+        ...prev,
+        users: prev.users.map((user) => (
+          user.id === currentUser.id
+            ? { ...user, walletBalance: buyerAfter }
+            : user
+        )),
+        walletTransactions: [
+          {
+            id: `txn_${Date.now()}`,
+            userId: currentUser.id,
+            type: 'post_unlock',
+            amount: -unlockPrice,
+            description: `Private post unlock (${postId})`,
+            createdAt: now,
+          },
+          ...(prev.walletTransactions || []),
+        ],
+        postUnlocks: [
+          {
+            id: `post_unlock_${Date.now()}`,
+            postId,
+            buyerUserId: currentUser.id,
+            amount: unlockPrice,
+            createdAt: now,
+          },
+          ...(prev.postUnlocks || []),
+        ],
+      };
+      return appendLowBalanceEmailIfNeeded(base, {
+        userId: currentUser.id,
+        beforeBalance: buyerBefore,
+        afterBalance: buyerAfter,
+      });
+    });
+    if (typeof window !== 'undefined') window.alert(`Post unlocked for ${formatPriceTHB(unlockPrice)}.`);
+  }
+
+  function saveAccountDetails() {
+    if (!currentUser) return;
+    const normalizedTimeFormat = normalizeTimeFormat(accountForm.timeFormat);
+    setDb((prev) => ({
+      ...prev,
+      users: prev.users.map((user) => (
+        user.id === currentUser.id
+          ? {
+              ...user,
+              ...accountForm,
+              timeFormat: currentUser.role === 'buyer' ? normalizedTimeFormat : '12h',
+            }
+          : user
+      )),
+    }));
+    if (currentUser.role === 'buyer') {
+      setStoredTimeFormat(normalizedTimeFormat);
+    }
+    setAccountSaveMessage('Account details saved successfully.');
+  }
+
+  function submitRefundEvidence(payload, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      const message = 'Please login as a buyer to submit refund evidence.';
+      onError?.(message);
+      navigate('/login');
+      return;
+    }
+    const orderId = String(payload?.orderId || '').trim();
+    const expectedItem = String(payload?.expectedItem || '').trim();
+    const receivedItem = String(payload?.receivedItem || '').trim();
+    const evidenceDetails = String(payload?.evidenceDetails || '').trim();
+    const evidenceLinks = String(payload?.evidenceLinks || '')
+      .split('\n')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+    if (!orderId || !expectedItem || !receivedItem || !evidenceDetails) {
+      onError?.('Please complete order ID, expected item, received item, and evidence details.');
+      return;
+    }
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const adminUsers = (prev.users || []).filter((user) => user.role === 'admin');
+      return {
+        ...prev,
+        refundClaims: [
+          {
+            id: `refund_claim_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            buyerUserId: currentUser.id,
+            orderId,
+            expectedItem,
+            receivedItem,
+            evidenceDetails,
+            evidenceLinks,
+            status: 'submitted',
+            createdAt: now,
+            updatedAt: now,
+          },
+          ...(prev.refundClaims || []),
+        ],
+        notifications: [
+          ...(prev.notifications || []),
+          ...adminUsers.map((admin, index) => ({
+            id: `notif_refund_claim_${Date.now()}_${index}`,
+            userId: admin.id,
+            type: 'engagement',
+            text: `New wrong-item refund evidence submitted by ${currentUser.name || currentUser.id} (${orderId}).`,
+            read: false,
+            createdAt: now,
+          })),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}_refund_claim`,
+            type: 'refund_evidence_submitted',
+            targetUserId: currentUser.id,
+            adminUserId: currentUser.id,
+            createdAt: now,
+            metadata: {
+              orderId,
+            },
+          },
+        ],
+      };
+    });
+    onSuccess?.('Refund evidence submitted. Admin will review your claim.');
+  }
+
+  function updateBuyerMessageProductFilter(key, value) {
+    setBuyerMessageProductFilters((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function startBuyerConversationWithSeller(sellerId) {
+    if (!currentUser || currentUser.role !== 'buyer' || !sellerId) return;
+    setBuyerDashboardConversationId(`${currentUser.id}__${sellerId}`);
+    setBuyerDashboardMessageError('');
+  }
+
+  function markNotificationsReadForConversation(conversationId) {
+    if (!currentUser) return;
+    setDb((prev) => ({
+      ...prev,
+      notifications: (prev.notifications || []).map((notification) =>
+        notification.userId === currentUser.id && notification.conversationId === conversationId
+          ? { ...notification, read: true }
+          : notification,
+      ),
+      messages: (prev.messages || []).map((message) => {
+        if (message.conversationId !== conversationId) return message;
+        if (currentUser.role === 'buyer') return { ...message, readByBuyer: true };
+        if (currentUser.role === 'seller') return { ...message, readBySeller: true };
+        return message;
+      }),
+    }));
+  }
+
+  async function sendBuyerMessageToConversation(sellerId, conversationId, body, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      const message = 'Please login as a buyer to send messages.';
+      onError?.(message);
+      if (typeof window !== 'undefined') window.alert(message);
+      navigate('/login');
+      return;
+    }
+    if (currentUser.accountStatus !== 'active' || !sellerId || !conversationId || !body.trim()) return;
+    if (currentWalletBalance < MESSAGE_FEE_THB) {
+      const shortfall = Number((MESSAGE_FEE_THB - currentWalletBalance).toFixed(2));
+      const requiredTopUp = getRequiredTopUpAmount(shortfall);
+      onError?.(`You need ${formatPriceTHB(MESSAGE_FEE_THB)} to send a message. Please top up at least ${formatPriceTHB(requiredTopUp)} and try again.`);
+      return;
+    }
+    if (backendStatus === 'connected' && apiAuthToken) {
+      try {
+        const idScope = `buyer_message_${currentUser.id}_${conversationId}_${String(body || '').trim()}`;
+        const { ok, payload } = await apiRequestJson('/api/messages/buyer-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: {
+            sellerId,
+            conversationId,
+            body: String(body || '').trim(),
+          },
+          idempotencyScope: idScope,
+          stableIdempotency: true,
+        });
+        if (ok) {
+          if (payload?.db) {
+            setDb(normalizeDbState(payload.db));
+          }
+          onSuccess?.();
+          onError?.('');
+          return;
+        }
+        const requiredTopUp = Number(payload?.requiredTopUp || 0);
+        const shortfall = Number(payload?.shortfall || 0);
+        if (requiredTopUp > 0 || shortfall > 0) {
+          const computedRequiredTopUp = requiredTopUp > 0 ? requiredTopUp : getRequiredTopUpAmount(shortfall);
+          onError?.(`You need ${formatPriceTHB(MESSAGE_FEE_THB)} to send a message. Please top up at least ${formatPriceTHB(computedRequiredTopUp)} and try again.`);
+          return;
+        }
+      } catch {
+        // Fall back to local flow if API is temporarily unavailable.
+      }
+    }
+    const seller = sellers.find((candidate) => candidate.id === sellerId);
+    const sellerUser = users.find((user) => user.sellerId === sellerId);
+    const now = new Date().toISOString();
+    const messageText = body.trim();
+    const { sourceLanguage, translations } = await buildMessageTranslationsForRecipient(
+      messageText,
+      currentUser,
+      sellerUser,
+    );
+    const newMessage = {
+      id: `msg_${Date.now()}`,
+      conversationId,
+      buyerId: currentUser.id,
+      sellerId,
+      senderId: currentUser.id,
+      senderRole: 'buyer',
+      body: messageText,
+      bodyOriginal: messageText,
+      sourceLanguage,
+      translations,
+      feeCharged: MESSAGE_FEE_THB,
+      createdAt: now,
+      readByBuyer: true,
+      readBySeller: false,
+    };
+    setDb((prev) => {
+      const buyerBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
+      const buyerAfter = Number((buyerBefore - MESSAGE_FEE_THB).toFixed(2));
+      const payout = calculateSellerRevenueSplit(prev, {
+        sellerId,
+        grossAmount: MESSAGE_FEE_THB,
+      });
+      const base = {
+        ...prev,
+        users: prev.users.map((user) =>
+          user.id === currentUser.id
+            ? { ...user, walletBalance: buyerAfter }
+            : user.id === payout.sellerUserId
+              ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.sellerAmount).toFixed(2)) }
+              : user.id === payout.barUserId
+                ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.barAmount).toFixed(2)) }
+                : user.id === payout.adminUserId
+                  ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.adminAmount).toFixed(2)) }
+                  : user,
+        ),
+        walletTransactions: [
+          ...(payout.sellerUserId && payout.sellerAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_seller`,
+              userId: payout.sellerUserId,
+              type: 'message_fee',
+              amount: payout.sellerAmount,
+              description: `Message earning from ${currentUser.name || 'Buyer'}`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(payout.barUserId && payout.barAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_bar`,
+              userId: payout.barUserId,
+              type: 'message_fee',
+              amount: payout.barAmount,
+              description: 'Bar commission from buyer message fee',
+              createdAt: now,
+            },
+          ] : []),
+          ...(payout.adminUserId && payout.adminAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_admin`,
+              userId: payout.adminUserId,
+              type: 'message_fee',
+              amount: payout.adminAmount,
+              description: 'Platform commission from buyer message fee',
+              createdAt: now,
+            },
+          ] : []),
+          {
+            id: `txn_${Date.now()}`,
+            userId: currentUser.id,
+            type: 'message_fee',
+            amount: -MESSAGE_FEE_THB,
+            description: `Message fee to ${seller?.name || 'Seller'}`,
+            createdAt: now,
+          },
+          ...(prev.walletTransactions || []),
+        ],
+        messages: [...(prev.messages || []), newMessage],
+        notifications: shouldSendNotificationForType((prev.users || []).find((user) => user.id === (sellerUser?.id || 'seller-1')), 'message')
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}`,
+                userId: sellerUser?.id || 'seller-1',
+                type: 'message',
+                text: `New buyer message from ${currentUser.name}.`,
+                conversationId,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : prev.notifications,
+      };
+      let withEmails = base;
+      if (sellerUser?.id) {
+        withEmails = appendTemplatedEmail(withEmails, {
+          templateKey: 'seller_message_received',
+          userId: sellerUser.id,
+          vars: {
+            senderName: currentUser.name || 'Buyer',
+            conversationId,
+            actionPath: '/account',
+          },
+        });
+      }
+      return appendLowBalanceEmailIfNeeded(withEmails, {
+        userId: currentUser.id,
+        beforeBalance: buyerBefore,
+        afterBalance: buyerAfter,
+      });
+    });
+    onSuccess?.();
+    onError?.('');
+  }
+
+  async function sendBuyerMessageToSeller() {
+    if (!selectedSeller || !selectedConversationId) return;
+    await sendBuyerMessageToConversation(
+      selectedSeller.id,
+      selectedConversationId,
+      messageDraft,
+      () => setMessageDraft(''),
+      setMessageError,
+    );
+  }
+
+  async function sendBuyerDashboardMessage() {
+    if (!buyerDashboardConversationId) return;
+    const sellerId = buyerDashboardConversationId.split('__')[1];
+    await sendBuyerMessageToConversation(
+      sellerId,
+      buyerDashboardConversationId,
+      buyerDashboardMessageDraft,
+      () => setBuyerDashboardMessageDraft(''),
+      setBuyerDashboardMessageError,
+    );
+  }
+
+  async function sendSellerReply() {
+    if (!currentUser || currentUser.role !== 'seller' || !sellerActiveConversationId || !sellerReplyDraft.trim()) return;
+    const conversationMessages = messages.filter((message) => message.conversationId === sellerActiveConversationId);
+    const latest = conversationMessages[0];
+    const buyerId = latest?.buyerId || sellerActiveConversationId.split('__')[0];
+    const buyerUser = users.find((user) => user.id === buyerId);
+    const now = new Date().toISOString();
+    const messageText = sellerReplyDraft.trim();
+    const { sourceLanguage, translations } = await buildMessageTranslationsForRecipient(
+      messageText,
+      currentUser,
+      buyerUser,
+    );
+    setDb((prev) => {
+      const base = {
+        ...prev,
+        messages: [
+          ...(prev.messages || []),
+          {
+            id: `msg_${Date.now()}`,
+            conversationId: sellerActiveConversationId,
+            buyerId,
+            sellerId: currentUser.sellerId,
+            senderId: currentUser.id,
+            senderRole: 'seller',
+            body: messageText,
+            bodyOriginal: messageText,
+            sourceLanguage,
+            translations,
+            feeCharged: 0,
+            createdAt: now,
+            readByBuyer: false,
+            readBySeller: true,
+          },
+        ],
+        notifications: shouldSendNotificationForType((prev.users || []).find((user) => user.id === buyerId), 'message')
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}`,
+                userId: buyerId,
+                type: 'message',
+                text: `${currentUser.name} replied to your message.`,
+                conversationId: sellerActiveConversationId,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : prev.notifications,
+      };
+      return appendTemplatedEmail(base, {
+        templateKey: 'buyer_message_received',
+        userId: buyerId,
+        vars: {
+          senderName: currentUser.name || 'Seller',
+          conversationId: sellerActiveConversationId,
+          actionPath: '/account',
+        },
+      });
+    });
+    setSellerReplyDraft('');
+    markNotificationsReadForConversation(sellerActiveConversationId);
+  }
+
+  async function submitCustomRequest(payload, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      const message = 'Please login as a buyer to send custom requests.';
+      onError?.(message);
+      if (typeof window !== 'undefined') window.alert(message);
+      navigate('/login');
+      return;
+    }
+    const sellerId = String(payload?.sellerId || '').trim();
+    const buyerName = String(payload?.buyerName || currentUser.name || '').trim();
+    const buyerEmail = String(payload?.buyerEmail || currentUser.email || '').trim().toLowerCase();
+    const preferredDetails = String(payload?.preferredDetails || '').trim();
+    const shippingCountry = String(payload?.shippingCountry || '').trim();
+    const requestBody = String(payload?.requestBody || '').trim();
+    if (!sellerId || !buyerName || !buyerEmail || !preferredDetails || !requestBody) {
+      onError?.('Please complete all required custom request fields.');
+      return;
+    }
+    if (currentWalletBalance < CUSTOM_REQUEST_FEE_THB) {
+      onError?.(`You need at least ${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} in your wallet to send a custom request.`);
+      return;
+    }
+    if (backendStatus === 'connected' && apiAuthToken) {
+      try {
+        const idScope = `custom_request_create_${currentUser.id}_${sellerId}_${requestBody}`;
+        const { ok, payload: apiPayload } = await apiRequestJson('/api/custom-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: {
+            sellerId,
+            buyerName,
+            buyerEmail,
+            preferredDetails,
+            shippingCountry,
+            requestBody,
+          },
+          idempotencyScope: idScope,
+          stableIdempotency: true,
+        });
+        if (ok) {
+          if (apiPayload?.db) {
+            setDb(normalizeDbState(apiPayload.db));
+          }
+          onError?.('');
+          onSuccess?.();
+          return;
+        }
+        const requiredTopUp = Number(apiPayload?.requiredTopUp || 0);
+        const shortfall = Number(apiPayload?.shortfall || 0);
+        if (requiredTopUp > 0 || shortfall > 0) {
+          const computedRequiredTopUp = requiredTopUp > 0 ? requiredTopUp : getRequiredTopUpAmount(shortfall);
+          onError?.(`You need at least ${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} in your wallet to send a custom request. Please top up at least ${formatPriceTHB(computedRequiredTopUp)}.`);
+          return;
+        }
+      } catch {
+        // Fall back to local flow if API is temporarily unavailable.
+      }
+    }
+    const sellerUser = users.find((user) => user.role === 'seller' && user.sellerId === sellerId);
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const buyerBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
+      const buyerAfter = Number((buyerBefore - CUSTOM_REQUEST_FEE_THB).toFixed(2));
+      const requestId = `custom_request_${Date.now()}`;
+      const payout = calculateSellerRevenueSplit(prev, {
+        sellerId,
+        grossAmount: CUSTOM_REQUEST_FEE_THB,
+      });
+      const base = {
+        ...prev,
+        users: prev.users.map((user) =>
+          user.id === currentUser.id
+            ? { ...user, walletBalance: buyerAfter }
+            : user.id === payout.sellerUserId
+              ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.sellerAmount).toFixed(2)) }
+              : user.id === payout.barUserId
+                ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.barAmount).toFixed(2)) }
+                : user.id === payout.adminUserId
+                  ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.adminAmount).toFixed(2)) }
+                  : user,
+        ),
+        walletTransactions: [
+          ...(payout.sellerUserId && payout.sellerAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_seller`,
+              userId: payout.sellerUserId,
+              type: 'message_fee',
+              amount: payout.sellerAmount,
+              description: `Custom request earning from ${buyerName || 'Buyer'}`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(payout.barUserId && payout.barAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_bar`,
+              userId: payout.barUserId,
+              type: 'message_fee',
+              amount: payout.barAmount,
+              description: 'Bar commission from custom request fee',
+              createdAt: now,
+            },
+          ] : []),
+          ...(payout.adminUserId && payout.adminAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_admin`,
+              userId: payout.adminUserId,
+              type: 'message_fee',
+              amount: payout.adminAmount,
+              description: 'Platform commission from custom request fee',
+              createdAt: now,
+            },
+          ] : []),
+          {
+            id: `txn_${Date.now()}`,
+            userId: currentUser.id,
+            type: 'message_fee',
+            amount: -CUSTOM_REQUEST_FEE_THB,
+            description: `Custom request fee to ${sellerUser?.name || 'Seller'}`,
+            createdAt: now,
+          },
+          ...(prev.walletTransactions || []),
+        ],
+        customRequests: [
+          {
+            id: requestId,
+            buyerUserId: currentUser.id,
+            sellerId,
+            buyerName,
+            buyerEmail,
+            preferredDetails,
+            shippingCountry,
+            requestBody,
+            status: 'open',
+            quotedPriceThb: null,
+            quoteStatus: 'none',
+            quoteMessage: '',
+            quoteUpdatedAt: null,
+            quoteUpdatedByUserId: null,
+            quoteAcceptedAt: null,
+            buyerCounterPriceThb: null,
+            quoteAwaitingBuyerPayment: false,
+            buyerImageUploadEnabled: false,
+            createdAt: now,
+            updatedAt: now,
+          },
+          ...(prev.customRequests || []),
+        ],
+        notifications: sellerUser?.id
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}`,
+                userId: sellerUser.id,
+                type: 'message',
+                text: `New custom request from ${buyerName}.`,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : prev.notifications || [],
+      };
+      let withEmails = base;
+      if (sellerUser?.id) {
+        withEmails = appendTemplatedEmail(withEmails, {
+          templateKey: 'custom_request_received',
+          userId: sellerUser.id,
+          vars: {
+            buyerName: buyerName || currentUser.name || 'Buyer',
+            requestId,
+            actionPath: '/custom-requests',
+          },
+          fallbackPath: '/custom-requests',
+        });
+      }
+      return appendLowBalanceEmailIfNeeded(withEmails, {
+        userId: currentUser.id,
+        beforeBalance: buyerBefore,
+        afterBalance: buyerAfter,
+      });
+    });
+    onError?.('');
+    onSuccess?.();
+  }
+
+  function updateCustomRequestStatus(requestId, status) {
+    if (!currentUser || currentUser.role !== 'seller') return;
+    if (!['open', 'reviewing', 'fulfilled', 'closed'].includes(status)) return;
+    setDb((prev) => {
+      const targetRequest = (prev.customRequests || []).find((request) => request.id === requestId && request.sellerId === currentUser.sellerId);
+      if (!targetRequest) return prev;
+      const now = new Date().toISOString();
+      const base = {
+        ...prev,
+        customRequests: (prev.customRequests || []).map((request) =>
+          request.id === requestId && request.sellerId === currentUser.sellerId
+            ? { ...request, status, updatedAt: now }
+            : request,
+        ),
+      };
+      return appendTemplatedEmail(base, {
+        templateKey: 'custom_request_status_changed',
+        userId: targetRequest.buyerUserId,
+        vars: {
+          requestId,
+          requestStatus: status,
+          actionPath: '/custom-requests',
+        },
+        fallbackPath: '/custom-requests',
+      });
+    });
+  }
+
+  function cancelCustomRequestByAdmin(requestId, reason = '', onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      onError?.('Only admins can cancel custom requests.');
+      return;
+    }
+    const normalizedReason = String(reason || '').trim();
+    let actionError = '';
+    let actionResult = null;
+    setDb((prev) => {
+      const targetRequest = (prev.customRequests || []).find((request) => request.id === requestId);
+      if (!targetRequest) {
+        actionError = 'Custom request not found.';
+        return prev;
+      }
+      if ((targetRequest.status || '') === 'cancelled') {
+        actionError = 'This custom request is already cancelled.';
+        return prev;
+      }
+      const now = new Date().toISOString();
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === targetRequest.sellerId);
+      const buyerUser = (prev.users || []).find((user) => user.id === targetRequest.buyerUserId);
+      const shouldRefundAcceptedQuote = (targetRequest.quoteStatus || '') === 'accepted' && Number(targetRequest.quotedPriceThb || 0) > 0;
+      const refundAmount = shouldRefundAcceptedQuote ? Number(Number(targetRequest.quotedPriceThb || 0).toFixed(2)) : 0;
+      const base = {
+        ...prev,
+        users: (prev.users || []).map((user) => {
+          if (refundAmount > 0 && buyerUser?.id && user.id === buyerUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) + refundAmount).toFixed(2)) };
+          }
+          if (refundAmount > 0 && sellerUser?.id && user.id === sellerUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) - refundAmount).toFixed(2)) };
+          }
+          return user;
+        }),
+        walletTransactions: [
+          ...(refundAmount > 0 && buyerUser?.id ? [
+            {
+              id: `txn_${Date.now()}_custom_refund_buyer`,
+              userId: buyerUser.id,
+              type: 'custom_request_refund',
+              amount: refundAmount,
+              description: `Admin cancelled custom request ${requestId} (${normalizedReason || 'policy'})`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(refundAmount > 0 && sellerUser?.id ? [
+            {
+              id: `txn_${Date.now()}_custom_refund_seller`,
+              userId: sellerUser.id,
+              type: 'custom_request_reversal',
+              amount: -refundAmount,
+              description: `Admin reversal for cancelled custom request ${requestId}`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(prev.walletTransactions || []),
+        ],
+        customRequests: (prev.customRequests || []).map((request) => (
+          request.id === requestId
+            ? {
+                ...request,
+                status: 'cancelled',
+                quoteStatus: 'cancelled',
+                quoteAwaitingBuyerPayment: false,
+                adminCancelledAt: now,
+                adminCancelledByUserId: currentUser.id,
+                adminCancellationReason: normalizedReason,
+                updatedAt: now,
+              }
+            : request
+        )),
+        customRequestMessages: [
+          ...(prev.customRequestMessages || []),
+          {
+            id: `custom_request_msg_${Date.now()}_admin_cancel`,
+            requestId,
+            senderUserId: currentUser.id,
+            senderRole: 'admin',
+            body: normalizedReason
+              ? `Admin cancelled this custom request: ${normalizedReason}`
+              : 'Admin cancelled this custom request as inappropriate.',
+            feeCharged: 0,
+            messageType: 'admin_cancel',
+            createdAt: now,
+          },
+        ],
+        notifications: [
+          ...(prev.notifications || []),
+          ...(buyerUser?.id ? [{
+            id: `notif_${Date.now()}_custom_cancel_buyer`,
+            userId: buyerUser.id,
+            type: 'engagement',
+            text: `Admin cancelled custom request ${requestId}.${refundAmount > 0 ? ` Refunded ${formatPriceTHB(refundAmount)}.` : ''}`,
+            read: false,
+            createdAt: now,
+          }] : []),
+          ...(sellerUser?.id ? [{
+            id: `notif_${Date.now()}_custom_cancel_seller`,
+            userId: sellerUser.id,
+            type: 'engagement',
+            text: `Admin cancelled custom request ${requestId}.`,
+            read: false,
+            createdAt: now,
+          }] : []),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}_cancel_custom_request`,
+            type: 'cancel_custom_request',
+            targetRequestId: requestId,
+            targetUserId: buyerUser?.id || null,
+            targetSellerId: targetRequest.sellerId || null,
+            adminUserId: currentUser.id,
+            reason: normalizedReason || 'Inappropriate custom request content',
+            refundedAmount: refundAmount,
+            createdAt: now,
+          },
+        ],
+      };
+      actionResult = { requestId, refundAmount };
+      return appendTemplatedEmail(base, {
+        templateKey: 'custom_request_status_changed',
+        userId: targetRequest.buyerUserId,
+        vars: {
+          requestId,
+          requestStatus: 'cancelled by admin',
+          actionPath: '/custom-requests',
+        },
+        fallbackPath: '/custom-requests',
+      });
+    });
+    if (actionError) onError?.(actionError);
+    else onSuccess?.(actionResult);
+  }
+
+  function proposeCustomRequestPrice(requestId, quotedPriceThb, quoteMessage, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'seller') {
+      onError?.('Only sellers can propose a custom request price.');
+      return;
+    }
+    const normalizedPrice = Number(quotedPriceThb);
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice < MIN_CUSTOM_REQUEST_PURCHASE_THB) {
+      onError?.(`Quote amount must be at least ${formatPriceTHB(MIN_CUSTOM_REQUEST_PURCHASE_THB)}.`);
+      return;
+    }
+    const roundedPrice = Number(normalizedPrice.toFixed(2));
+    const note = String(quoteMessage || '').trim();
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const targetRequest = (prev.customRequests || []).find((request) => request.id === requestId && request.sellerId === currentUser.sellerId);
+      if (!targetRequest) return prev;
+      const buyerUser = (prev.users || []).find((user) => user.id === targetRequest.buyerUserId);
+      const base = {
+        ...prev,
+        customRequests: (prev.customRequests || []).map((request) => (
+          request.id === requestId && request.sellerId === currentUser.sellerId
+            ? {
+                ...request,
+                quotedPriceThb: roundedPrice,
+                quoteStatus: 'proposed',
+                quoteMessage: note,
+                quoteUpdatedAt: now,
+                quoteUpdatedByUserId: currentUser.id,
+                buyerCounterPriceThb: null,
+                quoteAwaitingBuyerPayment: false,
+                updatedAt: now,
+              }
+            : request
+        )),
+        customRequestMessages: [
+          ...(prev.customRequestMessages || []),
+          {
+            id: `custom_request_msg_${Date.now()}_quote`,
+            requestId,
+            senderUserId: currentUser.id,
+            senderRole: 'seller',
+            body: note || `I can complete this request for ${formatPriceTHB(roundedPrice)}.`,
+            feeCharged: 0,
+            messageType: 'price_proposal',
+            quotedPriceThb: roundedPrice,
+            createdAt: now,
+          },
+        ],
+        notifications: buyerUser?.id
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}_quote`,
+                userId: buyerUser.id,
+                type: 'engagement',
+                text: `${currentUser.name || 'Seller'} proposed ${formatPriceTHB(roundedPrice)} for your custom request.`,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : (prev.notifications || []),
+      };
+      return appendTemplatedEmail(base, {
+        templateKey: 'custom_request_status_changed',
+        userId: targetRequest.buyerUserId,
+        vars: {
+          requestId,
+          requestStatus: `quoted ${formatPriceTHB(roundedPrice)}`,
+          actionPath: '/custom-requests',
+        },
+        fallbackPath: '/custom-requests',
+      });
+    });
+    onError?.('');
+    onSuccess?.();
+  }
+
+  function respondToCustomRequestCounter(requestId, action, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'seller') {
+      onError?.('Only sellers can review counter-offers.');
+      return;
+    }
+    if (!['accept', 'decline'].includes(action)) {
+      onError?.('Unsupported counter action.');
+      return;
+    }
+    const now = new Date().toISOString();
+    let actionError = '';
+    let actionSucceeded = false;
+    setDb((prev) => {
+      const targetRequest = (prev.customRequests || []).find((request) => request.id === requestId && request.sellerId === currentUser.sellerId);
+      if (!targetRequest) {
+        actionError = 'Custom request not found.';
+        return prev;
+      }
+      const counterPrice = Number(targetRequest.buyerCounterPriceThb || 0);
+      if (targetRequest.quoteStatus !== 'countered' || !Number.isFinite(counterPrice) || counterPrice < MIN_CUSTOM_REQUEST_PURCHASE_THB) {
+        actionError = 'No active buyer counter-offer found.';
+        return prev;
+      }
+      const buyerUser = (prev.users || []).find((user) => user.id === targetRequest.buyerUserId);
+      if (action === 'accept') {
+        const base = {
+          ...prev,
+          customRequests: (prev.customRequests || []).map((request) => (
+            request.id === requestId
+              ? {
+                  ...request,
+                  quotedPriceThb: counterPrice,
+                  quoteStatus: 'proposed',
+                  quoteMessage: `Seller accepted buyer counter-offer at ${formatPriceTHB(counterPrice)}.`,
+                  quoteUpdatedAt: now,
+                  quoteUpdatedByUserId: currentUser.id,
+                  quoteAwaitingBuyerPayment: true,
+                  updatedAt: now,
+                }
+              : request
+          )),
+          customRequestMessages: [
+            ...(prev.customRequestMessages || []),
+            {
+              id: `custom_request_msg_${Date.now()}_counter_accept`,
+              requestId,
+              senderUserId: currentUser.id,
+              senderRole: 'seller',
+              body: `I accept your counter-offer of ${formatPriceTHB(counterPrice)}. You can pay now.`,
+              feeCharged: 0,
+              messageType: 'counter_accept',
+              quotedPriceThb: counterPrice,
+              createdAt: now,
+            },
+          ],
+          notifications: buyerUser?.id
+            ? [
+                ...(prev.notifications || []),
+                {
+                  id: `notif_${Date.now()}_counter_accept`,
+                  userId: buyerUser.id,
+                  type: 'engagement',
+                  text: `${currentUser.name || 'Seller'} accepted your counter-offer of ${formatPriceTHB(counterPrice)}.`,
+                  read: false,
+                  createdAt: now,
+                },
+              ]
+            : (prev.notifications || []),
+        };
+        actionSucceeded = true;
+        return base;
+      }
+      const base = {
+        ...prev,
+        customRequests: (prev.customRequests || []).map((request) => (
+          request.id === requestId
+            ? {
+                ...request,
+                quoteStatus: 'proposed',
+                quoteMessage: `Seller declined buyer counter-offer. Current quote remains ${formatPriceTHB(Number(request.quotedPriceThb || 0))}.`,
+                quoteUpdatedAt: now,
+                quoteUpdatedByUserId: currentUser.id,
+                buyerCounterPriceThb: null,
+                quoteAwaitingBuyerPayment: false,
+                updatedAt: now,
+              }
+            : request
+        )),
+        customRequestMessages: [
+          ...(prev.customRequestMessages || []),
+          {
+            id: `custom_request_msg_${Date.now()}_counter_decline`,
+            requestId,
+            senderUserId: currentUser.id,
+            senderRole: 'seller',
+            body: `I cannot accept that counter-offer. Current quote remains ${formatPriceTHB(Number(targetRequest.quotedPriceThb || 0))}.`,
+            feeCharged: 0,
+            messageType: 'counter_decline',
+            quotedPriceThb: Number(targetRequest.quotedPriceThb || 0),
+            createdAt: now,
+          },
+        ],
+        notifications: buyerUser?.id
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}_counter_decline`,
+                userId: buyerUser.id,
+                type: 'engagement',
+                text: `${currentUser.name || 'Seller'} declined your counter-offer.`,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : (prev.notifications || []),
+      };
+      actionSucceeded = true;
+      return base;
+    });
+    if (actionSucceeded) {
+      onError?.('');
+      onSuccess?.();
+    } else if (actionError) {
+      onError?.(actionError);
+    }
+  }
+
+  function toggleCustomRequestBuyerImageUpload(requestId, enabled, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'seller') {
+      onError?.('Only sellers can change buyer upload permissions.');
+      return;
+    }
+    const now = new Date().toISOString();
+    let actionError = '';
+    let actionSucceeded = false;
+    setDb((prev) => {
+      const targetRequest = (prev.customRequests || []).find((request) => request.id === requestId && request.sellerId === currentUser.sellerId);
+      if (!targetRequest) {
+        actionError = 'Custom request not found.';
+        return prev;
+      }
+      const nextEnabled = Boolean(enabled);
+      if (Boolean(targetRequest.buyerImageUploadEnabled) === nextEnabled) {
+        actionSucceeded = true;
+        return prev;
+      }
+      const buyerUser = (prev.users || []).find((user) => user.id === targetRequest.buyerUserId);
+      const base = {
+        ...prev,
+        customRequests: (prev.customRequests || []).map((request) => (
+          request.id === requestId
+            ? {
+                ...request,
+                buyerImageUploadEnabled: nextEnabled,
+                updatedAt: now,
+              }
+            : request
+        )),
+        customRequestMessages: [
+          ...(prev.customRequestMessages || []),
+          {
+            id: `custom_request_msg_${Date.now()}_upload_permission`,
+            requestId,
+            senderUserId: currentUser.id,
+            senderRole: 'seller',
+            body: nextEnabled
+              ? 'You can now upload images in this custom request thread.'
+              : 'Image uploads have been disabled for this request.',
+            feeCharged: 0,
+            messageType: 'upload_permission',
+            createdAt: now,
+            imageAttachments: [],
+          },
+        ],
+        notifications: buyerUser?.id
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}_custom_upload_permission`,
+                userId: buyerUser.id,
+                type: 'engagement',
+                text: nextEnabled
+                  ? `${currentUser.name || 'Seller'} enabled image uploads for your custom request.`
+                  : `${currentUser.name || 'Seller'} disabled image uploads for your custom request.`,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : (prev.notifications || []),
+      };
+      actionSucceeded = true;
+      return base;
+    });
+    if (actionSucceeded) {
+      onError?.('');
+      onSuccess?.();
+    } else if (actionError) {
+      onError?.(actionError);
+    }
+  }
+
+  async function respondToCustomRequestPrice(requestId, action, payload = {}, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      onError?.('Only buyers can respond to custom request pricing.');
+      return;
+    }
+    if (!['accept', 'decline', 'counter'].includes(action)) {
+      onError?.('Unsupported quote action.');
+      return;
+    }
+    const now = new Date().toISOString();
+    let actionError = '';
+    let actionSucceeded = false;
+    let serverAcceptMeta = null;
+
+    if (action === 'accept' && apiAuthToken) {
+      try {
+        const { ok, payload } = await apiRequestJson(
+          `/api/custom-requests/${encodeURIComponent(requestId)}/accept`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: {},
+            idempotencyScope: `custom_accept_${requestId}`,
+            stableIdempotency: true,
+          }
+        );
+        if (!ok) {
+          const requiredTopUp = Number(payload?.requiredTopUp || 0);
+          const shortfall = Number(payload?.shortfall || 0);
+          if (requiredTopUp > 0 || shortfall > 0) {
+            const computedRequiredTopUp = requiredTopUp > 0 ? requiredTopUp : getRequiredTopUpAmount(shortfall);
+            onError?.(`Insufficient wallet balance. Please top up at least ${formatPriceTHB(computedRequiredTopUp)} to continue.`);
+            return;
+          }
+        } else {
+          serverAcceptMeta = {
+            alreadyProcessed: Boolean(payload?.alreadyProcessed),
+          };
+        }
+      } catch {
+        // Keep local flow available if API is temporarily unreachable.
+      }
+    }
+
+    setDb((prev) => {
+      const targetRequest = (prev.customRequests || []).find((request) => request.id === requestId && request.buyerUserId === currentUser.id);
+      if (!targetRequest) {
+        actionError = 'Custom request not found.';
+        return prev;
+      }
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === targetRequest.sellerId);
+      const quotedPrice = Number(targetRequest.quotedPriceThb || 0);
+      if (!Number.isFinite(quotedPrice) || quotedPrice < MIN_CUSTOM_REQUEST_PURCHASE_THB) {
+        actionError = `No valid seller quote is available yet. Minimum is ${formatPriceTHB(MIN_CUSTOM_REQUEST_PURCHASE_THB)}.`;
+        return prev;
+      }
+
+      if (action === 'accept') {
+        if (serverAcceptMeta?.alreadyProcessed) {
+          actionSucceeded = true;
+          return {
+            ...prev,
+            customRequests: (prev.customRequests || []).map((request) => (
+              request.id === requestId
+                ? {
+                    ...request,
+                    quoteStatus: 'accepted',
+                    quoteAcceptedAt: request.quoteAcceptedAt || now,
+                    quoteUpdatedAt: now,
+                    quoteUpdatedByUserId: currentUser.id,
+                    quoteAwaitingBuyerPayment: false,
+                    status: request.status === 'open' ? 'reviewing' : request.status,
+                    updatedAt: now,
+                  }
+                : request
+            )),
+          };
+        }
+        const buyerBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
+        if (buyerBefore < quotedPrice) {
+          actionError = `You need at least ${formatPriceTHB(quotedPrice)} in your wallet to accept this quote.`;
+          return prev;
+        }
+        const buyerAfter = Number((buyerBefore - quotedPrice).toFixed(2));
+        const payout = calculateSellerRevenueSplit(prev, {
+          sellerId: targetRequest.sellerId,
+          grossAmount: quotedPrice,
+        });
+        const base = {
+          ...prev,
+          users: (prev.users || []).map((user) => (
+            user.id === currentUser.id
+              ? { ...user, walletBalance: buyerAfter }
+              : (payout.sellerUserId && user.id === payout.sellerUserId)
+                ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.sellerAmount).toFixed(2)) }
+                : (payout.barUserId && user.id === payout.barUserId)
+                  ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.barAmount).toFixed(2)) }
+                  : (payout.adminUserId && user.id === payout.adminUserId)
+                    ? { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.adminAmount).toFixed(2)) }
+                : user
+          )),
+          walletTransactions: [
+            ...(payout.sellerUserId && payout.sellerAmount > 0 ? [{
+              id: `txn_${Date.now()}_quote_seller`,
+              userId: payout.sellerUserId,
+              type: 'order_payment',
+              amount: payout.sellerAmount,
+              description: `Custom request quote accepted (${requestId})`,
+              createdAt: now,
+            }] : []),
+            ...(payout.barUserId && payout.barAmount > 0 ? [{
+              id: `txn_${Date.now()}_quote_bar`,
+              userId: payout.barUserId,
+              type: 'order_payment',
+              amount: payout.barAmount,
+              description: `Bar commission for custom request (${requestId})`,
+              createdAt: now,
+            }] : []),
+            ...(payout.adminUserId && payout.adminAmount > 0 ? [{
+              id: `txn_${Date.now()}_quote_admin`,
+              userId: payout.adminUserId,
+              type: 'order_payment',
+              amount: payout.adminAmount,
+              description: `Platform commission for custom request (${requestId})`,
+              createdAt: now,
+            }] : []),
+            {
+              id: `txn_${Date.now()}_quote_buyer`,
+              userId: currentUser.id,
+              type: 'order_payment',
+              amount: -quotedPrice,
+              description: `Accepted custom request quote (${requestId})`,
+              createdAt: now,
+            },
+            ...(prev.walletTransactions || []),
+          ],
+          customRequests: (prev.customRequests || []).map((request) => (
+            request.id === requestId
+              ? {
+                  ...request,
+                  quoteStatus: 'accepted',
+                  quoteAcceptedAt: now,
+                  quoteUpdatedAt: now,
+                  quoteUpdatedByUserId: currentUser.id,
+                  quoteAwaitingBuyerPayment: false,
+                  status: request.status === 'open' ? 'reviewing' : request.status,
+                  updatedAt: now,
+                }
+              : request
+          )),
+          customRequestMessages: [
+            ...(prev.customRequestMessages || []),
+            {
+              id: `custom_request_msg_${Date.now()}_accept`,
+              requestId,
+              senderUserId: currentUser.id,
+              senderRole: 'buyer',
+              body: `I accept your quote of ${formatPriceTHB(quotedPrice)}. Payment sent.`,
+              feeCharged: 0,
+              messageType: 'price_accept',
+              quotedPriceThb: quotedPrice,
+              createdAt: now,
+            },
+          ],
+          notifications: sellerUser?.id
+            ? [
+                ...(prev.notifications || []),
+                {
+                  id: `notif_${Date.now()}_quote_accept`,
+                  userId: sellerUser.id,
+                  type: 'engagement',
+                  text: `${currentUser.name || 'Buyer'} accepted your quote and paid ${formatPriceTHB(quotedPrice)}.`,
+                  read: false,
+                  createdAt: now,
+                },
+              ]
+            : (prev.notifications || []),
+        };
+        actionSucceeded = true;
+        return appendLowBalanceEmailIfNeeded(base, {
+          userId: currentUser.id,
+          beforeBalance: buyerBefore,
+          afterBalance: buyerAfter,
+        });
+      }
+
+      if (action === 'decline') {
+        const declineNote = String(payload?.note || '').trim();
+        const base = {
+          ...prev,
+          customRequests: (prev.customRequests || []).map((request) => (
+            request.id === requestId
+              ? {
+                  ...request,
+                  quoteStatus: 'declined',
+                  quoteUpdatedAt: now,
+                  quoteUpdatedByUserId: currentUser.id,
+                  quoteAwaitingBuyerPayment: false,
+                  updatedAt: now,
+                }
+              : request
+          )),
+          customRequestMessages: [
+            ...(prev.customRequestMessages || []),
+            {
+              id: `custom_request_msg_${Date.now()}_decline`,
+              requestId,
+              senderUserId: currentUser.id,
+              senderRole: 'buyer',
+              body: declineNote || 'I cannot accept this quote right now.',
+              feeCharged: 0,
+              messageType: 'price_decline',
+              quotedPriceThb: quotedPrice,
+              createdAt: now,
+            },
+          ],
+          notifications: sellerUser?.id
+            ? [
+                ...(prev.notifications || []),
+                {
+                  id: `notif_${Date.now()}_quote_decline`,
+                  userId: sellerUser.id,
+                  type: 'engagement',
+                  text: `${currentUser.name || 'Buyer'} declined your custom request quote.`,
+                  read: false,
+                  createdAt: now,
+                },
+              ]
+            : (prev.notifications || []),
+        };
+        actionSucceeded = true;
+        return base;
+      }
+
+      const counterPriceValue = Number(payload?.counterPriceThb);
+      if (!Number.isFinite(counterPriceValue) || counterPriceValue < MIN_CUSTOM_REQUEST_PURCHASE_THB) {
+        actionError = `Counter-offer must be at least ${formatPriceTHB(MIN_CUSTOM_REQUEST_PURCHASE_THB)}.`;
+        return prev;
+      }
+      const counterPrice = Number(counterPriceValue.toFixed(2));
+      const counterNote = String(payload?.note || '').trim();
+      const buyerBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
+      if (buyerBefore < MESSAGE_FEE_THB) {
+        actionError = `You need at least ${formatPriceTHB(MESSAGE_FEE_THB)} in your wallet to send a counter-offer.`;
+        return prev;
+      }
+      const buyerAfter = Number((buyerBefore - MESSAGE_FEE_THB).toFixed(2));
+      const counterPayout = calculateSellerRevenueSplit(prev, {
+        sellerId: targetRequest.sellerId,
+        grossAmount: MESSAGE_FEE_THB,
+      });
+      const base = {
+        ...prev,
+        users: (prev.users || []).map((user) => (
+          user.id === currentUser.id
+            ? { ...user, walletBalance: buyerAfter }
+            : (counterPayout.sellerUserId && user.id === counterPayout.sellerUserId)
+              ? { ...user, walletBalance: Number(((user.walletBalance || 0) + counterPayout.sellerAmount).toFixed(2)) }
+              : (counterPayout.barUserId && user.id === counterPayout.barUserId)
+                ? { ...user, walletBalance: Number(((user.walletBalance || 0) + counterPayout.barAmount).toFixed(2)) }
+                : (counterPayout.adminUserId && user.id === counterPayout.adminUserId)
+                  ? { ...user, walletBalance: Number(((user.walletBalance || 0) + counterPayout.adminAmount).toFixed(2)) }
+              : user
+        )),
+        walletTransactions: [
+          ...(counterPayout.sellerUserId && counterPayout.sellerAmount > 0 ? [{
+            id: `txn_${Date.now()}_counter_seller`,
+            userId: counterPayout.sellerUserId,
+            type: 'message_fee',
+            amount: counterPayout.sellerAmount,
+            description: `Counter-offer message earning (${requestId})`,
+            createdAt: now,
+          }] : []),
+          ...(counterPayout.barUserId && counterPayout.barAmount > 0 ? [{
+            id: `txn_${Date.now()}_counter_bar`,
+            userId: counterPayout.barUserId,
+            type: 'message_fee',
+            amount: counterPayout.barAmount,
+            description: `Bar commission from counter-offer fee (${requestId})`,
+            createdAt: now,
+          }] : []),
+          ...(counterPayout.adminUserId && counterPayout.adminAmount > 0 ? [{
+            id: `txn_${Date.now()}_counter_admin`,
+            userId: counterPayout.adminUserId,
+            type: 'message_fee',
+            amount: counterPayout.adminAmount,
+            description: `Platform commission from counter-offer fee (${requestId})`,
+            createdAt: now,
+          }] : []),
+          {
+            id: `txn_${Date.now()}_counter_buyer`,
+            userId: currentUser.id,
+            type: 'message_fee',
+            amount: -MESSAGE_FEE_THB,
+            description: `Counter-offer message fee (${requestId})`,
+            createdAt: now,
+          },
+          ...(prev.walletTransactions || []),
+        ],
+        customRequests: (prev.customRequests || []).map((request) => (
+          request.id === requestId
+            ? {
+                ...request,
+                quoteStatus: 'countered',
+                buyerCounterPriceThb: counterPrice,
+                quoteMessage: counterNote || request.quoteMessage || '',
+                quoteUpdatedAt: now,
+                quoteUpdatedByUserId: currentUser.id,
+                quoteAwaitingBuyerPayment: false,
+                updatedAt: now,
+              }
+            : request
+        )),
+        customRequestMessages: [
+          ...(prev.customRequestMessages || []),
+          {
+            id: `custom_request_msg_${Date.now()}_counter`,
+            requestId,
+            senderUserId: currentUser.id,
+            senderRole: 'buyer',
+            body: counterNote || `Counter offer: ${formatPriceTHB(counterPrice)}.`,
+            feeCharged: MESSAGE_FEE_THB,
+            messageType: 'price_counter',
+            quotedPriceThb: counterPrice,
+            createdAt: now,
+          },
+        ],
+        notifications: sellerUser?.id
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}_quote_counter`,
+                userId: sellerUser.id,
+                type: 'message',
+                text: `${currentUser.name || 'Buyer'} sent a counter-offer of ${formatPriceTHB(counterPrice)}.`,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : (prev.notifications || []),
+      };
+      actionSucceeded = true;
+      return appendLowBalanceEmailIfNeeded(base, {
+        userId: currentUser.id,
+        beforeBalance: buyerBefore,
+        afterBalance: buyerAfter,
+      });
+    });
+    if (actionSucceeded) {
+      onError?.('');
+      onSuccess?.();
+    } else if (actionError) {
+      onError?.(actionError);
+    }
+  }
+
+  async function sendCustomRequestMessage(requestId, body, arg3, arg4, arg5) {
+    const imageAttachments = Array.isArray(arg3) ? normalizeCustomRequestImageAttachments(arg3) : [];
+    const onSuccess = Array.isArray(arg3) ? arg4 : arg3;
+    const onError = Array.isArray(arg3) ? arg5 : arg4;
+    if (!currentUser || !['buyer', 'seller'].includes(currentUser.role)) {
+      onError?.('Please login to send custom request messages.');
+      return;
+    }
+    const trimmedBody = String(body || '').trim();
+    if (!requestId || (!trimmedBody && imageAttachments.length === 0)) return;
+    const request = customRequests.find((item) => item.id === requestId);
+    if (!request) {
+      onError?.('Custom request not found.');
+      return;
+    }
+    const isBuyerParticipant = currentUser.role === 'buyer' && request.buyerUserId === currentUser.id;
+    const isSellerParticipant = currentUser.role === 'seller' && request.sellerId === currentUser.sellerId;
+    if (!isBuyerParticipant && !isSellerParticipant) {
+      onError?.('You can only message requests you are part of.');
+      return;
+    }
+    if (currentUser.role === 'buyer' && imageAttachments.length > 0 && !request.buyerImageUploadEnabled) {
+      onError?.('Seller approval is required before you can upload images in this request.');
+      return;
+    }
+    if (currentUser.role === 'buyer' && currentWalletBalance < MESSAGE_FEE_THB) {
+      onError?.(`You need at least ${formatPriceTHB(MESSAGE_FEE_THB)} in your wallet to send this message.`);
+      return;
+    }
+    const sellerUser = users.find((user) => user.role === 'seller' && user.sellerId === request.sellerId);
+    const now = new Date().toISOString();
+    const recipientUserId = currentUser.role === 'buyer' ? sellerUser?.id : request.buyerUserId;
+    const recipientUser = users.find((user) => user.id === recipientUserId);
+    const { sourceLanguage, translations } = await buildMessageTranslationsForRecipient(
+      trimmedBody,
+      currentUser,
+      recipientUser,
+    );
+    setDb((prev) => {
+      const senderBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
+      const senderAfter = currentUser.role === 'buyer'
+        ? Number((senderBefore - MESSAGE_FEE_THB).toFixed(2))
+        : senderBefore;
+      const messagePayout = currentUser.role === 'buyer'
+        ? calculateSellerRevenueSplit(prev, {
+            sellerId: request.sellerId,
+            grossAmount: MESSAGE_FEE_THB,
+          })
+        : {
+            sellerUserId: null,
+            barUserId: null,
+            adminUserId: null,
+            sellerAmount: 0,
+            barAmount: 0,
+            adminAmount: 0,
+          };
+      const base = {
+        ...prev,
+        users: prev.users.map((user) =>
+          user.id === currentUser.id
+            ? { ...user, walletBalance: senderAfter }
+            : (currentUser.role === 'buyer' && messagePayout.sellerUserId && user.id === messagePayout.sellerUserId)
+              ? { ...user, walletBalance: Number(((user.walletBalance || 0) + messagePayout.sellerAmount).toFixed(2)) }
+              : (currentUser.role === 'buyer' && messagePayout.barUserId && user.id === messagePayout.barUserId)
+                ? { ...user, walletBalance: Number(((user.walletBalance || 0) + messagePayout.barAmount).toFixed(2)) }
+                : (currentUser.role === 'buyer' && messagePayout.adminUserId && user.id === messagePayout.adminUserId)
+                  ? { ...user, walletBalance: Number(((user.walletBalance || 0) + messagePayout.adminAmount).toFixed(2)) }
+              : user,
+        ),
+        walletTransactions: [
+          ...(currentUser.role === 'buyer' && messagePayout.sellerUserId && messagePayout.sellerAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_seller`,
+              userId: messagePayout.sellerUserId,
+              type: 'message_fee',
+              amount: messagePayout.sellerAmount,
+              description: `Custom request message earning (${requestId})`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(currentUser.role === 'buyer' && messagePayout.barUserId && messagePayout.barAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_bar`,
+              userId: messagePayout.barUserId,
+              type: 'message_fee',
+              amount: messagePayout.barAmount,
+              description: `Bar commission from custom request message fee (${requestId})`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(currentUser.role === 'buyer' && messagePayout.adminUserId && messagePayout.adminAmount > 0 ? [
+            {
+              id: `txn_${Date.now()}_admin`,
+              userId: messagePayout.adminUserId,
+              type: 'message_fee',
+              amount: messagePayout.adminAmount,
+              description: `Platform commission from custom request message fee (${requestId})`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(currentUser.role === 'buyer' ? [
+            {
+              id: `txn_${Date.now()}`,
+              userId: currentUser.id,
+              type: 'message_fee',
+              amount: -MESSAGE_FEE_THB,
+              description: `Custom request message fee (${requestId})`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(prev.walletTransactions || []),
+        ],
+        customRequestMessages: [
+          ...(prev.customRequestMessages || []),
+          {
+            id: `custom_request_msg_${Date.now()}`,
+            requestId,
+            senderUserId: currentUser.id,
+            senderRole: currentUser.role,
+            body: trimmedBody,
+            bodyOriginal: trimmedBody,
+            sourceLanguage,
+            translations,
+            imageAttachments,
+            feeCharged: currentUser.role === 'buyer' ? MESSAGE_FEE_THB : 0,
+            createdAt: now,
+          },
+        ],
+        notifications: recipientUserId
+          ? [
+              ...(prev.notifications || []),
+              {
+                id: `notif_${Date.now()}`,
+                userId: recipientUserId,
+                type: 'message',
+                text: `New custom request message from ${currentUser.name}.`,
+                conversationId: requestId,
+                read: false,
+                createdAt: now,
+              },
+            ]
+          : prev.notifications || [],
+        customRequests: (prev.customRequests || []).map((item) =>
+          item.id === requestId ? { ...item, updatedAt: now } : item,
+        ),
+      };
+      let withEmails = base;
+      if (recipientUserId) {
+        withEmails = appendTemplatedEmail(withEmails, {
+          templateKey: currentUser.role === 'buyer' ? 'seller_message_received' : 'buyer_message_received',
+          userId: recipientUserId,
+          vars: {
+            senderName: currentUser.name || (currentUser.role === 'buyer' ? 'Buyer' : 'Seller'),
+            conversationId: requestId,
+            actionPath: '/custom-requests',
+          },
+          fallbackPath: '/custom-requests',
+        });
+      }
+      if (currentUser.role !== 'buyer') return withEmails;
+      return appendLowBalanceEmailIfNeeded(withEmails, {
+        userId: currentUser.id,
+        beforeBalance: senderBefore,
+        afterBalance: senderAfter,
+      });
+    });
+    onError?.('');
+    onSuccess?.();
+  }
+
+  function markAllNotificationsRead() {
+    if (!currentUser) return;
+    setDb((prev) => ({
+      ...prev,
+      notifications: (prev.notifications || []).map((notification) =>
+        notification.userId === currentUser.id ? { ...notification, read: true } : notification,
+      ),
+    }));
+  }
+
+  function markNotificationRead(notificationId) {
+    if (!currentUser || !notificationId) return;
+    setDb((prev) => ({
+      ...prev,
+      notifications: (prev.notifications || []).map((notification) =>
+        notification.userId === currentUser.id && notification.id === notificationId
+          ? { ...notification, read: true }
+          : notification,
+      ),
+    }));
+  }
+
+  function updateNotificationPreference(type, enabled) {
+    if (!currentUser || !['message', 'engagement'].includes(type)) return;
+    setDb((prev) => ({
+      ...prev,
+      users: (prev.users || []).map((user) =>
+        user.id === currentUser.id
+          ? {
+              ...user,
+              notificationPreferences: {
+                message: user?.notificationPreferences?.message !== false,
+                engagement: user?.notificationPreferences?.engagement !== false,
+                [type]: Boolean(enabled),
+              },
+            }
+          : user,
+      ),
+    }));
+  }
+
+  function updateEmailTemplate(templateKey, nextTemplateDraft) {
+    if (!currentUser || currentUser.role !== 'admin' || !EMAIL_TEMPLATE_KEYS.has(templateKey)) return;
+    const defaultTemplate = getDefaultEmailTemplateByKey(templateKey);
+    if (!defaultTemplate) return;
+    const updatedAt = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      emailTemplates: normalizeEmailTemplates((prev.emailTemplates || []).map((template) => (
+        template.key !== templateKey
+          ? template
+          : {
+              ...template,
+              enabled: nextTemplateDraft?.enabled !== false,
+              subject: String(nextTemplateDraft?.subject || defaultTemplate.subject || ''),
+              body: String(nextTemplateDraft?.body || defaultTemplate.body || ''),
+              ctaLabel: String(nextTemplateDraft?.ctaLabel || defaultTemplate.ctaLabel || ''),
+              ctaPath: String(nextTemplateDraft?.ctaPath || defaultTemplate.ctaPath || '/account'),
+              updatedAt,
+              updatedByUserId: currentUser.id,
+            }
+      ))),
+    }));
+  }
+
+  function resetEmailTemplate(templateKey) {
+    if (!currentUser || currentUser.role !== 'admin' || !EMAIL_TEMPLATE_KEYS.has(templateKey)) return;
+    const defaultTemplate = getDefaultEmailTemplateByKey(templateKey);
+    if (!defaultTemplate) return;
+    const updatedAt = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      emailTemplates: normalizeEmailTemplates((prev.emailTemplates || []).map((template) => (
+        template.key !== templateKey
+          ? template
+          : { ...structuredClone(defaultTemplate), updatedAt, updatedByUserId: currentUser.id }
+      ))),
+    }));
+  }
+
+  async function sendTestEmailTemplate(templateKey, templateDraft, scenarioKey = 'default') {
+    if (!currentUser || currentUser.role !== 'admin' || !EMAIL_TEMPLATE_KEYS.has(templateKey)) {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (backendStatus !== 'connected') {
+      return { ok: false, error: 'Backend is offline. Connect API to send test email.' };
+    }
+    const fallback = getDefaultEmailTemplateByKey(templateKey);
+    if (!fallback) {
+      return { ok: false, error: 'Template not found.' };
+    }
+    const mergedTemplate = {
+      ...fallback,
+      ...(templateDraft || {}),
+      enabled: templateDraft?.enabled !== false,
+      subject: String(templateDraft?.subject || fallback.subject || ''),
+      body: String(templateDraft?.body || fallback.body || ''),
+      ctaLabel: String(templateDraft?.ctaLabel || fallback.ctaLabel || ''),
+      ctaPath: String(templateDraft?.ctaPath || fallback.ctaPath || '/account'),
+    };
+    const scenarioVarsByKey = {
+      default: {
+        senderName: 'Test Sender',
+        conversationId: 'buyer-1__nina-b',
+        buyerName: 'Alex T.',
+        requestId: 'custom_request_test_001',
+        requestStatus: 'reviewing',
+        amount: formatPriceTHB(500),
+        walletBalance: formatPriceTHB(240),
+        actionPath: mergedTemplate.ctaPath || '/account',
+      },
+      buyer_message: {
+        senderName: 'Nina B.',
+        conversationId: 'buyer-1__nina-b',
+        requestId: 'custom_request_test_001',
+        requestStatus: 'reviewing',
+        amount: formatPriceTHB(500),
+        walletBalance: formatPriceTHB(240),
+        actionPath: '/account',
+      },
+      seller_message: {
+        senderName: 'Alex T.',
+        conversationId: 'buyer-1__nina-b',
+        requestId: 'custom_request_test_001',
+        requestStatus: 'reviewing',
+        amount: formatPriceTHB(500),
+        walletBalance: formatPriceTHB(240),
+        actionPath: '/account',
+      },
+      custom_request: {
+        senderName: 'Alex T.',
+        buyerName: 'Alex T.',
+        requestId: 'custom_request_test_447',
+        requestStatus: 'open',
+        amount: formatPriceTHB(700),
+        walletBalance: formatPriceTHB(560),
+        actionPath: '/custom-requests',
+      },
+      custom_request_status: {
+        senderName: 'Nina B.',
+        buyerName: 'Alex T.',
+        requestId: 'custom_request_test_447',
+        requestStatus: 'fulfilled',
+        amount: formatPriceTHB(700),
+        walletBalance: formatPriceTHB(560),
+        actionPath: '/custom-requests',
+      },
+      wallet_top_up: {
+        senderName: 'Payment System',
+        conversationId: 'buyer-1__nina-b',
+        requestId: 'custom_request_test_001',
+        requestStatus: 'reviewing',
+        amount: formatPriceTHB(1200),
+        walletBalance: formatPriceTHB(1580),
+        actionPath: '/account',
+      },
+      wallet_low: {
+        senderName: 'Payment System',
+        conversationId: 'buyer-1__nina-b',
+        requestId: 'custom_request_test_001',
+        requestStatus: 'reviewing',
+        amount: formatPriceTHB(120),
+        walletBalance: formatPriceTHB(220),
+        actionPath: '/account',
+      },
+      order_shipped: {
+        senderName: 'Shipping Team',
+        orderId: 'order_test_3091',
+        trackingCarrier: 'Thailand Post / EMS',
+        trackingNumber: 'TH1234567890',
+        trackingUrl: 'https://www.17track.net/en/track?nums=TH1234567890',
+        actionPath: '/account',
+      },
+    };
+    const scenarioVars = scenarioVarsByKey[scenarioKey] || scenarioVarsByKey.default;
+    const vars = {
+      recipientName: currentUser.name || 'Admin',
+      ...scenarioVars,
+      actionUrl: buildAbsoluteActionUrl(scenarioVars.actionPath || mergedTemplate.ctaPath || '/account'),
+    };
+    const subject = fillEmailTemplate(mergedTemplate.subject, vars);
+    const text = fillEmailTemplate(mergedTemplate.body, vars);
+    const toEmail = currentUser.email || 'admin@thailandpanties.com';
+    const toName = currentUser.name || 'Admin';
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/notifications/platform-email`, {
+        method: 'POST',
+        headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          toEmail,
+          toName,
+          subject,
+          text,
+          templateKey,
+          actionUrl: vars.actionUrl,
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return { ok: false, error: payload?.error || `Email test failed (${response.status})` };
+      }
+      const emailMeta = payload?.email || {};
+      const now = new Date().toISOString();
+      setDb((prev) => ({
+        ...prev,
+        emailDeliveryLog: [
+          {
+            id: `email_test_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            templateKey,
+            userId: currentUser.id,
+            toEmail,
+            toName,
+            subject,
+            body: text,
+            ctaLabel: mergedTemplate.ctaLabel || 'Open in app',
+            actionPath: mergedTemplate.ctaPath || '/account',
+            actionUrl: vars.actionUrl,
+            testScenario: scenarioKey,
+            status: emailMeta.delivered ? 'sent' : (emailMeta.mock ? 'mocked' : 'failed'),
+            deliveryMode: emailMeta.mode || null,
+            recipients: emailMeta.recipients || [toEmail],
+            createdAt: now,
+            dispatchedAt: now,
+            lastError: emailMeta.delivered ? null : (emailMeta.reason || null),
+            isTest: true,
+          },
+          ...((prev.emailDeliveryLog || []).slice(0, 199)),
+        ],
+      }));
+      return {
+        ok: true,
+        message: emailMeta.delivered
+          ? `Test email delivered to ${toEmail} (${scenarioKey}).`
+          : `Test email queued in ${emailMeta.mode || 'mock'} mode (${emailMeta.reason || 'mocked'}) for scenario ${scenarioKey}.`,
+      };
+    } catch {
+      return { ok: false, error: 'Network error while sending test email.' };
+    }
+  }
+
+  async function runWalletTopUp(amount) {
+    if (!currentUser || currentUser.accountStatus !== 'active' || currentUser.role === 'admin') return;
+    const normalizedAmount = Number(amount || 0);
+    if (!isValidWalletTopUpAmount(normalizedAmount)) {
+      setWalletStatus('idle');
+      return { ok: false, error: `Top-up amount must be at least ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.` };
+    }
+    setTopUpAmount(normalizedAmount);
+    setWalletStatus('processing');
+    if (backendStatus === 'connected' && apiAuthToken) {
+      try {
+        const { ok, payload } = await apiRequestJson('/api/wallet/top-up', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: { amountThb: normalizedAmount },
+          idempotencyScope: `wallet_top_up_${currentUser.id}_${normalizedAmount}`,
+          stableIdempotency: true,
+        });
+        if (ok) {
+          if (payload?.db) {
+            setDb(normalizeDbState(payload.db));
+          }
+          setWalletStatus('success');
+          return { ok: true };
+        }
+        setWalletStatus('idle');
+        return {
+          ok: false,
+          error: payload?.error || `Top-up failed (${payload?.status || 'unknown'}).`,
+        };
+      } catch {
+        // Fall back to local flow if API is temporarily unavailable.
+      }
+    }
+    const now = new Date().toISOString();
+    setTimeout(() => {
+      setDb((prev) => {
+        const newBalance = Number((((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0) + normalizedAmount).toFixed(2));
+        const base = {
+          ...prev,
+          users: prev.users.map((user) =>
+            user.id === currentUser.id ? { ...user, walletBalance: newBalance } : user,
+          ),
+          walletTransactions: [
+            {
+              id: `txn_${Date.now()}`,
+              userId: currentUser.id,
+              type: 'top_up',
+              amount: normalizedAmount,
+              description: 'Stripe wallet top-up',
+              createdAt: now,
+            },
+            ...(prev.walletTransactions || []),
+          ],
+          stripeEvents: [
+            {
+              id: `evt_${Date.now()}`,
+              type: 'wallet.top_up.completed',
+              stripeSessionId: `wallet_${Date.now()}`,
+              createdAt: now,
+            },
+            ...prev.stripeEvents,
+          ],
+        };
+        return appendTemplatedEmail(base, {
+          templateKey: 'wallet_top_up_completed',
+          userId: currentUser.id,
+          vars: {
+            amount: formatPriceTHB(normalizedAmount),
+            walletBalance: formatPriceTHB(newBalance),
+            actionPath: '/account',
+          },
+        });
+      });
+      setWalletStatus('success');
+    }, 700);
+    return { ok: true };
+  }
+
+  async function runWalletCheckout() {
+    if (!currentUser || currentUser.role !== 'buyer' || currentUser.accountStatus !== 'active') return;
+    if (!checkoutForm.country.trim()) {
+      setCheckoutError('Enter a destination country to calculate shipping.');
+      return;
+    }
+    if (!String(checkoutForm.postalCode || '').trim()) {
+      setCheckoutError('Enter a ZIP/postal code for delivery.');
+      return;
+    }
+    if (!shippingSupported) {
+      setCheckoutError('Shipping is not available for this destination yet.');
+      return;
+    }
+    if (currentWalletBalance < total) {
+      const missingAmount = Number((total - currentWalletBalance).toFixed(2));
+      const requiredTopUp = getRequiredTopUpAmount(missingAmount);
+      setCheckoutError(`Short by ${formatPriceTHB(missingAmount)}. Top up required: ${formatPriceTHB(requiredTopUp)}. Minimum top-up is ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
+      return;
+    }
+    if (backendStatus === 'connected' && apiAuthToken) {
+      try {
+        const requestItemIds = cartItems.map((item) => item.id);
+        const idScope = `checkout_wallet_pay_${currentUser.id}_${requestItemIds.sort().join('_')}_${shippingFee}_${total}`;
+        const { ok, payload } = await apiRequestJson('/api/checkout/wallet-pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: {
+            itemIds: requestItemIds,
+            buyerEmail: (buyerEmail || currentUser.email || '').trim(),
+            shippingAddress: String(checkoutForm.address || '').trim(),
+            shippingCountry: String(checkoutForm.country || '').trim(),
+            shippingPostalCode: String(checkoutForm.postalCode || '').trim(),
+            shippingMethod: checkoutForm.shippingMethod,
+            shippingFee,
+            saveAddressToProfile: checkoutForm.saveAddressToProfile !== false,
+          },
+          idempotencyScope: idScope,
+          stableIdempotency: true,
+        });
+        if (ok) {
+          if (payload?.db) {
+            setDb(normalizeDbState(payload.db));
+          }
+          setCart([]);
+          setCheckoutError('');
+          navigate('/checkout/success');
+          return;
+        }
+        const requiredTopUp = Number(payload?.requiredTopUp || 0);
+        const shortfall = Number(payload?.shortfall || 0);
+        if (requiredTopUp > 0 || shortfall > 0) {
+          const computedRequiredTopUp = requiredTopUp > 0 ? requiredTopUp : getRequiredTopUpAmount(shortfall);
+          setCheckoutError(`Short by ${formatPriceTHB(shortfall)}. Top up required: ${formatPriceTHB(computedRequiredTopUp)}. Minimum top-up is ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
+          return;
+        }
+        setCheckoutError(payload?.error || 'Could not complete checkout payment.');
+        return;
+      } catch {
+        // Fall back to local wallet checkout if API is temporarily unavailable.
+      }
+    }
+    const orderId = `order_${Date.now()}`;
+    const now = new Date().toISOString();
+    const purchasedItemIds = cartItems.map((item) => item.id);
+    setDb((prev) => {
+      const beforeBalance = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
+      const afterBalance = Number((beforeBalance - total).toFixed(2));
+      const productsById = Object.fromEntries((prev.products || []).map((product) => [product.id, product]));
+      const sellerGrossBySellerId = {};
+      purchasedItemIds.forEach((productId) => {
+        const product = productsById[productId];
+        const sellerId = product?.sellerId;
+        const productPrice = Number(product?.price || 0);
+        if (!sellerId || !Number.isFinite(productPrice) || productPrice <= 0) return;
+        sellerGrossBySellerId[sellerId] = Number(((sellerGrossBySellerId[sellerId] || 0) + productPrice).toFixed(2));
+      });
+
+      const sellerPayoutByUserId = {};
+      const barPayoutByUserId = {};
+      let adminPayoutTotal = 0;
+      const payoutSummaryBySeller = [];
+      const adminUser = (prev.users || []).find((user) => user.role === 'admin');
+
+      Object.entries(sellerGrossBySellerId).forEach(([sellerId, sellerGross]) => {
+        const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
+        const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
+        const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
+        const barUser = affiliatedBarId
+          ? (prev.users || []).find((user) => user.role === 'bar' && user.barId === affiliatedBarId)
+          : null;
+        const hasPayoutBar = Boolean(barUser?.id);
+
+        const sellerPct = hasPayoutBar ? SALE_SPLIT.sellerWithBar : SALE_SPLIT.sellerWithoutBar;
+        const barPct = hasPayoutBar ? SALE_SPLIT.bar : 0;
+        const sellerAmount = Number((sellerGross * sellerPct).toFixed(2));
+        const barAmount = Number((sellerGross * barPct).toFixed(2));
+        let adminAmount = Number((sellerGross - sellerAmount - barAmount).toFixed(2));
+
+        if (sellerUser?.id) {
+          sellerPayoutByUserId[sellerUser.id] = Number(((sellerPayoutByUserId[sellerUser.id] || 0) + sellerAmount).toFixed(2));
+        } else {
+          adminAmount = Number((adminAmount + sellerAmount).toFixed(2));
+        }
+        if (barUser?.id) {
+          barPayoutByUserId[barUser.id] = Number(((barPayoutByUserId[barUser.id] || 0) + barAmount).toFixed(2));
+        } else {
+          adminAmount = Number((adminAmount + barAmount).toFixed(2));
+        }
+        adminPayoutTotal = Number((adminPayoutTotal + adminAmount).toFixed(2));
+        payoutSummaryBySeller.push({
+          sellerId,
+          sellerName: seller?.name || sellerId,
+          gross: sellerGross,
+          sellerAmount,
+          barAmount,
+          adminAmount,
+          barId: hasPayoutBar ? affiliatedBarId : null,
+        });
+      });
+
+      const shouldSaveCheckoutAddress = checkoutForm.saveAddressToProfile !== false;
+      const normalizedCheckoutAddress = String(checkoutForm.address || '').trim();
+      const normalizedCheckoutCountry = String(checkoutForm.country || '').trim();
+      const normalizedCheckoutPostalCode = String(checkoutForm.postalCode || '').trim();
+      const base = {
+        ...prev,
+        users: prev.users.map((user) =>
+          user.id === currentUser.id
+            ? {
+              ...user,
+              walletBalance: afterBalance,
+              ...(shouldSaveCheckoutAddress ? {
+                address: normalizedCheckoutAddress || user.address || '',
+                country: normalizedCheckoutCountry || user.country || '',
+                postalCode: normalizedCheckoutPostalCode || user.postalCode || '',
+              } : {}),
+            }
+            : sellerPayoutByUserId[user.id]
+              ? { ...user, walletBalance: Number(((user.walletBalance || 0) + sellerPayoutByUserId[user.id]).toFixed(2)) }
+              : barPayoutByUserId[user.id]
+                ? { ...user, walletBalance: Number(((user.walletBalance || 0) + barPayoutByUserId[user.id]).toFixed(2)) }
+                : (adminUser?.id === user.id && adminPayoutTotal > 0)
+                  ? { ...user, walletBalance: Number(((user.walletBalance || 0) + adminPayoutTotal).toFixed(2)) }
+            : user,
+        ),
+        products: removeBundlesContainingSoldItems(prev.products, purchasedItemIds),
+        orders: [
+          {
+            id: orderId,
+            items: purchasedItemIds,
+            buyerEmail: (buyerEmail || currentUser.email || '').trim(),
+            buyerUserId: currentUser.id,
+            shippingAddress: normalizedCheckoutAddress,
+            shippingCountry: checkoutForm.country.trim(),
+            shippingPostalCode: normalizedCheckoutPostalCode,
+            shippingMethod: checkoutForm.shippingMethod,
+            shippingFee,
+            total,
+            stripeSessionId: 'wallet_payment',
+            paymentStatus: 'paid',
+            fulfillmentStatus: 'processing',
+            trackingNumber: '',
+            payoutSummary: {
+              productSubtotal: Number(subtotal.toFixed(2)),
+              shippingFee: Number(shippingFee.toFixed(2)),
+              sellerTotal: Number(Object.values(sellerPayoutByUserId).reduce((sum, amount) => sum + amount, 0).toFixed(2)),
+              barTotal: Number(Object.values(barPayoutByUserId).reduce((sum, amount) => sum + amount, 0).toFixed(2)),
+              adminTotal: adminPayoutTotal,
+              bySeller: payoutSummaryBySeller,
+            },
+            createdAt: now,
+          },
+          ...prev.orders,
+        ],
+        walletTransactions: [
+          ...Object.entries(sellerPayoutByUserId).map(([userId, amount]) => ({
+            id: `txn_${Date.now()}_seller_${userId}_${Math.random().toString(36).slice(2, 6)}`,
+            userId,
+            type: 'order_sale_earning',
+            amount,
+            description: `Seller payout for ${orderId}`,
+            createdAt: now,
+          })),
+          ...Object.entries(barPayoutByUserId).map(([userId, amount]) => ({
+            id: `txn_${Date.now()}_bar_${userId}_${Math.random().toString(36).slice(2, 6)}`,
+            userId,
+            type: 'order_bar_commission',
+            amount,
+            description: `Bar commission for ${orderId}`,
+            createdAt: now,
+          })),
+          ...(adminUser?.id && adminPayoutTotal > 0 ? [{
+            id: `txn_${Date.now()}_admin_${adminUser.id}`,
+            userId: adminUser.id,
+            type: 'order_platform_commission',
+            amount: adminPayoutTotal,
+            description: `Platform commission for ${orderId}`,
+            createdAt: now,
+          }] : []),
+          {
+            id: `txn_${Date.now()}`,
+            userId: currentUser.id,
+            type: 'order_payment',
+            amount: -total,
+            description: `Wallet purchase for ${orderId}`,
+            createdAt: now,
+          },
+          ...(prev.walletTransactions || []),
+        ],
+      };
+      const withOrderEmail = appendTemplatedEmail(base, {
+        templateKey: 'order_placed',
+        userId: currentUser.id,
+        vars: {
+          orderId,
+          itemCount: purchasedItemIds.length,
+          shippingFee: formatPriceTHB(shippingFee),
+          orderTotal: formatPriceTHB(total),
+          actionPath: '/account',
+        },
+        fallbackPath: '/account',
+      });
+      return appendLowBalanceEmailIfNeeded(withOrderEmail, {
+        userId: currentUser.id,
+        beforeBalance,
+        afterBalance,
+      });
+    });
+    setCart([]);
+    setCheckoutError('');
+    navigate('/checkout/success');
+  }
+
+  function handleUploadFile(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setUploadDraft((prev) => ({
+        ...prev,
+        image: typeof reader.result === 'string' ? reader.result : '',
+        imageName: file.name,
+      }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleSellerPostImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSellerPostDraft((prev) => ({
+        ...prev,
+        image: typeof reader.result === 'string' ? reader.result : '',
+        imageName: file.name,
+      }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function createSellerPost() {
+    if (!isSeller) return;
+    if (!sellerPostDraft.image) {
+      setSellerProfileMessage(sellerStatus('uploadImageBeforePost'));
+      return;
+    }
+    if (creatingSellerPost) return;
+
+    const draftVisibility = sellerPostDraft.visibility === 'private' ? 'private' : 'public';
+    const feedMode = currentSellerProfile?.feedVisibility || 'public';
+    const effectiveVisibility = feedMode === 'per-post' ? draftVisibility : (feedMode === 'private' ? 'private' : 'public');
+    const basePostPayload = {
+      sellerId: currentSellerId,
+      caption: sellerPostDraft.caption.trim().slice(0, 500),
+      image: sellerPostDraft.image,
+      imageName: sellerPostDraft.imageName,
+      visibility: effectiveVisibility,
+      accessPriceUsd: Number.isFinite(Number(sellerPostDraft.accessPriceUsd)) && Number(sellerPostDraft.accessPriceUsd) >= MIN_SELLER_PRICE_THB
+        ? Number(Number(sellerPostDraft.accessPriceUsd).toFixed(2))
+        : MIN_SELLER_PRICE_THB,
+    };
+    const captionI18n = await buildTextTranslations(basePostPayload.caption);
+    const apiPostPayload = { ...basePostPayload, captionI18n };
+    const scheduledTimestamp = sellerPostDraft.scheduledFor ? new Date(sellerPostDraft.scheduledFor).getTime() : null;
+    const hasScheduledTime = Number.isFinite(scheduledTimestamp) && scheduledTimestamp > Date.now();
+    const scheduledForIso = hasScheduledTime ? new Date(scheduledTimestamp).toISOString() : '';
+
+    setCreatingSellerPost(true);
+    try {
+      let createdPost = {
+        id: `post-local-${Date.now()}`,
+        ...basePostPayload,
+        createdAt: hasScheduledTime ? scheduledForIso : new Date().toISOString(),
+        scheduledFor: scheduledForIso,
+      };
+      let persistedToSeed = false;
+
+      if (backendStatus === 'connected') {
+        const response = await fetch(`${API_BASE_URL}/api/seller-posts`, {
+          method: 'POST',
+          headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(apiPostPayload),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok && payload?.post) {
+          createdPost = payload.post;
+          persistedToSeed = true;
+        } else if (response.status === 404 && payload?.error === 'Seller not found.') {
+          // Keep UX unblocked when local seller/account data exists but backend state lags.
+          persistedToSeed = false;
+        } else {
+          throw new Error(localizeSellerApiError(payload?.error, 'publishPostFailed'));
+        }
+      }
+
+      const normalizedPost = {
+        ...createdPost,
+        captionI18n,
+        visibility: createdPost?.visibility === 'private' ? 'private' : 'public',
+        accessPriceUsd: Math.max(MIN_SELLER_PRICE_THB, Number(createdPost?.accessPriceUsd || MIN_SELLER_PRICE_THB)),
+        scheduledFor: createdPost?.scheduledFor || '',
+      };
+      setDb((prev) => ({
+        ...prev,
+        sellerPosts: [normalizedPost, ...(prev.sellerPosts || [])],
+      }));
+      setSellerPostDraft({
+        caption: '',
+        image: '',
+        imageName: '',
+        scheduledFor: '',
+        visibility: feedMode === 'private' ? 'private' : 'public',
+        accessPriceUsd: MIN_SELLER_PRICE_THB,
+      });
+      if (typeof window !== 'undefined') {
+        const raw = window.localStorage.getItem('tlm-seller-post-drafts');
+        let parsed = {};
+        try {
+          parsed = raw ? JSON.parse(raw) : {};
+        } catch {
+          parsed = {};
+        }
+        if (parsed[currentSellerId]) {
+          delete parsed[currentSellerId];
+          window.localStorage.setItem('tlm-seller-post-drafts', JSON.stringify(parsed));
+        }
+      }
+      setSellerProfileMessage(
+        hasScheduledTime
+          ? sellerStatus('postScheduled', { when: formatDateTimeNoSeconds(scheduledForIso) })
+          : persistedToSeed
+            ? sellerStatus('postPublished')
+            : sellerStatus('postSavedLocal')
+      );
+    } catch (error) {
+      const message = localizeSellerApiError(error?.message, 'publishPostFailed');
+      setSellerProfileMessage(message);
+      if (typeof window !== 'undefined') {
+        window.alert(message);
+      }
+    } finally {
+      setCreatingSellerPost(false);
+    }
+  }
+
+  async function createProductFromUpload() {
+    if (!uploadDraft.title || !uploadDraft.price || !uploadDraft.image) return;
+    const parsedUploadPrice = Number(uploadDraft.price);
+    if (!Number.isFinite(parsedUploadPrice) || parsedUploadPrice < MIN_SELLER_PRICE_THB) {
+      setSellerProfileMessage(`Listing price must be at least ${formatPriceTHB(MIN_SELLER_PRICE_THB)}.`);
+      return;
+    }
+    const slug = uploadDraft.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const titleI18n = await buildTextTranslations(uploadDraft.title);
+    const newProduct = {
+      id: `product-${Date.now()}`,
+      title: uploadDraft.title,
+      titleI18n,
+      slug,
+      sellerId: currentSellerId,
+      price: Number(parsedUploadPrice.toFixed(2)),
+      size: uploadDraft.size,
+      color: uploadDraft.color,
+      style: uploadDraft.style,
+      fabric: uploadDraft.fabric,
+      daysWorn: uploadDraft.daysWorn,
+      scentLevel: uploadDraft.scentLevel,
+      shipping: 'Worldwide',
+      condition: uploadDraft.condition,
+      description: `${uploadDraft.style} listing with ${uploadDraft.fabric.toLowerCase()} fabric and ${uploadDraft.scentLevel.toLowerCase()} scent level.`,
+      features: [
+        `${uploadDraft.style} style`,
+        `${uploadDraft.fabric} fabric`,
+        `${uploadDraft.scentLevel} scent level`,
+      ],
+      image: uploadDraft.image,
+      imageName: uploadDraft.imageName,
+      isBundle: false,
+      bundleItemIds: [],
+      status: 'Draft',
+      publishedAt: new Date().toISOString().slice(0, 10),
+    };
+    setDb((prev) => ({ ...prev, products: [newProduct, ...prev.products] }));
+    setUploadDraft({
+      title: '',
+      sellerId: currentSellerId,
+      price: '',
+      size: SIZE_OPTIONS[2],
+      color: COLOR_OPTIONS[0],
+      style: STYLE_OPTIONS[0],
+      fabric: FABRIC_OPTIONS[0],
+      daysWorn: DAYS_WORN_OPTIONS[0],
+      condition: CONDITION_OPTIONS[0],
+      scentLevel: SCENT_LEVEL_OPTIONS[0],
+      image: '',
+      imageName: '',
+    });
+    navigate('/account');
+  }
+
+  function upsertBundleProduct(bundleDraft, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const title = String(bundleDraft?.title || '').trim();
+    const price = Number(bundleDraft?.price || 0);
+    const selectedProductIds = Array.isArray(bundleDraft?.selectedProductIds)
+      ? [...new Set(bundleDraft.selectedProductIds.filter(Boolean))]
+      : [];
+    const bundleId = String(bundleDraft?.bundleId || '').trim();
+    if (!title) {
+      onError?.('Please enter a set title.');
+      return;
+    }
+    if (!Number.isFinite(price) || price < MIN_SELLER_PRICE_THB) {
+      onError?.(`Set price must be at least ${formatPriceTHB(MIN_SELLER_PRICE_THB)}.`);
+      return;
+    }
+    if (selectedProductIds.length < 2) {
+      onError?.('Select at least 2 products to create a set.');
+      return;
+    }
+    const selectableProducts = products.filter((product) =>
+      product.sellerId === currentSellerId &&
+      !product.isBundle &&
+      selectedProductIds.includes(product.id)
+    );
+    if (selectableProducts.length !== selectedProductIds.length) {
+      onError?.('Some selected items are not available for bundling.');
+      return;
+    }
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const firstProduct = selectableProducts[0];
+    const normalizedBundle = {
+      id: bundleId || `product-set-${Date.now()}`,
+      title,
+      slug: slug || `set-${Date.now()}`,
+      sellerId: currentSellerId,
+      price: Number(price.toFixed(2)),
+      size: firstProduct?.size || 'M',
+      color: firstProduct?.color || 'Mixed',
+      style: 'Custom Set',
+      fabric: firstProduct?.fabric || 'Cotton',
+      daysWorn: firstProduct?.daysWorn || DAYS_WORN_OPTIONS[0],
+      scentLevel: firstProduct?.scentLevel || SCENT_LEVEL_OPTIONS[0],
+      shipping: 'Worldwide',
+      condition: firstProduct?.condition || CONDITION_OPTIONS[0],
+      description: `Set bundle including ${selectableProducts.map((item) => item.title).join(', ')}. Sold together at a combined price.`,
+      features: [
+        `Includes ${selectedProductIds.length} items`,
+        ...selectableProducts.slice(0, 3).map((item) => item.title),
+      ],
+      image: firstProduct?.image || '',
+      imageName: firstProduct?.imageName || '',
+      isBundle: true,
+      bundleItemIds: selectedProductIds,
+      status: 'Draft',
+      publishedAt: new Date().toISOString().slice(0, 10),
+    };
+    setDb((prev) => {
+      const exists = prev.products.some((product) => product.id === normalizedBundle.id && product.sellerId === currentSellerId);
+      return {
+        ...prev,
+        products: exists
+          ? prev.products.map((product) =>
+              product.id === normalizedBundle.id && product.sellerId === currentSellerId
+                ? { ...product, ...normalizedBundle, status: product.status || normalizedBundle.status }
+                : product
+            )
+          : [normalizedBundle, ...prev.products],
+      };
+    });
+    onSuccess?.(bundleId ? 'Set updated successfully.' : 'Set created successfully.');
+  }
+
+  function publishProduct(productId) {
+    if (sellerProfileChecklist.length > 0) {
+      setSellerProfileMessage(sellerStatus('completeOnboarding', { items: sellerProfileChecklist.join(', ') }));
+      return;
+    }
+    setDb((prev) => ({
+      ...prev,
+      products: prev.products.map((product) => (product.id === productId ? { ...product, status: 'Published' } : product)),
+    }));
+      setSellerProfileMessage(sellerStatus('listingPublished'));
+  }
+
+  async function deleteProduct(productId) {
+    const product = products.find((item) => item.id === productId);
+    if (!product || product.sellerId !== currentSellerId) return;
+    if (deletingProductId === productId) return;
+
+    if (typeof window !== 'undefined') {
+      const confirmed = window.confirm(sellerStatus('deleteProductConfirm', { title: product.title }));
+      if (!confirmed) return;
+    }
+
+    try {
+      setDeletingProductId(productId);
+      let deletedOnBackend = false;
+      let deletedProductId = productId;
+      let deletedProductTitle = (product.title || '').trim().toLowerCase();
+
+      if (backendStatus === 'connected') {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+            method: 'DELETE',
+            headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ productTitle: product.title }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (response.ok) {
+            deletedOnBackend = true;
+            deletedProductId = payload?.deletedProductId || productId;
+            deletedProductTitle = (payload?.deletedProductTitle || product.title || '').trim().toLowerCase();
+          } else if (response.status !== 404) {
+            throw new Error(localizeSellerApiError(payload?.error, 'deleteProductFailed'));
+          }
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      setDb((prev) => ({
+        ...prev,
+        products: prev.products.filter((item) => {
+          if (item.id === deletedProductId) return false;
+          if (deletedProductTitle && (item.title || '').trim().toLowerCase() === deletedProductTitle) return false;
+          return true;
+        }),
+      }));
+      setCart((prev) => prev.filter((id) => id !== deletedProductId));
+      setSellerProfileMessage(
+        deletedOnBackend
+          ? sellerStatus('productDeleted')
+          : sellerStatus('productDeletedLocal')
+      );
+    } catch (error) {
+      const message = localizeSellerApiError(error?.message, 'deleteProductFailed');
+      setSellerProfileMessage(message);
+      if (typeof window !== 'undefined') {
+        window.alert(message);
+      }
+    } finally {
+      setDeletingProductId(null);
+    }
+  }
+
+  async function deleteSellerPost(postId) {
+    const existingPost = sellerPosts.find((post) => post.id === postId);
+    if (!existingPost) return;
+    const isOwner = existingPost.sellerId === currentSellerId;
+    const canDelete = currentUser?.role === 'admin' || isOwner;
+    if (!canDelete || deletingSellerPostId === postId) return;
+
+    if (typeof window !== 'undefined') {
+      const confirmed = window.confirm(sellerStatus('deletePostConfirm'));
+      if (!confirmed) return;
+    }
+
+    try {
+      setDeletingSellerPostId(postId);
+      let deletedOnBackend = false;
+
+      if (backendStatus === 'connected' && !postId.startsWith('post-local-')) {
+        const response = await fetch(`${API_BASE_URL}/api/seller-posts/${postId}`, {
+          method: 'DELETE',
+          headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({}),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok) {
+          deletedOnBackend = true;
+        } else if (response.status !== 404) {
+          throw new Error(localizeSellerApiError(payload?.error, 'deleteSellerPostFailed'));
+        }
+      }
+
+      setDb((prev) => ({
+        ...prev,
+        sellerPosts: (prev.sellerPosts || []).filter((post) => post.id !== postId),
+        adminActions: currentUser?.role === 'admin'
+          ? [
+              ...(prev.adminActions || []),
+              {
+                id: `admin_action_${Date.now()}`,
+                type: 'delete_seller_post',
+                targetPostId: postId,
+                adminUserId: currentUser.id,
+                createdAt: new Date().toISOString(),
+              },
+            ]
+          : prev.adminActions,
+      }));
+      setSellerProfileMessage(
+        deletedOnBackend
+          ? sellerStatus('postDeleted')
+          : sellerStatus('postDeletedLocal')
+      );
+    } catch (error) {
+      const message = localizeSellerApiError(error?.message, 'deleteSellerPostFailed');
+      setSellerProfileMessage(message);
+      if (typeof window !== 'undefined') {
+        window.alert(message);
+      }
+    } finally {
+      setDeletingSellerPostId(null);
+    }
+  }
+
+  async function reportSellerPost(postId, providedReason) {
+    if (!currentUser) {
+      setSellerProfileMessage(sellerStatus('loginToReport'));
+      return;
+    }
+    if (currentUser.accountStatus !== 'active') {
+      setSellerProfileMessage('Your account must be active to submit reports.');
+      return;
+    }
+    if (reportingSellerPostId === postId) return;
+
+    const existingOpenReport = postReports.find(
+      (report) => report.postId === postId && report.reporterUserId === currentUser.id && report.status !== 'resolved'
+    );
+    if (existingOpenReport) {
+      setSellerProfileMessage(sellerStatus('alreadyReported'));
+      return;
+    }
+
+    const trimmedReason = String(providedReason || '').trim();
+    if (!trimmedReason) return;
+    const targetPost = sellerPosts.find((post) => post.id === postId);
+    const targetUserId = (users.find((entry) => entry.sellerId === targetPost?.sellerId) || {}).id || null;
+
+    try {
+      setReportingSellerPostId(postId);
+      let createdReport = {
+        id: `post_report_local_${Date.now()}`,
+        postId,
+        targetUserId,
+        contentType: 'post',
+        contentId: postId,
+        reporterUserId: currentUser.id,
+        reporterRole: currentUser.role,
+        reason: trimmedReason.slice(0, 500),
+        status: 'open',
+        createdAt: new Date().toISOString(),
+        resolvedAt: null,
+        resolvedByUserId: null,
+      };
+
+      if (backendStatus === 'connected') {
+        const response = await fetch(`${API_BASE_URL}/api/seller-posts/${postId}/report`, {
+          method: 'POST',
+          headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ reason: trimmedReason }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok && payload?.report) {
+          createdReport = payload.report;
+        } else if (response.status === 409) {
+          setSellerProfileMessage(localizeSellerApiError(payload?.error, 'alreadyReported'));
+          return;
+        } else {
+          throw new Error(localizeSellerApiError(payload?.error, 'submitReportFailed'));
+        }
+      }
+
+      setDb((prev) => ({
+        ...prev,
+        postReports: [createdReport, ...(prev.postReports || [])],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'report_seller_post',
+            targetPostId: postId,
+            targetUserId,
+            reporterUserId: currentUser.id,
+            reporterRole: currentUser.role,
+            reason: trimmedReason.slice(0, 500),
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      }));
+      setSellerProfileMessage(sellerStatus('postReported'));
+    } catch (error) {
+      const message = localizeSellerApiError(error?.message, 'submitReportFailed');
+      setSellerProfileMessage(message);
+      if (typeof window !== 'undefined') {
+        window.alert(message);
+      }
+    } finally {
+      setReportingSellerPostId(null);
+    }
+  }
+
+  function reportSellerPostComment(commentId, providedReason) {
+    if (!currentUser) {
+      setSellerProfileMessage('Please login to report comments.');
+      return;
+    }
+    if (currentUser.accountStatus !== 'active') {
+      setSellerProfileMessage('Your account must be active to submit reports.');
+      return;
+    }
+    if (reportingSellerPostCommentId === commentId) return;
+    const targetComment = sellerPostComments.find((entry) => entry.id === commentId);
+    if (!targetComment) return;
+    if (targetComment.senderUserId === currentUser.id) {
+      setSellerProfileMessage('You cannot report your own comment.');
+      return;
+    }
+    const existingOpenReport = commentReports.find(
+      (report) => report.commentId === commentId && report.reporterUserId === currentUser.id && report.status !== 'resolved'
+    );
+    if (existingOpenReport) {
+      setSellerProfileMessage('You already reported this comment.');
+      return;
+    }
+    const trimmedReason = String(providedReason || '').trim();
+    if (!trimmedReason) return;
+
+    setReportingSellerPostCommentId(commentId);
+    try {
+      const createdAt = new Date().toISOString();
+      const report = {
+        id: `comment_report_local_${Date.now()}`,
+        commentId,
+        postId: targetComment.postId,
+        targetUserId: targetComment.senderUserId,
+        contentType: 'comment',
+        contentId: commentId,
+        reporterUserId: currentUser.id,
+        reporterRole: currentUser.role,
+        reason: trimmedReason.slice(0, 500),
+        status: 'open',
+        createdAt,
+        resolvedAt: null,
+        resolvedByUserId: null,
+      };
+      setDb((prev) => ({
+        ...prev,
+        commentReports: [report, ...(prev.commentReports || [])],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'report_seller_comment',
+            targetCommentId: commentId,
+            targetPostId: targetComment.postId,
+            targetUserId: targetComment.senderUserId,
+            reporterUserId: currentUser.id,
+            reporterRole: currentUser.role,
+            reason: trimmedReason.slice(0, 500),
+            createdAt,
+          },
+        ],
+      }));
+      setSellerProfileMessage('Comment reported. Admin will review it.');
+    } finally {
+      setReportingSellerPostCommentId(null);
+    }
+  }
+
+  async function resolvePostReport(reportId) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (resolvingPostReportId === reportId) return;
+    const targetReport = postReports.find((report) => report.id === reportId);
+    if (!targetReport || targetReport.status === 'resolved') return;
+
+    try {
+      setResolvingPostReportId(reportId);
+      let resolvedOnBackend = false;
+
+      if (backendStatus === 'connected' && !reportId.startsWith('post_report_local_')) {
+        const response = await fetch(`${API_BASE_URL}/api/seller-post-reports/${reportId}/resolve`, {
+          method: 'POST',
+          headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({}),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok) {
+          resolvedOnBackend = true;
+        } else if (response.status !== 404) {
+          throw new Error(localizeSellerApiError(payload?.error, 'resolveReportFailed'));
+        }
+      }
+
+      const resolvedAt = new Date().toISOString();
+      setDb((prev) => {
+        const report = (prev.postReports || []).find((entry) => entry.id === reportId);
+        if (!report || report.status === 'resolved') return prev;
+        const resolvedBase = {
+          ...prev,
+          postReports: (prev.postReports || []).map((entry) => (
+            entry.id === reportId
+              ? { ...entry, status: 'resolved', resolvedAt, resolvedByUserId: currentUser.id }
+              : entry
+          )),
+          adminActions: [
+            ...(prev.adminActions || []),
+            {
+              id: `admin_action_${Date.now()}`,
+              type: 'resolve_post_report',
+              targetReportId: reportId,
+              targetUserId: report.targetUserId || null,
+              adminUserId: currentUser.id,
+              createdAt: resolvedAt,
+            },
+          ],
+        };
+        return report.targetUserId
+          ? applyStrikeAndAutoFreeze(resolvedBase, {
+              targetUserId: report.targetUserId,
+              reason: report.reason,
+              sourceType: 'post',
+              sourceId: report.postId,
+              reportId,
+              adminUserId: currentUser.id,
+            })
+          : resolvedBase;
+      });
+      setSellerProfileMessage(
+        resolvedOnBackend
+          ? sellerStatus('reportResolved')
+          : sellerStatus('reportResolvedLocal')
+      );
+    } catch (error) {
+      const message = localizeSellerApiError(error?.message, 'resolveReportFailed');
+      setSellerProfileMessage(message);
+      if (typeof window !== 'undefined') {
+        window.alert(message);
+      }
+    } finally {
+      setResolvingPostReportId(null);
+    }
+  }
+
+  async function resolveAllPostReports() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    const openReports = postReports.filter((report) => report.status !== 'resolved');
+    if (openReports.length === 0 || resolvingAllPostReports) return;
+    if (typeof window !== 'undefined' && !window.confirm(sellerStatus('resolveAllReportsConfirm', { count: openReports.length }))) return;
+
+    try {
+      setResolvingAllPostReports(true);
+      for (const report of openReports) {
+        // eslint-disable-next-line no-await-in-loop
+        await resolvePostReport(report.id);
+      }
+    } finally {
+      setResolvingAllPostReports(false);
+    }
+  }
+
+  function resolveCommentReport(reportId) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (resolvingCommentReportId === reportId) return;
+    const report = commentReports.find((entry) => entry.id === reportId);
+    if (!report || report.status === 'resolved') return;
+    setResolvingCommentReportId(reportId);
+    try {
+      const resolvedAt = new Date().toISOString();
+      setDb((prev) => {
+        const liveReport = (prev.commentReports || []).find((entry) => entry.id === reportId);
+        if (!liveReport || liveReport.status === 'resolved') return prev;
+        const resolvedBase = {
+          ...prev,
+          commentReports: (prev.commentReports || []).map((entry) => (
+            entry.id === reportId
+              ? { ...entry, status: 'resolved', resolvedAt, resolvedByUserId: currentUser.id }
+              : entry
+          )),
+          adminActions: [
+            ...(prev.adminActions || []),
+            {
+              id: `admin_action_${Date.now()}`,
+              type: 'resolve_comment_report',
+              targetReportId: reportId,
+              targetCommentId: liveReport.commentId,
+              targetUserId: liveReport.targetUserId || null,
+              adminUserId: currentUser.id,
+              createdAt: resolvedAt,
+            },
+          ],
+        };
+        return liveReport.targetUserId
+          ? applyStrikeAndAutoFreeze(resolvedBase, {
+              targetUserId: liveReport.targetUserId,
+              reason: liveReport.reason,
+              sourceType: 'comment',
+              sourceId: liveReport.commentId,
+              reportId,
+              adminUserId: currentUser.id,
+            })
+          : resolvedBase;
+      });
+      setSellerProfileMessage('Comment report resolved.');
+    } finally {
+      setResolvingCommentReportId(null);
+    }
+  }
+
+  async function resolveAllCommentReports() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    const openReports = commentReports.filter((report) => report.status !== 'resolved');
+    if (openReports.length === 0 || resolvingAllCommentReports) return;
+    if (typeof window !== 'undefined' && !window.confirm(`Resolve all ${openReports.length} open comment reports?`)) return;
+    try {
+      setResolvingAllCommentReports(true);
+      for (const report of openReports) {
+        // eslint-disable-next-line no-await-in-loop
+        await resolveCommentReport(report.id);
+      }
+    } finally {
+      setResolvingAllCommentReports(false);
+    }
+  }
+
+  function submitStrikeAppeal(message) {
+    if (!currentUser) return false;
+    const trimmed = String(message || '').trim();
+    if (!trimmed) return false;
+    if (submittingStrikeAppeal) return false;
+    const activeStrikeCount = (userStrikes || []).filter((strike) => strike.userId === currentUser.id && strike.status === 'active').length;
+    const canAppeal = currentUser.accountStatus === 'frozen' || activeStrikeCount > 0;
+    if (!canAppeal) {
+      setSellerProfileMessage('Appeals are only available for frozen accounts or accounts with active strikes.');
+      return false;
+    }
+    setSubmittingStrikeAppeal(true);
+    try {
+      const now = new Date().toISOString();
+      setDb((prev) => ({
+        ...prev,
+        userAppeals: [
+          {
+            id: `appeal_${Date.now()}`,
+            userId: currentUser.id,
+            status: 'pending',
+            message: trimmed.slice(0, 1000),
+            strikeIds: (prev.userStrikes || []).filter((strike) => strike.userId === currentUser.id && strike.status === 'active').map((strike) => strike.id),
+            createdAt: now,
+            reviewedAt: null,
+            reviewedByUserId: null,
+            adminDecisionNote: '',
+          },
+          ...(prev.userAppeals || []),
+        ],
+        notifications: [
+          ...(prev.notifications || []),
+          {
+            id: `notif_${Date.now()}_appeal`,
+            userId: currentUser.id,
+            type: 'engagement',
+            text: 'Your appeal was submitted and is pending admin review.',
+            read: false,
+            createdAt: now,
+          },
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'submit_user_appeal',
+            targetUserId: currentUser.id,
+            createdAt: now,
+          },
+        ],
+      }));
+      setSellerProfileMessage('Appeal submitted. Admin will review it soon.');
+      return true;
+    } finally {
+      setSubmittingStrikeAppeal(false);
+    }
+  }
+
+  function reviewUserAppeal(appealId, decision) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!['approved', 'denied'].includes(decision)) return;
+    if (reviewingAppealId === appealId) return;
+    setReviewingAppealId(appealId);
+    try {
+      const reviewedAt = new Date().toISOString();
+      setDb((prev) => {
+        const appeal = (prev.userAppeals || []).find((entry) => entry.id === appealId);
+        if (!appeal || appeal.status !== 'pending') return prev;
+        const isApproved = decision === 'approved';
+        return {
+          ...prev,
+          userAppeals: (prev.userAppeals || []).map((entry) => (
+            entry.id === appealId
+              ? {
+                  ...entry,
+                  status: decision,
+                  reviewedAt,
+                  reviewedByUserId: currentUser.id,
+                  adminDecisionNote: isApproved
+                    ? 'Appeal approved. Account reactivated and strikes reset.'
+                    : 'Appeal denied. Account remains frozen.',
+                }
+              : entry
+          )),
+          users: (prev.users || []).map((user) => {
+            if (user.id !== appeal.userId) return user;
+            if (!isApproved) return user;
+            return {
+              ...user,
+              strikeCount: 0,
+              accountStatus: user.accountStatus === 'frozen' ? 'active' : user.accountStatus,
+              frozenAt: undefined,
+              frozenReason: undefined,
+            };
+          }),
+          userStrikes: (prev.userStrikes || []).map((strike) => {
+            if (strike.userId !== appeal.userId || strike.status !== 'active') return strike;
+            return isApproved
+              ? { ...strike, status: 'appealed', resolvedAt: reviewedAt, resolvedByUserId: currentUser.id }
+              : strike;
+          }),
+          notifications: [
+            ...(prev.notifications || []),
+            {
+              id: `notif_${Date.now()}_appeal_review`,
+              userId: appeal.userId,
+              type: 'engagement',
+              text: isApproved
+                ? 'Your appeal was approved and your account is active again.'
+                : 'Your appeal was denied. Your account remains frozen.',
+              read: false,
+              createdAt: reviewedAt,
+            },
+          ],
+          adminActions: [
+            ...(prev.adminActions || []),
+            {
+              id: `admin_action_${Date.now()}_appeal_review`,
+              type: isApproved ? 'approve_user_appeal' : 'deny_user_appeal',
+              targetUserId: appeal.userId,
+              targetAppealId: appealId,
+              adminUserId: currentUser.id,
+              createdAt: reviewedAt,
+            },
+          ],
+        };
+      });
+      setSellerProfileMessage(decision === 'approved' ? 'Appeal approved and account restored.' : 'Appeal denied.');
+    } finally {
+      setReviewingAppealId(null);
+    }
+  }
+
+  function updateOrderShipment(orderId, nextFulfillmentStatus, nextTrackingNumber, nextTrackingCarrier) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!orderId || !['processing', 'shipped', 'delivered'].includes(nextFulfillmentStatus)) return;
+    if (updatingOrderId === orderId) return;
+    setUpdatingOrderId(orderId);
+    try {
+      const normalizedTrackingNumber = String(nextTrackingNumber || '').trim();
+      const normalizedTrackingCarrier = String(nextTrackingCarrier || '').trim();
+      const now = new Date().toISOString();
+      setDb((prev) => {
+        const targetOrder = (prev.orders || []).find((order) => order.id === orderId);
+        if (!targetOrder) return prev;
+        const buyer = (prev.users || []).find((user) =>
+          (targetOrder.buyerUserId && user.id === targetOrder.buyerUserId)
+          || (!targetOrder.buyerUserId && targetOrder.buyerEmail && user.email === targetOrder.buyerEmail),
+        );
+        const shouldNotifyShipment =
+          nextFulfillmentStatus === 'shipped'
+          && (
+            targetOrder.fulfillmentStatus !== 'shipped'
+            || String(targetOrder.trackingNumber || '').trim() !== normalizedTrackingNumber
+            || String(targetOrder.trackingCarrier || '').trim() !== normalizedTrackingCarrier
+          );
+        const trackingUrl = normalizedTrackingNumber
+          ? `https://www.17track.net/en/track?nums=${encodeURIComponent(normalizedTrackingNumber)}`
+          : '';
+        const base = {
+          ...prev,
+          orders: (prev.orders || []).map((order) => (
+            order.id === orderId
+              ? {
+                  ...order,
+                  fulfillmentStatus: nextFulfillmentStatus,
+                  trackingNumber: normalizedTrackingNumber,
+                  trackingCarrier: normalizedTrackingCarrier,
+                  updatedAt: now,
+                }
+              : order
+          )),
+          adminActions: [
+            ...(prev.adminActions || []),
+            {
+              id: `admin_action_${Date.now()}_order_ship`,
+              type: 'update_order_shipment',
+              targetOrderId: orderId,
+              targetUserId: buyer?.id || null,
+              adminUserId: currentUser.id,
+              createdAt: now,
+              status: nextFulfillmentStatus,
+              trackingNumber: normalizedTrackingNumber,
+              trackingCarrier: normalizedTrackingCarrier,
+            },
+          ],
+        };
+        if (!shouldNotifyShipment || !buyer?.id) return base;
+        let withNotification = base;
+        if (shouldSendNotificationForType(buyer, 'engagement')) {
+          withNotification = {
+            ...withNotification,
+            notifications: [
+              ...(withNotification.notifications || []),
+              {
+                id: `notif_${Date.now()}_order_shipped`,
+                userId: buyer.id,
+                type: 'engagement',
+                text: normalizedTrackingNumber
+                  ? `Your order ${orderId} shipped.${normalizedTrackingCarrier ? ` Carrier: ${normalizedTrackingCarrier}.` : ''} Tracking code: ${normalizedTrackingNumber}.`
+                  : `Your order ${orderId} shipped.`,
+                read: false,
+                createdAt: now,
+              },
+            ],
+          };
+        }
+        return appendTemplatedEmail(withNotification, {
+          templateKey: 'order_shipped',
+          userId: buyer.id,
+          vars: {
+            orderId,
+            trackingCarrier: normalizedTrackingCarrier || 'Not specified',
+            trackingNumber: normalizedTrackingNumber || 'Pending carrier assignment',
+            trackingUrl: trackingUrl || buildAbsoluteActionUrl('/account'),
+            actionPath: '/account',
+          },
+          fallbackPath: '/account',
+        });
+      });
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  }
+
+  function updateAdminInboxReview(itemKey, status) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!itemKey || !['new', 'reviewed', 'follow_up', 'resolved'].includes(status)) return;
+    const updatedAt = new Date().toISOString();
+    setDb((prev) => {
+      const existing = (prev.adminInboxReviews || []).find((entry) => entry.itemKey === itemKey);
+      const nextEntry = existing
+        ? { ...existing, status, updatedAt, updatedByUserId: currentUser.id }
+        : {
+            id: `admin_inbox_review_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            itemKey,
+            status,
+            updatedAt,
+            updatedByUserId: currentUser.id,
+          };
+      const remaining = (prev.adminInboxReviews || []).filter((entry) => entry.itemKey !== itemKey);
+      return {
+        ...prev,
+        adminInboxReviews: [nextEntry, ...remaining].slice(0, 3000),
+      };
+    });
+  }
+
+  function updateRefundClaimDecision(claimId, decision, note = '', onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      onError?.('Only admins can review refund claims.');
+      return;
+    }
+    if (!claimId || !['approved', 'rejected'].includes(decision)) {
+      onError?.('Invalid refund claim decision.');
+      return;
+    }
+    const decisionNote = String(note || '').trim();
+    let actionError = '';
+    let actionResult = null;
+    setDb((prev) => {
+      const claim = (prev.refundClaims || []).find((entry) => entry.id === claimId);
+      if (!claim) {
+        actionError = 'Refund claim not found.';
+        return prev;
+      }
+      if (['approved', 'rejected'].includes(claim.status || '')) {
+        actionError = `Refund claim already ${claim.status}.`;
+        return prev;
+      }
+      const now = new Date().toISOString();
+      const buyer = (prev.users || []).find((user) => user.id === claim.buyerUserId);
+      const matchingOrder = (prev.orders || []).find((order) => order.id === claim.orderId);
+      const refundAmount = decision === 'approved' ? Number(Number(matchingOrder?.total || 0).toFixed(2)) : 0;
+      if (decision === 'approved' && refundAmount <= 0) {
+        actionError = 'Cannot approve refund: order total is missing or zero.';
+        return prev;
+      }
+      actionResult = {
+        claimId,
+        decision,
+        refundAmount,
+        orderId: claim.orderId,
+      };
+      const base = {
+        ...prev,
+        users: (prev.users || []).map((user) => (
+          decision === 'approved' && buyer?.id && user.id === buyer.id
+            ? { ...user, walletBalance: Number(((user.walletBalance || 0) + refundAmount).toFixed(2)) }
+            : user
+        )),
+        walletTransactions: [
+          ...(decision === 'approved' && buyer?.id ? [
+            {
+              id: `txn_${Date.now()}_refund_claim`,
+              userId: buyer.id,
+              type: 'refund_claim_refund',
+              amount: refundAmount,
+              description: `Wrong-item refund approved for order ${claim.orderId}`,
+              createdAt: now,
+            },
+          ] : []),
+          ...(prev.walletTransactions || []),
+        ],
+        refundClaims: (prev.refundClaims || []).map((entry) => (
+          entry.id === claimId
+            ? {
+                ...entry,
+                status: decision,
+                decisionNote,
+                reviewedByUserId: currentUser.id,
+                reviewedAt: now,
+                refundAmount: decision === 'approved' ? refundAmount : 0,
+                updatedAt: now,
+              }
+            : entry
+        )),
+        notifications: [
+          ...(prev.notifications || []),
+          ...(buyer?.id ? [{
+            id: `notif_refund_claim_${Date.now()}_${decision}`,
+            userId: buyer.id,
+            type: 'engagement',
+            text: decision === 'approved'
+              ? `Your wrong-item refund claim for ${claim.orderId} was approved. ${formatPriceTHB(refundAmount)} was added to your wallet.`
+              : `Your wrong-item refund claim for ${claim.orderId} was rejected.${decisionNote ? ` Note: ${decisionNote}` : ''}`,
+            read: false,
+            createdAt: now,
+          }] : []),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}_refund_claim_${decision}`,
+            type: `refund_claim_${decision}`,
+            targetUserId: claim.buyerUserId || null,
+            targetOrderId: claim.orderId || null,
+            targetRefundClaimId: claimId,
+            adminUserId: currentUser.id,
+            createdAt: now,
+            metadata: {
+              refundAmount,
+              note: decisionNote,
+            },
+          },
+        ],
+      };
+      if (!buyer?.id) return base;
+      return appendTemplatedEmail(base, {
+        templateKey: 'refund_claim_decision',
+        userId: buyer.id,
+        vars: {
+          orderId: claim.orderId || 'unknown',
+          decision,
+          decisionSummary: decision === 'approved'
+            ? `${formatPriceTHB(refundAmount)} has been added to your wallet.`
+            : (decisionNote ? `Reason: ${decisionNote}` : 'No wallet refund was issued.'),
+          actionPath: '/account',
+        },
+        fallbackPath: '/account',
+      });
+    });
+    if (actionError) {
+      onError?.(actionError);
+      return;
+    }
+    onSuccess?.(actionResult || null);
+  }
+
+  function saveAdminInboxFilterPreset(presetDraft) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    const name = String(presetDraft?.name || '').trim();
+    if (!name) return;
+    const normalized = {
+      id: String(presetDraft?.id || `inbox_preset_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`),
+      name: name.slice(0, 60),
+      type: String(presetDraft?.type || 'all'),
+      priority: String(presetDraft?.priority || 'all'),
+      review: String(presetDraft?.review || 'all'),
+      search: String(presetDraft?.search || '').slice(0, 120),
+      updatedAt: new Date().toISOString(),
+      updatedByUserId: currentUser.id,
+    };
+    setDb((prev) => {
+      const rest = (prev.adminInboxFilterPresets || []).filter((entry) => entry.id !== normalized.id);
+      return {
+        ...prev,
+        adminInboxFilterPresets: [normalized, ...rest].slice(0, 50),
+      };
+    });
+  }
+
+  function deleteAdminInboxFilterPreset(presetId) {
+    if (!currentUser || currentUser.role !== 'admin' || !presetId) return;
+    setDb((prev) => ({
+      ...prev,
+      adminInboxFilterPresets: (prev.adminInboxFilterPresets || []).filter((entry) => entry.id !== presetId),
+    }));
+  }
+
+  function updateAdminNote(entityKey, body) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!entityKey) return;
+    const noteBody = String(body || '').trim();
+    setDb((prev) => {
+      const rest = (prev.adminNotes || []).filter((entry) => entry.entityKey !== entityKey);
+      if (!noteBody) {
+        return { ...prev, adminNotes: rest };
+      }
+      const entry = {
+        id: `admin_note_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        entityKey,
+        body: noteBody.slice(0, 2000),
+        updatedAt: new Date().toISOString(),
+        updatedByUserId: currentUser.id,
+      };
+      return {
+        ...prev,
+        adminNotes: [entry, ...rest].slice(0, 2000),
+      };
+    });
+  }
+
+  function updateAdminDisputeCase(caseKey, status, metadata = {}) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!caseKey || !['new', 'investigating', 'pending_refund', 'resolved', 'rejected'].includes(status)) return;
+    const updatedAt = new Date().toISOString();
+    setDb((prev) => {
+      const existing = (prev.adminDisputeCases || []).find((entry) => entry.caseKey === caseKey);
+      const nextEntry = existing
+        ? {
+            ...existing,
+            ...metadata,
+            status,
+            updatedAt,
+            updatedByUserId: currentUser.id,
+          }
+        : {
+            id: `admin_dispute_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            caseKey,
+            status,
+            updatedAt,
+            updatedByUserId: currentUser.id,
+            ...metadata,
+          };
+      const rest = (prev.adminDisputeCases || []).filter((entry) => entry.caseKey !== caseKey);
+      return {
+        ...prev,
+        adminDisputeCases: [nextEntry, ...rest].slice(0, 1000),
+      };
+    });
+  }
+
+  const footerGroups = [
+    {
+      title: 'Marketplace',
+      links: [
+        { label: 'Shop', route: '/' },
+        { label: 'Find', route: '/find' },
+        { label: 'Seller Portfolios', route: '/seller-portfolios' },
+        { label: 'Bars', route: '/bars' },
+        { label: 'Custom Requests', route: '/custom-requests' },
+        { label: 'Worldwide Shipping', route: '/worldwide-shipping' },
+      ],
+    },
+    {
+      title: 'Support',
+      links: [
+        { label: 'FAQ', route: '/faq' },
+        { label: 'Contact', route: '/contact' },
+        { label: 'Order Help', route: '/order-help' },
+        { label: 'Appeals', route: '/appeals' },
+        { label: 'Privacy Packaging', route: '/privacy-packaging' },
+        { label: 'Community Standards', route: '/community-standards' },
+      ],
+    },
+    {
+      title: 'For Sellers',
+      links: [
+        { label: 'How to Apply', route: '/how-to-apply' },
+        { label: 'Seller Guidelines', route: '/seller-guidelines' },
+        { label: 'Portfolio Setup', route: '/portfolio-setup' },
+        { label: 'Shipping Standards', route: '/seller-standards' },
+      ],
+    },
+  ];
+
+  const isAdmin = currentUser?.role === 'admin';
+  const isSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'active';
+  const isBar = currentUser?.role === 'bar' && currentUser?.accountStatus === 'active';
+  const isPendingSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'pending';
+  const isRejectedSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'rejected';
+  const accountRoute = currentUser?.role === 'bar' ? '/bar-dashboard' : '/account';
+  const resolveMarketplaceConversationBody = (message) => {
+    const original = String(message?.bodyOriginal || message?.body || '');
+    const translations = message?.translations || {};
+    const preferredLanguage = SUPPORTED_AUTH_LANGUAGES.includes(currentUser?.preferredLanguage)
+      ? currentUser.preferredLanguage
+      : 'en';
+    const translated = String(translations?.[preferredLanguage] || translations?.en || '');
+    const isOwnMessage = message?.senderId === currentUser?.id;
+    const showOriginal = Boolean(showOriginalMarketplaceMessageById[message?.id]);
+    if (isOwnMessage || showOriginal) return original;
+    return translated || original;
+  };
+  const canToggleMarketplaceConversationTranslation = (message) => {
+    const original = String(message?.bodyOriginal || message?.body || '');
+    const translations = message?.translations || {};
+    const preferredLanguage = SUPPORTED_AUTH_LANGUAGES.includes(currentUser?.preferredLanguage)
+      ? currentUser.preferredLanguage
+      : 'en';
+    const translated = String(translations?.[preferredLanguage] || translations?.en || '');
+    const isOwnMessage = message?.senderId === currentUser?.id;
+    return !isOwnMessage && Boolean(translated) && translated !== original;
+  };
+  const sellerIncomingAffiliationRequests = (barAffiliationRequests || [])
+    .filter((request) =>
+      request.status === 'pending'
+      && request.direction === 'bar_to_seller'
+      && request.sellerId === currentSellerId
+    );
+  const sellerOutgoingAffiliationRequests = (barAffiliationRequests || [])
+    .filter((request) =>
+      request.status === 'pending'
+      && request.direction === 'seller_to_bar'
+      && request.sellerId === currentSellerId
+    );
+  const barIncomingAffiliationRequests = (barAffiliationRequests || [])
+    .filter((request) =>
+      request.status === 'pending'
+      && request.direction === 'seller_to_bar'
+      && request.barId === currentBarId
+    );
+  const barOutgoingAffiliationRequests = (barAffiliationRequests || [])
+    .filter((request) =>
+      request.status === 'pending'
+      && request.direction === 'bar_to_seller'
+      && request.barId === currentBarId
+    );
+  const currentBarAffiliatedSellers = (sellers || [])
+    .filter((seller) => String(seller?.affiliatedBarId || '').trim() === currentBarId)
+    .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+  const barAffiliateEarnings = useMemo(() => {
+    if (!currentBarId || !currentUser || currentUser.role !== 'bar') {
+      return {
+        total: 0,
+        ledger: [],
+        bySource: { orders: 0, messages: 0, customRequests: 0, other: 0 },
+        bySellerFromOrders: [],
+      };
+    }
+    const barUserId = currentUser.id;
+    const ledger = (walletTransactions || [])
+      .filter((entry) => entry.userId === barUserId && Number(entry.amount || 0) > 0)
+      .filter((entry) => (
+        entry.type === 'order_bar_commission'
+        || (entry.type === 'message_fee' && String(entry.description || '').toLowerCase().includes('bar commission'))
+      ))
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    const bySource = ledger.reduce((acc, entry) => {
+      const description = String(entry.description || '').toLowerCase();
+      if (description.includes('custom request')) {
+        acc.customRequests += Number(entry.amount || 0);
+      } else if (description.includes('message')) {
+        acc.messages += Number(entry.amount || 0);
+      } else if (description.includes('order')) {
+        acc.orders += Number(entry.amount || 0);
+      } else {
+        acc.other += Number(entry.amount || 0);
+      }
+      return acc;
+    }, { orders: 0, messages: 0, customRequests: 0, other: 0 });
+    const orderSellerAgg = {};
+    (orders || []).forEach((order) => {
+      const sellerRows = order?.payoutSummary?.bySeller || [];
+      sellerRows.forEach((row) => {
+        if (String(row?.barId || '') !== currentBarId) return;
+        const sellerId = String(row?.sellerId || '').trim();
+        if (!sellerId) return;
+        if (!orderSellerAgg[sellerId]) {
+          orderSellerAgg[sellerId] = {
+            sellerId,
+            sellerName: row?.sellerName || sellerId,
+            amount: 0,
+            orderCount: 0,
+          };
+        }
+        orderSellerAgg[sellerId].amount += Number(row?.barAmount || 0);
+        orderSellerAgg[sellerId].orderCount += 1;
+      });
+    });
+    const bySellerFromOrders = Object.values(orderSellerAgg)
+      .map((entry) => ({
+        ...entry,
+        amount: Number(entry.amount.toFixed(2)),
+      }))
+      .sort((a, b) => b.amount - a.amount);
+    return {
+      total: Number(ledger.reduce((sum, entry) => sum + Number(entry.amount || 0), 0).toFixed(2)),
+      ledger,
+      bySource: {
+        orders: Number((bySource.orders || 0).toFixed(2)),
+        messages: Number((bySource.messages || 0).toFixed(2)),
+        customRequests: Number((bySource.customRequests || 0).toFixed(2)),
+        other: Number((bySource.other || 0).toFixed(2)),
+      },
+      bySellerFromOrders,
+    };
+  }, [currentBarId, currentUser, walletTransactions, orders]);
+  const barInvitableSellers = (sellers || [])
+    .filter((seller) => String(seller?.affiliatedBarId || '').trim() !== currentBarId)
+    .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+  const barDashboardNotifications = (notifications || [])
+    .filter((notification) => currentUser?.role === 'bar' && notification.userId === currentUser.id)
+    .filter((notification) => /affiliat|bar|seller/i.test(String(notification.text || '')))
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+    .slice(0, 8);
+  const getSellerAffiliationLabel = (seller) => {
+    const barId = String(seller?.affiliatedBarId || '').trim();
+    if (!barId) return 'Independent';
+    return barMap[barId]?.name || 'Independent';
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-pink-50 text-slate-800">
+      <header className="sticky top-0 z-40 border-b border-rose-100 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 md:px-6">
+          <div className="shrink-0">
+            <button onClick={() => navigate('/')} className="flex items-center gap-3 text-left text-lg font-bold tracking-tight text-rose-700 lg:text-2xl">
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-400 text-sm font-extrabold text-white shadow-lg shadow-rose-200">
+                TP
+              </span>
+              <span>Thailand Panties</span>
+            </button>
+            <div className="hidden text-xs text-slate-500 lg:block">Premium used underwear from Thailand with discreet, professional fulfillment</div>
+            <div className="hidden text-xs lg:block">
+              <span className={`inline-flex rounded-full px-2 py-1 font-semibold ${backendStatus === 'connected' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                API: {backendStatus === 'connected' ? 'Connected' : 'Offline mode'}
+              </span>
+            </div>
+          </div>
+
+          <nav className="hidden flex-1 items-center justify-center gap-4 px-4 text-xs font-medium xl:flex 2xl:gap-5 2xl:text-sm">
+            <button onClick={() => navigate('/')} className="whitespace-nowrap transition hover:text-rose-600">{navText.home}</button>
+            <button onClick={() => navigate('/seller-portfolios')} className="whitespace-nowrap transition hover:text-rose-600">{navText.sellers}</button>
+            <button onClick={() => navigate('/bars')} className="whitespace-nowrap transition hover:text-rose-600">{navText.bars}</button>
+            <button onClick={() => navigate('/find')} className="whitespace-nowrap transition hover:text-rose-600">{navText.find}</button>
+            <button onClick={() => navigate('/seller-feed')} className="whitespace-nowrap transition hover:text-rose-600">{navText.sellerFeed}</button>
+            <button onClick={() => navigate('/custom-requests')} className="whitespace-nowrap transition hover:text-rose-600">{navText.customRequests}</button>
+            <button onClick={() => navigate('/faq')} className="whitespace-nowrap transition hover:text-rose-600">{navText.faq}</button>
+            <button onClick={() => navigate('/contact')} className="hidden whitespace-nowrap transition hover:text-rose-600 2xl:inline-flex">{navText.contact}</button>
+            <button onClick={() => navigate(accountRoute)} className="whitespace-nowrap transition hover:text-rose-600">{navText.account}</button>
+            <button onClick={() => navigate(accountRoute)} className="inline-flex items-center gap-2 whitespace-nowrap transition hover:text-rose-600">
+              {navText.messages}
+              {unreadMessageCount > 0 ? <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{unreadMessageCount}</span> : null}
+            </button>
+          </nav>
+
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="relative hidden lg:block">
+              <button
+                onClick={() => setAccountMenuOpen((prev) => !prev)}
+                className="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+              >
+                {currentUser
+                  ? (currentUser.role === 'buyer'
+                    ? `${currentUser.name} (${formatPriceTHB(currentWalletBalance)})`
+                    : currentUser.name)
+                  : navText.account}
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              {accountMenuOpen ? (
+                <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-rose-100 bg-white shadow-xl">
+                  {currentUser ? (
+                    <>
+                      <button onClick={() => navigate(accountRoute)} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><UserCog className="h-4 w-4" /> {navText.account}</button>
+                      <button onClick={logout} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><LogOut className="h-4 w-4" /> {navText.logout}</button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => navigate('/login')} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><LogIn className="h-4 w-4" /> {navText.login}</button>
+                      <button onClick={() => navigate('/register')} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><Store className="h-4 w-4" /> {navText.register}</button>
+                    </>
+                  )}
+                  <div className="border-t border-rose-100 px-4 py-3 text-xs text-slate-500">
+                    {currentUser
+                      ? `Signed in as ${currentUser.name} (${currentUser.role})${currentUser.role === 'buyer' ? ` · Wallet: ${formatPriceTHB(currentWalletBalance)}` : ''}`
+                      : 'Guest mode'}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+            <button
+              onClick={() => navigate('/checkout')}
+              className={`relative rounded-2xl border border-rose-200 p-2 text-rose-700 transition-transform duration-150 ${cartPulse ? 'scale-110' : ''}`}
+              aria-label="Open cart"
+            >
+              <ShoppingBag className={`h-5 w-5 ${cartPulse ? 'animate-pulse' : ''}`} />
+              {cart.length > 0 ? <span className={`absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-xs font-bold text-white ${cartPulse ? 'animate-bounce' : ''}`}>{cart.length}</span> : null}
+            </button>
+            <button onClick={() => setMobileMenuOpen((prev) => !prev)} className="rounded-2xl border border-rose-200 p-2 text-rose-700 xl:hidden" aria-label="Toggle mobile menu">
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {mobileMenuOpen ? (
+          <div className="border-t border-rose-100 bg-white px-4 py-4 xl:hidden">
+            <div className="flex flex-col gap-3 text-sm font-medium">
+              <button onClick={() => navigate('/')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.home}</button>
+              <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.sellers}</button>
+              <button onClick={() => navigate('/bars')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.bars}</button>
+              <button onClick={() => navigate('/find')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.find}</button>
+              <button onClick={() => navigate('/seller-feed')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.sellerFeed}</button>
+              <button onClick={() => navigate('/custom-requests')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.customRequests}</button>
+              <button onClick={() => navigate('/faq')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.faq}</button>
+              <button onClick={() => navigate('/contact')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.contact}</button>
+              <button onClick={() => navigate(accountRoute)} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.account}</button>
+              <button onClick={() => navigate(accountRoute)} className="flex items-center justify-between rounded-xl px-3 py-2 text-left hover:bg-rose-50">
+                <span>{navText.messages}</span>
+                {unreadMessageCount > 0 ? <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{unreadMessageCount}</span> : null}
+              </button>
+              <div className="mt-2 border-t border-rose-100 pt-3">
+                {currentUser ? (
+                  <>
+                    <button onClick={() => navigate(accountRoute)} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.account}</button>
+                    <button onClick={logout} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.logout}</button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => navigate('/login')} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.login}</button>
+                    <button onClick={() => navigate('/register')} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.register}</button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </header>
+
+      {cartNotice ? (
+        <div className="pointer-events-none fixed right-4 top-20 z-50 rounded-xl bg-slate-900/90 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+          {cartNotice}
+        </div>
+      ) : null}
+
+      <main>
+        {routeInfo.name === 'home' ? (
+          <>
+            <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.2fr_0.8fr] md:py-24">
+              <div className="flex flex-col justify-center">
+                <div className="mb-4 inline-flex w-fit items-center rounded-full bg-rose-100 px-4 py-1 text-sm font-medium text-rose-700">
+                  {publicText.heroBadge}
+                </div>
+                <h1 className="max-w-xl text-4xl font-bold tracking-tight text-slate-900 md:text-6xl">
+                  {publicText.heroTitle}
+                </h1>
+                <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
+                  {publicText.heroSubtitle}
+                </p>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <button onClick={() => navigate('/')} className="rounded-2xl bg-rose-600 px-6 py-3 font-semibold text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 hover:bg-rose-700">
+                    {publicText.browseListings}
+                  </button>
+                  <button onClick={() => navigate('/seller-portfolios')} className="rounded-2xl border border-rose-200 bg-white px-6 py-3 font-semibold text-rose-700 transition hover:-translate-y-0.5 hover:border-rose-300">
+                    {publicText.meetSellers}
+                  </button>
+                </div>
+                <div className="mt-10 grid max-w-lg grid-cols-3 gap-4">
+                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">120+</div><div className="text-sm text-slate-500">{publicText.curatedListings}</div></div>
+                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Global</div><div className="text-sm text-slate-500">{publicText.shippingAvailable}</div></div>
+                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Curated</div><div className="text-sm text-slate-500">{publicText.resaleQuality}</div></div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <button
+                  onClick={() => navigate('/seller-portfolios')}
+                  className="rounded-3xl bg-white p-4 text-left shadow-xl ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                >
+                  <div className="mb-4 rounded-2xl bg-gradient-to-br from-rose-200 to-pink-100 p-5">
+                    <div className="rounded-2xl border border-white/50 bg-white/50 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-rose-700">{publicText.featuredSellers}</div>
+                      <div className="mt-3 space-y-2">
+                        {homeFeaturedSellers.map((seller) => (
+                          <div key={seller.id} className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm">
+                            <span className="font-medium text-slate-700">{seller.name}</span>
+                            <span className="text-slate-500">{seller.specialty || publicText.sellerFallback}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-lg font-semibold">{publicText.sellerPortfolioPages}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{publicText.sellerPortfolioCardDesc}</p>
+                  <div className="mt-3 text-sm font-semibold text-rose-700">{publicText.exploreSellerPortfolios}</div>
+                </button>
+                <button
+                  onClick={() => navigate('/find')}
+                  className="rounded-3xl bg-white p-4 text-left shadow-xl ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 md:translate-y-10"
+                >
+                  <div className="mb-4 rounded-2xl bg-gradient-to-br from-fuchsia-200 to-rose-100 p-5">
+                    <div className="rounded-2xl border border-white/50 bg-white/50 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-rose-700">{publicText.liveDiscoverySnapshot}</div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {homeTopTypes.map((item) => (
+                          <span key={item.type} className="rounded-full bg-white px-3 py-1 text-xs text-slate-700">
+                            {item.type} ({item.count})
+                          </span>
+                        ))}
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {homeTopSizes.map((item) => (
+                          <span key={item.size} className="rounded-full border border-white bg-transparent px-3 py-1 text-xs text-slate-700">
+                            {publicText.sizeLabel} {item.size} ({item.count})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-lg font-semibold">{publicText.smartProductDiscovery}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{publicText.smartProductCardDesc}</p>
+                  <div className="mt-3 text-sm font-semibold text-rose-700">{publicText.openSmartDiscovery}</div>
+                </button>
+              </div>
+            </section>
+
+            <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
+              <SectionTitle eyebrow={publicText.marketplace} title={publicText.shopWithRealFilters} subtitle={`${filteredProducts.length} ${publicText.resultsFoundSuffix}`} />
+              <div className="mb-8 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <label className="relative">
+                    <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input value={filters.search} onChange={(e) => updateFilter('search', e.target.value)} placeholder={publicText.searchStylesSellersColors} className="w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 outline-none focus:border-rose-300" />
+                  </label>
+                  {['size', 'color', 'style', 'fabric', 'daysWorn', 'waistRise', 'coverage', 'condition', 'scentLevel', 'price', 'shipping'].map((key) => (
+                    <select key={key} value={filters[key]} onChange={(e) => updateFilter(key, e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-rose-300">
+                      {filterOptions[key].map((option) => <option key={option} value={option}>{({ daysWorn: 'Days worn', waistRise: 'Waist rise', scentLevel: 'Scent level' }[key] || key.charAt(0).toUpperCase() + key.slice(1))}: {localizeOptionLabel(option, uiLanguage)}</option>)}
+                    </select>
+                  ))}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button onClick={resetFilters} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">{publicText.resetFilters}</button>
+                  <div className="rounded-2xl bg-rose-50 px-4 py-2 text-sm text-rose-700">{publicText.premiumVerifiedSellers}</div>
+                </div>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {filteredProducts.map((product) => {
+                  const bundleOption = product.isBundle ? null : getPrimaryBundleForProduct(product.id);
+                  return (
+                  <div key={product.id} className="overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-rose-100 transition hover:-translate-y-1 hover:shadow-xl">
+                    <button onClick={() => navigate(`/product/${product.slug}`)} className="block h-64 w-full">
+                      <ProductImage src={product.image} label={product.imageName || product.title} />
+                    </button>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left text-lg font-semibold hover:text-rose-700">{product.title}</button>
+                          <div className="mt-1 flex items-center gap-2">
+                            <button onClick={() => navigate(`/seller/${product.sellerId}`)} className="block text-sm text-slate-500 hover:text-rose-600">{publicText.byPrefix} {sellerMap[product.sellerId]?.name}</button>
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${sellerMap[product.sellerId]?.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                              {sellerMap[product.sellerId]?.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-rose-700">{formatPriceTHB(product.price)}</div>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.sizeLabel} {product.size}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{product.color}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{product.style}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{product.fabric}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.wornLabel}: {product.daysWorn || localizeOptionLabel('Not specified', uiLanguage)}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.riseLabel}: {product.waistRise || localizeOptionLabel('Not specified', uiLanguage)}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.coverageLabel}: {product.coverage || localizeOptionLabel('Not specified', uiLanguage)}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.scentLabel}: {product.scentLevel || localizeOptionLabel('Not specified', uiLanguage)}</span>
+                      </div>
+                      {bundleOption ? (
+                        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+                          <div className="text-xs font-semibold text-amber-900">{publicText.bundleAvailableBadge}</div>
+                          <button
+                            onClick={() => navigate(`/product/${bundleOption.slug}`)}
+                            className="mt-1 text-xs font-semibold text-amber-800 hover:text-amber-900"
+                          >
+                            {publicText.viewBundleOption}
+                          </button>
+                        </div>
+                      ) : null}
+                      <div className="mt-5 flex gap-3">
+                        <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl bg-rose-600 px-4 py-3 font-semibold text-white">{publicText.viewListing}</button>
+                        <button
+                          onClick={() => addToCart(product.id)}
+                          disabled={cart.includes(product.id)}
+                          className={`rounded-2xl border px-4 py-3 font-semibold ${cart.includes(product.id) ? 'cursor-not-allowed border-slate-200 text-slate-500' : 'border-rose-200 text-rose-700'}`}
+                        >
+                          {cart.includes(product.id) ? publicText.inCartLabel : publicText.add}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )})}
+              </div>
+            </section>
+
+            <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <SectionTitle
+                  eyebrow={publicText.sellerFeed}
+                  title={publicText.latestSellerUpdates}
+                  subtitle={publicText.recentLifestylePosts}
+                />
+                <button onClick={() => navigate('/seller-feed')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                  {publicText.viewFullFeed}
+                </button>
+              </div>
+              {homeFeedPreviewPosts.length === 0 ? (
+                <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
+                  {publicText.noRecentSellerPosts}
+                </div>
+              ) : (
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {homeFeedPreviewPosts.map((post) => (
+                    <article key={post.id} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
+                      <div className="flex items-center justify-between gap-2">
+                        <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
+                          {sellerMap[post.sellerId]?.name || post.sellerId}
+                        </button>
+                        <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${sellerMap[post.sellerId]?.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                          {sellerMap[post.sellerId]?.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                      <button
+                        onClick={() => {
+                          if (isSellerPostPrivate(post) && !currentUser) {
+                            navigate('/login');
+                            return;
+                          }
+                          navigate('/seller-feed');
+                        }}
+                        className="mt-3 block h-56 w-full"
+                      >
+                        <div className="relative h-full">
+                          <div className={canViewSellerPost(post) ? '' : 'blur-sm'}>
+                            <ProductImage src={post.image} label={post.imageName || 'Seller feed image'} />
+                          </div>
+                          {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
+                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
+                      </button>
+                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{canViewSellerPost(post) ? (post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption) : publicText.privatePostUnlock}</p>
+                      {canViewSellerPost(post) && currentUser ? (
+                        <div className="mt-3">
+                          <button
+                            onClick={() => toggleSavedSellerPost(post.id)}
+                            className={`rounded-xl border px-3 py-1 text-xs font-semibold ${(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id) ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 text-slate-700'}`}
+                          >
+                            {(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id) ? publicText.saved : publicText.savePost}
+                          </button>
+                        </div>
+                      ) : null}
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+            {currentUser ? (
+              <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <SectionTitle
+                    eyebrow={publicText.savedFeed}
+                    title={publicText.yourSavedSellerPosts}
+                    subtitle={publicText.quickAccessBookmarked}
+                  />
+                  <button onClick={() => navigate('/seller-feed')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                    {publicText.openSavedTab}
+                  </button>
+                </div>
+                {savedHomePreviewPosts.length === 0 ? (
+                  <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
+                    {publicText.noSavedPostsHome}
+                  </div>
+                ) : (
+                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {savedHomePreviewPosts.map((post) => (
+                      <article key={post.id} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
+                        <div className="flex items-center justify-between gap-2">
+                          <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
+                            {sellerMap[post.sellerId]?.name || post.sellerId}
+                          </button>
+                          <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${sellerMap[post.sellerId]?.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                            {sellerMap[post.sellerId]?.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                        <button onClick={() => navigate('/seller-feed')} className="mt-3 block h-56 w-full">
+                          <ProductImage src={post.image} label={post.imageName || 'Saved seller post'} />
+                        </button>
+                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</p>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            ) : null}
+          </>
+        ) : null}
+
+        {routeInfo.name === 'seller-feed' ? (
+          <SellerFeedPage
+            sellerPosts={sellerAllPosts}
+            sellerMap={sellerMap}
+            postReports={postReports}
+            commentReports={commentReports}
+            sellerPostLikes={sellerPostLikes}
+            sellerPostComments={sellerPostComments}
+            sellerFollows={sellerFollows}
+            sellerFollowerCountById={sellerFollowerCountById}
+            sellerSavedPosts={sellerSavedPosts}
+            currentUser={currentUser}
+            reportSellerPost={reportSellerPost}
+            reportSellerPostComment={reportSellerPostComment}
+            reportingSellerPostId={reportingSellerPostId}
+            reportingSellerPostCommentId={reportingSellerPostCommentId}
+            toggleSellerPostLike={toggleSellerPostLike}
+            addSellerPostComment={addSellerPostComment}
+            deleteSellerPostComment={deleteSellerPostComment}
+            toggleSellerFollow={toggleSellerFollow}
+            toggleSavedSellerPost={toggleSavedSellerPost}
+            sellerLanguage={uiLanguage}
+            canViewSellerPost={canViewSellerPost}
+            isSellerPostPrivate={isSellerPostPrivate}
+            unlockPrivatePost={unlockPrivatePost}
+            navigate={navigate}
+          />
+        ) : null}
+
+        {routeInfo.name === 'bars' ? (
+          <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
+            <SectionTitle eyebrow={publicText.bars} title={publicText.partnerBars} subtitle={publicText.barsSubtitle} />
+            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {Object.values(localizedBarMap).map((bar) => (
+                <article key={bar.id} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                  <div className="h-48">
+                    <ProductImage src={bar.profileImage} label={bar.profileImageName || `${bar.name} cover`} />
+                  </div>
+                  <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
+                  <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
+                  <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                    {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
+                  </div>
+                  <p className="mt-3 line-clamp-3 text-sm text-slate-600">{bar.about || publicText.barProfileSoon}</p>
+                  <button onClick={() => navigate(`/bar/${bar.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                    {publicText.viewBarProfile}
+                  </button>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {selectedBar ? (
+          <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
+            <button onClick={() => navigate('/bars')} className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"><ChevronLeft className="h-4 w-4" /> {publicText.backToBars}</button>
+            <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="h-80">
+                  <ProductImage src={selectedBar.profileImage} label={selectedBar.profileImageName || `${selectedBar.name} image`} />
+                </div>
+                <h2 className="mt-5 text-3xl font-bold tracking-tight">{selectedBar.name}</h2>
+                <p className="mt-2 text-slate-500">{selectedBar.location || publicText.locationComingSoon}</p>
+                <p className="mt-4 leading-7 text-slate-600">{selectedBar.about || publicText.barProfileSoon}</p>
+                <div className="mt-4 overflow-hidden rounded-2xl bg-gradient-to-br from-rose-50 via-fuchsia-50 to-amber-50 p-4 text-sm text-slate-700 ring-1 ring-rose-200/70">
+                  <div className="flex items-center gap-2 font-semibold text-rose-700">
+                    <span className="text-lg">✨</span>
+                    <span>{publicText.currentSpecials}</span>
+                  </div>
+                  <div className="mt-2 leading-6">{selectedBar.specials || publicText.noSpecialsYet}</div>
+                  <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-rose-700">
+                    <span className="rounded-full bg-white/80 px-2 py-1 ring-1 ring-rose-200">{publicText.liveNights}</span>
+                    <span className="rounded-full bg-white/80 px-2 py-1 ring-1 ring-rose-200">{publicText.weeklySpecials}</span>
+                    <span className="rounded-full bg-white/80 px-2 py-1 ring-1 ring-rose-200">{publicText.partnerSellers}</span>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="mb-2 text-sm font-semibold text-slate-700">{publicText.affiliatedSellers} ({selectedBarAffiliatedSellers.length})</div>
+                  {selectedBarAffiliatedSellers.length === 0 ? (
+                    <span className="text-sm text-slate-500">{publicText.noAffiliatedSellersListed}</span>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {selectedBarAffiliatedSellers.map((seller) => (
+                        <button
+                          key={seller.id}
+                          onClick={() => navigate(`/seller/${seller.id}`)}
+                          className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-white p-3 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                          <div className="h-16 w-16 overflow-hidden rounded-xl ring-1 ring-rose-100">
+                            <ProductImage
+                              src={seller.profileImageResolved || seller.profileImage}
+                              label={seller.profileImageNameResolved || seller.profileImageName || `${seller.name} profile`}
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <div className="truncate text-sm font-semibold text-slate-800">{seller.name}</div>
+                            </div>
+                            <p className="mt-1 line-clamp-2 text-xs text-slate-600">
+                              {seller.bio || seller.specialty || publicText.affiliatedSellerFallback}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <BarQrCard bar={selectedBar} />
+                <div>
+                  <h3 className="text-xl font-semibold">{publicText.locationMap}</h3>
+                  {selectedBar.mapEmbedUrl ? (
+                    <iframe
+                      title={`${selectedBar.name} map`}
+                      src={selectedBar.mapEmbedUrl}
+                      className="mt-3 h-72 w-full rounded-2xl border border-slate-200"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  ) : (
+                    <div className="mt-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{publicText.mapNotSet}</div>
+                  )}
+                  {selectedBar.mapLink ? (
+                    <a href={selectedBar.mapLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                      {publicText.openMap}
+                    </a>
+                  ) : null}
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold">{publicText.barPhotoFeed}</h3>
+                  <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
+                    {barFeedPosts.filter((post) => post.barId === selectedBar.id).length === 0 ? (
+                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{publicText.noBarPhotosYet}</div>
+                    ) : barFeedPosts.filter((post) => post.barId === selectedBar.id).map((post) => (
+                      <article key={post.id} className="rounded-2xl border border-rose-100 p-4">
+                        <div className="h-44">
+                          <ProductImage src={post.image} label={post.imageName || 'Bar post image'} />
+                        </div>
+                        <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                        <p className="mt-1 text-sm text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</p>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {selectedSeller ? (
+          <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
+            <button onClick={() => navigate('/')} className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"><ChevronLeft className="h-4 w-4" /> {publicText.backToSellers}</button>
+            <div className="mb-6 rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+              <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{publicText.sellerFallback}</div>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900">{selectedSeller.name}</h1>
+                <span className="text-base text-slate-500">- {selectedSeller.location || localizeOptionLabel('Not specified', uiLanguage)}</span>
+              </div>
+            </div>
+            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="h-80">
+                  <ProductImage
+                    src={selectedSeller.profileImageResolved}
+                    label={selectedSeller.profileImageNameResolved || `${selectedSeller.name} cover`}
+                  />
+                </div>
+                <div className="mt-6 flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-3xl font-bold tracking-tight">{selectedSeller.name}</h2>
+                    <div className="mt-1 flex items-center gap-2">
+                      <p className="text-slate-500">{selectedSeller.location}</p>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${selectedSeller.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                        {selectedSeller.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                      </span>
+                    </div>
+                    <div className="mt-2">
+                      {selectedSeller.affiliatedBarId && barMap[selectedSeller.affiliatedBarId] ? (
+                        <button
+                          onClick={() => navigate(`/bar/${selectedSeller.affiliatedBarId}`)}
+                          className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"
+                        >
+                          {publicText.barPrefix} {barMap[selectedSeller.affiliatedBarId].name}
+                        </button>
+                      ) : (
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{localizeOptionLabel('Independent', uiLanguage)}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">{selectedSeller.specialty || publicText.sellerFallback}</div>
+                </div>
+                <div className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {publicText.followersLabel}: {sellerFollowerCountById[selectedSeller.id] || 0}
+                </div>
+                <p className="mt-5 leading-7 text-slate-600">{selectedSeller.bio}</p>
+                <div className="mt-5 flex flex-wrap gap-2">{selectedSeller.highlights.map((item) => <span key={item} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">{item}</span>)}</div>
+                <h3 className="mt-8 text-xl font-semibold">{publicText.listingsByPrefix} {selectedSeller.name}</h3>
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  {selectedSellerAllProducts.length > 0 && selectedSellerAvailableProducts.length === 0 ? (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 md:col-span-2">
+                      <div className="text-sm font-semibold text-amber-900">{publicText.listingsReservedTitle}</div>
+                      <div className="mt-1 text-sm text-amber-800">{publicText.listingsReservedSubtitle}</div>
+                    </div>
+                  ) : null}
+                  {selectedSellerAvailableProducts.map((product) => {
+                    const bundleOption = product.isBundle ? null : getPrimaryBundleForProduct(product.id);
+                    return (
+                    <div key={product.id} className="rounded-3xl border border-rose-100 p-4">
+                      <button onClick={() => navigate(`/product/${product.slug}`)} className="h-40 w-full"><ProductImage src={product.image} label={product.imageName || product.title} /></button>
+                      <div className="mt-4 flex items-start justify-between gap-3">
+                        <div>
+                          <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left font-semibold hover:text-rose-700">{product.title}</button>
+                          <div className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${selectedSeller.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                            {selectedSeller.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                          </div>
+                        </div>
+                        <div className="text-sm font-semibold text-rose-700">{formatPriceTHB(product.price)}</div>
+                      </div>
+                      {bundleOption ? (
+                        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+                          <div className="text-xs font-semibold text-amber-900">{publicText.bundleAvailableBadge}</div>
+                          <button
+                            onClick={() => navigate(`/product/${bundleOption.slug}`)}
+                            className="mt-1 text-xs font-semibold text-amber-800 hover:text-amber-900"
+                          >
+                            {publicText.viewBundleOption}
+                          </button>
+                        </div>
+                      ) : null}
+                      <button
+                        onClick={() => addToCart(product.id)}
+                        disabled={cart.includes(product.id)}
+                        className={`mt-4 w-full rounded-2xl px-4 py-3 font-semibold text-white ${cart.includes(product.id) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
+                      >
+                        {cart.includes(product.id) ? publicText.inCartLabel : publicText.addToCart}
+                      </button>
+                    </div>
+                  )})}
+                </div>
+              </div>
+              <div className="space-y-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <SellerQrCard seller={selectedSeller} />
+                <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-xl font-semibold">{publicText.messageSellerTitle}</h3>
+                      <p className="mt-1 text-sm text-slate-600">{publicText.buyerMessagesCostPrefix} {formatPriceTHB(MESSAGE_FEE_THB)} {publicText.buyerMessagesCostSuffix}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-rose-100">{publicText.balanceLabel}: {formatPriceTHB(currentWalletBalance)}</div>
+                      <div className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{publicText.autoRefreshOn}</div>
+                    </div>
+                  </div>
+                  {!currentUser ? <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.loginBuyerToMessage}</div> : null}
+                  {currentUser?.role === 'seller' ? <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.sellerInboxReviewHint}</div> : null}
+                  {currentUser?.role === 'buyer' ? (
+                    <>
+                      <div className="mt-4 max-h-72 space-y-3 overflow-y-auto rounded-2xl bg-white p-4 ring-1 ring-rose-100">
+                        {selectedConversationMessages.length === 0 ? <div className="text-sm text-slate-500">{publicText.noMessagesYetStart}</div> : selectedConversationMessages.map((message) => (
+                          <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === 'buyer' ? 'ml-auto bg-rose-100 text-rose-900 ring-1 ring-rose-200' : 'bg-slate-100 text-slate-700'}`}>
+                            {resolveMarketplaceConversationBody(message)}
+                            {canToggleMarketplaceConversationTranslation(message) ? (
+                              <button
+                                type="button"
+                                onClick={() => setShowOriginalMarketplaceMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
+                                className={`mt-2 block text-[11px] font-semibold ${message.senderRole === 'buyer' ? 'text-rose-100' : 'text-slate-500'}`}
+                              >
+                                {showOriginalMarketplaceMessageById[message.id] ? publicText.showTranslation : publicText.showOriginal}
+                              </button>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 flex gap-3">
+                        <textarea value={messageDraft} onChange={(e) => setMessageDraft(e.target.value)} className="min-h-[96px] flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" placeholder={`${publicText.sendMessageToPrefix} ${selectedSeller.name}`} />
+                        <button onClick={sendBuyerMessageToSeller} className="self-end rounded-2xl bg-rose-500 px-5 py-3 font-semibold text-white hover:bg-rose-600">{publicText.send} ({formatPriceTHB(MESSAGE_FEE_THB)})</button>
+                      </div>
+                      {messageError ? <div className="mt-3 text-sm font-medium text-rose-600">{messageError}</div> : null}
+                      {messageError && currentWalletBalance < MESSAGE_FEE_THB ? (
+                        <button
+                          type="button"
+                          onClick={() => navigate('/account')}
+                          className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800"
+                        >
+                          Top up wallet
+                        </button>
+                      ) : null}
+                      <button onClick={() => markNotificationsReadForConversation(selectedConversationId)} className="mt-3 text-sm font-semibold text-rose-700">{publicText.markThreadRead}</button>
+                    </>
+                  ) : null}
+                </div>
+                <div>
+                  <div className="rounded-3xl border border-rose-100 bg-rose-50/60 p-5">
+                    <h3 className="text-xl font-semibold">{publicText.customRequestsTitle}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      {publicText.customRequestExplainPrefix} {selectedSeller.name}? {publicText.customRequestExplainMiddle} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {publicText.customRequestExplainSuffix} {formatPriceTHB(MESSAGE_FEE_THB)} {publicText.customRequestExplainEnd}
+                    </p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <input
+                        value={sellerCustomRequestDraft.name}
+                        onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, name: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                        placeholder={publicText.yourName}
+                      />
+                      <input
+                        value={sellerCustomRequestDraft.email}
+                        onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, email: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                        placeholder={publicText.email}
+                      />
+                      <input
+                        value={sellerCustomRequestDraft.preferredDetails}
+                        onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, preferredDetails: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                        placeholder={publicText.customDetailsPlaceholder}
+                      />
+                      <input
+                        value={sellerCustomRequestDraft.shippingCountry}
+                        onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, shippingCountry: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                        placeholder={publicText.shippingCountry}
+                      />
+                    </div>
+                    <textarea
+                      value={sellerCustomRequestDraft.requestBody}
+                      onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, requestBody: event.target.value }))}
+                      className="mt-3 min-h-[120px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                      placeholder={`${publicText.describeRequestForPrefix} ${selectedSeller.name}`}
+                    />
+                    <button
+                      onClick={() => {
+                        submitCustomRequest(
+                          {
+                            sellerId: selectedSeller.id,
+                            buyerName: sellerCustomRequestDraft.name,
+                            buyerEmail: sellerCustomRequestDraft.email,
+                            preferredDetails: sellerCustomRequestDraft.preferredDetails,
+                            shippingCountry: sellerCustomRequestDraft.shippingCountry,
+                            requestBody: sellerCustomRequestDraft.requestBody,
+                          },
+                          () => {
+                            setSellerCustomRequestDraft((prev) => ({
+                              ...prev,
+                              preferredDetails: '',
+                              shippingCountry: '',
+                              requestBody: '',
+                            }));
+                            setSellerCustomRequestMessage(publicText.customRequestSubmitted);
+                          },
+                          (errorMessage) => setSellerCustomRequestMessage(errorMessage || ''),
+                        );
+                      }}
+                      disabled={currentWalletBalance < CUSTOM_REQUEST_FEE_THB}
+                      className={`mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? 'cursor-not-allowed opacity-60' : ''}`}
+                    >
+                      {publicText.sendCustomRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
+                    </button>
+                    {currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? <div className="mt-2 text-xs text-amber-700">{publicText.walletNeedsAtLeastPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {publicText.walletNeedsAtLeastSuffix}</div> : null}
+                    {sellerCustomRequestMessage ? <div className="mt-2 text-sm font-medium text-rose-700">{sellerCustomRequestMessage}</div> : null}
+                  </div>
+                  <h3 className="mt-8 text-xl font-semibold">{publicText.lifestylePostsByPrefix} {selectedSeller.name}</h3>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    {sellerFeedPosts.filter((post) => post.sellerId === selectedSeller.id).length === 0 ? (
+                      <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{publicText.noLifestylePostsYet}</div>
+                    ) : sellerFeedPosts.filter((post) => post.sellerId === selectedSeller.id).map((post) => (
+                      <div key={post.id} className="rounded-3xl border border-rose-100 p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${selectedSeller.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                            {selectedSeller.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (isSellerPostPrivate(post) && !currentUser) {
+                              navigate('/login');
+                              return;
+                            }
+                            if (isSellerPostPrivate(post) && currentUser) {
+                              unlockPrivatePost(post.id);
+                            }
+                          }}
+                          className="relative mt-3 block h-48 w-full text-left"
+                        >
+                          <div className={canViewSellerPost(post) ? '' : 'blur-sm'}>
+                            <ProductImage src={post.image} label={post.imageName || 'Seller post'} />
+                          </div>
+                          {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
+                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                              </button>
+                            </div>
+                          ) : null}
+                        </button>
+                        {canViewSellerPost(post) ? (post.caption ? <div className="mt-3 text-sm leading-6 text-slate-700">{post.caption}</div> : null) : <div className="mt-3 text-sm text-slate-500">{publicText.privatePostUnlock}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {selectedProduct ? (
+          <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
+            <button onClick={() => navigate('/')} className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"><ChevronLeft className="h-4 w-4" /> {publicText.backToShop}</button>
+            <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
+              <div className="space-y-4">
+                <div className="h-[420px]"><ProductImage src={selectedProduct.image} label={selectedProduct.imageName || selectedProduct.title} /></div>
+                <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map((item) => <div key={item} className="h-28"><ProductImage src={selectedProduct.image} label={`Gallery ${item}`} /></div>)}</div>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-3xl font-bold tracking-tight">{selectedProduct.title}</h2>
+                    <div className="mt-2 flex items-center gap-2">
+                      <button onClick={() => navigate(`/seller/${selectedProduct.sellerId}`)} className="text-sm text-slate-500 hover:text-rose-600">{publicText.byPrefix} {sellerMap[selectedProduct.sellerId]?.name}</button>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${sellerMap[selectedProduct.sellerId]?.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                        {sellerMap[selectedProduct.sellerId]?.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="rounded-full bg-rose-50 px-4 py-2 text-lg font-bold text-rose-700">${selectedProduct.price}</div>
+                </div>
+                <p className="mt-5 leading-7 text-slate-600">{selectedProduct.description}</p>
+                <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.sizeField}:</span> {selectedProduct.size}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.colorField}:</span> {selectedProduct.color}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.styleField}:</span> {selectedProduct.style}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.fabricField}:</span> {selectedProduct.fabric}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.daysWornField}:</span> {selectedProduct.daysWorn || localizeOptionLabel('Not specified', uiLanguage)}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.waistRiseField}:</span> {selectedProduct.waistRise || localizeOptionLabel('Not specified', uiLanguage)}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.coverageField}:</span> {selectedProduct.coverage || localizeOptionLabel('Not specified', uiLanguage)}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.conditionField}:</span> {selectedProduct.condition || localizeOptionLabel('Not specified', uiLanguage)}</div>
+                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.scentLevelField}:</span> {selectedProduct.scentLevel || localizeOptionLabel('Not specified', uiLanguage)}</div>
+                </div>
+                {selectedProductPrimaryBundle ? (
+                  <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">Bundle option</div>
+                    <div className="mt-1 text-lg font-semibold text-amber-900">{selectedProductPrimaryBundle.title}</div>
+                    <div className="mt-1 text-sm text-amber-800">
+                      Buy this item on its own, or get the full bundle for {formatPriceTHB(selectedProductPrimaryBundle.price)}.
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => navigate(`/product/${selectedProductPrimaryBundle.slug}`)}
+                        className="rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100"
+                      >
+                        View bundle details
+                      </button>
+                      <button
+                        onClick={() => addBundleToCartFromSingleItem(selectedProductPrimaryBundle.id, selectedProduct.id)}
+                        className="rounded-xl bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+                      >
+                        {cart.includes(selectedProductPrimaryBundle.id) ? 'Bundle in cart' : 'Add bundle to cart'}
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => addToCart(selectedProduct.id)}
+                    disabled={cart.includes(selectedProduct.id)}
+                    className={`rounded-2xl px-6 py-3 font-semibold text-white ${cart.includes(selectedProduct.id) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
+                  >
+                    {cart.includes(selectedProduct.id) ? publicText.inCartLabel : publicText.addToCart}
+                  </button>
+                  <button onClick={() => navigate(`/seller/${selectedProduct.sellerId}`)} className="rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">{publicText.viewSellerProfile}</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+        {routeInfo.name === 'product' && !selectedProduct ? (
+          <section className="mx-auto max-w-7xl px-6 py-12 md:py-16">
+            <div className="rounded-3xl bg-white p-8 text-center shadow-md ring-1 ring-rose-100">
+              <h2 className="text-2xl font-bold">{publicText.productNotFoundTitle}</h2>
+              <p className="mt-3 text-slate-600">{publicText.productNotFoundSubtitle}</p>
+              <button onClick={() => navigate('/')} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{publicText.backToShop}</button>
+            </div>
+          </section>
+        ) : null}
+
+        {(routeInfo.name === 'bar-dashboard' || (routeInfo.name === 'account' && currentUser?.role === 'bar')) ? (
+          <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
+            {!isBar ? (
+              <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+                <Lock className="mx-auto h-10 w-10 text-rose-600" />
+                <h2 className="mt-4 text-2xl font-bold">Bar login required</h2>
+                <p className="mt-2 text-slate-600">Use a bar account to manage bar profile details and photo posts.</p>
+              </div>
+            ) : (
+              <>
+                <SectionTitle
+                  eyebrow="Bar dashboard"
+                  title={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).title}
+                  subtitle={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).subtitle}
+                />
+                <div className="mt-4 flex justify-start lg:justify-end">
+                  <label className="flex items-center gap-2 text-sm text-slate-600">
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).language}
+                    <select
+                      value={SUPPORTED_AUTH_LANGUAGES.includes(currentUser?.preferredLanguage) ? currentUser.preferredLanguage : 'en'}
+                      onChange={(event) => updateBarLanguage(event.target.value)}
+                      className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    >
+                      {DASHBOARD_LANGUAGE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{localizeOptionLabel(option.label, uiLanguage)}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="mt-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                  <h3 className="text-xl font-semibold">Affiliate earnings</h3>
+                  <p className="mt-1 text-sm text-slate-600">Track the money your bar earns from affiliated seller sales and paid buyer interactions.</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-2xl bg-emerald-50 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Total earned</div>
+                      <div className="mt-1 text-2xl font-bold text-emerald-800">{formatPriceTHB(barAffiliateEarnings.total)}</div>
+                    </div>
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order commissions</div>
+                      <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(barAffiliateEarnings.bySource.orders)}</div>
+                    </div>
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Message commissions</div>
+                      <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(barAffiliateEarnings.bySource.messages)}</div>
+                    </div>
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Custom request commissions</div>
+                      <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(barAffiliateEarnings.bySource.customRequests)}</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                    <div className="rounded-2xl border border-rose-100 bg-slate-50 p-4">
+                      <div className="text-sm font-semibold text-slate-800">Top affiliated sellers (order commissions)</div>
+                      <div className="mt-3 space-y-2">
+                        {barAffiliateEarnings.bySellerFromOrders.length === 0 ? (
+                          <div className="rounded-xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">No order commissions yet.</div>
+                        ) : barAffiliateEarnings.bySellerFromOrders.slice(0, 6).map((row) => (
+                          <div key={row.sellerId} className="flex items-center justify-between rounded-xl bg-white px-3 py-2 ring-1 ring-rose-100">
+                            <div>
+                              <div className="text-sm font-semibold text-slate-800">{row.sellerName}</div>
+                              <div className="text-xs text-slate-500">{row.orderCount} commission event{row.orderCount > 1 ? 's' : ''}</div>
+                            </div>
+                            <div className="text-sm font-semibold text-emerald-700">{formatPriceTHB(row.amount)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-rose-100 bg-slate-50 p-4">
+                      <div className="text-sm font-semibold text-slate-800">Recent affiliate commission ledger</div>
+                      <div className="mt-3 space-y-2">
+                        {barAffiliateEarnings.ledger.length === 0 ? (
+                          <div className="rounded-xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">No affiliate commission transactions yet.</div>
+                        ) : barAffiliateEarnings.ledger.slice(0, 8).map((entry) => (
+                          <div key={entry.id} className="flex items-center justify-between rounded-xl bg-white px-3 py-2 ring-1 ring-rose-100">
+                            <div>
+                              <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(entry.createdAt)}</div>
+                              <div className="text-sm text-slate-700">{entry.description || 'Commission credit'}</div>
+                            </div>
+                            <div className="text-sm font-semibold text-emerald-700">{formatPriceTHB(Number(entry.amount || 0))}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6 grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                    {currentBarProfile ? <div className="mb-4"><BarQrCard bar={currentBarProfile} compact /></div> : null}
+                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}</h3>
+                    <div className="mt-4 h-48">
+                      <ProductImage
+                        src={barProfileDraft.profileImage || currentBarProfile?.profileImage}
+                        label={barProfileDraft.profileImageName || currentBarProfile?.profileImageName || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileImage}
+                      />
+                    </div>
+                    <input type="file" accept="image/*" onChange={handleBarProfileImageUpload} className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm" />
+                    <div className="mt-4 grid gap-3">
+                      <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).locationPlaceholder} />
+                      <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).aboutPlaceholder} />
+                      <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).specialsPlaceholder} />
+                      <input value={barProfileDraft.mapEmbedUrl} onChange={(event) => updateBarProfileField('mapEmbedUrl', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).mapEmbedPlaceholder} />
+                      <input value={barProfileDraft.mapLink} onChange={(event) => updateBarProfileField('mapLink', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).mapLinkPlaceholder} />
+                      <button
+                        onClick={saveBarProfile}
+                        disabled={savingBarProfile}
+                        className={`rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 ${savingBarProfile ? 'cursor-not-allowed opacity-60' : ''}`}
+                      >
+                        {savingBarProfile ? 'Saving...' : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).saveProfile}
+                      </button>
+                      {barProfileMessage ? (
+                        <div className={`text-sm font-medium ${barProfileMessage.startsWith('Could not') ? 'text-rose-700' : 'text-emerald-700'}`}>
+                          {barProfileMessage}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}</h3>
+                    <p className="mt-2 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedSubtitle}</p>
+                    <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedPlaceholder} />
+                    <input type="file" accept="image/*" onChange={handleBarPostImageUpload} className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm" />
+                    <div className="mt-3 h-44">
+                      {barPostDraft.image ? <ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} /> : <ProductImage label={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).preview} />}
+                    </div>
+                    <button onClick={createBarPost} disabled={creatingBarPost} className="mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
+                      {creatingBarPost ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).posting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).postButton}
+                    </button>
+                    {barProfileMessage ? <div className="mt-3 text-sm font-medium text-rose-700">{barProfileMessage}</div> : null}
+                    <div className="mt-5 space-y-3">
+                      {barDashboardPosts.length === 0 ? (
+                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noPosts}</div>
+                      ) : barDashboardPosts.map((post) => (
+                        <article key={post.id} className="rounded-2xl border border-rose-100 p-3">
+                          <div className="h-40">
+                            <ProductImage src={post.image} label={post.imageName || 'Bar post'} />
+                          </div>
+                          <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                          <div className="mt-1 text-sm text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</div>
+                          <button onClick={() => deleteBarPost(post.id)} disabled={deletingBarPostId === post.id} className="mt-2 rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700">
+                            {deletingBarPostId === post.id ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).deleting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).delete}
+                          </button>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}</h3>
+                    <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsSubtitle}</p>
+                    <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
+                      <div className="text-sm font-semibold text-slate-800">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).pendingRequestsTitle}</div>
+                      <div className="mt-3 space-y-2">
+                        {barIncomingAffiliationRequests.length === 0 ? (
+                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noPendingRequests}</div>
+                        ) : barIncomingAffiliationRequests.map((request) => {
+                          const seller = sellerMap[request.sellerId];
+                          return (
+                            <div key={request.id} className="rounded-2xl bg-white p-3 ring-1 ring-rose-100">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <div className="text-sm font-semibold text-slate-800">{seller?.name || request.sellerId}</div>
+                                  <div className="text-xs text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).requestedPrefix} {formatDateTimeNoSeconds(request.createdAt || Date.now())}</div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => respondToBarAffiliationRequest(request.id, 'approved')}
+                                    className="rounded-xl border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700"
+                                  >
+                                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).approve}
+                                  </button>
+                                  <button
+                                    onClick={() => respondToBarAffiliationRequest(request.id, 'rejected')}
+                                    className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
+                                  >
+                                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).reject}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
+                      <div className="text-sm font-semibold text-slate-800">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).inviteSellerTitle}</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <select
+                          value={barInviteSellerId}
+                          onChange={(event) => setBarInviteSellerId(event.target.value)}
+                          className="min-w-[220px] flex-1 rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                        >
+                          <option value="">{localizeOptionLabel("Select seller...", uiLanguage)}</option>
+                          {barInvitableSellers.map((seller) => (
+                            <option key={seller.id} value={seller.id}>
+                              {seller.name}{seller.affiliatedBarId && barMap[seller.affiliatedBarId] ? ` (${(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).currentlyPrefix} ${barMap[seller.affiliatedBarId].name})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => {
+                            if (!barInviteSellerId) return;
+                            requestSellerAffiliationByBar(barInviteSellerId);
+                            setBarInviteSellerId('');
+                          }}
+                          disabled={!barInviteSellerId}
+                          className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).sendInvite}
+                        </button>
+                      </div>
+                      <div className="mt-3 space-y-2">
+                        {barOutgoingAffiliationRequests.length === 0 ? (
+                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noOutgoingInvites}</div>
+                        ) : barOutgoingAffiliationRequests.map((request) => (
+                          <div key={request.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
+                            <div className="text-sm text-slate-700">{sellerMap[request.sellerId]?.name || request.sellerId}</div>
+                            <button
+                              onClick={() => cancelBarAffiliationRequest(request.id)}
+                              className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"
+                            >
+                              {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).cancelInvite}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
+                      <div className="text-sm font-semibold text-slate-800">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliatedSellersTitle} ({currentBarAffiliatedSellers.length})</div>
+                      <div className="mt-3 space-y-2">
+                        {currentBarAffiliatedSellers.length === 0 ? (
+                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noAffiliatedSellers}</div>
+                        ) : currentBarAffiliatedSellers.map((seller) => (
+                          <div key={seller.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
+                            <div className="text-sm font-semibold text-slate-800">{seller.name}</div>
+                            <button
+                              onClick={() => removeSellerFromCurrentBarByBar(seller.id)}
+                              className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
+                            >
+                              {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).removeFromBar}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsTitle}</h3>
+                    <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsSubtitle}</p>
+                    <div className="mt-4 space-y-3">
+                      {barDashboardNotifications.length === 0 ? (
+                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noAffiliationNotifications}</div>
+                      ) : barDashboardNotifications.map((notification) => (
+                        <div key={notification.id} className="rounded-2xl bg-slate-50 p-4">
+                          <div className="text-sm text-slate-700">{notification.text}</div>
+                          <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(notification.createdAt || Date.now())}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </section>
+        ) : null}
+
+        {routeInfo.name === 'account' && currentUser?.role === 'seller' ? (
+          <SellerDashboardPage
+            isSeller={isSeller}
+            isPendingSeller={isPendingSeller}
+            isRejectedSeller={isRejectedSeller}
+            uploadDraft={uploadDraft}
+            setUploadDraft={setUploadDraft}
+            handleUploadFile={handleUploadFile}
+            createProductFromUpload={createProductFromUpload}
+            sellerMap={sellerMap}
+            bars={bars}
+            barMap={barMap}
+            currentSellerId={currentSellerId}
+            currentSellerProfile={currentSellerProfile}
+            sellerProfileDraft={sellerProfileDraft}
+            updateSellerProfileField={updateSellerProfileField}
+            handleSellerProfileImageUpload={handleSellerProfileImageUpload}
+            saveSellerProfile={saveSellerProfile}
+            sellerIncomingAffiliationRequests={sellerIncomingAffiliationRequests}
+            sellerOutgoingAffiliationRequests={sellerOutgoingAffiliationRequests}
+            respondToBarAffiliationRequest={respondToBarAffiliationRequest}
+            cancelBarAffiliationRequest={cancelBarAffiliationRequest}
+            removeSellerFromCurrentBarBySeller={removeSellerFromCurrentBarBySeller}
+            sellerProfileChecklist={sellerProfileChecklist}
+            sellerProfileMessage={sellerProfileMessage}
+            sellerInbox={sellerInbox}
+            sellerMessageHistory={sellerMessageHistory}
+            setSellerSelectedConversationId={setSellerSelectedConversationId}
+            markNotificationsReadForConversation={markNotificationsReadForConversation}
+            sellerActiveConversationId={sellerActiveConversationId}
+            sellerActiveConversationMessages={sellerActiveConversationMessages}
+            sellerReplyDraft={sellerReplyDraft}
+            setSellerReplyDraft={setSellerReplyDraft}
+            sendSellerReply={sendSellerReply}
+            notifications={notifications}
+            currentUser={currentUser}
+            markAllNotificationsRead={markAllNotificationsRead}
+            markNotificationRead={markNotificationRead}
+            updateNotificationPreference={updateNotificationPreference}
+            sellerDashboardProducts={sellerDashboardProducts}
+            sellerDashboardPosts={sellerDashboardPosts}
+            publishProduct={publishProduct}
+            upsertBundleProduct={upsertBundleProduct}
+            deleteProduct={deleteProduct}
+            deletingProductId={deletingProductId}
+            sellerPostDraft={sellerPostDraft}
+            sellerPostDraftSavedAt={sellerPostDraftSavedAt}
+            setSellerPostDraft={setSellerPostDraft}
+            handleSellerPostImageUpload={handleSellerPostImageUpload}
+            createSellerPost={createSellerPost}
+            creatingSellerPost={creatingSellerPost}
+            deleteSellerPost={deleteSellerPost}
+            deletingSellerPostId={deletingSellerPostId}
+            sellerLanguage={currentUser?.preferredLanguage || 'en'}
+            updateSellerLanguage={updateSellerLanguage}
+            isSellerOnline={Boolean(currentSellerProfile?.isOnline)}
+            toggleSellerOnlineStatus={toggleSellerOnlineStatus}
+            sellerFeedVisibility={currentSellerProfile?.feedVisibility || 'public'}
+            setSellerFeedVisibility={setSellerFeedVisibility}
+            updateSellerPostVisibility={updateSellerPostVisibility}
+            updateSellerPostPrice={updateSellerPostPrice}
+            updateAllPrivatePostPrices={updateAllPrivatePostPrices}
+            unscheduleSellerPost={unscheduleSellerPost}
+            publishSellerPostNow={publishSellerPostNow}
+            sellerPostAnalytics={sellerPostAnalytics}
+            sellerCustomRequests={sellerCustomRequests}
+            customRequestMessagesByRequestId={customRequestMessagesByRequestId}
+            updateCustomRequestStatus={updateCustomRequestStatus}
+            proposeCustomRequestPrice={proposeCustomRequestPrice}
+            respondToCustomRequestCounter={respondToCustomRequestCounter}
+            toggleCustomRequestBuyerImageUpload={toggleCustomRequestBuyerImageUpload}
+            sendCustomRequestMessage={sendCustomRequestMessage}
+            navigate={navigate}
+          />
+        ) : null}
+
+        {routeInfo.name === 'admin' ? (
+          <AdminPage
+            isAdmin={isAdmin}
+            adminTab={adminTab}
+            setAdminTab={setAdminTab}
+            products={products}
+            users={users}
+            orders={orders}
+            messages={messages}
+            customRequests={customRequests}
+            customRequestMessages={customRequestMessages}
+            refundClaims={refundClaims}
+            barAffiliationRequests={barAffiliationRequests}
+            adminInboxReviews={adminInboxReviews}
+            updateAdminInboxReview={updateAdminInboxReview}
+            updateRefundClaimDecision={updateRefundClaimDecision}
+            respondToBarAffiliationRequest={respondToBarAffiliationRequest}
+            adminInboxFilterPresets={adminInboxFilterPresets}
+            saveAdminInboxFilterPreset={saveAdminInboxFilterPreset}
+            deleteAdminInboxFilterPreset={deleteAdminInboxFilterPreset}
+            adminNotes={adminNotes}
+            updateAdminNote={updateAdminNote}
+            walletTransactions={walletTransactions}
+            adminDisputeCases={adminDisputeCases}
+            updateAdminDisputeCase={updateAdminDisputeCase}
+            blocks={blocks}
+            adminActions={adminActions}
+            pendingSellerApprovals={pendingSellerApprovals}
+            pendingSellerCount={pendingSellerApprovals.length}
+            adminSellerReviewFilter={adminSellerReviewFilter}
+            setAdminSellerReviewFilter={setAdminSellerReviewFilter}
+            adminSellerReviewItems={adminSellerReviewItems}
+            adminAuthActionMessage={adminAuthActionMessage}
+            approveSellerAccount={approveSellerAccount}
+            approveAllPendingSellers={approveAllPendingSellers}
+            rejectSellerAccount={rejectSellerAccount}
+            bars={bars}
+            sellers={sellers}
+            updateBarProfileByAdmin={updateBarProfileByAdmin}
+            setSellerBarAffiliationByAdmin={setSellerBarAffiliationByAdmin}
+            removeBarByAdmin={removeBarByAdmin}
+            toggleAdminBlockUser={toggleAdminBlockUser}
+            adminUserSearch={adminUserSearch}
+            setAdminUserSearch={setAdminUserSearch}
+            adminUserResults={adminUserResults}
+            adminSelectedUser={adminSelectedUser}
+            setAdminSelectedUserId={setAdminSelectedUserId}
+            adminSelectedUserOrderHistory={adminSelectedUserOrderHistory}
+            updateOrderShipment={updateOrderShipment}
+            updatingOrderId={updatingOrderId}
+            adminSelectedUserMessageHistory={adminSelectedUserMessageHistory}
+            cancelCustomRequestByAdmin={cancelCustomRequestByAdmin}
+            adminSalesSummary={adminSalesSummary}
+            sellerSalesRows={sellerSalesRows}
+            stripeEvents={stripeEvents}
+            sellerPosts={sellerFeedPosts}
+            postReports={postReports}
+            commentReports={commentReports}
+            sellerPostLikes={sellerPostLikes}
+            sellerPostComments={sellerPostComments}
+            sellerFollows={sellerFollows}
+            deleteSellerPost={deleteSellerPost}
+            deletingSellerPostId={deletingSellerPostId}
+            resolvePostReport={resolvePostReport}
+            resolvingPostReportId={resolvingPostReportId}
+            resolveAllPostReports={resolveAllPostReports}
+            resolvingAllPostReports={resolvingAllPostReports}
+            resolveCommentReport={resolveCommentReport}
+            resolvingCommentReportId={resolvingCommentReportId}
+            resolveAllCommentReports={resolveAllCommentReports}
+            resolvingAllCommentReports={resolvingAllCommentReports}
+            userStrikes={userStrikes}
+            userAppeals={userAppeals}
+            reviewUserAppeal={reviewUserAppeal}
+            reviewingAppealId={reviewingAppealId}
+            emailTemplates={emailTemplates}
+            updateEmailTemplate={updateEmailTemplate}
+            resetEmailTemplate={resetEmailTemplate}
+            sendTestEmailTemplate={sendTestEmailTemplate}
+            emailDeliveryLog={emailDeliveryLog}
+            sellerMap={sellerMap}
+            currentUser={currentUser}
+            navigate={navigate}
+            CMS_SCHEMA={CMS_SCHEMA}
+            NEXTJS_EXPORT_BLUEPRINT={NEXTJS_EXPORT_BLUEPRINT}
+            SEO_CONFIG={SEO_CONFIG}
+          />
+        ) : null}
+
+        {routeInfo.name === 'checkout' ? (
+          <CheckoutPage
+            setCheckoutAuthModalOpen={setCheckoutAuthModalOpen}
+            currentUser={currentUser}
+            checkoutStep={checkoutStep}
+            setCheckoutStep={setCheckoutStep}
+            buyerEmail={buyerEmail}
+            setBuyerEmail={setBuyerEmail}
+            checkoutForm={checkoutForm}
+            shippingCountryOptions={SHIPPING_COUNTRY_OPTIONS}
+            updateCheckoutField={updateCheckoutField}
+            currentWalletBalance={currentWalletBalance}
+            runWalletCheckout={runWalletCheckout}
+            checkoutError={checkoutError}
+            cartItems={cartItems}
+            sellerMap={sellerMap}
+            removeFromCart={removeFromCart}
+            onContinueShopping={() => navigate('/find')}
+            checkoutBundleSuggestion={checkoutBundleSuggestion}
+            onExploreBundle={(bundle) => {
+              if (!bundle?.slug) return;
+              navigate(`/product/${bundle.slug}`);
+            }}
+            onAddBundleFromCheckout={(bundle, selectedItem) => addBundleToCartFromSingleItem(bundle?.id, selectedItem?.id)}
+            subtotal={subtotal}
+            shippingRates={shippingRates}
+            shippingZoneLabel={shippingBaseRates.destinationLabel}
+            shippingSupported={shippingSupported}
+            shippingFee={shippingFee}
+            total={total}
+            checkoutAuthModalOpen={checkoutAuthModalOpen}
+            onOpenLogin={() => navigate('/login')}
+            onOpenRegister={() => navigate('/register')}
+            onOpenWalletTopUp={openWalletTopUpFromCheckout}
+          />
+        ) : null}
+
+        {routeInfo.name === 'checkout-success' ? (
+          <section className="mx-auto max-w-4xl px-6 py-16">
+            <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
+              <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
+              <h2 className="mt-5 text-3xl font-bold tracking-tight">Order placed</h2>
+              <p className="mt-3 text-slate-600">Your checkout completed successfully and your order is now in processing.</p>
+              <div className="mx-auto mt-5 max-w-2xl rounded-2xl bg-slate-50 p-4 text-left text-sm text-slate-700">
+                <div className="font-semibold text-slate-900">What happens next</div>
+                <ul className="mt-2 list-disc space-y-1 pl-5">
+                  <li>Your order will be processed and shipped within 1-3 business days.</li>
+                  <li>You will receive an email notification as soon as your order ships.</li>
+                  <li>Your tracking number and carrier details will appear in your account order card.</li>
+                </ul>
+              </div>
+              <button onClick={() => navigate(accountRoute)} className="mt-6 rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">View account</button>
+            </div>
+          </section>
+        ) : null}
+
+        {routeInfo.name === 'login' ? (
+          <PageShell title={loginText.title} subtitle={loginText.subtitle}>
+            <form onSubmit={loginWithCredentials} className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <label className="block text-sm font-medium text-slate-700">
+                {loginText.language}
+                <select
+                  value={authLanguage}
+                  onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                  className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                >
+                  <option value="en">{localizeOptionLabel("English", authLanguage)}</option>
+                  <option value="th">{localizeOptionLabel("Thai", authLanguage)}</option>
+                  <option value="my">{localizeOptionLabel("Burmese", authLanguage)}</option>
+                  <option value="ru">{localizeOptionLabel("Russian", authLanguage)}</option>
+                </select>
+              </label>
+              <input
+                value={loginForm.email}
+                onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
+                type="email"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                placeholder={loginText.email}
+              />
+              <input
+                value={loginForm.password}
+                onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
+                type={showLoginPassword ? "text" : "password"}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                placeholder={loginText.password}
+              />
+              <button
+                type="button"
+                onClick={() => setShowLoginPassword((prev) => !prev)}
+                className="text-sm font-semibold text-rose-700 hover:text-rose-800"
+                aria-label={showLoginPassword ? loginText.hidePassword : loginText.showPassword}
+              >
+                {showLoginPassword ? loginText.hidePassword : loginText.showPassword}
+              </button>
+              {authError ? <div key={authErrorRefreshKey} className="text-sm font-medium text-rose-700">{authError}</div> : null}
+              {authSuccess ? <div className="text-sm font-medium text-emerald-700">{authSuccess}</div> : null}
+              <button type="submit" className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{loginText.submit}</button>
+              <button type="button" onClick={() => navigate('/register')} className="w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{loginText.registerCta}</button>
+            </form>
+          </PageShell>
+        ) : null}
+
+        {routeInfo.name === 'register' ? (
+          <PageShell title={registerText.title} subtitle={registerText.subtitle}>
+            <form onSubmit={registerAccount} className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <label className="block text-sm font-medium text-slate-700">
+                {registerText.language}
+                <select
+                  value={authLanguage}
+                  onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                  className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                >
+                  <option value="en">{localizeOptionLabel("English", authLanguage)}</option>
+                  <option value="th">{localizeOptionLabel("Thai", authLanguage)}</option>
+                  <option value="my">{localizeOptionLabel("Burmese", authLanguage)}</option>
+                  <option value="ru">{localizeOptionLabel("Russian", authLanguage)}</option>
+                </select>
+              </label>
+              <input
+                value={registerForm.name}
+                onChange={(event) => setRegisterForm((prev) => ({ ...prev, name: event.target.value }))}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                placeholder={registerText.fullName}
+              />
+              <input
+                value={registerForm.email}
+                onChange={(event) => setRegisterForm((prev) => ({ ...prev, email: event.target.value }))}
+                type="email"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                placeholder={registerText.email}
+              />
+              <select
+                value={registerForm.role}
+                onChange={(event) => setRegisterForm((prev) => ({ ...prev, role: event.target.value }))}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+              >
+                <option value="">{localizeOptionLabel("Select account type", authLanguage)}</option>
+                <option value="buyer">{localizeOptionLabel("Buyer account", authLanguage)}</option>
+                <option value="seller">{localizeOptionLabel("Seller account", authLanguage)}</option>
+                <option value="bar">{localizeOptionLabel("Bar account", authLanguage)}</option>
+              </select>
+              <input
+                value={registerForm.password}
+                onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))}
+                type="password"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                placeholder={registerText.password}
+              />
+              {registerForm.role === 'seller' || registerForm.role === 'bar' ? (
+                <>
+                  <input
+                    value={registerForm.city}
+                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                    placeholder={registerText.city}
+                  />
+                  <input
+                    value={registerForm.country}
+                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, country: event.target.value }))}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                    placeholder={registerText.country}
+                  />
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    {registerForm.role === 'bar' ? (registerText.barNote || registerText.sellerNote) : registerText.sellerNote}
+                  </div>
+                </>
+              ) : null}
+              {registerForm.role === 'buyer' ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
+                  <div className="mb-2 text-sm font-semibold text-rose-800">Buyer terms acceptance</div>
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/community-standards')}
+                      className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                    >
+                      View Community Standards
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/refund-policy')}
+                      className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                    >
+                      View Refund Policy
+                    </button>
+                  </div>
+                  <label className="mb-2 flex items-start gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(registerForm.acceptedRespectfulConduct)}
+                      onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedRespectfulConduct: event.target.checked }))}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                    />
+                    <span>{registerText.buyerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.'}</span>
+                  </label>
+                  <label className="flex items-start gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(registerForm.acceptedNoRefunds)}
+                      onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedNoRefunds: event.target.checked }))}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                    />
+                    <span>{registerText.buyerNoRefundCheckbox || 'I understand and accept that all purchases are final (no refunds).'}</span>
+                  </label>
+                </div>
+              ) : null}
+              {authError ? <div className="text-sm font-medium text-rose-700">{authError}</div> : null}
+              {authSuccess ? <div className="text-sm font-medium text-emerald-700">{authSuccess}</div> : null}
+              <button type="submit" className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{registerText.createAccount}</button>
+              <button type="button" onClick={() => navigate('/login')} className="w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{registerText.haveAccount}</button>
+            </form>
+          </PageShell>
+        ) : null}
+
+        {routeInfo.name === 'account' && currentUser?.role !== 'seller' && currentUser?.role !== 'bar' ? (
+          <AccountPage
+            currentUser={currentUser}
+            buyerOrders={buyerOrders}
+            recentBuyerOrders={recentBuyerOrders}
+            buyerCustomRequests={buyerCustomRequests}
+            customRequestMessagesByRequestId={customRequestMessagesByRequestId}
+            products={products}
+            sellerMap={sellerMap}
+            buyerConversations={buyerConversations}
+            sellerFollows={sellerFollows}
+            toggleSellerFollow={toggleSellerFollow}
+            accountForm={accountForm}
+            updateAccountField={updateAccountField}
+            saveAccountDetails={saveAccountDetails}
+            accountSaveMessage={accountSaveMessage}
+            currentWalletBalance={currentWalletBalance}
+            runWalletTopUp={runWalletTopUp}
+            walletStatus={walletStatus}
+            topUpAmount={topUpAmount}
+            walletTopUpContext={walletTopUpContext}
+            clearWalletTopUpContext={() => setWalletTopUpContext(null)}
+            markAllNotificationsRead={markAllNotificationsRead}
+            buyerLedger={buyerLedger}
+            buyerSellerDirectory={buyerSellerDirectory}
+            accountSearchQuery={accountSearchQuery}
+            setAccountSearchQuery={setAccountSearchQuery}
+            quickSellerResults={quickSellerResults}
+            quickProductResults={quickProductResults}
+            buyerMessageSellerSearch={buyerMessageSellerSearch}
+            setBuyerMessageSellerSearch={setBuyerMessageSellerSearch}
+            buyerMessageSellerResults={buyerMessageSellerResults}
+            buyerMessageProductFilters={buyerMessageProductFilters}
+            buyerMessageFilterOptions={buyerMessageFilterOptions}
+            updateBuyerMessageProductFilter={updateBuyerMessageProductFilter}
+            buyerMessageProductResults={buyerMessageProductResults}
+            buyerDashboardConversationId={buyerDashboardConversationId}
+            setBuyerDashboardConversationId={setBuyerDashboardConversationId}
+            buyerDashboardConversationMessages={buyerDashboardConversationMessages}
+            buyerDashboardMessageDraft={buyerDashboardMessageDraft}
+            setBuyerDashboardMessageDraft={setBuyerDashboardMessageDraft}
+            sendBuyerDashboardMessage={sendBuyerDashboardMessage}
+            buyerDashboardMessageError={buyerDashboardMessageError}
+            startBuyerConversationWithSeller={startBuyerConversationWithSeller}
+            sendCustomRequestMessage={sendCustomRequestMessage}
+            respondToCustomRequestPrice={respondToCustomRequestPrice}
+            notifications={notifications}
+            uiLanguage={uiLanguage}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'appeals' ? (
+          <AppealsPage
+            currentUser={currentUser}
+            userStrikes={userStrikes}
+            userAppeals={userAppeals}
+            submitStrikeAppeal={submitStrikeAppeal}
+            submittingStrikeAppeal={submittingStrikeAppeal}
+            navigate={navigate}
+          />
+        ) : null}
+
+        {routeInfo.name === 'privacy-policy' ? <PrivacyPolicyPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'terms' ? <TermsPage /> : null}
+        {routeInfo.name === 'shipping-policy' ? <ShippingPolicyPage /> : null}
+        {routeInfo.name === 'refund-policy' ? <RefundPolicyPage /> : null}
+        {routeInfo.name === 'refund-evidence' ? (
+          <RefundEvidencePage
+            currentUser={currentUser}
+            submitRefundEvidence={submitRefundEvidence}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'community-standards' ? <CommunityStandardsPage /> : null}
+        {routeInfo.name === 'seller-standards' ? <SellerStandardsPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'contact' ? <ContactPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'faq' ? <FaqPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
+        {routeInfo.name === 'custom-requests' ? (
+          <CustomRequestsPage
+            currentUser={currentUser}
+            sellers={Object.values(sellerMap)}
+            buyerCustomRequests={buyerCustomRequests}
+            customRequestMessagesByRequestId={customRequestMessagesByRequestId}
+            submitCustomRequest={submitCustomRequest}
+            sendCustomRequestMessage={sendCustomRequestMessage}
+            respondToCustomRequestPrice={respondToCustomRequestPrice}
+            openWalletTopUpForFlow={openWalletTopUpForFlow}
+            uiLanguage={uiLanguage}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'worldwide-shipping' ? <WorldwideShippingPage /> : null}
+        {routeInfo.name === 'seller-portfolios' ? <SellerPortfoliosPage sellers={Object.values(sellerMap)} products={availableProducts} navigate={navigate} uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'how-to-apply' ? <HowToApplyPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'seller-guidelines' ? <SellerGuidelinesPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'portfolio-setup' ? <PortfolioSetupPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'order-help' ? <OrderHelpPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'privacy-packaging' ? <PrivacyPackagingPage /> : null}
+      </main>
+
+      <footer className="border-t border-rose-100 bg-white">
+        <div className="mx-auto max-w-7xl px-6 py-10">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
+            <div className="lg:col-span-2">
+              <div className="text-lg font-semibold text-slate-900">Thailand Panties</div>
+              <div className="mt-3 max-w-md text-sm leading-7 text-slate-500">A trusted marketplace for premium used underwear from Thailand, with discreet checkout, secure messaging, and tools designed for professional private shopping.</div>
+            </div>
+            {footerGroups.map((group) => (
+              <div key={group.title}>
+                <div className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-500">{group.title}</div>
+                <div className="mt-4 space-y-3 text-sm text-slate-500">
+                  {group.links.map((link) => (
+                    <button key={link.label} onClick={() => navigate(link.route)} className="block text-left hover:text-rose-600">
+                      {link.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 flex flex-col gap-4 border-t border-rose-100 pt-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+            <div>© 2026 Thailand Panties. All rights reserved.</div>
+            <div className="flex flex-wrap gap-5">
+              <button onClick={() => navigate('/privacy-policy')} className="hover:text-rose-600">Privacy Policy</button>
+              <button onClick={() => navigate('/terms')} className="hover:text-rose-600">Terms</button>
+              <button onClick={() => navigate('/shipping-policy')} className="hover:text-rose-600">Shipping Policy</button>
+              <button onClick={() => navigate('/refund-policy')} className="hover:text-rose-600">Refund Policy</button>
+              <button onClick={() => navigate('/community-standards')} className="hover:text-rose-600">Community Standards</button>
+              <button onClick={() => navigate('/seller-standards')} className="hover:text-rose-600">Seller Standards</button>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
