@@ -111,6 +111,7 @@ const ACCOUNT_PAGE_I18N = {
     billingLedger: "Billing ledger",
     accountBalance: "Account balance",
     favoriteSellers: "Favorite sellers",
+    favoriteBars: "Favorite bars",
     profile: "Profile",
     quickFinder: "Quick finder",
     contactDetails: "Contact details",
@@ -178,6 +179,8 @@ const ACCOUNT_PAGE_I18N = {
     walletPresetHelp: "Minimum top-up is 500 baht.",
     favoritesHelp: "Bookmark sellers for quick profile and messaging access.",
     noFavorites: "No favorite sellers yet. Use Bookmark in the quick finder or Follow in seller feed.",
+    favoriteBarsHelp: "Follow bars to keep their feed posts close and easy to find.",
+    noFavoriteBars: "No favorite bars yet. Use Follow bar on bar feed cards.",
     locationNotSet: "Location not set",
     savedOn: "Saved",
     view: "View",
@@ -1184,13 +1187,21 @@ const SELLER_I18N = {
   loginToEngage: "Login to like and comment on posts.",
   allPosts: "All posts",
   followingPosts: "Following",
+  affiliatesPosts: "Affiliates",
+  barsPosts: "Bars",
+  favoriteBarsPosts: "Favorite Bars",
   savedPosts: "Saved",
   follow: "Follow",
   following: "Following",
+  followBar: "Follow bar",
+  followingBar: "Following bar",
   savePost: "Save post",
   saved: "Saved",
   deleteComment: "Delete",
   noFollowingPosts: "No posts from followed sellers yet.",
+  noAffiliatesPosts: "No posts from your affiliated sellers yet.",
+  noBarsPosts: "No bar feed posts yet.",
+  noFavoriteBarsPosts: "No posts from your favorite bars yet.",
   noSavedPosts: "No saved posts yet.",
   noCommentsYet: "No comments yet.",
   commentLimit: "Comment",
@@ -1200,6 +1211,7 @@ const SELLER_I18N = {
   searchFeedPlaceholder: "Search seller or caption",
   clearSearch: "Clear",
   noSearchResults: "No posts match your search.",
+  watchFeeds: "Watch feeds",
     reportCount: "report(s)",
     reasonInappropriate: "Inappropriate content",
     reasonHarassment: "Harassment or abuse",
@@ -3219,14 +3231,267 @@ export function SellerMessagesPage({
   );
 }
 
+export function BarMessagesPage({
+  currentUser,
+  barMap,
+  barMessageInbox,
+  barMessageActiveConversationId,
+  setBarMessageActiveConversationId,
+  barMessageActiveConversationMessages,
+  barReplyDraft,
+  setBarReplyDraft,
+  sendBarConversationMessage,
+  barConversationMessageError,
+  messageReports,
+  reportBarConversationMessage,
+  reportingDirectMessageId,
+  markNotificationsReadForConversation,
+  uiLanguage = "en",
+  navigate,
+}) {
+  const isBar = currentUser?.role === "bar";
+  const isParticipant = currentUser?.role === "buyer" || currentUser?.role === "seller";
+  const locale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
+  const tx = (key) => ACCOUNT_PAGE_I18N[locale]?.[key] || ACCOUNT_PAGE_I18N.en[key] || key;
+  const [messageReportOpenById, setMessageReportOpenById] = useState({});
+  const [messageReportReasonById, setMessageReportReasonById] = useState({});
+  const [messageReportDetailsById, setMessageReportDetailsById] = useState({});
+  const [messageReportErrorById, setMessageReportErrorById] = useState({});
+  if (!isBar && !isParticipant) {
+    return (
+      <section className="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6 md:pb-16 md:py-16">
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <h2 className="text-2xl font-bold">Login required</h2>
+          <button onClick={() => navigate("/login")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">
+            Open login
+          </button>
+        </div>
+      </section>
+    );
+  }
+  const activeConversation = (barMessageInbox || []).find((row) => row.conversationId === barMessageActiveConversationId) || null;
+  const reportedOpenMessageIds = useMemo(
+    () => new Set(
+      (messageReports || [])
+        .filter((entry) => entry.reporterUserId === currentUser?.id && entry.status !== "resolved" && entry.status !== "dismissed")
+        .map((entry) => entry.messageId)
+    ),
+    [messageReports, currentUser?.id]
+  );
+  const messageReportReasonOptions = [
+    { value: "direct_payment_request", label: tx("reportReasonDirectPayment") },
+    { value: "off_platform_contact", label: tx("reportReasonOffPlatform") },
+    { value: "harassment_abuse", label: tx("reportReasonHarassment") },
+    { value: "scam_fraud", label: tx("reportReasonScam") },
+    { value: "other", label: tx("reportReasonOther") },
+  ];
+  const getMessageReportReasonLabel = (reasonCategory) => (
+    messageReportReasonOptions.find((entry) => entry.value === reasonCategory)?.label || tx("reportReasonOther")
+  );
+  const submitMessageReport = async (message) => {
+    if (!message?.id) return;
+    const reasonCategory = messageReportReasonById[message.id] || "off_platform_contact";
+    const details = String(messageReportDetailsById[message.id] || "").trim();
+    if (reasonCategory === "other" && !details) {
+      setMessageReportErrorById((prev) => ({ ...prev, [message.id]: tx("reportDetailsRequiredOther") }));
+      return;
+    }
+    const reasonLabel = getMessageReportReasonLabel(reasonCategory);
+    const reportBody = details ? `${reasonLabel}: ${details}` : reasonLabel;
+    const didSubmit = await reportBarConversationMessage?.(message.id, reasonCategory, reportBody);
+    if (!didSubmit) {
+      setMessageReportErrorById((prev) => ({ ...prev, [message.id]: tx("reportSubmitFailed") }));
+      return;
+    }
+    setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+    setMessageReportOpenById((prev) => ({ ...prev, [message.id]: false }));
+  };
+  const activeLabel = isBar
+    ? `${activeConversation?.participantName || "Guest"}${activeConversation?.participantRole ? ` (${activeConversation.participantRole})` : ""}`
+    : (barMap?.[activeConversation?.barId || ""]?.name || activeConversation?.barName || "Bar");
+  const unreadCount = (barMessageInbox || []).filter((row) => row.hasUnread).length;
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+      {isBar ? (
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <button type="button" onClick={() => navigate("/bar-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            Bar profile
+          </button>
+          <button type="button" onClick={() => navigate("/bar-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            Bar Feed
+          </button>
+          <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+            Messages
+          </button>
+          <button type="button" onClick={() => navigate("/seller-feed")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            Watch Feeds
+          </button>
+        </div>
+      ) : (
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <button type="button" onClick={() => navigate("/account")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            Profile
+          </button>
+          <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+            Bar messages
+          </button>
+          <button type="button" onClick={() => navigate("/seller-feed")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            Watch Feeds
+          </button>
+        </div>
+      )}
+      <div className="mb-5">
+        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Messaging</div>
+        <h2 className="text-2xl font-bold text-slate-900">{isBar ? "Bar inbox" : "Your bar conversations"}</h2>
+      </div>
+      <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-rose-600" />
+            <h3 className="text-xl font-semibold">Conversations</h3>
+          </div>
+          <div className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${unreadCount > 0 ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-white text-slate-700 ring-rose-100"}`}>
+            Unread {unreadCount}
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="space-y-3">
+            {(barMessageInbox || []).length === 0 ? (
+              <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">No conversations yet.</div>
+            ) : (barMessageInbox || []).map((row) => (
+              <button
+                key={row.conversationId}
+                onClick={() => {
+                  setBarMessageActiveConversationId(row.conversationId);
+                  markNotificationsReadForConversation(row.conversationId);
+                }}
+                className={`block w-full rounded-2xl p-4 text-left ring-1 ${row.hasUnread ? "ring-amber-200 bg-amber-50" : "ring-rose-100"} ${barMessageActiveConversationId === row.conversationId ? "bg-rose-50" : ""}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate font-semibold">
+                      {isBar ? `${row.participantName}${row.participantRole ? ` (${row.participantRole})` : ""}` : (row.barName || row.barId)}
+                    </div>
+                    <div className="mt-1 truncate text-sm text-slate-500">{row.body || ""}</div>
+                  </div>
+                  {row.hasUnread ? <span className="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">New</span> : null}
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
+            {(barMessageActiveConversationMessages || []).length === 0 ? (
+              <div className="text-sm text-slate-500">Select a conversation.</div>
+            ) : (
+              <>
+                <div className="mb-3 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                  Chatting with: {activeLabel}
+                </div>
+                <div className="max-h-64 space-y-3 overflow-y-auto">
+                  {(barMessageActiveConversationMessages || []).map((message) => (
+                    <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderId === currentUser?.id ? "ml-auto bg-rose-600 text-white" : "bg-slate-100 text-slate-700"}`}>
+                      {message.body}
+                      {message.senderId !== currentUser?.id && String(message.senderRole || "").toLowerCase() === "bar" ? (
+                        <div className="mt-2">
+                          {reportedOpenMessageIds.has(message.id) ? (
+                            <div className="text-[11px] font-semibold text-amber-700">{tx("alreadyReportedMessage")}</div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMessageReportOpenById((prev) => ({ ...prev, [message.id]: !prev[message.id] }));
+                                setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+                                if (!messageReportReasonById[message.id]) {
+                                  setMessageReportReasonById((prev) => ({ ...prev, [message.id]: "off_platform_contact" }));
+                                }
+                              }}
+                              className="text-[11px] font-semibold text-rose-700"
+                            >
+                              {tx("reportMessage")}
+                            </button>
+                          )}
+                          {messageReportOpenById[message.id] && !reportedOpenMessageIds.has(message.id) ? (
+                            <div className="mt-2 space-y-2 rounded-xl border border-rose-200 bg-white p-3">
+                              <div className="text-[11px] font-semibold text-slate-600">{tx("reportReasonLabel")}</div>
+                              <select
+                                value={messageReportReasonById[message.id] || "off_platform_contact"}
+                                onChange={(event) => {
+                                  const nextReason = event.target.value;
+                                  setMessageReportReasonById((prev) => ({ ...prev, [message.id]: nextReason }));
+                                  setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+                                }}
+                                className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs"
+                              >
+                                {messageReportReasonOptions.map((entry) => (
+                                  <option key={entry.value} value={entry.value}>{entry.label}</option>
+                                ))}
+                              </select>
+                              <textarea
+                                value={messageReportDetailsById[message.id] || ""}
+                                onChange={(event) => {
+                                  setMessageReportDetailsById((prev) => ({ ...prev, [message.id]: event.target.value }));
+                                  setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+                                }}
+                                className="min-h-[72px] w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs"
+                                placeholder={tx("reportDetailsOptional")}
+                              />
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => submitMessageReport(message)}
+                                  disabled={reportingDirectMessageId === message.id}
+                                  className={`rounded-lg border border-rose-200 px-2 py-1 text-[11px] font-semibold text-rose-700 ${reportingDirectMessageId === message.id ? "cursor-not-allowed opacity-60" : ""}`}
+                                >
+                                  {reportingDirectMessageId === message.id ? tx("reportingMessage") : tx("submitReport")}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMessageReportOpenById((prev) => ({ ...prev, [message.id]: false }));
+                                    setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+                                  }}
+                                  className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] font-semibold text-slate-600"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                              {messageReportErrorById[message.id] ? (
+                                <div className="text-[11px] font-semibold text-rose-700">{messageReportErrorById[message.id]}</div>
+                              ) : null}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <textarea value={barReplyDraft} onChange={(event) => setBarReplyDraft(event.target.value)} className="min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm sm:flex-1" placeholder="Write your message" />
+                  <button onClick={sendBarConversationMessage} className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto sm:self-end">Send</button>
+                </div>
+                {barConversationMessageError ? <div className="mt-2 text-sm font-medium text-rose-700">{barConversationMessageError}</div> : null}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function SellerFeedPage({
   sellerPosts,
+  barPosts,
+  sellers,
+  bars,
   sellerMap,
+  barMap,
   postReports,
   commentReports,
   sellerPostLikes,
   sellerPostComments,
   sellerFollows,
+  barFollows,
   sellerFollowerCountById,
   sellerSavedPosts,
   currentUser,
@@ -3238,6 +3503,7 @@ export function SellerFeedPage({
   addSellerPostComment,
   deleteSellerPostComment,
   toggleSellerFollow,
+  toggleBarFollow,
   toggleSavedSellerPost,
   sellerLanguage,
   canViewSellerPost,
@@ -3302,6 +3568,15 @@ export function SellerFeedPage({
       ),
     [sellerFollows, currentUser]
   );
+  const followedBarIds = useMemo(
+    () =>
+      new Set(
+        (barFollows || [])
+          .filter((entry) => entry.followerUserId === currentUser?.id)
+          .map((entry) => entry.barId)
+      ),
+    [barFollows, currentUser]
+  );
   const savedPostIds = useMemo(
     () =>
       new Set(
@@ -3312,42 +3587,102 @@ export function SellerFeedPage({
     [sellerSavedPosts, currentUser]
   );
   const savedCount = savedPostIds.size;
+  const affiliatedSellerIds = useMemo(
+    () =>
+      new Set(
+        (currentUser?.role === "bar"
+          ? (sellers || [])
+            .filter((seller) => String(seller?.affiliatedBarId || "").trim() === String(currentUser?.barId || "").trim())
+            .map((seller) => seller.id)
+          : [])
+      ),
+    [sellers, currentUser]
+  );
+  const affiliatedBarIdsForFollowedSellers = useMemo(() => {
+    if (currentUser?.role !== "buyer") return new Set();
+    return new Set(
+      (sellers || [])
+        .filter((seller) => followedSellerIds.has(seller.id))
+        .map((seller) => String(seller?.affiliatedBarId || "").trim())
+        .filter(Boolean)
+    );
+  }, [currentUser, sellers, followedSellerIds]);
+  const relationshipFeedModeKey = currentUser?.role === "bar" ? "affiliates" : "following";
+  const isBarUser = currentUser?.role === "bar";
+  const isBuyerUser = currentUser?.role === "buyer";
+  const barById = barMap || Object.fromEntries((bars || []).map((bar) => [bar.id, bar]));
+  const sellerFeedItems = useMemo(
+    () => (sellerPosts || []).map((post) => ({ ...post, feedType: "seller" })),
+    [sellerPosts]
+  );
+  const barFeedItems = useMemo(
+    () => (barPosts || []).map((post) => ({ ...post, feedType: "bar" })),
+    [barPosts]
+  );
+  const allFeedItems = useMemo(
+    () => [...sellerFeedItems, ...barFeedItems],
+    [sellerFeedItems, barFeedItems]
+  );
 
   const feedPosts = useMemo(
     () => {
       const basePosts =
         feedMode === "following"
-          ? sellerPosts.filter((post) => followedSellerIds.has(post.sellerId))
-          : feedMode === "saved"
-            ? sellerPosts.filter((post) => savedPostIds.has(post.id))
-            : sellerPosts;
+          ? allFeedItems.filter((post) =>
+              post.feedType === "seller"
+                ? followedSellerIds.has(post.sellerId)
+                : affiliatedBarIdsForFollowedSellers.has(post.barId)
+            )
+          : feedMode === "affiliates"
+            ? allFeedItems.filter((post) =>
+                post.feedType === "seller"
+                  ? affiliatedSellerIds.has(post.sellerId)
+                  : String(post.barId || "").trim() === String(currentUser?.barId || "").trim()
+              )
+            : feedMode === "bars"
+              ? allFeedItems.filter((post) => post.feedType === "bar")
+              : feedMode === "favorite-bars"
+                ? allFeedItems.filter((post) => post.feedType === "bar" && followedBarIds.has(post.barId))
+                : feedMode === "saved"
+                  ? allFeedItems.filter((post) => post.feedType === "seller" && savedPostIds.has(post.id))
+                  : allFeedItems;
       const ranked = [...basePosts];
       if (sortMode === "engaged") {
         ranked.sort((a, b) => {
-          const aLikes = (sellerPostLikes || []).filter((entry) => entry.postId === a.id).length;
-          const bLikes = (sellerPostLikes || []).filter((entry) => entry.postId === b.id).length;
-          const aComments = (sellerPostComments || []).filter((entry) => entry.postId === a.id).length;
-          const bComments = (sellerPostComments || []).filter((entry) => entry.postId === b.id).length;
-          const aScore = aLikes + (aComments * 2);
-          const bScore = bLikes + (bComments * 2);
+          const scoreFor = (post) => {
+            if (post.feedType !== "seller") return 0;
+            const likes = (sellerPostLikes || []).filter((entry) => entry.postId === post.id).length;
+            const comments = (sellerPostComments || []).filter((entry) => entry.postId === post.id).length;
+            return likes + (comments * 2);
+          };
+          const bScore = scoreFor(b);
+          const aScore = scoreFor(a);
           if (bScore !== aScore) return bScore - aScore;
           return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
         });
+      } else {
+        ranked.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       }
       return ranked;
     },
-    [sellerPosts, feedMode, sortMode, followedSellerIds, savedPostIds, sellerPostLikes, sellerPostComments]
+    [allFeedItems, feedMode, sortMode, followedSellerIds, affiliatedBarIdsForFollowedSellers, affiliatedSellerIds, currentUser, followedBarIds, savedPostIds, sellerPostLikes, sellerPostComments]
   );
   const searchedFeedPosts = useMemo(() => {
     const query = feedSearch.trim().toLowerCase();
     if (!query) return feedPosts;
     return feedPosts.filter((post) => {
+      if (post.feedType === "bar") {
+        const barName = (barById?.[post.barId]?.name || "").toLowerCase();
+        const caption = (post.caption || "").toLowerCase();
+        const barId = (post.barId || "").toLowerCase();
+        return barName.includes(query) || caption.includes(query) || barId.includes(query);
+      }
       const sellerName = (sellerMap?.[post.sellerId]?.name || "").toLowerCase();
       const caption = (post.caption || "").toLowerCase();
       const sellerId = (post.sellerId || "").toLowerCase();
       return sellerName.includes(query) || caption.includes(query) || sellerId.includes(query);
     });
-  }, [feedPosts, feedSearch, sellerMap]);
+  }, [feedPosts, feedSearch, sellerMap, barById]);
   const visiblePosts = searchedFeedPosts.slice(0, visibleCount);
 
   return (
@@ -3364,7 +3699,7 @@ export function SellerFeedPage({
             {t("customRequestsTab")}
           </button>
           <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
-            {t("feedEyebrow")}
+            {t("watchFeeds")}
           </button>
         </div>
       ) : null}
@@ -3373,8 +3708,11 @@ export function SellerFeedPage({
           <button type="button" onClick={() => navigate("/bar-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
             {t("quickProfile")}
           </button>
+          <button type="button" onClick={() => navigate("/bar-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            Bar Feed
+          </button>
           <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
-            {t("feedEyebrow")}
+            {t("watchFeeds")}
           </button>
         </div>
       ) : null}
@@ -3395,13 +3733,35 @@ export function SellerFeedPage({
         </button>
         <button
           onClick={() => {
-            setFeedMode("following");
+            setFeedMode(relationshipFeedModeKey);
             setVisibleCount(9);
           }}
-          className={`rounded-xl px-3 py-2 text-xs font-semibold ${feedMode === "following" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
+          className={`rounded-xl px-3 py-2 text-xs font-semibold ${feedMode === relationshipFeedModeKey ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
         >
-          {t("followingPosts")}
+          {currentUser?.role === "bar" ? t("affiliatesPosts") : t("followingPosts")}
         </button>
+        {(isBuyerUser || isBarUser) ? (
+          <button
+            onClick={() => {
+              setFeedMode("bars");
+              setVisibleCount(9);
+            }}
+            className={`rounded-xl px-3 py-2 text-xs font-semibold ${feedMode === "bars" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
+          >
+            {t("barsPosts")}
+          </button>
+        ) : null}
+        {isBuyerUser ? (
+          <button
+            onClick={() => {
+              setFeedMode("favorite-bars");
+              setVisibleCount(9);
+            }}
+            className={`rounded-xl px-3 py-2 text-xs font-semibold ${feedMode === "favorite-bars" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
+          >
+            {t("favoriteBarsPosts")}
+          </button>
+        ) : null}
         <button
           onClick={() => {
             setFeedMode("saved");
@@ -3459,191 +3819,228 @@ export function SellerFeedPage({
               ? t("noSearchResults")
               : feedMode === "following"
                 ? t("noFollowingPosts")
+                : feedMode === "affiliates"
+                  ? t("noAffiliatesPosts")
+                : feedMode === "bars"
+                  ? t("noBarsPosts")
+                : feedMode === "favorite-bars"
+                  ? t("noFavoriteBarsPosts")
                 : feedMode === "saved"
                   ? t("noSavedPosts")
                   : t("noFeedPosts")}
           </div>
-        ) : visiblePosts.map((post) => (
-          <article key={post.id} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
-                  {sellerMap[post.sellerId]?.name || post.sellerId}
-                </button>
-                {currentUser?.role === "buyer" ? (
-                  <button
-                    onClick={() => toggleSellerFollow(post.sellerId)}
-                    className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${followedSellerIds.has(post.sellerId) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
-                  >
-                    {followedSellerIds.has(post.sellerId) ? t("following") : t("follow")}
+        ) : visiblePosts.map((post) => {
+          if (post.feedType === "bar") {
+            const bar = barById?.[post.barId];
+            const isFollowingBar = followedBarIds.has(post.barId);
+            return (
+              <article key={post.id} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
+                <div className="flex items-center justify-between gap-2">
+                  <button onClick={() => navigate(`/bar/${post.barId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
+                    {bar?.name || post.barId}
                   </button>
-                ) : null}
-                {currentUser ? (
-                  <button
-                    onClick={() => toggleSavedSellerPost(post.id)}
-                    className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${savedPostIds.has(post.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
-                  >
-                    {savedPostIds.has(post.id) ? t("saved") : t("savePost")}
-                  </button>
-                ) : null}
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                  {sellerFollowerCountById?.[post.sellerId] || 0} {t("followers")}
-                </span>
-              </div>
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${sellerMap[post.sellerId]?.isOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
-                {sellerMap[post.sellerId]?.isOnline ? t("online") : t("offline")}
-              </span>
-            </div>
-            <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-            <div className="mt-3 h-72">
-              <button
-                onClick={() => {
-                  if (!canViewSellerPost(post) && isSellerPostPrivate(post) && !currentUser) {
-                    navigate("/login");
-                    return;
-                  }
-                  if (!canViewSellerPost(post) && isSellerPostPrivate(post) && currentUser) {
-                    unlockPrivatePost(post.id);
-                  }
-                }}
-                className="relative block h-full w-full text-left"
-              >
-                <div className={canViewSellerPost(post) ? "" : "blur-sm"}>
+                  {currentUser?.role === "buyer" || currentUser?.role === "bar" ? (
+                    <button
+                      onClick={() => toggleBarFollow(post.barId)}
+                      className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${isFollowingBar ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
+                    >
+                      {isFollowingBar ? t("followingBar") : t("followBar")}
+                    </button>
+                  ) : null}
+                </div>
+                <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                <div className="mt-3 h-72">
                   <ProductImage src={post.image} label={post.imageName || t("feedImage")} />
                 </div>
-                {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
-                      Unlock for {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                {post.caption ? <p className="mt-3 text-sm leading-6 text-slate-700">{post.caption}</p> : null}
+                <div className="mt-3 text-xs text-slate-500">
+                  {bar?.location || ""}
+                </div>
+              </article>
+            );
+          }
+          return (
+            <article key={post.id} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
+                    {sellerMap[post.sellerId]?.name || post.sellerId}
+                  </button>
+                  {currentUser?.role === "buyer" ? (
+                    <button
+                      onClick={() => toggleSellerFollow(post.sellerId)}
+                      className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${followedSellerIds.has(post.sellerId) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
+                    >
+                      {followedSellerIds.has(post.sellerId) ? t("following") : t("follow")}
+                    </button>
+                  ) : null}
+                  {currentUser ? (
+                    <button
+                      onClick={() => toggleSavedSellerPost(post.id)}
+                      className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${savedPostIds.has(post.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
+                    >
+                      {savedPostIds.has(post.id) ? t("saved") : t("savePost")}
+                    </button>
+                  ) : null}
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                    {sellerFollowerCountById?.[post.sellerId] || 0} {t("followers")}
+                  </span>
+                </div>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${sellerMap[post.sellerId]?.isOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
+                  {sellerMap[post.sellerId]?.isOnline ? t("online") : t("offline")}
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+              <div className="mt-3 h-72">
+                <button
+                  onClick={() => {
+                    if (!canViewSellerPost(post) && isSellerPostPrivate(post) && !currentUser) {
+                      navigate("/login");
+                      return;
+                    }
+                    if (!canViewSellerPost(post) && isSellerPostPrivate(post) && currentUser) {
+                      unlockPrivatePost(post.id);
+                    }
+                  }}
+                  className="relative block h-full w-full text-left"
+                >
+                  <div className={canViewSellerPost(post) ? "" : "blur-sm"}>
+                    <ProductImage src={post.image} label={post.imageName || t("feedImage")} />
+                  </div>
+                  {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
+                        Unlock for {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                      </button>
+                    </div>
+                  ) : null}
+                </button>
+              </div>
+              {canViewSellerPost(post) ? (post.caption ? <p className="mt-3 text-sm leading-6 text-slate-700">{post.caption}</p> : null) : <p className="mt-3 text-sm text-slate-500">Private post. Unlock to view.</p>}
+              {canViewSellerPost(post) ? (
+                <div className="mt-3 rounded-2xl bg-slate-50 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <button
+                      onClick={() => toggleSellerPostLike(post.id)}
+                      className={`rounded-xl border px-3 py-1 text-xs font-semibold ${((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                    >
+                      {((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? t("unlike") : t("like")} · {(likesByPostId[post.id] || []).length}
+                    </button>
+                    <div className="text-xs text-slate-500">
+                      {(commentsByPostId[post.id] || []).length} {t("comments")}
+                    </div>
+                  </div>
+                  <div className="mt-2 max-h-28 space-y-1 overflow-y-auto">
+                    {(commentsByPostId[post.id] || []).length === 0 ? (
+                      <div className="text-xs text-slate-500">{t("noCommentsYet")}</div>
+                    ) : (commentsByPostId[post.id] || []).map((comment) => (
+                      <div key={comment.id} className="rounded-lg bg-white px-2 py-1 text-xs text-slate-700 ring-1 ring-rose-100">
+                        <div className="flex items-center justify-between gap-2">
+                          <span><span className="font-semibold text-slate-600">{comment.senderRole}</span>: {comment.body}</span>
+                          <div className="flex items-center gap-1">
+                            {unresolvedCommentReportCounts[comment.id] ? (
+                              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                                {unresolvedCommentReportCounts[comment.id]} report(s)
+                              </span>
+                            ) : null}
+                            {currentUser && currentUser.role !== "admin" && currentUser.id !== comment.senderUserId ? (
+                              <button
+                                onClick={() => {
+                                  if (typeof window === "undefined") return;
+                                  const reason = window.prompt("Why are you reporting this comment?", "Inappropriate comment");
+                                  if (!reason || !reason.trim()) return;
+                                  reportSellerPostComment(comment.id, reason.trim());
+                                }}
+                                disabled={reportingSellerPostCommentId === comment.id}
+                                className={`rounded-lg border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ${reportingSellerPostCommentId === comment.id ? "cursor-not-allowed opacity-60" : ""}`}
+                              >
+                                {reportingSellerPostCommentId === comment.id ? "Reporting..." : "Report"}
+                              </button>
+                            ) : null}
+                            {currentUser && (currentUser.role === "admin" || currentUser.id === comment.senderUserId) ? (
+                              <button
+                                onClick={() => deleteSellerPostComment(comment.id)}
+                                className="rounded-lg border border-rose-200 px-2 py-0.5 text-[10px] font-semibold text-rose-700"
+                              >
+                                {t("deleteComment")}
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {currentUser ? (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        value={commentDraftByPostId[post.id] || ""}
+                        onChange={(event) => setCommentDraftByPostId((prev) => ({ ...prev, [post.id]: event.target.value }))}
+                        className="flex-1 rounded-xl border border-slate-200 px-2 py-1 text-xs"
+                        maxLength={400}
+                        placeholder={t("writeComment")}
+                      />
+                      <button
+                        onClick={() => {
+                          const posted = addSellerPostComment(post.id, commentDraftByPostId[post.id] || "");
+                          if (posted) {
+                            setCommentDraftByPostId((prev) => ({ ...prev, [post.id]: "" }));
+                          }
+                        }}
+                        disabled={!(commentDraftByPostId[post.id] || "").trim()}
+                        className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${!(commentDraftByPostId[post.id] || "").trim() ? "cursor-not-allowed opacity-60" : ""}`}
+                      >
+                        {t("postComment")} ({formatPriceTHB(MESSAGE_FEE_THB)})
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-[11px] text-slate-500">{t("loginToEngage")}</div>
+                  )}
+                  {currentUser ? <div className="mt-1 text-[11px] text-slate-500">{t("commentLimit")}: {(commentDraftByPostId[post.id] || "").length}/400</div> : null}
+                </div>
+              ) : null}
+              <div className="mt-3 flex items-center justify-between gap-3">
+                {unresolvedReportCounts[post.id] ? (
+                  <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700">
+                    {unresolvedReportCounts[post.id]} {t("reportCount")}
+                  </span>
+                ) : <span />}
+                {currentUser ? (
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <select
+                      value={reportReasonByPostId[post.id] || REPORT_REASON_OPTIONS[0].value}
+                      onChange={(event) => setReportReasonByPostId((prev) => ({ ...prev, [post.id]: event.target.value }))}
+                      className="rounded-xl border border-slate-200 px-2 py-1 text-xs"
+                    >
+                      {REPORT_REASON_OPTIONS.map((reason) => <option key={reason.value} value={reason.value}>{reason.label}</option>)}
+                    </select>
+                    {(reportReasonByPostId[post.id] || REPORT_REASON_OPTIONS[0].value) === "other" ? (
+                      <input
+                        value={customReasonByPostId[post.id] || ""}
+                        onChange={(event) => setCustomReasonByPostId((prev) => ({ ...prev, [post.id]: event.target.value }))}
+                        className="rounded-xl border border-slate-200 px-2 py-1 text-xs"
+                        placeholder={t("customReason")}
+                      />
+                    ) : null}
+                    <button
+                      onClick={() => {
+                        const selectedReason = reportReasonByPostId[post.id] || REPORT_REASON_OPTIONS[0].value;
+                        const reasonLabel = REPORT_REASON_OPTIONS.find((option) => option.value === selectedReason)?.label || selectedReason;
+                        const finalReason = selectedReason === "other"
+                          ? (customReasonByPostId[post.id] || "").trim()
+                          : reasonLabel;
+                        reportSellerPost(post.id, finalReason);
+                      }}
+                      disabled={reportingSellerPostId === post.id}
+                      className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${reportingSellerPostId === post.id ? "cursor-not-allowed opacity-60" : ""}`}
+                    >
+                      {reportingSellerPostId === post.id ? t("reporting") : t("report")}
                     </button>
                   </div>
                 ) : null}
-              </button>
-            </div>
-            {canViewSellerPost(post) ? (post.caption ? <p className="mt-3 text-sm leading-6 text-slate-700">{post.caption}</p> : null) : <p className="mt-3 text-sm text-slate-500">Private post. Unlock to view.</p>}
-            {canViewSellerPost(post) ? (
-              <div className="mt-3 rounded-2xl bg-slate-50 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <button
-                    onClick={() => toggleSellerPostLike(post.id)}
-                    className={`rounded-xl border px-3 py-1 text-xs font-semibold ${((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
-                  >
-                    {((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? t("unlike") : t("like")} · {(likesByPostId[post.id] || []).length}
-                  </button>
-                  <div className="text-xs text-slate-500">
-                    {(commentsByPostId[post.id] || []).length} {t("comments")}
-                  </div>
-                </div>
-                <div className="mt-2 max-h-28 space-y-1 overflow-y-auto">
-                  {(commentsByPostId[post.id] || []).length === 0 ? (
-                    <div className="text-xs text-slate-500">{t("noCommentsYet")}</div>
-                  ) : (commentsByPostId[post.id] || []).map((comment) => (
-                    <div key={comment.id} className="rounded-lg bg-white px-2 py-1 text-xs text-slate-700 ring-1 ring-rose-100">
-                      <div className="flex items-center justify-between gap-2">
-                        <span><span className="font-semibold text-slate-600">{comment.senderRole}</span>: {comment.body}</span>
-                        <div className="flex items-center gap-1">
-                          {unresolvedCommentReportCounts[comment.id] ? (
-                            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                              {unresolvedCommentReportCounts[comment.id]} report(s)
-                            </span>
-                          ) : null}
-                          {currentUser && currentUser.role !== "admin" && currentUser.id !== comment.senderUserId ? (
-                            <button
-                              onClick={() => {
-                                if (typeof window === "undefined") return;
-                                const reason = window.prompt("Why are you reporting this comment?", "Inappropriate comment");
-                                if (!reason || !reason.trim()) return;
-                                reportSellerPostComment(comment.id, reason.trim());
-                              }}
-                              disabled={reportingSellerPostCommentId === comment.id}
-                              className={`rounded-lg border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ${reportingSellerPostCommentId === comment.id ? "cursor-not-allowed opacity-60" : ""}`}
-                            >
-                              {reportingSellerPostCommentId === comment.id ? "Reporting..." : "Report"}
-                            </button>
-                          ) : null}
-                          {currentUser && (currentUser.role === "admin" || currentUser.id === comment.senderUserId) ? (
-                            <button
-                              onClick={() => deleteSellerPostComment(comment.id)}
-                              className="rounded-lg border border-rose-200 px-2 py-0.5 text-[10px] font-semibold text-rose-700"
-                            >
-                              {t("deleteComment")}
-                            </button>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {currentUser ? (
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      value={commentDraftByPostId[post.id] || ""}
-                      onChange={(event) => setCommentDraftByPostId((prev) => ({ ...prev, [post.id]: event.target.value }))}
-                      className="flex-1 rounded-xl border border-slate-200 px-2 py-1 text-xs"
-                      maxLength={400}
-                      placeholder={t("writeComment")}
-                    />
-                    <button
-                      onClick={() => {
-                        const posted = addSellerPostComment(post.id, commentDraftByPostId[post.id] || "");
-                        if (posted) {
-                          setCommentDraftByPostId((prev) => ({ ...prev, [post.id]: "" }));
-                        }
-                      }}
-                      disabled={!(commentDraftByPostId[post.id] || "").trim()}
-                      className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${!(commentDraftByPostId[post.id] || "").trim() ? "cursor-not-allowed opacity-60" : ""}`}
-                    >
-                      {t("postComment")} ({formatPriceTHB(MESSAGE_FEE_THB)})
-                    </button>
-                  </div>
-                ) : (
-                  <div className="mt-2 text-[11px] text-slate-500">{t("loginToEngage")}</div>
-                )}
-                {currentUser ? <div className="mt-1 text-[11px] text-slate-500">{t("commentLimit")}: {(commentDraftByPostId[post.id] || "").length}/400</div> : null}
               </div>
-            ) : null}
-            <div className="mt-3 flex items-center justify-between gap-3">
-              {unresolvedReportCounts[post.id] ? (
-                <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700">
-                  {unresolvedReportCounts[post.id]} {t("reportCount")}
-                </span>
-              ) : <span />}
-              {currentUser ? (
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <select
-                    value={reportReasonByPostId[post.id] || REPORT_REASON_OPTIONS[0].value}
-                    onChange={(event) => setReportReasonByPostId((prev) => ({ ...prev, [post.id]: event.target.value }))}
-                    className="rounded-xl border border-slate-200 px-2 py-1 text-xs"
-                  >
-                    {REPORT_REASON_OPTIONS.map((reason) => <option key={reason.value} value={reason.value}>{reason.label}</option>)}
-                  </select>
-                  {(reportReasonByPostId[post.id] || REPORT_REASON_OPTIONS[0].value) === "other" ? (
-                    <input
-                      value={customReasonByPostId[post.id] || ""}
-                      onChange={(event) => setCustomReasonByPostId((prev) => ({ ...prev, [post.id]: event.target.value }))}
-                      className="rounded-xl border border-slate-200 px-2 py-1 text-xs"
-                      placeholder={t("customReason")}
-                    />
-                  ) : null}
-                  <button
-                    onClick={() => {
-                      const selectedReason = reportReasonByPostId[post.id] || REPORT_REASON_OPTIONS[0].value;
-                      const reasonLabel = REPORT_REASON_OPTIONS.find((option) => option.value === selectedReason)?.label || selectedReason;
-                      const finalReason = selectedReason === "other"
-                        ? (customReasonByPostId[post.id] || "").trim()
-                        : reasonLabel;
-                      reportSellerPost(post.id, finalReason);
-                    }}
-                    disabled={reportingSellerPostId === post.id}
-                    className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${reportingSellerPostId === post.id ? "cursor-not-allowed opacity-60" : ""}`}
-                  >
-                    {reportingSellerPostId === post.id ? t("reporting") : t("report")}
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
       {searchedFeedPosts.length > visibleCount ? (
         <div className="mt-6 flex justify-center">
@@ -7324,9 +7721,12 @@ export function AccountPage({
   customRequestMessagesByRequestId,
   products,
   sellerMap,
+  barMap,
   buyerConversations,
   sellerFollows,
+  barFollows,
   toggleSellerFollow,
+  toggleBarFollow,
   accountForm,
   updateAccountField,
   saveAccountDetails,
@@ -7485,6 +7885,23 @@ export function AccountPage({
     });
     return list;
   }, [sellerFollows, currentUser, sellerMap]);
+  const favoriteBars = useMemo(() => {
+    if (currentUser?.role !== "buyer") return [];
+    const rows = (barFollows || [])
+      .filter((entry) => entry.followerUserId === currentUser.id)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    const seenBarIds = new Set();
+    const list = [];
+    rows.forEach((entry) => {
+      const barId = String(entry?.barId || "");
+      if (!barId || seenBarIds.has(barId)) return;
+      seenBarIds.add(barId);
+      const bar = barMap?.[barId];
+      if (!bar) return;
+      list.push({ ...bar, followedAt: entry.createdAt || "" });
+    });
+    return list;
+  }, [barFollows, currentUser, barMap]);
   const scrollToSection = (sectionId) => {
     if (typeof document === "undefined") return;
     const node = document.getElementById(sectionId);
@@ -7662,6 +8079,7 @@ export function AccountPage({
                 <>
                   <button onClick={() => navigate("/buyer-messages")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
                   <button onClick={() => scrollToSection("buyer-favorites")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.favorites}</button>
+                  <button onClick={() => scrollToSection("buyer-favorite-bars")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.favoriteBars || "Favorite bars"}</button>
                   <button onClick={() => scrollToSection("buyer-wallet")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
                   <button onClick={() => scrollToSection("buyer-orders")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
                   <button onClick={() => navigate("/custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{tx("customRequests")}</button>
@@ -7821,6 +8239,20 @@ export function AccountPage({
                   <div className="mt-2 text-3xl font-bold">{buyerOrders.filter((order) => order.fulfillmentStatus !== "processing").length}</div>
                 </div>
               </div>
+              {currentUser.role === "buyer" ? (
+                <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                  <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
+                    <Bookmark className="h-6 w-6 text-rose-600" />
+                    <div className="mt-4 text-sm text-slate-500">{accountText.favoriteSellers}</div>
+                    <div className="mt-2 text-3xl font-bold">{favoriteSellers.length}</div>
+                  </div>
+                  <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
+                    <MapPin className="h-6 w-6 text-rose-600" />
+                    <div className="mt-4 text-sm text-slate-500">{accountText.favoriteBars || "Favorite bars"}</div>
+                    <div className="mt-2 text-3xl font-bold">{favoriteBars.length}</div>
+                  </div>
+                </div>
+              ) : null}
 
               <div id="buyer-wallet" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <div className="flex items-center gap-2">
@@ -8012,6 +8444,38 @@ export function AccountPage({
                         </div>
                       </div>
                     ))}
+                  </div>
+                  <div id="buyer-favorite-bars" className="mt-6 border-t border-rose-100 pt-5">
+                    <div className="flex items-center gap-2">
+                      <Bookmark className="h-5 w-5 text-rose-600" />
+                      <h3 className="text-xl font-semibold">{accountText.favoriteBars || "Favorite bars"}</h3>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{tx("favoriteBarsHelp")}</p>
+                    <div className="mt-4 space-y-3">
+                      {favoriteBars.length === 0 ? (
+                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("noFavoriteBars")}</div>
+                      ) : favoriteBars.slice(0, 8).map((bar) => (
+                        <div key={bar.id} className="rounded-2xl border border-rose-100 p-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <button onClick={() => navigate(`/bar/${bar.id}`)} className="text-left text-sm font-semibold text-slate-800 hover:text-rose-700">{bar.name}</button>
+                              <div className="text-xs text-slate-500">{bar.location || tx("locationNotSet")}</div>
+                            </div>
+                            <div className="text-[11px] text-slate-500">{bar.followedAt ? `${tx("savedOn")} ${new Date(bar.followedAt).toLocaleDateString()}` : ""}</div>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button onClick={() => navigate(`/bar/${bar.id}`)} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">{tx("view")}</button>
+                            <button onClick={() => navigate("/seller-feed")} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">Open feed</button>
+                            <button
+                              onClick={() => toggleBarFollow(bar.id)}
+                              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
+                            >
+                              {tx("remove")}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ) : null}

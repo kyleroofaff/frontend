@@ -1,14 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Armchair,
+  Beer,
   CheckCircle2,
+  CircleDot,
+  Clock3,
   ChevronDown,
   ChevronLeft,
+  Mic2,
+  Music2,
+  Sparkles,
   LogIn,
   LogOut,
   Menu,
   Search,
   ShoppingBag,
   Store,
+  Target,
+  Trees,
+  Tv,
+  UtensilsCrossed,
   UserCog
 } from 'lucide-react';
 import { BarQrCard, PageShell, ProductImage, SectionTitle, SellerQrCard } from './components/site/SitePrimitives.jsx';
@@ -32,7 +43,7 @@ import {
   TermsPage,
   WorldwideShippingPage,
 } from './pages/StaticPages.jsx';
-import { AccountPage, AdminPage, AppealsPage, BuyerMessagesPage, CheckoutPage, SellerDashboardPage, SellerFeedPage, SellerFeedWorkspacePage, SellerMessagesPage } from './pages/DashboardPages.jsx';
+import { AccountPage, AdminPage, AppealsPage, BarMessagesPage, BuyerMessagesPage, CheckoutPage, SellerDashboardPage, SellerFeedPage, SellerFeedWorkspacePage, SellerMessagesPage } from './pages/DashboardPages.jsx';
 import {
   COLOR_OPTIONS,
   CONDITION_OPTIONS,
@@ -75,11 +86,12 @@ const BAR_DASHBOARD_I18N = {
     mapEmbedPlaceholder: 'Map embed URL (Google Maps embed)',
     mapLinkPlaceholder: 'Map link URL',
     saveProfile: 'Save bar profile',
-    feedTitle: 'Bar photo feed',
+    feedTitle: 'Bar Feed',
     feedSubtitle: 'Use this like the live feed: post photos, updates, and specials from your venue.',
     feedPlaceholder: "Share tonight's vibe, specials, or event updates...",
     preview: 'Bar post preview',
     postButton: 'Post to bar feed',
+    watchFeeds: 'Watch Feeds',
     posting: 'Posting...',
     noPosts: 'No bar posts yet. Create your first post above.',
     noCaption: 'No caption added.',
@@ -103,6 +115,11 @@ const BAR_DASHBOARD_I18N = {
     affiliationNotificationsTitle: 'Affiliation notifications',
     affiliationNotificationsSubtitle: 'Recent updates for add/remove and approval activity.',
     noAffiliationNotifications: 'No affiliation notifications yet.',
+    quickPicksTitle: 'Quick picks',
+    quickPicksHelp: 'Select what your bar offers, then apply to specials.',
+    applyToSpecials: 'Apply to specials',
+    clearPicks: 'Clear picks',
+    highlightsPrefix: 'Highlights',
   },
   th: {
     title: 'จัดการโปรไฟล์บาร์ของคุณ',
@@ -121,6 +138,7 @@ const BAR_DASHBOARD_I18N = {
     feedPlaceholder: 'แชร์บรรยากาศคืนนี้ โปรโมชั่น หรืออัปเดตงานอีเวนต์...',
     preview: 'ตัวอย่างโพสต์บาร์',
     postButton: 'โพสต์ลงฟีดบาร์',
+    watchFeeds: 'ดูฟีด',
     posting: 'กำลังโพสต์...',
     noPosts: 'ยังไม่มีโพสต์บาร์ สร้างโพสต์แรกของคุณได้ด้านบน',
     noCaption: 'ยังไม่มีคำบรรยาย',
@@ -144,6 +162,11 @@ const BAR_DASHBOARD_I18N = {
     affiliationNotificationsTitle: 'การแจ้งเตือนการสังกัด',
     affiliationNotificationsSubtitle: 'อัปเดตล่าสุดเกี่ยวกับการเพิ่ม/ลบและการอนุมัติ',
     noAffiliationNotifications: 'ยังไม่มีการแจ้งเตือนการสังกัด',
+    quickPicksTitle: 'ตัวเลือกด่วน',
+    quickPicksHelp: 'เลือกสิ่งที่บาร์ของคุณมี แล้วเพิ่มลงในส่วนโปรโมชั่น',
+    applyToSpecials: 'เพิ่มลงในโปรโมชั่น',
+    clearPicks: 'ล้างตัวเลือก',
+    highlightsPrefix: 'ไฮไลต์',
   },
   my: {
     title: 'သင့် bar ပရိုဖိုင်ကို စီမံပါ',
@@ -162,6 +185,7 @@ const BAR_DASHBOARD_I18N = {
     feedPlaceholder: 'ယနေ့ည vibe၊ specials သို့မဟုတ် event updates မျှဝေပါ...',
     preview: 'bar post preview',
     postButton: 'bar feed သို့ တင်မည်',
+    watchFeeds: 'feeds များကြည့်မည်',
     posting: 'တင်နေသည်...',
     noPosts: 'bar posts မရှိသေးပါ။ အပေါ်တွင် ပထမ post တင်ပါ။',
     noCaption: 'caption မရှိပါ',
@@ -185,6 +209,11 @@ const BAR_DASHBOARD_I18N = {
     affiliationNotificationsTitle: 'Affiliation notifications',
     affiliationNotificationsSubtitle: 'add/remove နှင့် approval activity အပ်ဒိတ်များ',
     noAffiliationNotifications: 'Affiliation notification မရှိသေးပါ။',
+    quickPicksTitle: 'အမြန်ရွေးချယ်မှု',
+    quickPicksHelp: 'သင့် bar မှာ ရရှိနိုင်တာတွေကို ရွေးပြီး specials ထဲသို့ ထည့်ပါ။',
+    applyToSpecials: 'specials ထဲ ထည့်မည်',
+    clearPicks: 'ရွေးချယ်မှုရှင်းမည်',
+    highlightsPrefix: 'အထူးအချက်များ',
   },
   ru: {
     title: 'Управляйте профилем бара',
@@ -203,6 +232,7 @@ const BAR_DASHBOARD_I18N = {
     feedPlaceholder: 'Поделитесь атмосферой вечера, акциями или обновлениями событий...',
     preview: 'Предпросмотр поста бара',
     postButton: 'Опубликовать в ленту бара',
+    watchFeeds: 'Смотреть ленты',
     posting: 'Публикация...',
     noPosts: 'Постов бара пока нет. Создайте первый пост выше.',
     noCaption: 'Подпись не добавлена.',
@@ -226,7 +256,104 @@ const BAR_DASHBOARD_I18N = {
     affiliationNotificationsTitle: 'Уведомления о привязках',
     affiliationNotificationsSubtitle: 'Последние обновления по добавлению/удалению и одобрениям.',
     noAffiliationNotifications: 'Пока нет уведомлений о привязках.',
+    quickPicksTitle: 'Быстрые варианты',
+    quickPicksHelp: 'Выберите, что есть в вашем баре, и добавьте в акции.',
+    applyToSpecials: 'Добавить в акции',
+    clearPicks: 'Очистить выбор',
+    highlightsPrefix: 'Особенности',
   },
+};
+
+const BAR_PROFILE_SPECIAL_PRESET_OPTIONS = [
+  { id: 'darts', labels: { en: 'Darts', th: 'ปาเป้า', my: 'ဒတ်စ်', ru: 'Дартс' }, Icon: Target },
+  { id: 'pool', labels: { en: 'Pool table', th: 'โต๊ะพูล', my: 'ဘီလီယက်โต๊ะ', ru: 'Бильярд' }, Icon: CircleDot },
+  { id: 'live-music', labels: { en: 'Live music', th: 'ดนตรีสด', my: 'live music', ru: 'Живая музыка' }, Icon: Music2 },
+  { id: 'dj-nights', labels: { en: 'DJ nights', th: 'ดีเจไนท์', my: 'DJ ည', ru: 'DJ-вечера' }, Icon: Music2 },
+  { id: 'karaoke', labels: { en: 'Karaoke', th: 'คาราโอเกะ', my: 'ကာရာအိုကေ', ru: 'Караоке' }, Icon: Mic2 },
+  { id: 'sports', labels: { en: 'Sports screening', th: 'ถ่ายทอดสดกีฬา', my: 'အားကစားပြသ', ru: 'Спортивные трансляции' }, Icon: Tv },
+  { id: 'drink-specials', labels: { en: 'Drink specials', th: 'โปรเครื่องดื่ม', my: 'အထူးသောက်စရာများ', ru: 'Акции на напитки' }, Icon: Beer },
+  { id: 'happy-hour', labels: { en: 'Happy hour', th: 'แฮปปี้อาวร์', my: 'happy hour', ru: 'Счастливые часы' }, Icon: Clock3 },
+  { id: 'ladies-night', labels: { en: 'Ladies night', th: 'เลดี้ส์ไนท์', my: 'ladies night', ru: 'Женский вечер' }, Icon: Sparkles },
+  { id: 'private-booths', labels: { en: 'Private booths', th: 'บูธส่วนตัว', my: 'သီးသန့် booth များ', ru: 'Приватные кабинки' }, Icon: Armchair },
+  { id: 'outdoor-seating', labels: { en: 'Outdoor seating', th: 'ที่นั่งกลางแจ้ง', my: 'အပြင်ဘက်ထိုင်ခုံ', ru: 'Уличные места' }, Icon: Trees },
+  { id: 'food-menu', labels: { en: 'Food menu', th: 'เมนูอาหาร', my: 'အစားအစာမီနူး', ru: 'Меню еды' }, Icon: UtensilsCrossed },
+];
+
+const BAR_PROFILE_TEXT_PRESET_OPTIONS = {
+  about: [
+    {
+      id: 'safe-welcome',
+      label: { en: 'Safe + welcoming', th: 'ปลอดภัย + เป็นกันเอง', my: 'လုံခြုံ + ကြိုဆိုမှုရှိ', ru: 'Безопасно и дружелюбно' },
+      text: {
+        en: 'Friendly venue focused on safe operations and respectful service.',
+        th: 'สถานที่เป็นกันเอง เน้นการดำเนินงานอย่างปลอดภัยและการบริการที่สุภาพ',
+        my: 'လုံခြုံသောဆောင်ရွက်မှုနှင့် လေးစားမှုရှိသောဝန်ဆောင်မှုကို အလေးထားသော ဖော်ရွေရာနေရာ',
+        ru: 'Дружелюбное заведение с акцентом на безопасность и уважительное обслуживание.',
+      },
+    },
+    {
+      id: 'nightlife-energy',
+      label: { en: 'Nightlife energy', th: 'บรรยากาศไนท์ไลฟ์', my: 'ညဘဝ vibe', ru: 'Ночная атмосфера' },
+      text: {
+        en: 'Lively nightlife atmosphere with music, social seating, and late-night events.',
+        th: 'บรรยากาศไนท์ไลฟ์คึกคัก มีดนตรี ที่นั่งสังสรรค์ และกิจกรรมยามค่ำคืน',
+        my: 'ဂီတ၊ အတူတကွထိုင်နိုင်သောနေရာများနှင့် ညပိုင်း events ပါသော စည်ကားသောညဘဝ vibe',
+        ru: 'Яркая ночная атмосфера с музыкой, удобными зонами и поздними событиями.',
+      },
+    },
+    {
+      id: 'community-driven',
+      label: { en: 'Community driven', th: 'คอมมูนิตี้ชัดเจน', my: 'community အခြေပြု', ru: 'Ориентация на сообщество' },
+      text: {
+        en: 'Community-oriented bar with recurring themed nights and partner promotions.',
+        th: 'บาร์ที่เน้นชุมชน มีกิจกรรมธีมประจำและโปรโมชันร่วมกับพาร์ทเนอร์',
+        my: 'themed nights နှင့် partner promotions များရှိသော community အခြေပြု bar',
+        ru: 'Бар для сообщества: регулярные тематические вечера и партнерские акции.',
+      },
+    },
+  ],
+  specials: [
+    {
+      id: 'happy-hour',
+      label: { en: 'Happy hour', th: 'แฮปปี้อาวร์', my: 'happy hour', ru: 'Счастливые часы' },
+      text: {
+        en: 'Happy hour from 17:00-19:00 on selected cocktails.',
+        th: 'แฮปปี้อาวร์ 17:00-19:00 สำหรับค็อกเทลที่ร่วมรายการ',
+        my: 'ရွေးချယ်ထားသော cocktails များအတွက် 17:00-19:00 happy hour',
+        ru: 'Счастливые часы с 17:00 до 19:00 на выбранные коктейли.',
+      },
+    },
+    {
+      id: 'live-music',
+      label: { en: 'Live music nights', th: 'คืนดนตรีสด', my: 'live music ည', ru: 'Вечера живой музыки' },
+      text: {
+        en: 'Live music nights every weekend with guest performers.',
+        th: 'คืนดนตรีสดทุกสุดสัปดาห์ พร้อมศิลปินรับเชิญ',
+        my: 'တနင်္ဂနွေအပတ်စဉ်တိုင်း guest performers များနှင့် live music ည',
+        ru: 'Вечера живой музыки каждые выходные с приглашенными артистами.',
+      },
+    },
+    {
+      id: 'games-deals',
+      label: { en: 'Darts & pool deals', th: 'โปรดาร์ตและพูล', my: 'darts & pool အစီအစဉ်', ru: 'Акции на дартс и бильярд' },
+      text: {
+        en: 'Darts and pool table promotions available throughout the week.',
+        th: 'มีโปรดาร์ตและโต๊ะพูลตลอดทั้งสัปดาห์',
+        my: 'အပတ်လုံး darts နှင့် pool table promotions ရရှိနိုင်ပါသည်',
+        ru: 'Акции на дартс и бильярд доступны в течение всей недели.',
+      },
+    },
+    {
+      id: 'ladies-night',
+      label: { en: 'Ladies night', th: 'เลดี้ส์ไนท์', my: 'ladies night', ru: 'Женский вечер' },
+      text: {
+        en: 'Ladies night every Thursday with drink specials.',
+        th: 'เลดี้ส์ไนท์ทุกวันพฤหัส พร้อมเครื่องดื่มราคาพิเศษ',
+        my: 'ကြာသပတေးနေ့တိုင်း drink specials နှင့် ladies night',
+        ru: 'Женский вечер каждый четверг со специальными предложениями на напитки.',
+      },
+    },
+  ],
 };
 
 const PUBLIC_SITE_I18N = {
@@ -2113,6 +2240,7 @@ const SEED_DB = {
   sellerPostLikes: [],
   sellerPostComments: [],
   sellerFollows: [],
+  barFollows: [],
   sellerSavedPosts: [],
   orders: [],
   walletTransactions: [
@@ -2681,6 +2809,7 @@ function normalizeDbState(nextDb) {
     sellerPostLikes: Array.isArray(nextDb.sellerPostLikes) ? nextDb.sellerPostLikes : [],
     sellerPostComments: Array.isArray(nextDb.sellerPostComments) ? nextDb.sellerPostComments : [],
     sellerFollows: Array.isArray(nextDb.sellerFollows) ? nextDb.sellerFollows : [],
+    barFollows: Array.isArray(nextDb.barFollows) ? nextDb.barFollows : [],
     sellerSavedPosts: Array.isArray(nextDb.sellerSavedPosts) ? nextDb.sellerSavedPosts : [],
     customRequests: Array.isArray(nextDb.customRequests)
       ? nextDb.customRequests.map((request) => ({
@@ -2860,6 +2989,20 @@ function calculateSellerRevenueSplit(prev, { sellerId, grossAmount }) {
   };
 }
 
+function buildBarConversationId(barId, participantRole, participantUserId) {
+  return `barchat__${String(barId || '').trim()}__${String(participantRole || '').trim()}__${String(participantUserId || '').trim()}`;
+}
+
+function parseBarConversationId(conversationId) {
+  const [prefix, barId, participantRole, participantUserId] = String(conversationId || '').split('__');
+  if (prefix !== 'barchat' || !barId || !participantRole || !participantUserId) return null;
+  return {
+    barId: String(barId || '').trim(),
+    participantRole: String(participantRole || '').trim(),
+    participantUserId: String(participantUserId || '').trim(),
+  };
+}
+
 function normalizeCountryName(countryValue) {
   return String(countryValue || '').trim().toLowerCase();
 }
@@ -2897,7 +3040,9 @@ function parseRoute(pathname) {
   if (pathname === '/seller-dashboard') return { name: 'account' };
   if (pathname === '/seller-messages') return { name: 'seller-messages' };
   if (pathname === '/buyer-messages') return { name: 'buyer-messages' };
+  if (pathname === '/bar-messages') return { name: 'bar-messages' };
   if (pathname === '/seller-feed-workspace') return { name: 'seller-feed-workspace' };
+  if (pathname === '/bar-feed-workspace') return { name: 'bar-feed-workspace' };
   if (pathname === '/bar-dashboard') return { name: 'bar-dashboard' };
   if (pathname === '/seller-feed') return { name: 'seller-feed' };
   if (pathname === '/account') return { name: 'account' };
@@ -3135,6 +3280,9 @@ export default function ThailandPantiesMarketSite() {
   const [showOriginalMarketplaceMessageById, setShowOriginalMarketplaceMessageById] = useState({});
   const [buyerDashboardConversationId, setBuyerDashboardConversationId] = useState('');
   const [buyerDashboardMessageDraft, setBuyerDashboardMessageDraft] = useState('');
+  const [barMessagesConversationId, setBarMessagesConversationId] = useState('');
+  const [barMessagesDraft, setBarMessagesDraft] = useState('');
+  const [barMessagesError, setBarMessagesError] = useState('');
   const [buyerDashboardMessageError, setBuyerDashboardMessageError] = useState('');
   const [buyerMessageSellerSearch, setBuyerMessageSellerSearch] = useState('');
   const [buyerMessageProductFilters, setBuyerMessageProductFilters] = useState({
@@ -3180,13 +3328,13 @@ export default function ThailandPantiesMarketSite() {
     profileImageName: '',
   });
   const [barProfileMessage, setBarProfileMessage] = useState('');
+  const [barSpecialPresetSelections, setBarSpecialPresetSelections] = useState([]);
   const [barPostDraft, setBarPostDraft] = useState({
     caption: '',
     image: '',
     imageName: '',
   });
   const [barInviteSellerId, setBarInviteSellerId] = useState('');
-  const [barDashboardSection, setBarDashboardSection] = useState('profile');
   const [creatingBarPost, setCreatingBarPost] = useState(false);
   const [savingBarProfile, setSavingBarProfile] = useState(false);
   const [deletingBarPostId, setDeletingBarPostId] = useState(null);
@@ -3233,6 +3381,67 @@ export default function ThailandPantiesMarketSite() {
   const [pushConfig, setPushConfig] = useState({ enabled: false, publicKey: '' });
   const [feedNow, setFeedNow] = useState(Date.now());
   const emailDispatchInFlightRef = useRef(false);
+  const PROFILE_MESSAGE_AUTO_DISMISS_MS = 4500;
+
+  useEffect(() => {
+    if (!sellerProfileMessage) return undefined;
+    const timerId = window.setTimeout(() => setSellerProfileMessage(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [sellerProfileMessage]);
+
+  useEffect(() => {
+    if (!barProfileMessage) return undefined;
+    const timerId = window.setTimeout(() => setBarProfileMessage(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [barProfileMessage]);
+
+  useEffect(() => {
+    if (!authError) return undefined;
+    const timerId = window.setTimeout(() => setAuthError(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [authError]);
+
+  useEffect(() => {
+    if (!authSuccess) return undefined;
+    const timerId = window.setTimeout(() => setAuthSuccess(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [authSuccess]);
+
+  useEffect(() => {
+    if (!adminAuthActionMessage) return undefined;
+    const timerId = window.setTimeout(() => setAdminAuthActionMessage(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [adminAuthActionMessage]);
+
+  useEffect(() => {
+    if (!checkoutError) return undefined;
+    const timerId = window.setTimeout(() => setCheckoutError(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [checkoutError]);
+
+  useEffect(() => {
+    if (!sellerCustomRequestMessage) return undefined;
+    const timerId = window.setTimeout(() => setSellerCustomRequestMessage(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [sellerCustomRequestMessage]);
+
+  useEffect(() => {
+    if (!messageError) return undefined;
+    const timerId = window.setTimeout(() => setMessageError(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [messageError]);
+
+  useEffect(() => {
+    if (!buyerDashboardMessageError) return undefined;
+    const timerId = window.setTimeout(() => setBuyerDashboardMessageError(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [buyerDashboardMessageError]);
+
+  useEffect(() => {
+    if (!barMessagesError) return undefined;
+    const timerId = window.setTimeout(() => setBarMessagesError(''), PROFILE_MESSAGE_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timerId);
+  }, [barMessagesError]);
 
   const users = db.users;
   const sellers = db.sellers;
@@ -3273,6 +3482,7 @@ export default function ThailandPantiesMarketSite() {
   const sellerPostLikes = db.sellerPostLikes || [];
   const sellerPostComments = db.sellerPostComments || [];
   const sellerFollows = db.sellerFollows || [];
+  const barFollows = db.barFollows || [];
   const sellerSavedPosts = db.sellerSavedPosts || [];
   const sellerFollowerCountById = useMemo(() => {
     const counts = {};
@@ -3832,6 +4042,60 @@ export default function ThailandPantiesMarketSite() {
       .filter((message) => message.conversationId === buyerDashboardConversationId)
       .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
   }, [messages, buyerDashboardConversationId]);
+  const barMessageHistory = useMemo(() => {
+    if (!currentUser) return [];
+    const rows = (messages || []).filter((message) => {
+      const parsed = parseBarConversationId(message.conversationId);
+      if (!parsed) return false;
+      if (currentUser.role === 'bar') return parsed.barId === currentUser.barId;
+      if (currentUser.role === 'buyer' || currentUser.role === 'seller') {
+        return parsed.participantRole === currentUser.role && parsed.participantUserId === currentUser.id;
+      }
+      return false;
+    });
+    return [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [messages, currentUser]);
+  const barMessageInbox = useMemo(() => {
+    if (!currentUser) return [];
+    const grouped = {};
+    barMessageHistory.forEach((message) => {
+      if (!grouped[message.conversationId]) grouped[message.conversationId] = [];
+      grouped[message.conversationId].push(message);
+    });
+    return Object.entries(grouped)
+      .map(([conversationId, conversation]) => {
+        const sorted = [...conversation].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        const latest = sorted[0];
+        const parsed = parseBarConversationId(conversationId);
+        const participantUser = parsed ? users.find((entry) => entry.id === parsed.participantUserId) : null;
+        const barEntity = parsed ? barMap?.[parsed.barId] : null;
+        const hasUnread = currentUser.role === 'bar'
+          ? sorted.some((entry) => !entry.readByBar && entry.senderRole !== 'bar')
+          : sorted.some((entry) => !entry.readByParticipant && entry.senderRole === 'bar');
+        return {
+          ...latest,
+          conversationId,
+          participantRole: parsed?.participantRole || '',
+          participantUserId: parsed?.participantUserId || '',
+          participantName: participantUser?.name || parsed?.participantUserId || '',
+          barId: parsed?.barId || '',
+          barName: barEntity?.name || parsed?.barId || '',
+          hasUnread,
+        };
+      })
+      .sort((a, b) => {
+        const unreadDiff = Number(Boolean(b.hasUnread)) - Number(Boolean(a.hasUnread));
+        if (unreadDiff !== 0) return unreadDiff;
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
+  }, [barMessageHistory, currentUser, users, barMap]);
+  const barMessageActiveConversationId = barMessagesConversationId || barMessageInbox[0]?.conversationId || '';
+  const barMessageActiveConversationMessages = useMemo(() => {
+    if (!barMessageActiveConversationId) return [];
+    return [...messages]
+      .filter((message) => message.conversationId === barMessageActiveConversationId)
+      .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+  }, [messages, barMessageActiveConversationId]);
   const pendingSellerApprovals = useMemo(
     () => users.filter((user) => user.role === 'seller' && user.accountStatus === 'pending'),
     [users],
@@ -4021,10 +4285,29 @@ export default function ThailandPantiesMarketSite() {
   const unreadMessageCount = useMemo(() => {
     if (!currentUser) return 0;
     if (currentUser.role === 'buyer') {
-      return messages.filter((message) => message.buyerId === currentUser.id && message.senderRole === 'seller' && !message.readByBuyer).length;
+      const sellerUnread = messages.filter((message) => message.buyerId === currentUser.id && message.senderRole === 'seller' && !message.readByBuyer).length;
+      const barUnread = messages.filter((message) => {
+        const parsed = parseBarConversationId(message.conversationId);
+        if (!parsed) return false;
+        return parsed.participantRole === 'buyer' && parsed.participantUserId === currentUser.id && message.senderRole === 'bar' && !message.readByParticipant;
+      }).length;
+      return sellerUnread + barUnread;
     }
     if (currentUser.role === 'seller') {
-      return messages.filter((message) => message.sellerId === currentUser.sellerId && message.senderRole === 'buyer' && !message.readBySeller).length;
+      const buyerUnread = messages.filter((message) => message.sellerId === currentUser.sellerId && message.senderRole === 'buyer' && !message.readBySeller).length;
+      const barUnread = messages.filter((message) => {
+        const parsed = parseBarConversationId(message.conversationId);
+        if (!parsed) return false;
+        return parsed.participantRole === 'seller' && parsed.participantUserId === currentUser.id && message.senderRole === 'bar' && !message.readByParticipant;
+      }).length;
+      return buyerUnread + barUnread;
+    }
+    if (currentUser.role === 'bar') {
+      return messages.filter((message) => {
+        const parsed = parseBarConversationId(message.conversationId);
+        if (!parsed) return false;
+        return parsed.barId === currentUser.barId && message.senderRole !== 'bar' && !message.readByBar;
+      }).length;
     }
     return 0;
   }, [messages, currentUser]);
@@ -4058,15 +4341,22 @@ export default function ThailandPantiesMarketSite() {
 
   useEffect(() => {
     if (!currentBarProfile) return;
+    const specialsText = String(currentBarProfile.specials || '');
+    const specialsLower = specialsText.toLowerCase();
     setBarProfileDraft({
       location: currentBarProfile.location || '',
       about: currentBarProfile.about || '',
-      specials: currentBarProfile.specials || '',
+      specials: specialsText,
       mapEmbedUrl: currentBarProfile.mapEmbedUrl || '',
       mapLink: currentBarProfile.mapLink || '',
       profileImage: currentBarProfile.profileImage || '',
       profileImageName: currentBarProfile.profileImageName || '',
     });
+    setBarSpecialPresetSelections(
+      BAR_PROFILE_SPECIAL_PRESET_OPTIONS
+        .filter((option) => Object.values(option.labels || {}).some((label) => specialsLower.includes(String(label || '').toLowerCase())))
+        .map((option) => option.id)
+    );
   }, [currentBarProfile?.id]);
 
   useEffect(() => {
@@ -4080,6 +4370,18 @@ export default function ThailandPantiesMarketSite() {
     if (currentUser?.role !== 'buyer' || !buyerDashboardConversationId) return;
     markNotificationsReadForConversation(buyerDashboardConversationId);
   }, [currentUser?.role, buyerDashboardConversationId]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    if (!barMessagesConversationId && barMessageInbox[0]?.conversationId) {
+      setBarMessagesConversationId(barMessageInbox[0].conversationId);
+    }
+  }, [currentUser, barMessageInbox, barMessagesConversationId, messageRefreshTick]);
+
+  useEffect(() => {
+    if (!currentUser || !barMessageActiveConversationId) return;
+    markNotificationsReadForConversation(barMessageActiveConversationId);
+  }, [currentUser?.role, barMessageActiveConversationId]);
 
   useEffect(() => {
     if (currentUser?.role === 'buyer') {
@@ -4511,7 +4813,7 @@ export default function ThailandPantiesMarketSite() {
     const scope = String(params.get('scope') || '').trim();
     const conversationId = String(params.get('conversationId') || '').trim();
     const requestId = String(params.get('requestId') || '').trim();
-    if (!currentUser || route !== '/account') return;
+    if (!currentUser || (route !== '/account' && route !== '/bar-messages')) return;
     if (currentUser.role === 'seller' && scope === 'seller') {
       if (conversationId) setSellerSelectedConversationId(conversationId);
       if (requestId) {
@@ -4520,6 +4822,9 @@ export default function ThailandPantiesMarketSite() {
     }
     if (currentUser.role === 'buyer' && conversationId) {
       setBuyerDashboardConversationId(conversationId);
+    }
+    if ((currentUser.role === 'buyer' || currentUser.role === 'seller' || currentUser.role === 'bar') && conversationId && parseBarConversationId(conversationId)) {
+      setBarMessagesConversationId(conversationId);
     }
   }, [route, currentUser?.id, currentUser?.role]);
 
@@ -4847,15 +5152,6 @@ export default function ThailandPantiesMarketSite() {
     }
     setMobileMenuOpen(false);
     setAccountMenuOpen(false);
-  }
-
-  function openBarDashboardSection(sectionKey, sectionId) {
-    setBarDashboardSection(sectionKey);
-    if (typeof window === 'undefined' || typeof document === 'undefined') return;
-    window.setTimeout(() => {
-      const node = document.getElementById(sectionId);
-      if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 30);
   }
 
   function openWalletTopUpForFlow(shortfallAmount, returnTo = '/checkout', source = 'checkout') {
@@ -6018,6 +6314,87 @@ export default function ThailandPantiesMarketSite() {
     setBarProfileDraft((prev) => ({ ...prev, [key]: value }));
   }
 
+  function buildBarMapFields(mapLinkInput, locationInput) {
+    const mapLinkRaw = String(mapLinkInput || '').trim();
+    const locationRaw = String(locationInput || '').trim();
+    if (!mapLinkRaw && !locationRaw) {
+      return { mapLink: '', mapEmbedUrl: '' };
+    }
+    const mapLink = mapLinkRaw || `https://maps.google.com/?q=${encodeURIComponent(locationRaw)}`;
+    let query = '';
+    try {
+      const parsed = new URL(mapLink);
+      query = String(parsed.searchParams.get('q') || parsed.searchParams.get('query') || '').trim();
+      if (!query) {
+        const pathname = decodeURIComponent(parsed.pathname || '').replace(/^\//, '').trim();
+        if (pathname && !pathname.includes('maps')) query = pathname;
+      }
+    } catch {
+      query = mapLinkRaw;
+    }
+    if (!query) query = locationRaw;
+    const mapEmbedUrl = query
+      ? `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
+      : '';
+    return { mapLink, mapEmbedUrl };
+  }
+
+  function autofillBarMapFromLocation() {
+    const locationText = String(barProfileDraft.location || '').trim();
+    if (!locationText) {
+      setBarProfileMessage('Add your venue location first, then use auto-fill.');
+      return;
+    }
+    const nextMap = buildBarMapFields('', locationText);
+    setBarProfileMessage('');
+    setBarProfileDraft((prev) => ({
+      ...prev,
+      mapLink: nextMap.mapLink,
+      mapEmbedUrl: nextMap.mapEmbedUrl,
+    }));
+  }
+
+  function toggleBarSpecialPreset(optionId) {
+    setBarProfileMessage('');
+    setBarSpecialPresetSelections((prev) => (
+      prev.includes(optionId)
+        ? prev.filter((entry) => entry !== optionId)
+        : [...prev, optionId]
+    ));
+  }
+
+  function applyBarSpecialPresetsToDraft() {
+    if (!barSpecialPresetSelections.length) return;
+    const locale = BAR_DASHBOARD_I18N[uiLanguage] ? uiLanguage : 'en';
+    const t = BAR_DASHBOARD_I18N[locale] || BAR_DASHBOARD_I18N.en;
+    const labels = barSpecialPresetSelections
+      .map((selectedId) => BAR_PROFILE_SPECIAL_PRESET_OPTIONS.find((option) => option.id === selectedId))
+      .filter(Boolean)
+      .map((option) => option.labels?.[locale] || option.labels?.en || option.id);
+    const generatedLine = `${t.highlightsPrefix || 'Highlights'}: ${labels.join(', ')}.`;
+    const existingText = String(barProfileDraft.specials || '').trim();
+    const cleanedLines = existingText
+      .split('\n')
+      .map((line) => line.trimEnd())
+      .filter((line) => line && !line.trim().toLowerCase().startsWith('highlights:'));
+    const nextSpecials = [...cleanedLines, generatedLine].join('\n').trim();
+    setBarProfileMessage('');
+    setBarProfileDraft((prev) => ({ ...prev, specials: nextSpecials }));
+  }
+
+  function appendBarProfilePresetText(fieldKey, presetText) {
+    const nextText = String(presetText || '').trim();
+    if (!nextText) return;
+    setBarProfileMessage('');
+    setBarProfileDraft((prev) => {
+      const currentValue = String(prev?.[fieldKey] || '').trim();
+      return {
+        ...prev,
+        [fieldKey]: currentValue ? `${currentValue}\n${nextText}` : nextText,
+      };
+    });
+  }
+
   async function saveBarProfile() {
     if (!currentUser || currentUser.role !== 'bar' || !currentBarId) return;
     if (savingBarProfile) return;
@@ -6526,6 +6903,36 @@ export default function ThailandPantiesMarketSite() {
     return true;
   }
 
+  function toggleBarFollow(barId) {
+    if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'bar')) {
+      setSellerProfileMessage('Login as a buyer or bar to follow bars.');
+      return false;
+    }
+    const normalizedBarId = String(barId || '').trim();
+    if (!normalizedBarId || !barMap[normalizedBarId]) return false;
+    const alreadyFollowing = barFollows.some((entry) => entry.barId === normalizedBarId && entry.followerUserId === currentUser.id);
+    const createdAt = new Date().toISOString();
+    setDb((prev) => {
+      const follows = prev.barFollows || [];
+      return {
+        ...prev,
+        barFollows: alreadyFollowing
+          ? follows.filter((entry) => !(entry.barId === normalizedBarId && entry.followerUserId === currentUser.id))
+          : [
+              {
+                id: `bar_follow_${Date.now()}`,
+                barId: normalizedBarId,
+                followerUserId: currentUser.id,
+                followerRole: currentUser.role,
+                createdAt,
+              },
+              ...follows,
+            ],
+      };
+    });
+    return true;
+  }
+
   function toggleSavedSellerPost(postId) {
     if (!currentUser) {
       setSellerProfileMessage('Please login to save posts.');
@@ -6714,8 +7121,20 @@ export default function ThailandPantiesMarketSite() {
     setBuyerDashboardMessageError('');
   }
 
+  function startConversationWithBar(barId) {
+    if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'seller')) return;
+    if (currentUser.accountStatus !== 'active') return;
+    const normalizedBarId = String(barId || '').trim();
+    if (!normalizedBarId) return;
+    const conversationId = buildBarConversationId(normalizedBarId, currentUser.role, currentUser.id);
+    setBarMessagesConversationId(conversationId);
+    setBarMessagesError('');
+    navigate(`/bar-messages?conversationId=${encodeURIComponent(conversationId)}`);
+  }
+
   function markNotificationsReadForConversation(conversationId) {
     if (!currentUser) return;
+    const parsedBarConversation = parseBarConversationId(conversationId);
     setDb((prev) => ({
       ...prev,
       notifications: (prev.notifications || []).map((notification) =>
@@ -6725,6 +7144,11 @@ export default function ThailandPantiesMarketSite() {
       ),
       messages: (prev.messages || []).map((message) => {
         if (message.conversationId !== conversationId) return message;
+        if (parsedBarConversation) {
+          if (currentUser.role === 'bar') return { ...message, readByBar: true };
+          if (currentUser.role === 'buyer' || currentUser.role === 'seller') return { ...message, readByParticipant: true };
+          return message;
+        }
         if (currentUser.role === 'buyer') return { ...message, readByBuyer: true };
         if (currentUser.role === 'seller') return { ...message, readBySeller: true };
         return message;
@@ -6902,6 +7326,76 @@ export default function ThailandPantiesMarketSite() {
     });
     onSuccess?.();
     onError?.('');
+  }
+
+  async function sendBarConversationMessage() {
+    if (!currentUser || !barMessageActiveConversationId) return;
+    const conversationMeta = parseBarConversationId(barMessageActiveConversationId);
+    if (!conversationMeta) return;
+    const draft = String(barMessagesDraft || '').trim();
+    if (!draft) return;
+    if (currentUser.accountStatus !== 'active') {
+      setBarMessagesError('Your account must be active to send messages.');
+      return;
+    }
+    const { barId, participantRole, participantUserId } = conversationMeta;
+    if (currentUser.role === 'bar') {
+      if (String(currentUser.barId || '').trim() !== barId) return;
+      const existingCount = (messages || []).filter((entry) => entry.conversationId === barMessageActiveConversationId).length;
+      if (existingCount === 0) {
+        setBarMessagesError('Bars can only reply to existing conversations.');
+        return;
+      }
+    } else if (currentUser.role === 'buyer' || currentUser.role === 'seller') {
+      if (participantRole !== currentUser.role || participantUserId !== currentUser.id) return;
+    } else {
+      return;
+    }
+    const now = new Date().toISOString();
+    const barUser = users.find((user) => user.role === 'bar' && String(user.barId || '').trim() === barId);
+    const participantUser = users.find((user) => user.id === participantUserId);
+    const recipientUser = currentUser.role === 'bar' ? participantUser : barUser;
+    const { sourceLanguage, translations } = await buildMessageTranslationsForRecipient(
+      draft,
+      currentUser,
+      recipientUser,
+    );
+    const newMessage = {
+      id: `bar_msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      conversationId: barMessageActiveConversationId,
+      barId,
+      participantRole,
+      participantUserId,
+      senderId: currentUser.id,
+      senderRole: currentUser.role,
+      body: draft,
+      bodyOriginal: draft,
+      sourceLanguage,
+      translations,
+      createdAt: now,
+      readByBar: currentUser.role === 'bar',
+      readByParticipant: currentUser.role !== 'bar',
+    };
+    setDb((prev) => ({
+      ...prev,
+      messages: [...(prev.messages || []), newMessage],
+      notifications: recipientUser?.id
+        ? [
+            ...(prev.notifications || []),
+            {
+              id: `notif_${Date.now()}_barmsg`,
+              userId: recipientUser.id,
+              type: 'message',
+              text: `New message from ${currentUser.name || currentUser.id}.`,
+              conversationId: barMessageActiveConversationId,
+              read: false,
+              createdAt: now,
+            },
+          ]
+        : prev.notifications,
+    }));
+    setBarMessagesDraft('');
+    setBarMessagesError('');
   }
 
   async function sendBuyerMessageToSeller() {
@@ -9434,6 +9928,88 @@ export default function ThailandPantiesMarketSite() {
     }
   }
 
+  async function reportBarConversationMessage(messageId, reasonCategory, providedReasonText = '') {
+    if (!currentUser) return false;
+    if (currentUser.accountStatus !== 'active') return false;
+    if (reportingDirectMessageId === messageId) return false;
+    const message = messages.find((entry) => entry.id === messageId);
+    if (!message) return false;
+    const parsedConversation = parseBarConversationId(message.conversationId);
+    if (!parsedConversation) return false;
+    if ((message.senderId || message.senderUserId) === currentUser.id) return false;
+    if (String(message.senderRole || '').toLowerCase() !== 'bar') return false;
+    const existingOpenReport = messageReports.find(
+      (report) => report.messageId === messageId && report.reporterUserId === currentUser.id && report.status !== 'resolved' && report.status !== 'dismissed'
+    );
+    if (existingOpenReport) return false;
+    const normalizedReasonCategory = [
+      'direct_payment_request',
+      'off_platform_contact',
+      'harassment_abuse',
+      'scam_fraud',
+      'other',
+    ].includes(String(reasonCategory || '').trim())
+      ? String(reasonCategory || '').trim()
+      : 'other';
+    const trimmedReasonText = String(providedReasonText || '').trim();
+    if (!trimmedReasonText) return false;
+    const targetBarUser = users.find(
+      (entry) => entry.role === 'bar' && String(entry.barId || '').trim() === parsedConversation.barId
+    );
+    const targetUserId = targetBarUser?.id || message.senderId || message.senderUserId || null;
+    const now = new Date().toISOString();
+    const priority = ['direct_payment_request', 'off_platform_contact'].includes(normalizedReasonCategory)
+      ? 'high'
+      : 'medium';
+    setReportingDirectMessageId(messageId);
+    try {
+      setDb((prev) => ({
+        ...prev,
+        messageReports: [
+          {
+            id: `message_report_local_${Date.now()}`,
+            messageId,
+            conversationId: message.conversationId || null,
+            targetUserId,
+            targetSellerId: null,
+            targetBarId: parsedConversation.barId,
+            contentType: 'direct_message',
+            contentId: messageId,
+            reporterUserId: currentUser.id,
+            reporterRole: currentUser.role,
+            reasonCategory: normalizedReasonCategory,
+            reason: trimmedReasonText.slice(0, 500),
+            priority,
+            status: 'open',
+            createdAt: now,
+            resolvedAt: null,
+            resolvedByUserId: null,
+          },
+          ...(prev.messageReports || []),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'report_direct_message',
+            targetMessageId: messageId,
+            conversationId: message.conversationId || null,
+            targetUserId,
+            targetBarId: parsedConversation.barId,
+            reporterUserId: currentUser.id,
+            reporterRole: currentUser.role,
+            reasonCategory: normalizedReasonCategory,
+            reason: trimmedReasonText.slice(0, 500),
+            createdAt: now,
+          },
+        ],
+      }));
+      return true;
+    } finally {
+      setReportingDirectMessageId(null);
+    }
+  }
+
   async function resolvePostReport(reportId) {
     if (!currentUser || currentUser.role !== 'admin') return;
     if (resolvingPostReportId === reportId) return;
@@ -10182,7 +10758,13 @@ export default function ThailandPantiesMarketSite() {
   const isPendingSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'pending';
   const isRejectedSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'rejected';
   const accountRoute = currentUser?.role === 'bar' ? '/bar-dashboard' : '/account';
-  const messagesRoute = currentUser?.role === 'seller' ? '/seller-messages' : currentUser?.role === 'buyer' ? '/buyer-messages' : accountRoute;
+  const messagesRoute = currentUser?.role === 'seller'
+    ? '/seller-messages'
+    : currentUser?.role === 'buyer'
+      ? '/buyer-messages'
+      : currentUser?.role === 'bar'
+        ? '/bar-messages'
+        : accountRoute;
   const resolveMarketplaceConversationBody = (message) => {
     const original = String(message?.bodyOriginal || message?.body || '');
     const translations = message?.translations || {};
@@ -10337,7 +10919,7 @@ export default function ThailandPantiesMarketSite() {
             <button onClick={() => navigate('/seller-portfolios')} className="whitespace-nowrap transition hover:text-rose-600">{navText.sellers}</button>
             <button onClick={() => navigate('/bars')} className="whitespace-nowrap transition hover:text-rose-600">{navText.bars}</button>
             <button onClick={() => navigate('/find')} className="whitespace-nowrap transition hover:text-rose-600">{navText.find}</button>
-            <button onClick={() => navigate('/seller-feed')} className="whitespace-nowrap transition hover:text-rose-600">{navText.sellerFeed}</button>
+            <button onClick={() => navigate('/seller-feed')} className="whitespace-nowrap transition hover:text-rose-600">{currentUser?.role === 'bar' ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds : navText.sellerFeed}</button>
             <button onClick={() => navigate('/custom-requests')} className="whitespace-nowrap transition hover:text-rose-600">{navText.customRequests}</button>
             <button onClick={() => navigate('/faq')} className="whitespace-nowrap transition hover:text-rose-600">{navText.faq}</button>
             <button onClick={() => navigate('/contact')} className="hidden whitespace-nowrap transition hover:text-rose-600 2xl:inline-flex">{navText.contact}</button>
@@ -10403,7 +10985,7 @@ export default function ThailandPantiesMarketSite() {
               <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.sellers}</button>
               <button onClick={() => navigate('/bars')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.bars}</button>
               <button onClick={() => navigate('/find')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.find}</button>
-              <button onClick={() => navigate('/seller-feed')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.sellerFeed}</button>
+              <button onClick={() => navigate('/seller-feed')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{currentUser?.role === 'bar' ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds : navText.sellerFeed}</button>
               <button onClick={() => navigate('/custom-requests')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.customRequests}</button>
               <button onClick={() => navigate('/faq')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.faq}</button>
               <button onClick={() => navigate('/contact')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.contact}</button>
@@ -10706,13 +11288,18 @@ export default function ThailandPantiesMarketSite() {
 
         {routeInfo.name === 'seller-feed' ? (
           <SellerFeedPage
-            sellerPosts={sellerAllPosts}
+            sellerPosts={sellerFeedPosts}
+            barPosts={barFeedPosts}
+            sellers={sellers}
+            bars={bars}
             sellerMap={sellerMap}
+            barMap={barMap}
             postReports={postReports}
             commentReports={commentReports}
             sellerPostLikes={sellerPostLikes}
             sellerPostComments={sellerPostComments}
             sellerFollows={sellerFollows}
+            barFollows={barFollows}
             sellerFollowerCountById={sellerFollowerCountById}
             sellerSavedPosts={sellerSavedPosts}
             currentUser={currentUser}
@@ -10724,6 +11311,7 @@ export default function ThailandPantiesMarketSite() {
             addSellerPostComment={addSellerPostComment}
             deleteSellerPostComment={deleteSellerPostComment}
             toggleSellerFollow={toggleSellerFollow}
+            toggleBarFollow={toggleBarFollow}
             toggleSavedSellerPost={toggleSavedSellerPost}
             sellerLanguage={uiLanguage}
             canViewSellerPost={canViewSellerPost}
@@ -10768,6 +11356,17 @@ export default function ThailandPantiesMarketSite() {
                 <h2 className="mt-5 text-3xl font-bold tracking-tight">{selectedBar.name}</h2>
                 <p className="mt-2 text-slate-500">{selectedBar.location || publicText.locationComingSoon}</p>
                 <p className="mt-4 leading-7 text-slate-600">{selectedBar.about || publicText.barProfileSoon}</p>
+                {(currentUser?.role === 'buyer' || currentUser?.role === 'seller') ? (
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => startConversationWithBar(selectedBar.id)}
+                      className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+                    >
+                      Message this bar
+                    </button>
+                  </div>
+                ) : null}
                 <div className="mt-4 overflow-hidden rounded-2xl bg-gradient-to-br from-rose-50 via-fuchsia-50 to-amber-50 p-4 text-sm text-slate-700 ring-1 ring-rose-200/70">
                   <div className="flex items-center gap-2 font-semibold text-rose-700">
                     <span className="text-lg">✨</span>
@@ -11213,42 +11812,32 @@ export default function ThailandPantiesMarketSite() {
                 <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
                   <button
                     type="button"
-                    onClick={() => openBarDashboardSection('profile', 'bar-profile')}
-                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'profile' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
+                    className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
                   >
                     {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}
                   </button>
                   <button
                     type="button"
-                    onClick={() => openBarDashboardSection('feed', 'bar-feed')}
-                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'feed' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
+                    onClick={() => navigate('/bar-feed-workspace')}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
                     {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}
                   </button>
                   <button
                     type="button"
-                    onClick={() => openBarDashboardSection('affiliations', 'bar-affiliations')}
-                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'affiliations' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
+                    onClick={() => navigate('/bar-messages')}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => openBarDashboardSection('earnings', 'bar-earnings')}
-                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'earnings' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
-                  >
-                    Affiliate earnings
+                    {navText.messages}
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate('/seller-feed')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
-                    {navText.sellerFeed || 'Seller feed'}
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds}
                   </button>
-                </div>
-                <div className="mt-4 flex justify-start lg:justify-end">
-                  <label className="flex items-center gap-2 text-sm text-slate-600">
+                  <label className="col-span-2 mt-1 flex items-center justify-end gap-2 text-sm text-slate-600 sm:col-auto sm:ml-auto sm:mt-0">
                     {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).language}
                     <select
                       value={SUPPORTED_AUTH_LANGUAGES.includes(currentUser?.preferredLanguage) ? currentUser.preferredLanguage : 'en'}
@@ -11261,7 +11850,12 @@ export default function ThailandPantiesMarketSite() {
                     </select>
                   </label>
                 </div>
-                <div id="bar-earnings" className={`mt-6 rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'earnings' ? 'ring-rose-300' : 'ring-rose-100'}`}>
+                {currentBarProfile ? (
+                  <div className="mt-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                    <BarQrCard bar={currentBarProfile} />
+                  </div>
+                ) : null}
+                <div id="bar-earnings" className="mt-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                   <h3 className="text-xl font-semibold">Affiliate earnings</h3>
                   <p className="mt-1 text-sm text-slate-600">Track the money your bar earns from affiliated seller sales and paid buyer interactions.</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -11318,8 +11912,7 @@ export default function ThailandPantiesMarketSite() {
                   </div>
                 </div>
                 <div className="mt-6 space-y-8">
-                  <div id="bar-profile" className={`rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'profile' ? 'ring-rose-300' : 'ring-rose-100'}`}>
-                    {currentBarProfile ? <div className="mb-4"><BarQrCard bar={currentBarProfile} compact /></div> : null}
+                  <div id="bar-profile" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                     <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}</h3>
                     <div className="mt-4 h-48">
                       <ProductImage
@@ -11327,17 +11920,115 @@ export default function ThailandPantiesMarketSite() {
                         label={barProfileDraft.profileImageName || currentBarProfile?.profileImageName || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileImage}
                       />
                     </div>
-                    <input type="file" accept="image/*" onChange={handleBarProfileImageUpload} className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm" />
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <label className="inline-flex cursor-pointer items-center rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">
+                        <input type="file" accept="image/*" onChange={handleBarProfileImageUpload} className="hidden" />
+                        Choose image
+                      </label>
+                      <span className="text-xs text-slate-500">
+                        {barProfileDraft.profileImageName || currentBarProfile?.profileImageName || 'No file selected'}
+                      </span>
+                    </div>
                     <div className="mt-4 grid gap-3">
                       <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).locationPlaceholder} />
                       <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).aboutPlaceholder} />
+                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">About presets</div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {BAR_PROFILE_TEXT_PRESET_OPTIONS.about.map((preset) => (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => appendBarProfilePresetText('about', preset.text[uiLanguage] || preset.text.en)}
+                              className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                            >
+                              {preset.label[uiLanguage] || preset.label.en}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                       <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).specialsPlaceholder} />
-                      <input value={barProfileDraft.mapEmbedUrl} onChange={(event) => updateBarProfileField('mapEmbedUrl', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).mapEmbedPlaceholder} />
-                      <input value={barProfileDraft.mapLink} onChange={(event) => updateBarProfileField('mapLink', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).mapLinkPlaceholder} />
+                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Specials text presets</div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {BAR_PROFILE_TEXT_PRESET_OPTIONS.specials.map((preset) => (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => appendBarProfilePresetText('specials', preset.text[uiLanguage] || preset.text.en)}
+                              className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                            >
+                              {preset.label[uiLanguage] || preset.label.en}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).quickPicksTitle}</div>
+                        <p className="mt-2 text-xs text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).quickPicksHelp}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {BAR_PROFILE_SPECIAL_PRESET_OPTIONS.map((option) => {
+                            const isActive = barSpecialPresetSelections.includes(option.id);
+                            const OptionIcon = option.Icon;
+                            return (
+                              <button
+                                key={option.id}
+                                type="button"
+                                onClick={() => toggleBarSpecialPreset(option.id)}
+                                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${isActive ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 bg-white text-slate-700'}`}
+                              >
+                                <span className="inline-flex items-center gap-1">
+                                  <OptionIcon className="h-3.5 w-3.5" />
+                                  {option.labels?.[uiLanguage] || option.labels?.en || option.id}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={applyBarSpecialPresetsToDraft}
+                            className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                          >
+                            {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).applyToSpecials}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBarSpecialPresetSelections([])}
+                            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
+                          >
+                            {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).clearPicks}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Map location</div>
+                          <button
+                            type="button"
+                            onClick={autofillBarMapFromLocation}
+                            className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                          >
+                            Auto-fill from location
+                          </button>
+                        </div>
+                        <p className="mt-2 text-xs text-slate-500">Use your venue address above, then auto-fill. You can still paste your Google Maps link manually.</p>
+                        <input
+                          value={barProfileDraft.mapLink}
+                          onChange={(event) => {
+                            const nextMap = buildBarMapFields(event.target.value, barProfileDraft.location);
+                            setBarProfileMessage('');
+                            setBarProfileDraft((prev) => ({ ...prev, mapLink: event.target.value, mapEmbedUrl: nextMap.mapEmbedUrl }));
+                          }}
+                          className="mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                          placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).mapLinkPlaceholder}
+                        />
+                      </div>
                       <button
                         onClick={saveBarProfile}
                         disabled={savingBarProfile}
-                        className={`rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 ${savingBarProfile ? 'cursor-not-allowed opacity-60' : ''}`}
+                        className={`inline-flex w-auto justify-self-start rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 ${savingBarProfile ? 'cursor-not-allowed opacity-60' : ''}`}
                       >
                         {savingBarProfile ? 'Saving...' : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).saveProfile}
                       </button>
@@ -11348,38 +12039,9 @@ export default function ThailandPantiesMarketSite() {
                       ) : null}
                     </div>
                   </div>
-                  <div id="bar-feed" className={`rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'feed' ? 'ring-rose-300' : 'ring-rose-100'}`}>
-                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}</h3>
-                    <p className="mt-2 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedSubtitle}</p>
-                    <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedPlaceholder} />
-                    <input type="file" accept="image/*" onChange={handleBarPostImageUpload} className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm" />
-                    <div className="mt-3 h-44">
-                      {barPostDraft.image ? <ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} /> : <ProductImage label={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).preview} />}
-                    </div>
-                    <button onClick={createBarPost} disabled={creatingBarPost} className="mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
-                      {creatingBarPost ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).posting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).postButton}
-                    </button>
-                    {barProfileMessage ? <div className="mt-3 text-sm font-medium text-rose-700">{barProfileMessage}</div> : null}
-                    <div className="mt-5 space-y-3">
-                      {barDashboardPosts.length === 0 ? (
-                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noPosts}</div>
-                      ) : barDashboardPosts.map((post) => (
-                        <article key={post.id} className="rounded-2xl border border-rose-100 p-3">
-                          <div className="h-40">
-                            <ProductImage src={post.image} label={post.imageName || 'Bar post'} />
-                          </div>
-                          <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                          <div className="mt-1 text-sm text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</div>
-                          <button onClick={() => deleteBarPost(post.id)} disabled={deletingBarPostId === post.id} className="mt-2 rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700">
-                            {deletingBarPostId === post.id ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).deleting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).delete}
-                          </button>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
                 </div>
                 <div className="mt-8 space-y-6">
-                  <div id="bar-affiliations" className={`rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'affiliations' ? 'ring-rose-300' : 'ring-rose-100'}`}>
+                  <div id="bar-affiliations" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                     <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}</h3>
                     <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsSubtitle}</p>
                     <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
@@ -11621,6 +12283,26 @@ export default function ThailandPantiesMarketSite() {
             navigate={navigate}
           />
         ) : null}
+        {routeInfo.name === 'bar-messages' ? (
+          <BarMessagesPage
+            currentUser={currentUser}
+            barMap={barMap}
+            barMessageInbox={barMessageInbox}
+            barMessageActiveConversationId={barMessageActiveConversationId}
+            setBarMessageActiveConversationId={setBarMessagesConversationId}
+            barMessageActiveConversationMessages={barMessageActiveConversationMessages}
+            barReplyDraft={barMessagesDraft}
+            setBarReplyDraft={setBarMessagesDraft}
+            sendBarConversationMessage={sendBarConversationMessage}
+            barConversationMessageError={barMessagesError}
+            messageReports={messageReports}
+            reportBarConversationMessage={reportBarConversationMessage}
+            reportingDirectMessageId={reportingDirectMessageId}
+            markNotificationsReadForConversation={markNotificationsReadForConversation}
+            uiLanguage={currentUser?.preferredLanguage || 'en'}
+            navigate={navigate}
+          />
+        ) : null}
         {routeInfo.name === 'seller-feed-workspace' ? (
           <SellerFeedWorkspacePage
             isSeller={isSeller}
@@ -11648,6 +12330,95 @@ export default function ThailandPantiesMarketSite() {
             sellerPostAnalytics={sellerPostAnalytics}
             navigate={navigate}
           />
+        ) : null}
+        {routeInfo.name === 'bar-feed-workspace' ? (
+          <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+            {!isBar ? (
+              <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+                <Lock className="mx-auto h-10 w-10 text-rose-600" />
+                <h2 className="mt-4 text-2xl font-bold">Bar login required</h2>
+                <p className="mt-2 text-slate-600">Use a bar account to create and manage bar feed posts.</p>
+              </div>
+            ) : (
+              <>
+                <SectionTitle
+                  eyebrow="Bar dashboard"
+                  title={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}
+                  subtitle={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedSubtitle}
+                />
+                <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/bar-dashboard')}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                  >
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
+                  >
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/bar-messages')}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                  >
+                    {navText.messages}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/seller-feed')}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                  >
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds}
+                  </button>
+                  <label className="col-span-2 mt-1 flex items-center justify-end gap-2 text-sm text-slate-600 sm:col-auto sm:ml-auto sm:mt-0">
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).language}
+                    <select
+                      value={SUPPORTED_AUTH_LANGUAGES.includes(currentUser?.preferredLanguage) ? currentUser.preferredLanguage : 'en'}
+                      onChange={(event) => updateBarLanguage(event.target.value)}
+                      className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    >
+                      {DASHBOARD_LANGUAGE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{localizeOptionLabel(option.label, uiLanguage)}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                  <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}</h3>
+                  <p className="mt-2 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedSubtitle}</p>
+                  <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedPlaceholder} />
+                  <input type="file" accept="image/*" onChange={handleBarPostImageUpload} className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm" />
+                  <div className="mt-3 h-44">
+                    {barPostDraft.image ? <ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} /> : <ProductImage label={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).preview} />}
+                  </div>
+                  <button onClick={createBarPost} disabled={creatingBarPost} className="mt-3 inline-flex w-auto rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
+                    {creatingBarPost ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).posting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).postButton}
+                  </button>
+                  {barProfileMessage ? <div className="mt-3 text-sm font-medium text-rose-700">{barProfileMessage}</div> : null}
+                  <div className="mt-5 space-y-3">
+                    {barDashboardPosts.length === 0 ? (
+                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noPosts}</div>
+                    ) : barDashboardPosts.map((post) => (
+                      <article key={post.id} className="rounded-2xl border border-rose-100 p-3">
+                        <div className="h-40">
+                          <ProductImage src={post.image} label={post.imageName || 'Bar post'} />
+                        </div>
+                        <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                        <div className="mt-1 text-sm text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</div>
+                        <button onClick={() => deleteBarPost(post.id)} disabled={deletingBarPostId === post.id} className="mt-2 rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700">
+                          {deletingBarPostId === post.id ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).deleting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).delete}
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </section>
         ) : null}
 
         {routeInfo.name === 'admin' ? (
@@ -11969,9 +12740,12 @@ export default function ThailandPantiesMarketSite() {
             customRequestMessagesByRequestId={customRequestMessagesByRequestId}
             products={products}
             sellerMap={sellerMap}
+            barMap={barMap}
             buyerConversations={buyerConversations}
             sellerFollows={sellerFollows}
+            barFollows={barFollows}
             toggleSellerFollow={toggleSellerFollow}
+            toggleBarFollow={toggleBarFollow}
             accountForm={accountForm}
             updateAccountField={updateAccountField}
             saveAccountDetails={saveAccountDetails}
