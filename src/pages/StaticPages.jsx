@@ -51,13 +51,14 @@ const HELP_I18N = {
     faqTitle: "Frequently Asked Questions",
     faqSubtitle: "Answers for buyers and sellers using Thailand Panties.",
     faqs: [
-      { q: "How quickly are orders shipped?", a: "Shipping usually happens within 1-3 business days after payment confirmation, but it can take longer depending on the seller's location." },
-      { q: "Who pays shipping costs?", a: "Buyers pay the exact shipping cost charged for their destination at checkout." },
       { q: "How do you make sure I am talking to a real person and not AI or a fake profile?", a: "We verify seller and bar accounts before they can operate on the platform and review profile/activity signals over time. We do not claim perfect detection in every case, but we actively monitor for suspicious behavior and remove accounts that violate trust or authenticity standards. Our goal is a neutral, safer marketplace experience where buyers can communicate with confidence." },
+      { q: "How quickly are orders shipped?", a: "Shipping usually happens within 1-3 business days after payment confirmation, but it can take longer depending on the seller's location." },
       { q: "Which carrier do you use?", a: "We ship with international carriers for worldwide delivery and tracking." },
       { q: "Is packaging discreet?", a: "Yes. External packaging is discreet with no identifying branding. We include a t-shirt, stickers, and a gift in each package, and customs forms are marked as apparel/promotional gift materials." },
       { q: "Is shipping legal in my country and what if customs confiscates my package?", a: "Our products are generally legal in many jurisdictions, and we do our best to ship in ways that meet international shipping requirements. However, buyers are responsible for knowing and complying with their local laws. If a package is flagged, held, or confiscated by customs/government authorities, Thailand Panties is not responsible and no refund will be issued for that seizure." },
-      { q: "Do you offer refunds or returns?", a: "All sales are final, except if you receive the wrong item. In wrong-item cases, we can issue a refund after you submit evidence through the refund evidence form for review. We dispute all chargebacks and submit evidence of the buyer's agreement to the Terms of Service and their usage activity on the site." },
+      { q: "Who pays shipping costs?", a: "Buyers pay the exact shipping cost charged for their destination at checkout." },
+      { q: "Do you offer refunds or returns?", a: "All sales are final, except if you receive the wrong item. In wrong-item cases, we can issue a refund after you submit evidence through the refund evidence form for review." },
+      { q: "What is your chargeback policy?", a: "We dispute all chargebacks and provide evidence that includes the buyer's agreement to the Terms of Service and relevant usage activity on the site." },
       { q: "What appears on my card statement?", a: "The card descriptor appears as Small World Chiang Mai." },
       { q: "What currency does the marketplace use?", a: "All listing, wallet, unlock, and message fees are charged in Thai baht (THB). Any non-THB values shown are approximate estimates only." },
       { q: "How do private seller feed posts work?", a: "Sellers can set posts as private and set a price. Buyers unlock private posts individually from wallet balance." },
@@ -70,7 +71,7 @@ const HELP_I18N = {
       { q: "What is your policy on abusive language?", a: "Abusive or offensive language is not tolerated. We enforce a two-strikes policy." },
       { q: "What happens if sellers block a buyer?", a: "If a buyer is blocked by two sellers, the buyer account is blocked from the site." },
       { q: "How do I report abusive messages or harassment?", a: "Open the message thread and tap Report to flag abusive language, harassment, scam attempts, or off-platform payment requests. Admin reviews reports and applies moderation when needed." },
-      { q: "What happens after the first strike versus the second strike?", a: "After a first moderation strike, a warning stays on the account and you can submit an appeal. After a second active strike, the account is automatically frozen until admin review and appeal outcome." },
+      { q: "What happens after the first strike versus the second strike?", a: "After a first moderation strike, a warning stays on the account and you can submit an appeal. After a second active strike, the account is automatically frozen until admin review and admin decides an outcome." },
       { q: "Where can I see my strike status and appeal history?", a: "Your dashboard shows active strike notices, and the appeals page shows your submitted appeals and admin decisions." },
       { q: "Can bars save posts and follow sellers or bars?", a: "Yes. Bars can save feed posts and follow sellers or bars to keep important content easier to find." },
       { q: "Who can a bar message?", a: "Bars can message eligible contacts, including people who messaged the bar directly and users connected to affiliate seller message or sale activity. Bulk messaging is disabled." }
@@ -142,13 +143,14 @@ const HELP_I18N = {
     faqTitle: "คำถามที่พบบ่อย",
     faqSubtitle: "คำตอบสำหรับผู้ซื้อและผู้ขายใน Thailand Panties",
     faqs: [
-      { q: "จัดส่งเร็วแค่ไหน?", a: "โดยปกติจะจัดส่งภายใน 1-3 วันทำการหลังยืนยันการชำระเงิน แต่อาจใช้เวลานานกว่านี้ตามตำแหน่งที่ตั้งของผู้ขาย" },
-      { q: "ใครเป็นผู้จ่ายค่าส่ง?", a: "ผู้ซื้อจ่ายค่าส่งตามจริงตามปลายทางในขั้นตอนเช็กเอาต์" },
       { q: "คุณทำอย่างไรให้มั่นใจว่าฉันคุยกับคนจริง ไม่ใช่ AI หรือโปรไฟล์ปลอม?", a: "เราตรวจสอบบัญชีผู้ขายและบัญชีบาร์ก่อนอนุญาตให้ใช้งานแพลตฟอร์ม และติดตามสัญญาณความน่าเชื่อถือของโปรไฟล์/พฤติกรรมอย่างต่อเนื่อง เราไม่อ้างว่าสามารถตรวจจับได้สมบูรณ์ 100% ทุกกรณี แต่จะเฝ้าระวังพฤติกรรมที่น่าสงสัยและปิดบัญชีที่ละเมิดมาตรฐานความน่าเชื่อถือหรือความเป็นตัวจริง เป้าหมายของเราคือประสบการณ์ที่เป็นกลางและปลอดภัยยิ่งขึ้น เพื่อให้ผู้ซื้อพูดคุยได้อย่างมั่นใจ" },
+      { q: "จัดส่งเร็วแค่ไหน?", a: "โดยปกติจะจัดส่งภายใน 1-3 วันทำการหลังยืนยันการชำระเงิน แต่อาจใช้เวลานานกว่านี้ตามตำแหน่งที่ตั้งของผู้ขาย" },
       { q: "ใช้ผู้ให้บริการขนส่งอะไร?", a: "เราใช้ผู้ให้บริการขนส่งระหว่างประเทศพร้อมติดตามพัสดุ" },
       { q: "แพ็กเกจเป็นความลับหรือไม่?", a: "ใช่ บรรจุภัณฑ์ภายนอกเป็นแบบไม่เปิดเผยตัวตนและไม่มีโลโก้ระบุตัวสินค้า ทุกพัสดุมีเสื้อยืด สติกเกอร์ และของขวัญ พร้อมระบุในเอกสารศุลกากรเป็นเสื้อผ้า/สื่อโปรโมชัน/ของขวัญ" },
       { q: "การจัดส่งถูกกฎหมายในประเทศของฉันไหม และถ้าศุลกากรยึดพัสดุจะเกิดอะไรขึ้น?", a: "สินค้าที่เราจัดส่งโดยทั่วไปถูกกฎหมายในหลายประเทศ และเราพยายามจัดส่งให้เป็นไปตามข้อกำหนดการขนส่งระหว่างประเทศ อย่างไรก็ตาม ผู้ซื้อมีหน้าที่ต้องตรวจสอบและปฏิบัติตามกฎหมายท้องถิ่นของตนเอง หากพัสดุถูกตรวจ ยึด หรืออายัดโดยศุลกากร/หน่วยงานรัฐ ทาง Thailand Panties จะไม่รับผิดชอบ และจะไม่มีการคืนเงินในกรณีที่ถูกยึดโดยภาครัฐ" },
+      { q: "ใครเป็นผู้จ่ายค่าส่ง?", a: "ผู้ซื้อจ่ายค่าส่งตามจริงตามปลายทางในขั้นตอนเช็กเอาต์" },
       { q: "คืนเงินหรือคืนสินค้าได้ไหม?", a: "ไม่ได้ สินค้าทุกชิ้นขายขาด ไม่มีการคืนเงิน" },
+      { q: "นโยบายเรื่องการปฏิเสธรายการชำระเงิน (chargeback) คืออะไร?", a: "เราจะโต้แย้ง chargeback ทุกกรณี และส่งหลักฐานที่เกี่ยวข้อง เช่น การยอมรับข้อกำหนดการให้บริการ (Terms of Service) และประวัติการใช้งานบนแพลตฟอร์ม" },
       { q: "ชื่อที่ขึ้นบัตรคืออะไร?", a: "ชื่อที่ขึ้นบัตรคือ Small World Chiang Mai" },
       { q: "โพสต์แบบ private ทำงานอย่างไร?", a: "ผู้ขายตั้งโพสต์ private และตั้งราคาได้ ผู้ซื้อปลดล็อกแต่ละโพสต์ด้วยเงินในกระเป๋า" },
       { q: "ผู้ซื้อสามารถติดตามผู้ขายและบันทึกโพสต์ได้ไหม?", a: "ได้ ผู้ซื้อสามารถติดตามผู้ขายและบันทึกโพสต์ไว้ดูภายหลังได้" },
@@ -232,13 +234,14 @@ const HELP_I18N = {
     faqTitle: "မေးလေ့ရှိသော မေးခွန်းများ",
     faqSubtitle: "Thailand Panties အသုံးပြုသူများအတွက် ဖြေကြားချက်များ",
     faqs: [
-      { q: "ပို့ဆောင်ချိန်ဘယ်လောက်?", a: "ငွေပေးချေမှုအတည်ပြုပြီးနောက် ပုံမှန်အားဖြင့် 1-3 business days အတွင်း ပို့ဆောင်ပါသည်။ သို့သော် seller ၏ တည်နေရာအပေါ်မူတည်၍ ပိုကြာနိုင်ပါသည်။" },
-      { q: "ပို့ဆောင်ခကို ဘယ်သူပေးမလဲ?", a: "ဝယ်သူက checkout တွင်ပြထားသည့် ပို့ဆောင်ခအတိုင်း ပေးဆောင်ပါသည်" },
       { q: "ကျွန်ုပ်က AI သို့မဟုတ် အတု profile မဟုတ်ပဲ လူအစစ်နဲ့ စကားပြောနေတယ်ဆိုတာ ဘယ်လိုသေချာစေသလဲ?", a: "Platform ပေါ်တွင် seller နှင့် bar account များ လည်ပတ်ခွင့်မပြုမီ identity/အကောင့်အချက်အလက်များကို စိစစ်ပါသည်၊ ထို့ပြင် profile နှင့် activity signal များကို အချိန်နှင့်တပြေးညီ ပြန်လည်စောင့်ကြည့်ပါသည်။ အမှုတိုင်းကို 100% ပြည့်စုံစွာ ဖော်ထုတ်နိုင်သည်ဟု မဆိုလိုသော်လည်း သံသယရှိသောအပြုအမူများကို ဆက်တိုက်စောင့်ကြည့်ပြီး trust/authenticity စံနှုန်းချိုးဖောက်သော account များကို ဖယ်ရှားပါသည်။ ဝယ်သူများ ယုံကြည်မှုရှိစွာ ဆက်သွယ်နိုင်ရန် မျှတပြီး ပိုမိုလုံခြုံသော အတွေ့အကြုံကို ပံ့ပိုးပေးရန် ရည်ရွယ်ပါသည်။" },
+      { q: "ပို့ဆောင်ချိန်ဘယ်လောက်?", a: "ငွေပေးချေမှုအတည်ပြုပြီးနောက် ပုံမှန်အားဖြင့် 1-3 business days အတွင်း ပို့ဆောင်ပါသည်။ သို့သော် seller ၏ တည်နေရာအပေါ်မူတည်၍ ပိုကြာနိုင်ပါသည်။" },
       { q: "ဘယ် carrier သုံးလဲ?", a: "နိုင်ငံတကာ carrier များဖြင့် tracking ပါဝင်စွာ ပို့ဆောင်ပါသည်" },
       { q: "ထုပ်ပိုးမှု လျှို့ဝှက်ပါသလား?", a: "ဟုတ်ကဲ့။ အပြင်ထုပ်ပိုးမှုမှာ ခွဲခြားသိနိုင်သော branding မပါဘဲ လျှို့ဝှက်ထားပါသည်။ package တိုင်းတွင် t-shirt, stickers နှင့် gift တစ်ခု ပါဝင်ပြီး customs form တွင် apparel/promotional gift materials အဖြစ် မှတ်သားပေးပါသည်။" },
       { q: "ကျွန်ုပ်နိုင်ငံမှာ တင်ပို့မှုတရားဝင်လား၊ customs က package ကို သိမ်းယူရင် ဘာဖြစ်မလဲ?", a: "ကျွန်ုပ်တို့ပစ္စည်းများသည် နိုင်ငံအများစုတွင် ယေဘုယျအားဖြင့် တရားဝင်ဖြစ်ပြီး နိုင်ငံတကာ ပို့ဆောင်ရေးလိုအပ်ချက်များနှင့် ကိုက်ညီစေရန် အကောင်းဆုံးကြိုးစားပို့ဆောင်ပါသည်။ သို့သော် ဝယ်သူက မိမိနိုင်ငံ/ဒေသဥပဒေများကို သိရှိလိုက်နာရန် တာဝန်ရှိသည်။ customs သို့မဟုတ် အစိုးရအာဏာပိုင်များမှ package ကို စစ်ဆေး၊ ထိန်းသိမ်း သို့မဟုတ် သိမ်းယူပါက Thailand Panties မှ တာဝန်မယူပါ။ အစိုးရသိမ်းယူမှုဖြစ်ပွားသည့် case များတွင် ငွေပြန်အမ်းမည်မဟုတ်ပါ။" },
+      { q: "ပို့ဆောင်ခကို ဘယ်သူပေးမလဲ?", a: "ဝယ်သူက checkout တွင်ပြထားသည့် ပို့ဆောင်ခအတိုင်း ပေးဆောင်ပါသည်" },
       { q: "ပြန်အမ်း/ပြန်လဲ ရနိုင်ပါသလား?", a: "မရနိုင်ပါ။ အရောင်းအားလုံး final sale ဖြစ်ပါသည်" },
+      { q: "Chargeback မူဝါဒက ဘာလဲ?", a: "ကျွန်ုပ်တို့သည် chargeback အမှုများကို အမြဲအတိုက်အခံဖြေရှင်းပြီး Terms of Service ကို ဝယ်သူက သဘောတူထားမှုနှင့် platform အသုံးပြုမှုမှတ်တမ်းတို့အပါအဝင် သက်သေအထောက်အထားများကို တင်ပြပါသည်။" },
       { q: "Card statement ပေါ်မှာ ဘာနာမည်ပေါ်မလဲ?", a: "Card descriptor အဖြစ် Small World Chiang Mai လို့ပြသပါမည်။" },
       { q: "Private post တွေဘယ်လိုလုပ်သလဲ?", a: "Seller က private + စျေးနှုန်း သတ်မှတ်နိုင်ပြီး buyer က wallet ဖြင့် post တစ်ခုပြီးတစ်ခု unlock လုပ်နိုင်သည်" },
       { q: "Seller တွေက post schedule လုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Seller dashboard မှာ post ကို အနာဂတ်အချိန်အတွက် schedule သတ်မှတ်နိုင်ပါတယ်။" },
@@ -322,13 +325,14 @@ const HELP_I18N = {
     faqTitle: "Часто задаваемые вопросы",
     faqSubtitle: "Ответы для покупателей и продавцов Thailand Panties.",
     faqs: [
-      { q: "Как быстро отправляются заказы?", a: "Обычно отправка происходит в течение 1-3 рабочих дней после подтверждения оплаты, но срок может быть дольше в зависимости от локации продавца." },
-      { q: "Кто оплачивает доставку?", a: "Покупатель оплачивает точную стоимость доставки по своему направлению." },
       { q: "Как вы подтверждаете, что я общаюсь с реальным человеком, а не с AI или фейковым профилем?", a: "Мы проверяем аккаунты продавцов и баров до допуска к работе на платформе и далее отслеживаем сигналы профиля/активности. Мы не заявляем о 100% идеальном выявлении в каждом случае, но активно мониторим подозрительное поведение и удаляем аккаунты, нарушающие стандарты доверия и подлинности. Наша цель — нейтральный и более безопасный пользовательский опыт, чтобы покупатели могли общаться уверенно." },
+      { q: "Как быстро отправляются заказы?", a: "Обычно отправка происходит в течение 1-3 рабочих дней после подтверждения оплаты, но срок может быть дольше в зависимости от локации продавца." },
       { q: "Какой перевозчик используется?", a: "Мы используем международных перевозчиков с отслеживанием." },
       { q: "Упаковка дискретная?", a: "Да. Внешняя упаковка нейтральная, без идентифицирующей маркировки. В каждую посылку добавляются футболка, стикеры и подарок, а в таможенных формах указывается категория «одежда/промо-материалы/подарок»." },
       { q: "Законна ли доставка в моей стране и что, если посылку конфискует таможня?", a: "Наши товары в целом законны во многих юрисдикциях, и мы стараемся отправлять заказы с соблюдением международных требований. Однако покупатель сам несет ответственность за знание и соблюдение законов своей страны. Если посылка помечена, задержана или конфискована таможней/госорганами, Thailand Panties не несет ответственности, и возврат средств за такую конфискацию не производится." },
+      { q: "Кто оплачивает доставку?", a: "Покупатель оплачивает точную стоимость доставки по своему направлению." },
       { q: "Есть ли возвраты?", a: "Нет, все продажи окончательные, возвраты не предусмотрены." },
+      { q: "Какая у вас политика по чарджбэкам (chargeback)?", a: "Мы оспариваем все чарджбэки и предоставляем доказательства, включая согласие покупателя с Terms of Service и релевантную активность на платформе." },
       { q: "Что отображается в выписке по карте?", a: "Дескриптор платежа отображается как Small World Chiang Mai." },
       { q: "Как работают private-посты?", a: "Продавец может сделать пост приватным и задать цену, покупатель разблокирует пост из баланса кошелька." },
       { q: "Могут ли продавцы планировать посты?", a: "Да. Продавцы могут заранее планировать публикации в панели продавца." },
@@ -1029,13 +1033,30 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
   const allFaqs = Array.isArray(text.faqs) ? text.faqs : [];
   const sellerSignals = /(seller|sellers|seller dashboard|seller feed|ผู้ขาย|แดชบอร์ดผู้ขาย|ရောင်းသူ|seller\s*dashboard|продав|панель продавца)/i;
   const buyerPrioritySignals = /(independent seller|independent means|အလိုအလျောက် seller|seller ကိုယ်တိုင်|อิสระ|независим|real person|fake profile|\bai\b|คนจริง|โปรไฟล์ปลอม|ลวง|လူအစစ်|အတု profile|реальным человеком|фейковым профилем)/i;
+  const buyerQuestionPrioritySignals = /(how quickly are orders shipped|จัดส่งเร็วแค่ไหน|ပို့ဆောင်ချိန်ဘယ်လောက်|как быстро отправляются заказы)/i;
   const classifyFaq = (faq) => {
+    const question = String(faq?.q || "");
     const raw = `${faq?.q || ""} ${faq?.a || ""}`;
+    if (buyerQuestionPrioritySignals.test(question)) return "buyer";
     if (buyerPrioritySignals.test(raw)) return "buyer";
     return sellerSignals.test(raw) ? "seller" : "buyer";
   };
   const sellerFaqs = allFaqs.filter((faq) => classifyFaq(faq) === "seller");
   const buyerFaqs = allFaqs.filter((faq) => classifyFaq(faq) === "buyer");
+  const buyerFaqPriority = (faq) => {
+    const q = String(faq?.q || "");
+    if (/(real person|fake profile|คนจริง|โปรไฟล์ปลอม|လူအစစ်|အတု profile|реальным человеком|фейковым профилем)/i.test(q)) return 0;
+    if (/(how quickly are orders shipped|จัดส่งเร็วแค่ไหน|ပို့ဆောင်ချိန်ဘယ်လောက်|как быстро отправляются заказы)/i.test(q)) return 1;
+    return 2;
+  };
+  const orderedBuyerFaqs = [...buyerFaqs]
+    .map((faq, index) => ({ faq, index }))
+    .sort((a, b) => {
+      const priorityDiff = buyerFaqPriority(a.faq) - buyerFaqPriority(b.faq);
+      if (priorityDiff !== 0) return priorityDiff;
+      return a.index - b.index;
+    })
+    .map((entry) => entry.faq);
   const hasSellerSection = sellerFaqs.length > 0;
   const routeLabelsByLocale = {
     en: {
@@ -1185,7 +1206,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
         <div className="rounded-3xl border border-rose-100 bg-rose-50/40 p-6">
           <h3 className="text-lg font-semibold text-slate-900">Buyer FAQ</h3>
           <div className="mt-4 grid gap-4">
-            {(hasSellerSection ? buyerFaqs : allFaqs).map(renderFaqCard)}
+            {(hasSellerSection ? orderedBuyerFaqs : allFaqs).map(renderFaqCard)}
           </div>
         </div>
         {hasSellerSection ? (
