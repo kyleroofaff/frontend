@@ -2601,6 +2601,7 @@ const LEGACY_DEMO_USER_IDS_TO_REMOVE = new Set([
   'seller-11',
   'buyer-1',
 ]);
+const REQUIRED_DEMO_USER_IDS = new Set(['admin-2', 'seller-8', 'buyer-2', 'bar-1']);
 
 function normalizeDbState(nextDb) {
   if (!nextDb || typeof nextDb !== 'object') {
@@ -2611,16 +2612,30 @@ function normalizeDbState(nextDb) {
     ...structuredClone(SEED_DB),
     ...nextDb,
     users: Array.isArray(nextDb.users)
-      ? nextDb.users
-        .filter((user) => !LEGACY_DEMO_USER_IDS_TO_REMOVE.has(String(user?.id || '')))
-        .map((user) => ({
-          ...user,
-          postalCode: String(user?.postalCode || ''),
-          region: String(user?.region || ''),
-          strikeCount: Math.max(0, Number(user?.strikeCount || 0)),
-          timeFormat: normalizeTimeFormat(user?.timeFormat),
-          notificationPreferences: normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
-        }))
+      ? (() => {
+          const normalizedUsers = nextDb.users
+            .filter((user) => !LEGACY_DEMO_USER_IDS_TO_REMOVE.has(String(user?.id || '')))
+            .map((user) => ({
+              ...user,
+              postalCode: String(user?.postalCode || ''),
+              region: String(user?.region || ''),
+              strikeCount: Math.max(0, Number(user?.strikeCount || 0)),
+              timeFormat: normalizeTimeFormat(user?.timeFormat),
+              notificationPreferences: normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
+            }));
+          const existingIds = new Set(normalizedUsers.map((user) => String(user?.id || '')));
+          const requiredUsers = (SEED_DB.users || [])
+            .filter((user) => REQUIRED_DEMO_USER_IDS.has(String(user?.id || '')) && !existingIds.has(String(user?.id || '')))
+            .map((user) => ({
+              ...user,
+              postalCode: String(user?.postalCode || ''),
+              region: String(user?.region || ''),
+              strikeCount: Math.max(0, Number(user?.strikeCount || 0)),
+              timeFormat: normalizeTimeFormat(user?.timeFormat),
+              notificationPreferences: normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
+            }));
+          return [...normalizedUsers, ...requiredUsers];
+        })()
       : structuredClone(SEED_DB.users),
     sellers: Array.isArray(nextDb.sellers)
       ? nextDb.sellers.map((seller) => ({
@@ -4955,8 +4970,31 @@ export default function ThailandPantiesMarketSite() {
     event.preventDefault();
     setAuthErrorRefreshKey((prev) => prev + 1);
     const email = loginForm.email.trim().toLowerCase();
+    const normalizeLoginAlias = (value) => String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s._-]+/g, "");
+    const compactLoginInput = normalizeLoginAlias(email);
     const password = loginForm.password;
-    const user = users.find((candidate) => candidate.email.toLowerCase() === email);
+    const user = users.find((candidate) => {
+      const candidateEmail = String(candidate?.email || "").trim().toLowerCase();
+      const candidateEmailLocal = candidateEmail.split("@")[0] || "";
+      const candidateId = String(candidate?.id || "").trim().toLowerCase();
+      const candidateSellerId = String(candidate?.sellerId || "").trim().toLowerCase();
+      const candidateBarId = String(candidate?.barId || "").trim().toLowerCase();
+      const candidateName = String(candidate?.name || "").trim().toLowerCase();
+      return (
+        candidateEmail === email
+        || candidateEmailLocal === email
+        || candidateId === email
+        || candidateSellerId === email
+        || candidateBarId === email
+        || normalizeLoginAlias(candidateEmailLocal) === compactLoginInput
+        || normalizeLoginAlias(candidateName) === compactLoginInput
+        || normalizeLoginAlias(candidateSellerId) === compactLoginInput
+        || normalizeLoginAlias(candidateBarId) === compactLoginInput
+      );
+    });
     if (!user || user.password !== password) {
       setAuthError(loginText.invalidCredentials);
       setAuthSuccess('');
@@ -4978,11 +5016,12 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     setSession({ userId: user.id });
+    const authLoginEmail = String(user?.email || email).toLowerCase();
     try {
       const authResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: authLoginEmail, password }),
       });
       if (authResponse.ok) {
         const authPayload = await authResponse.json();
