@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
 export function ProductImage({ src, label = "Product image" }) {
@@ -40,8 +41,56 @@ function createBarProfileUrl(barId) {
   return `${window.location.origin}/bar/${barId}`;
 }
 
+function sanitizeFilename(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function downloadQrPng(svgElement, fileBaseName) {
+  if (typeof window === "undefined" || !svgElement) return;
+  const serialized = new XMLSerializer().serializeToString(svgElement);
+  const svgBlob = new Blob([serialized], { type: "image/svg+xml;charset=utf-8" });
+  const svgUrl = window.URL.createObjectURL(svgBlob);
+
+  try {
+    const image = new Image();
+    const imageLoaded = new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+    });
+    image.src = svgUrl;
+    await imageLoaded;
+
+    const canvas = document.createElement("canvas");
+    const width = Number(svgElement.getAttribute("width")) || 256;
+    const height = Number(svgElement.getAttribute("height")) || 256;
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+
+    const pngUrl = canvas.toDataURL("image/png");
+    const anchor = document.createElement("a");
+    anchor.href = pngUrl;
+    anchor.download = `${sanitizeFilename(fileBaseName) || "qr-code"}.png`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+  } finally {
+    window.URL.revokeObjectURL(svgUrl);
+  }
+}
+
 export function SellerQrCard({ seller, compact = false }) {
   const profileUrl = createSellerProfileUrl(seller.id);
+  const qrContainerRef = useRef(null);
 
   return (
     <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
@@ -50,7 +99,7 @@ export function SellerQrCard({ seller, compact = false }) {
           <div className="text-lg font-semibold">Share profile QR code</div>
           <p className="mt-1 text-sm leading-6 text-slate-600">Buyers can scan this code to open {seller.name}&rsquo;s profile page directly.</p>
         </div>
-        <div className="rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
+        <div ref={qrContainerRef} className="rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
           <QRCodeSVG value={profileUrl} size={compact ? 112 : 132} includeMargin />
         </div>
       </div>
@@ -66,6 +115,15 @@ export function SellerQrCard({ seller, compact = false }) {
         >
           Copy Link
         </button>
+        <button
+          onClick={() => {
+            const svgNode = qrContainerRef.current?.querySelector("svg");
+            downloadQrPng(svgNode, `${seller.name || seller.id}-profile-qr`);
+          }}
+          className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700"
+        >
+          Download QR
+        </button>
       </div>
     </div>
   );
@@ -73,6 +131,7 @@ export function SellerQrCard({ seller, compact = false }) {
 
 export function BarQrCard({ bar, compact = false }) {
   const profileUrl = createBarProfileUrl(bar.id);
+  const qrContainerRef = useRef(null);
 
   return (
     <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
@@ -81,7 +140,7 @@ export function BarQrCard({ bar, compact = false }) {
           <div className="text-lg font-semibold">Share bar page QR code</div>
           <p className="mt-1 text-sm leading-6 text-slate-600">Visitors can scan this code to open {bar.name}&rsquo;s bar profile directly.</p>
         </div>
-        <div className="rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
+        <div ref={qrContainerRef} className="rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
           <QRCodeSVG value={profileUrl} size={compact ? 112 : 132} includeMargin />
         </div>
       </div>
@@ -96,6 +155,15 @@ export function BarQrCard({ bar, compact = false }) {
           className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700"
         >
           Copy Link
+        </button>
+        <button
+          onClick={() => {
+            const svgNode = qrContainerRef.current?.querySelector("svg");
+            downloadQrPng(svgNode, `${bar.name || bar.id}-bar-qr`);
+          }}
+          className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700"
+        >
+          Download QR
         </button>
       </div>
     </div>

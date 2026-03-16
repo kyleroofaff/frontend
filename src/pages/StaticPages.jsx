@@ -805,13 +805,17 @@ const CUSTOM_REQUESTS_I18N = {
     needWalletSubmitPrefix: "You need at least",
     needWalletSubmitSuffix: "in your wallet to submit this request.",
     awaitingBuyerPayment: "awaiting buyer payment",
+    sellerFeed: "Seller feed",
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, openWalletTopUpForFlow, navigate, uiLanguage = "en" }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, openWalletTopUpForFlow, navigate, uiLanguage = "en" }) {
+  const isSellerView = currentUser?.role === "seller";
+  const isBuyerView = currentUser?.role === "buyer";
   const canSubmitRequest = currentUser?.role === "buyer";
   const canAffordNewRequest = Number(currentUser?.walletBalance || 0) >= CUSTOM_REQUEST_FEE_THB;
-  const canAffordMessageAction = Number(currentUser?.walletBalance || 0) >= MESSAGE_FEE_THB;
+  const canAffordMessageAction = isSellerView ? true : Number(currentUser?.walletBalance || 0) >= MESSAGE_FEE_THB;
+  const visibleRequests = isSellerView ? (sellerCustomRequests || []) : (buyerCustomRequests || []);
   const t = CUSTOM_REQUESTS_I18N[uiLanguage] || CUSTOM_REQUESTS_I18N.en;
   const [requestForm, setRequestForm] = useState({
     sellerId: (sellers || [])[0]?.id || "",
@@ -883,22 +887,92 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
   );
 
   return (
-    <PageShell eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle}>
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+      <div className="mb-8">
+        <div className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-500">{t.eyebrow}</div>
+        <h2 className="mt-2 text-3xl font-bold tracking-tight">{t.title}</h2>
+        <p className="mt-3 max-w-2xl text-slate-600">{t.subtitle}</p>
+      </div>
+      {isSellerView ? (
+        <div className="mb-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <button
+            type="button"
+            onClick={() => navigate?.("/seller-dashboard")}
+            className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+          >
+            Profile
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate?.("/seller-messages")}
+            className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+          >
+            Messages
+          </button>
+          <button
+            type="button"
+            className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
+          >
+            Custom requests
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate?.("/seller-feed-workspace")}
+            className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+          >
+            {t.sellerFeed || "Seller feed"}
+          </button>
+        </div>
+      ) : isBuyerView ? (
+        <div className="mb-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <button
+            type="button"
+            onClick={() => navigate?.("/account")}
+            className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+          >
+            Profile
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate?.("/buyer-messages")}
+            className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+          >
+            Messages
+          </button>
+          <button
+            type="button"
+            className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
+          >
+            Custom requests
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate?.("/seller-feed")}
+            className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+          >
+            Seller feed
+          </button>
+        </div>
+      ) : null}
       <div className="grid gap-8 md:grid-cols-2">
         <div className="rounded-3xl bg-white p-8 text-slate-600 shadow-md ring-1 ring-rose-100">
           <p>{t.submitFee} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} from your wallet balance.</p>
           <p className="mt-1 text-xs text-slate-500">{formatExchangeEstimates(CUSTOM_REQUEST_FEE_THB)}</p>
           <p className="mt-4">{t.openFee} {formatPriceTHB(MESSAGE_FEE_THB)} {t.perMessageBoth}</p>
-          {!canSubmitRequest ? <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">{t.loginBuyer}</p> : null}
-          {canSubmitRequest ? (
+          {!canSubmitRequest && !isSellerView ? <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">{t.loginBuyer}</p> : null}
+          {canSubmitRequest || isSellerView ? (
             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 ring-1 ring-rose-100">
               <div className="font-semibold text-slate-800">{t.recentRequests}</div>
               <div className="mt-2 space-y-2">
-                {(buyerCustomRequests || []).length === 0 ? (
+                {visibleRequests.length === 0 ? (
                   <div>{t.noRequests}</div>
-                ) : (buyerCustomRequests || []).slice(0, 5).map((request) => (
+                ) : visibleRequests.slice(0, 8).map((request) => (
                   <div key={request.id} className="rounded-xl bg-white px-3 py-2 ring-1 ring-rose-100">
-                    <div className="text-sm font-medium">{(sellers || []).find((seller) => seller.id === request.sellerId)?.name || request.sellerId}</div>
+                    <div className="text-sm font-medium">
+                      {isSellerView
+                        ? `${request.buyerName || "Buyer"} · ${request.buyerEmail || "No email"}`
+                        : ((sellers || []).find((seller) => seller.id === request.sellerId)?.name || request.sellerId)}
+                    </div>
                     <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(request.createdAt || Date.now())} · {request.status || "open"}</div>
                     <div className="mt-2 rounded-xl bg-slate-50 p-2">
                       <div className="max-h-28 space-y-1 overflow-y-auto">
@@ -957,7 +1031,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                           disabled={!canAffordMessageAction}
                           className={`rounded-lg bg-rose-600 px-3 py-1 text-xs font-semibold text-white ${!canAffordMessageAction ? "cursor-not-allowed opacity-60" : ""}`}
                         >
-                          {t.send} ({formatPriceTHB(MESSAGE_FEE_THB)})
+                          {isSellerView ? t.send : `${t.send} (${formatPriceTHB(MESSAGE_FEE_THB)})`}
                         </button>
                       </div>
                       <div className="mt-2">
@@ -995,9 +1069,9 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                           <div className="text-[11px] text-slate-500">Seller has not enabled buyer image uploads for this request yet.</div>
                         )}
                       </div>
-                      {!canAffordMessageAction ? <div className="mt-2 text-[11px] text-amber-700">{t.addWalletToSend} {formatPriceTHB(MESSAGE_FEE_THB)} {t.toWalletSend}</div> : null}
+                      {!canAffordMessageAction && !isSellerView ? <div className="mt-2 text-[11px] text-amber-700">{t.addWalletToSend} {formatPriceTHB(MESSAGE_FEE_THB)} {t.toWalletSend}</div> : null}
                     </div>
-                    {Number(request.quotedPriceThb || 0) > 0 ? (
+                    {!isSellerView && Number(request.quotedPriceThb || 0) > 0 ? (
                       <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">{t.sellerQuote}</div>
@@ -1128,7 +1202,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
           </div>
         </div>
       </div>
-    </PageShell>
+    </section>
   );
 }
 
