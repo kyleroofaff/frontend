@@ -31,12 +31,14 @@ import {
   FindPage,
   HowToApplyPage,
   OrderHelpPage,
+  SafetyReportPage,
   PortfolioSetupPage,
   PrivacyPackagingPage,
   PrivacyPolicyPage,
   RefundEvidencePage,
   RefundPolicyPage,
   SellerGuidelinesPage,
+  SellerAppealsPage,
   SellerPortfoliosPage,
   SellerStandardsPage,
   ShippingPolicyPage,
@@ -406,6 +408,18 @@ const PUBLIC_SITE_I18N = {
     smartProductDiscovery: 'Smart Product Discovery',
     smartProductCardDesc: 'Filter by type, size, color, wear details, condition, and price with live catalog counts.',
     openSmartDiscovery: 'Open smart discovery ->',
+    talkToRealGirls: 'Talk to real girls',
+    talkToRealGirlsSubtitle: 'Browse active seller profiles and start real conversations.',
+    viewSellerDirectory: 'View seller directory',
+    listingsLabel: 'listings',
+    typesLabel: 'types',
+    allFeed: 'All feed',
+    latestFromSellersAndBars: 'Latest from sellers and bars',
+    noRecentFeedPostsHome: 'No recent feed posts yet.',
+    findABar: 'Find a bar',
+    findABarSubtitle: 'Discover bars with the latest activity and specials.',
+    noRecentBarsHome: 'No recent bar activity yet.',
+    viewAllBars: 'View all bars',
     marketplace: 'Marketplace',
     shopWithRealFilters: 'Shop with real filters',
     resultsFoundSuffix: 'results found',
@@ -528,6 +542,18 @@ const PUBLIC_SITE_I18N = {
     smartProductDiscovery: 'ค้นหาสินค้าอัจฉริยะ',
     smartProductCardDesc: 'กรองตามประเภท ไซซ์ สี รายละเอียดการสวม สภาพ และราคา พร้อมจำนวนรายการแบบเรียลไทม์',
     openSmartDiscovery: 'เปิดการค้นหาอัจฉริยะ ->',
+    talkToRealGirls: 'คุยกับผู้หญิงจริง',
+    talkToRealGirlsSubtitle: 'ดูโปรไฟล์ผู้ขายที่ใช้งานอยู่และเริ่มบทสนทนาจริง',
+    viewSellerDirectory: 'ดูรายชื่อผู้ขาย',
+    listingsLabel: 'รายการ',
+    typesLabel: 'ประเภท',
+    allFeed: 'ฟีดทั้งหมด',
+    latestFromSellersAndBars: 'ล่าสุดจากผู้ขายและบาร์',
+    noRecentFeedPostsHome: 'ยังไม่มีโพสต์ล่าสุดในฟีด',
+    findABar: 'หาบาร์',
+    findABarSubtitle: 'ค้นพบบาร์ที่มีความเคลื่อนไหวและโปรล่าสุด',
+    noRecentBarsHome: 'ยังไม่มีกิจกรรมล่าสุดจากบาร์',
+    viewAllBars: 'ดูบาร์ทั้งหมด',
     marketplace: 'มาร์เก็ตเพลส',
     shopWithRealFilters: 'ช้อปด้วยตัวกรองจริง',
     resultsFoundSuffix: 'ผลลัพธ์',
@@ -650,6 +676,18 @@ const PUBLIC_SITE_I18N = {
     smartProductDiscovery: 'Smart Product Discovery',
     smartProductCardDesc: 'type, size, color, wear details, condition နှင့် price အလိုက် live count ဖြင့် filter လုပ်ပါ',
     openSmartDiscovery: 'Smart discovery ဖွင့်ရန် ->',
+    talkToRealGirls: 'အမျိုးသမီးရောင်းသူများနှင့် စကားပြောပါ',
+    talkToRealGirlsSubtitle: 'လှုပ်ရှားနေသော ရောင်းသူပရိုဖိုင်များကို ကြည့်ပြီး တကယ့်စကားပြောမှု စတင်ပါ',
+    viewSellerDirectory: 'ရောင်းသူစာရင်း ကြည့်ရန်',
+    listingsLabel: 'ကြော်ငြာ',
+    typesLabel: 'အမျိုးအစား',
+    allFeed: 'ဖိဒ်အားလုံး',
+    latestFromSellersAndBars: 'ရောင်းသူများနှင့် ဘားများမှ နောက်ဆုံးတင်ထားမှုများ',
+    noRecentFeedPostsHome: 'ဖိဒ်ပို့စ်အသစ်များ မရှိသေးပါ',
+    findABar: 'ဘားရှာရန်',
+    findABarSubtitle: 'နောက်ဆုံးလှုပ်ရှားမှုနှင့် အထူးအစီအစဉ်ရှိသော ဘားများကို ရှာဖွေပါ',
+    noRecentBarsHome: 'ဘားလှုပ်ရှားမှုအသစ်များ မရှိသေးပါ',
+    viewAllBars: 'ဘားအားလုံး ကြည့်ရန်',
     marketplace: 'Marketplace',
     shopWithRealFilters: 'Filter ဖြင့် စျေးဝယ်ပါ',
     resultsFoundSuffix: 'ရလဒ်',
@@ -772,6 +810,18 @@ const PUBLIC_SITE_I18N = {
     smartProductDiscovery: 'Умный поиск товаров',
     smartProductCardDesc: 'Фильтруйте по типу, размеру, цвету, деталям носки, состоянию и цене с живыми счетчиками.',
     openSmartDiscovery: 'Открыть умный поиск ->',
+    talkToRealGirls: 'Общайтесь с реальными девушками',
+    talkToRealGirlsSubtitle: 'Смотрите активные профили продавцов и начинайте реальные диалоги.',
+    viewSellerDirectory: 'Открыть каталог продавцов',
+    listingsLabel: 'листингов',
+    typesLabel: 'типов',
+    allFeed: 'Общая лента',
+    latestFromSellersAndBars: 'Последнее от продавцов и баров',
+    noRecentFeedPostsHome: 'Пока нет свежих постов в ленте.',
+    findABar: 'Найти бар',
+    findABarSubtitle: 'Откройте бары с самой свежей активностью и акциями.',
+    noRecentBarsHome: 'Пока нет свежей активности баров.',
+    viewAllBars: 'Смотреть все бары',
     marketplace: 'Маркетплейс',
     shopWithRealFilters: 'Покупки с точными фильтрами',
     resultsFoundSuffix: 'результатов',
@@ -988,6 +1038,26 @@ const DEFAULT_EMAIL_TEMPLATES = [
     ctaPath: '/account',
     subject: 'Heads up: wallet balance is low ({{walletBalance}})',
     body: 'Hi {{recipientName}},\n\nFriendly reminder: your wallet balance is currently {{walletBalance}}.\n\nTo keep messaging, requests, and unlocks running smoothly, top up here:\n{{actionUrl}}\n\nA quick top-up now can prevent interruptions later.\n\n- ThP',
+  },
+  {
+    key: 'moderation_strike_added',
+    name: 'Moderation strike added',
+    audience: 'buyer_or_seller',
+    enabled: true,
+    ctaLabel: 'Open appeals',
+    ctaPath: '/appeals',
+    subject: 'Moderation strike added to your account ({{strikeCount}}/2)',
+    body: 'Hi {{recipientName}},\n\nA moderation strike was added to your account.\n\nCurrent strike count: {{strikeCount}}/2\nReason: {{strikeReason}}\n\nIf you want this reviewed, submit an appeal here:\n{{actionUrl}}\n\n- ThP',
+  },
+  {
+    key: 'account_frozen_two_strikes',
+    name: 'Account frozen after two strikes',
+    audience: 'buyer_or_seller',
+    enabled: true,
+    ctaLabel: 'Submit appeal',
+    ctaPath: '/appeals',
+    subject: 'Your account is frozen after two moderation strikes',
+    body: 'Hi {{recipientName}},\n\nYour account has been frozen after receiving two moderation strikes.\n\nLatest strike reason: {{strikeReason}}\n\nTo request review and reactivation, submit an appeal here:\n{{actionUrl}}\n\n- ThP',
   },
   {
     key: 'order_shipped',
@@ -2335,6 +2405,8 @@ const SEED_DB = {
   customRequests: [],
   customRequestMessages: [],
   refundClaims: [],
+  orderHelpRequests: [],
+  safetyReports: [],
   barAffiliationRequests: [],
   adminInboxReviews: [],
   adminInboxFilterPresets: [],
@@ -2553,6 +2625,18 @@ const CMS_SCHEMA = {
     feeCharged: 'number',
     createdAt: 'datetime',
   },
+  SafetyReport: {
+    id: 'string',
+    userId: 'relation<User>',
+    name: 'string',
+    email: 'string',
+    reportType: 'enum<harassment|abusive_language|scam|off_platform_payment|other>',
+    targetHandle: 'string',
+    contextDetails: 'text',
+    status: 'enum<submitted|in_review|resolved>',
+    createdAt: 'datetime',
+    updatedAt: 'datetime',
+  },
   WalletTransaction: {
     id: 'string',
     userId: 'relation<User>',
@@ -2560,6 +2644,18 @@ const CMS_SCHEMA = {
     amount: 'number',
     description: 'string',
     createdAt: 'datetime',
+  },
+  OrderHelpRequest: {
+    id: 'string',
+    userId: 'relation<User>',
+    name: 'string',
+    email: 'string',
+    orderId: 'string',
+    issueType: 'enum<tracking|address|delivery|billing|other>',
+    message: 'text',
+    status: 'enum<submitted|in_review|resolved>',
+    createdAt: 'datetime',
+    updatedAt: 'datetime',
   },
   SellerPostLike: {
     id: 'string',
@@ -2869,6 +2965,8 @@ function normalizeDbState(nextDb) {
         })
       : [],
     refundClaims: Array.isArray(nextDb.refundClaims) ? nextDb.refundClaims : [],
+    orderHelpRequests: Array.isArray(nextDb.orderHelpRequests) ? nextDb.orderHelpRequests : [],
+    safetyReports: Array.isArray(nextDb.safetyReports) ? nextDb.safetyReports : [],
     barAffiliationRequests: Array.isArray(nextDb.barAffiliationRequests) ? nextDb.barAffiliationRequests : [],
     adminInboxReviews: Array.isArray(nextDb.adminInboxReviews) ? nextDb.adminInboxReviews : [],
     adminInboxFilterPresets: Array.isArray(nextDb.adminInboxFilterPresets) ? nextDb.adminInboxFilterPresets : [],
@@ -3098,9 +3196,11 @@ function parseRoute(pathname) {
   if (pathname === '/worldwide-shipping') return { name: 'worldwide-shipping' };
   if (pathname === '/seller-portfolios') return { name: 'seller-portfolios' };
   if (pathname === '/how-to-apply') return { name: 'how-to-apply' };
+  if (pathname === '/seller-appeals') return { name: 'seller-appeals' };
   if (pathname === '/seller-guidelines') return { name: 'seller-guidelines' };
   if (pathname === '/portfolio-setup') return { name: 'portfolio-setup' };
   if (pathname === '/order-help') return { name: 'order-help' };
+  if (pathname === '/safety-report') return { name: 'safety-report' };
   if (pathname === '/privacy-packaging') return { name: 'privacy-packaging' };
   if (pathname.startsWith('/product/')) return { name: 'product', slug: pathname.replace('/product/', '') };
   if (pathname.startsWith('/bar/')) return { name: 'bar', id: pathname.replace('/bar/', '') };
@@ -3153,7 +3253,7 @@ function applyStrikeAndAutoFreeze(prev, { targetUserId, reason, sourceType, sour
     appliedByUserId: adminUserId || 'admin',
   };
 
-  return {
+  const base = {
     ...prev,
     userStrikes: [strike, ...(prev.userStrikes || [])],
     users: (prev.users || []).map((user) => {
@@ -3174,6 +3274,8 @@ function applyStrikeAndAutoFreeze(prev, { targetUserId, reason, sourceType, sour
         text: shouldFreeze
           ? 'Your account is frozen after two moderation strikes. Please submit an appeal.'
           : `A moderation strike was added to your account (${nextStrikeCount}/2).`,
+        actionPath: '/appeals',
+        actionLabel: 'Appeal now',
         read: false,
         createdAt: now,
       },
@@ -3203,6 +3305,17 @@ function applyStrikeAndAutoFreeze(prev, { targetUserId, reason, sourceType, sour
         : []),
     ],
   };
+  const strikeTemplateKey = shouldFreeze ? 'account_frozen_two_strikes' : 'moderation_strike_added';
+  return appendTemplatedEmail(base, {
+    templateKey: strikeTemplateKey,
+    userId: targetUserId,
+    vars: {
+      strikeCount: nextStrikeCount,
+      strikeReason: strike.reason || 'Not specified',
+      actionPath: '/appeals',
+    },
+    fallbackPath: '/appeals',
+  });
 }
 
 export default function ThailandPantiesMarketSite() {
@@ -3258,6 +3371,7 @@ export default function ThailandPantiesMarketSite() {
   const [buyerEmail, setBuyerEmail] = useState(() => String(readStore('tlm-checkout-buyer-email', '') || ''));
   const [checkoutAuthModalOpen, setCheckoutAuthModalOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [postLoginRedirectPath, setPostLoginRedirectPath] = useState('');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [authLanguage, setAuthLanguage] = useState(() => normalizeAuthLanguage(readStore('tlm-auth-language', 'en')));
   const [registerForm, setRegisterForm] = useState({
@@ -3532,6 +3646,8 @@ export default function ThailandPantiesMarketSite() {
   const customRequests = db.customRequests || [];
   const customRequestMessages = db.customRequestMessages || [];
   const refundClaims = db.refundClaims || [];
+  const orderHelpRequests = db.orderHelpRequests || [];
+  const safetyReports = db.safetyReports || [];
   const barAffiliationRequests = db.barAffiliationRequests || [];
   const adminInboxReviews = db.adminInboxReviews || [];
   const adminInboxFilterPresets = db.adminInboxFilterPresets || [];
@@ -5167,9 +5283,42 @@ export default function ThailandPantiesMarketSite() {
     () =>
       Object.values(sellerMap)
         .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')))
-        .slice(0, 3),
+        .slice(0, 6),
     [sellerMap],
   );
+  const homeSellerInsightsById = useMemo(() => {
+    const byId = {};
+    (availableProducts || []).forEach((product) => {
+      const sellerId = product?.sellerId;
+      if (!sellerId) return;
+      if (!byId[sellerId]) {
+        byId[sellerId] = {
+          total: 0,
+          types: new Set(),
+        };
+      }
+      byId[sellerId].total += 1;
+      if (product.style) byId[sellerId].types.add(product.style);
+    });
+    return byId;
+  }, [availableProducts]);
+  const homeSellerPreview = useMemo(() => {
+    const latestProductTsBySeller = (availableProducts || []).reduce((acc, product) => {
+      const sellerId = String(product?.sellerId || '').trim();
+      if (!sellerId) return acc;
+      const ts = new Date(product?.publishedAt || product?.createdAt || 0).getTime();
+      if (!acc[sellerId] || ts > acc[sellerId]) acc[sellerId] = ts;
+      return acc;
+    }, {});
+    return Object.values(sellerMap)
+      .sort((a, b) => {
+        const bTs = latestProductTsBySeller[b.id] || 0;
+        const aTs = latestProductTsBySeller[a.id] || 0;
+        if (bTs !== aTs) return bTs - aTs;
+        return String(a?.name || '').localeCompare(String(b?.name || ''));
+      })
+      .slice(0, 6);
+  }, [sellerMap, availableProducts]);
   const sellerCountByBarId = useMemo(() => {
     const counts = {};
     (sellers || []).forEach((seller) => {
@@ -5201,16 +5350,43 @@ export default function ThailandPantiesMarketSite() {
       }),
     [sellerAllPosts, feedNow],
   );
-  const savedHomePreviewPosts = useMemo(() => {
-    if (!currentUser) return [];
-    const savedIds = new Set(
-      (sellerSavedPosts || [])
-        .filter((entry) => entry.userId === currentUser.id && (entry.feedType || 'seller') === 'seller')
-        .map((entry) => entry.postId),
-    );
-    return sellerFeedPosts.filter((post) => savedIds.has(post.id)).slice(0, 6);
-  }, [currentUser, sellerSavedPosts, sellerFeedPosts]);
-  const homeFeedPreviewPosts = sellerFeedPosts.slice(0, 6);
+  const homeProductPreview = filteredProducts.slice(0, 6);
+  const homeAllFeedPreviewPosts = useMemo(() => {
+    const sellerRows = (sellerFeedPosts || []).map((post) => ({
+      ...post,
+      feedType: 'seller',
+      sortAt: post?.createdAt || null,
+    }));
+    const barRows = (barFeedPosts || []).map((post) => ({
+      ...post,
+      feedType: 'bar',
+      sortAt: post?.createdAt || null,
+    }));
+    return [...sellerRows, ...barRows]
+      .sort((a, b) => new Date(b.sortAt || 0).getTime() - new Date(a.sortAt || 0).getTime())
+      .slice(0, 6);
+  }, [sellerFeedPosts, barFeedPosts]);
+  const homeBarsByRecentPost = useMemo(() => {
+    const newestBarPostByBarId = {};
+    (barFeedPosts || []).forEach((post) => {
+      const barId = String(post?.barId || '').trim();
+      if (!barId) return;
+      const ts = new Date(post?.createdAt || 0).getTime();
+      const current = newestBarPostByBarId[barId];
+      const currentTs = new Date(current?.createdAt || 0).getTime();
+      if (!current || ts > currentTs) {
+        newestBarPostByBarId[barId] = post;
+      }
+    });
+    return Object.entries(newestBarPostByBarId)
+      .map(([barId, latestPost]) => ({
+        bar: localizedBarMap[barId] || barMap[barId] || null,
+        latestPost,
+      }))
+      .filter((entry) => entry.bar && entry.latestPost)
+      .sort((a, b) => new Date(b.latestPost?.createdAt || 0).getTime() - new Date(a.latestPost?.createdAt || 0).getTime())
+      .slice(0, 6);
+  }, [barFeedPosts, localizedBarMap, barMap]);
   const sellerDashboardPosts = useMemo(
     () => sellerAllPosts.filter((post) => post.sellerId === currentSellerId),
     [sellerAllPosts, currentSellerId],
@@ -5494,6 +5670,13 @@ export default function ThailandPantiesMarketSite() {
     setAuthError('');
     setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
     setCheckoutAuthModalOpen(false);
+    const normalizedPostLoginRedirectPath = String(postLoginRedirectPath || '').trim();
+    const canUsePostLoginRedirect = normalizedPostLoginRedirectPath.startsWith('/') && !normalizedPostLoginRedirectPath.startsWith('//');
+    if (canUsePostLoginRedirect) {
+      setPostLoginRedirectPath('');
+      navigate(normalizedPostLoginRedirectPath);
+      return;
+    }
     if (user.role === 'admin') {
       navigate('/admin');
       return;
@@ -7284,6 +7467,266 @@ export default function ThailandPantiesMarketSite() {
       };
     });
     onSuccess?.('Refund evidence submitted. Admin will review your claim.');
+  }
+
+  async function submitOrderHelpRequest(payload, onSuccess, onError) {
+    const name = String(payload?.name || currentUser?.name || '').trim();
+    const email = String(payload?.email || currentUser?.email || '').trim().toLowerCase();
+    const orderId = String(payload?.orderId || '').trim();
+    const issueType = String(payload?.issueType || 'other').trim();
+    const message = String(payload?.message || '').trim();
+    if (!name || !email || !message) {
+      onError?.('Please complete name, email, and issue details.');
+      return false;
+    }
+    const validIssueTypes = new Set(['tracking', 'address', 'delivery', 'billing', 'other']);
+    const normalizedIssueType = validIssueTypes.has(issueType) ? issueType : 'other';
+    if (backendStatus === 'connected') {
+      try {
+        const idScope = `order_help_${email}_${orderId}_${normalizedIssueType}_${message.slice(0, 80)}`;
+        const { ok, payload: apiPayload } = await apiRequestJson('/api/support/order-help', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: {
+            name,
+            email,
+            orderId,
+            issueType: normalizedIssueType,
+            message,
+          },
+          idempotencyScope: idScope,
+          stableIdempotency: true,
+        });
+        if (ok) {
+          if (apiPayload?.db) {
+            setDb(normalizeDbState(apiPayload.db));
+          }
+          onSuccess?.('Support request submitted. Our team will follow up soon.');
+          return true;
+        }
+      } catch {
+        // Fall through to local persistence so support request is not lost.
+      }
+    }
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const adminUsers = (prev.users || []).filter((user) => user.role === 'admin');
+      const requestId = `order_help_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      return {
+        ...prev,
+        orderHelpRequests: [
+          {
+            id: requestId,
+            userId: currentUser?.id || null,
+            name,
+            email,
+            orderId,
+            issueType: normalizedIssueType,
+            message,
+            status: 'submitted',
+            adminNote: '',
+            reviewedByUserId: null,
+            createdAt: now,
+            updatedAt: now,
+          },
+          ...(prev.orderHelpRequests || []),
+        ],
+        notifications: [
+          ...(prev.notifications || []),
+          ...adminUsers.map((admin, index) => ({
+            id: `notif_order_help_${Date.now()}_${index}`,
+            userId: admin.id,
+            type: 'engagement',
+            text: `New order help request from ${name}${orderId ? ` (${orderId})` : ''}.`,
+            read: false,
+            createdAt: now,
+          })),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}_order_help`,
+            type: 'order_help_submitted',
+            targetUserId: currentUser?.id || null,
+            adminUserId: currentUser?.id || null,
+            createdAt: now,
+            metadata: {
+              requestId,
+              orderId,
+              issueType: normalizedIssueType,
+              email,
+            },
+          },
+        ],
+      };
+    });
+    onSuccess?.('Support request submitted. Our team will follow up soon.');
+    return true;
+  }
+
+  async function submitSafetyReport(payload, onSuccess, onError) {
+    const name = String(payload?.name || currentUser?.name || '').trim();
+    const email = String(payload?.email || currentUser?.email || '').trim().toLowerCase();
+    const reportType = String(payload?.reportType || 'other').trim();
+    const targetHandle = String(payload?.targetHandle || '').trim();
+    const contextDetails = String(payload?.contextDetails || '').trim();
+    if (!name || !email || !contextDetails) {
+      onError?.('Please complete name, email, and report details.');
+      return false;
+    }
+    const validTypes = new Set(['harassment', 'abusive_language', 'scam', 'off_platform_payment', 'other']);
+    const normalizedReportType = validTypes.has(reportType) ? reportType : 'other';
+    if (backendStatus === 'connected') {
+      try {
+        const idScope = `safety_report_${email}_${normalizedReportType}_${contextDetails.slice(0, 80)}`;
+        const { ok, payload: apiPayload } = await apiRequestJson('/api/support/safety-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: {
+            name,
+            email,
+            reportType: normalizedReportType,
+            targetHandle,
+            contextDetails,
+          },
+          idempotencyScope: idScope,
+          stableIdempotency: true,
+        });
+        if (ok) {
+          if (apiPayload?.db) {
+            setDb(normalizeDbState(apiPayload.db));
+          }
+          onSuccess?.('Safety report submitted. Admin has been notified.');
+          return true;
+        }
+      } catch {
+        // Fall through to local persistence so safety report is not lost.
+      }
+    }
+    const now = new Date().toISOString();
+    setDb((prev) => {
+      const adminUsers = (prev.users || []).filter((user) => user.role === 'admin');
+      const reportId = `safety_report_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      return {
+        ...prev,
+        safetyReports: [
+          {
+            id: reportId,
+            userId: currentUser?.id || null,
+            name,
+            email,
+            reportType: normalizedReportType,
+            targetHandle,
+            contextDetails,
+            status: 'submitted',
+            createdAt: now,
+            updatedAt: now,
+          },
+          ...(prev.safetyReports || []),
+        ],
+        notifications: [
+          ...(prev.notifications || []),
+          ...adminUsers.map((admin, index) => ({
+            id: `notif_safety_report_${Date.now()}_${index}`,
+            userId: admin.id,
+            type: 'engagement',
+            text: `New safety report from ${name}${targetHandle ? ` about ${targetHandle}` : ''}.`,
+            read: false,
+            createdAt: now,
+          })),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}_safety_report`,
+            type: 'safety_report_submitted',
+            targetUserId: currentUser?.id || null,
+            adminUserId: currentUser?.id || null,
+            createdAt: now,
+            metadata: {
+              reportId,
+              reportType: normalizedReportType,
+              targetHandle,
+              email,
+            },
+          },
+        ],
+      };
+    });
+    onSuccess?.('Safety report submitted. Admin has been notified.');
+    return true;
+  }
+
+  function updateOrderHelpRequestStatus(requestId, nextStatus, note, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      onError?.('Only admin can update order help requests.');
+      return;
+    }
+    if (!requestId || !['submitted', 'in_review', 'resolved'].includes(nextStatus)) {
+      onError?.('Invalid request update.');
+      return;
+    }
+    const now = new Date().toISOString();
+    const normalizedNote = String(note || '').trim().slice(0, 1000);
+    let found = false;
+    let requesterUserId = null;
+    setDb((prev) => {
+      const requests = prev.orderHelpRequests || [];
+      const target = requests.find((entry) => entry.id === requestId);
+      if (!target) return prev;
+      found = true;
+      requesterUserId = target.userId || null;
+      const updatedRequests = requests.map((entry) => (
+        entry.id === requestId
+          ? {
+              ...entry,
+              status: nextStatus,
+              adminNote: normalizedNote,
+              reviewedByUserId: currentUser.id,
+              updatedAt: now,
+            }
+          : entry
+      ));
+      const base = {
+        ...prev,
+        orderHelpRequests: updatedRequests,
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}_order_help_status`,
+            type: 'order_help_status_updated',
+            targetRequestId: requestId,
+            targetUserId: requesterUserId,
+            adminUserId: currentUser.id,
+            status: nextStatus,
+            note: normalizedNote,
+            createdAt: now,
+          },
+        ],
+      };
+      if (!requesterUserId) return base;
+      const requester = (prev.users || []).find((user) => user.id === requesterUserId);
+      if (!requester || !shouldSendNotificationForType(requester, 'engagement')) return base;
+      return {
+        ...base,
+        notifications: [
+          ...(base.notifications || []),
+          {
+            id: `notif_${Date.now()}_order_help_update`,
+            userId: requesterUserId,
+            type: 'engagement',
+            text: `Your order help request was updated to ${nextStatus.replace('_', ' ')}.${normalizedNote ? ` Note: ${normalizedNote}` : ''}`,
+            read: false,
+            createdAt: now,
+          },
+        ],
+      };
+    });
+    if (!found) {
+      onError?.('Order help request not found.');
+      return;
+    }
+    onSuccess?.('Order help request updated.');
   }
 
   function updateBuyerMessageProductFilter(key, value) {
@@ -10463,6 +10906,9 @@ export default function ThailandPantiesMarketSite() {
           {
             id: `appeal_${Date.now()}`,
             userId: currentUser.id,
+            userRole: currentUser.role || '',
+            sellerId: currentUser.sellerId || '',
+            barId: currentUser.barId || '',
             status: 'pending',
             message: trimmed.slice(0, 1000),
             strikeIds: (prev.userStrikes || []).filter((strike) => strike.userId === currentUser.id && strike.status === 'active').map((strike) => strike.id),
@@ -10915,6 +11361,7 @@ export default function ThailandPantiesMarketSite() {
         { label: 'Contact', route: '/contact' },
         { label: 'Order Help', route: '/order-help' },
         { label: 'Appeals', route: '/appeals' },
+        { label: 'Seller Appeals Process', route: '/seller-appeals' },
         { label: 'Privacy Packaging', route: '/privacy-packaging' },
         { label: 'Community Standards', route: '/community-standards' },
       ],
@@ -10924,6 +11371,7 @@ export default function ThailandPantiesMarketSite() {
       links: [
         { label: 'How to Apply', route: '/how-to-apply' },
         { label: 'Seller Guidelines', route: '/seller-guidelines' },
+        { label: 'Appeals Process', route: '/seller-appeals' },
         { label: 'Portfolio Setup', route: '/portfolio-setup' },
         { label: 'Shipping Standards', route: '/seller-standards' },
       ],
@@ -11298,48 +11746,20 @@ export default function ThailandPantiesMarketSite() {
               </div>
 
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {filteredProducts.map((product) => {
-                  const bundleOption = product.isBundle ? null : getPrimaryBundleForProduct(product.id);
+                {homeProductPreview.map((product) => {
                   return (
-                  <div key={product.id} className="overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-rose-100 transition hover:-translate-y-1 hover:shadow-xl">
-                    <button onClick={() => navigate(`/product/${product.slug}`)} className="block h-64 w-full">
+                  <article key={product.id} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                    <button onClick={() => navigate(`/product/${product.slug}`)} className="block h-56 w-full text-left">
                       <ProductImage src={product.image} label={product.imageName || product.title} />
                     </button>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left text-lg font-semibold hover:text-rose-700">{product.title}</button>
-                          <div className="mt-1 flex items-center gap-2">
-                            <button onClick={() => navigate(`/seller/${product.sellerId}`)} className="block text-sm text-slate-500 hover:text-rose-600">{publicText.byPrefix} {sellerMap[product.sellerId]?.name}</button>
-                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${sellerMap[product.sellerId]?.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                              {sellerMap[product.sellerId]?.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-rose-700">{formatPriceTHB(product.price)}</div>
+                    <div className="mt-4">
+                      <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left text-lg font-semibold hover:text-rose-700">{product.title}</button>
+                      <div className="mt-1 text-sm text-slate-500">
+                        {sellerMap?.[product.sellerId]?.name || product.sellerId} · {product.style || localizeOptionLabel('Not specified', uiLanguage)}
                       </div>
-                      <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.sizeLabel} {product.size}</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{product.color}</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{product.style}</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{product.fabric}</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.wornLabel}: {product.daysWorn || localizeOptionLabel('Not specified', uiLanguage)}</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.riseLabel}: {product.waistRise || localizeOptionLabel('Not specified', uiLanguage)}</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.coverageLabel}: {product.coverage || localizeOptionLabel('Not specified', uiLanguage)}</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1">{publicText.scentLabel}: {product.scentLevel || localizeOptionLabel('Not specified', uiLanguage)}</span>
-                      </div>
-                      {bundleOption ? (
-                        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
-                          <div className="text-xs font-semibold text-amber-900">{publicText.bundleAvailableBadge}</div>
-                          <button
-                            onClick={() => navigate(`/product/${bundleOption.slug}`)}
-                            className="mt-1 text-xs font-semibold text-amber-800 hover:text-amber-900"
-                          >
-                            {publicText.viewBundleOption}
-                          </button>
-                        </div>
-                      ) : null}
-                      <div className="mt-5 flex gap-3">
+                      <div className="mt-1 text-sm text-slate-500">{product.size || localizeOptionLabel('Not specified', uiLanguage)} · {product.color || localizeOptionLabel('Not specified', uiLanguage)}</div>
+                      <div className="mt-3 text-lg font-semibold text-rose-700">{formatPriceTHB(product.price)}</div>
+                      <div className="mt-4 flex gap-3">
                         <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl bg-rose-600 px-4 py-3 font-semibold text-white">{publicText.viewListing}</button>
                         <button
                           onClick={() => addToCart(product.id)}
@@ -11350,7 +11770,7 @@ export default function ThailandPantiesMarketSite() {
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 )})}
               </div>
             </section>
@@ -11358,109 +11778,137 @@ export default function ThailandPantiesMarketSite() {
             <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <SectionTitle
-                  eyebrow={publicText.sellerFeed}
-                  title={publicText.latestSellerUpdates}
+                  eyebrow={publicText.featuredSellers}
+                  title={publicText.talkToRealGirls}
+                  subtitle={publicText.talkToRealGirlsSubtitle}
+                />
+                <button onClick={() => navigate('/seller-portfolios')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                  {publicText.viewSellerDirectory}
+                </button>
+              </div>
+              {homeSellerPreview.length === 0 ? (
+                <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
+                  {publicText.sellerFallback}
+                </div>
+              ) : (
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {homeSellerPreview.map((seller) => (
+                    <article key={seller.id} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                      <div className="h-44">
+                        <ProductImage
+                          src={seller.profileImageResolved || seller.profileImage}
+                          label={seller.profileImageNameResolved || seller.profileImageName || `${seller.name} profile`}
+                        />
+                      </div>
+                      <div className="mt-4 flex items-start justify-between gap-4">
+                        <div>
+                          <button onClick={() => navigate(`/seller/${seller.id}`)} className="text-left text-xl font-semibold hover:text-rose-700">{seller.name}</button>
+                          <p className="text-sm text-slate-500">{seller.location || localizeOptionLabel('Not specified', uiLanguage)}</p>
+                        </div>
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${seller.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                          {seller.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
+                        </span>
+                      </div>
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{seller.bio || seller.specialty || publicText.sellerFallback}</p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.total || 0} {publicText.listingsLabel}</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.types?.size || 0} {publicText.typesLabel}</span>
+                      </div>
+                      <button onClick={() => navigate(`/seller/${seller.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                        {publicText.viewSellerProfile}
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <SectionTitle
+                  eyebrow={publicText.allFeed}
+                  title={publicText.latestFromSellersAndBars}
                   subtitle={publicText.recentLifestylePosts}
                 />
                 <button onClick={() => navigate('/seller-feed')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
                   {publicText.viewFullFeed}
                 </button>
               </div>
-              {homeFeedPreviewPosts.length === 0 ? (
+              {homeAllFeedPreviewPosts.length === 0 ? (
                 <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
-                  {publicText.noRecentSellerPosts}
+                  {publicText.noRecentFeedPostsHome}
                 </div>
               ) : (
                 <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                  {homeFeedPreviewPosts.map((post) => (
-                    <article key={post.id} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
-                      <div className="flex items-center justify-between gap-2">
-                        <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
-                          {sellerMap[post.sellerId]?.name || post.sellerId}
+                  {homeAllFeedPreviewPosts.map((post) => {
+                    const isSellerFeedPost = post.feedType === 'seller';
+                    const seller = isSellerFeedPost ? sellerMap[post.sellerId] : null;
+                    const bar = !isSellerFeedPost ? (localizedBarMap[post.barId] || barMap[post.barId]) : null;
+                    return (
+                      <article key={`${post.feedType}_${post.id}`} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
+                        <div className="flex items-center justify-between gap-2">
+                          {isSellerFeedPost ? (
+                            <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
+                              {seller?.name || post.sellerId}
+                            </button>
+                          ) : (
+                            <button onClick={() => navigate(`/bar/${post.barId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
+                              {bar?.name || post.barId}
+                            </button>
+                          )}
+                          <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600">
+                            {isSellerFeedPost ? publicText.sellerFeed : publicText.bars}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                        <button onClick={() => navigate('/seller-feed')} className="mt-3 block h-56 w-full">
+                          <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} />
                         </button>
-                        <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${sellerMap[post.sellerId]?.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                          {sellerMap[post.sellerId]?.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
-                        </span>
+                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</p>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <SectionTitle
+                  eyebrow={publicText.bars}
+                  title={publicText.findABar}
+                  subtitle={publicText.findABarSubtitle}
+                />
+                <button onClick={() => navigate('/bars')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                  {publicText.viewAllBars}
+                </button>
+              </div>
+              {homeBarsByRecentPost.length === 0 ? (
+                <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
+                  {publicText.noRecentBarsHome}
+                </div>
+              ) : (
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {homeBarsByRecentPost.map(({ bar, latestPost }) => (
+                    <article key={`home_bar_${bar.id}`} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                      <div className="h-44">
+                        <ProductImage src={latestPost?.image || bar.profileImage} label={latestPost?.imageName || `${bar.name} latest post`} />
                       </div>
-                      <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                      <button
-                        onClick={() => {
-                          if (isSellerPostPrivate(post) && !currentUser) {
-                            navigate('/login');
-                            return;
-                          }
-                          navigate('/seller-feed');
-                        }}
-                        className="mt-3 block h-56 w-full"
-                      >
-                        <div className="relative h-full">
-                          <div className={canViewSellerPost(post) ? '' : 'blur-sm'}>
-                            <ProductImage src={post.image} label={post.imageName || 'Seller feed image'} />
-                          </div>
-                          {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
-                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
-                              </button>
-                            </div>
-                          ) : null}
-                        </div>
+                      <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
+                      <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
+                      <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                        {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
+                      </div>
+                      <p className="mt-3 line-clamp-2 text-sm text-slate-600">{latestPost?.caption || bar.about || publicText.barProfileSoon}</p>
+                      <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(latestPost?.createdAt)}</div>
+                      <button onClick={() => navigate(`/bar/${bar.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                        {publicText.viewBarProfile}
                       </button>
-                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{canViewSellerPost(post) ? (post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption) : publicText.privatePostUnlock}</p>
-                      {canViewSellerPost(post) && currentUser ? (
-                        <div className="mt-3">
-                          <button
-                            onClick={() => toggleSavedSellerPost(post.id, 'seller')}
-                            className={`rounded-xl border px-3 py-1 text-xs font-semibold ${(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id && (entry.feedType || 'seller') === 'seller') ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 text-slate-700'}`}
-                          >
-                            {(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id && (entry.feedType || 'seller') === 'seller') ? publicText.saved : publicText.savePost}
-                          </button>
-                        </div>
-                      ) : null}
                     </article>
                   ))}
                 </div>
               )}
             </section>
-            {currentUser ? (
-              <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <SectionTitle
-                    eyebrow={publicText.savedFeed}
-                    title={publicText.yourSavedSellerPosts}
-                    subtitle={publicText.quickAccessBookmarked}
-                  />
-                  <button onClick={() => navigate('/seller-feed')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
-                    {publicText.openSavedTab}
-                  </button>
-                </div>
-                {savedHomePreviewPosts.length === 0 ? (
-                  <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
-                    {publicText.noSavedPostsHome}
-                  </div>
-                ) : (
-                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {savedHomePreviewPosts.map((post) => (
-                      <article key={post.id} className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-rose-100">
-                        <div className="flex items-center justify-between gap-2">
-                          <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
-                            {sellerMap[post.sellerId]?.name || post.sellerId}
-                          </button>
-                          <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${sellerMap[post.sellerId]?.isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                            {sellerMap[post.sellerId]?.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
-                          </span>
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <button onClick={() => navigate('/seller-feed')} className="mt-3 block h-56 w-full">
-                          <ProductImage src={post.image} label={post.imageName || 'Saved seller post'} />
-                        </button>
-                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</p>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </section>
-            ) : null}
           </>
         ) : null}
 
@@ -12374,6 +12822,7 @@ export default function ThailandPantiesMarketSite() {
             setSellerReplyDraft={setSellerReplyDraft}
             sendSellerReply={sendSellerReply}
             notifications={notifications}
+            userStrikes={userStrikes}
             currentUser={currentUser}
             markAllNotificationsRead={markAllNotificationsRead}
             markNotificationRead={markNotificationRead}
@@ -12613,6 +13062,8 @@ export default function ThailandPantiesMarketSite() {
             customRequests={customRequests}
             customRequestMessages={customRequestMessages}
             refundClaims={refundClaims}
+            orderHelpRequests={orderHelpRequests}
+            safetyReports={safetyReports}
             barAffiliationRequests={barAffiliationRequests}
             adminInboxReviews={adminInboxReviews}
             updateAdminInboxReview={updateAdminInboxReview}
@@ -12626,6 +13077,7 @@ export default function ThailandPantiesMarketSite() {
             walletTransactions={walletTransactions}
             adminDisputeCases={adminDisputeCases}
             updateAdminDisputeCase={updateAdminDisputeCase}
+            updateOrderHelpRequestStatus={updateOrderHelpRequestStatus}
             blocks={blocks}
             adminActions={adminActions}
             pendingSellerApprovals={pendingSellerApprovals}
@@ -12961,6 +13413,7 @@ export default function ThailandPantiesMarketSite() {
             sendCustomRequestMessage={sendCustomRequestMessage}
             respondToCustomRequestPrice={respondToCustomRequestPrice}
             notifications={notifications}
+            userStrikes={userStrikes}
             updateNotificationPreference={updateNotificationPreference}
             updatePushNotificationPreference={updatePushNotificationPreference}
             pushPermission={pushPermission}
@@ -12977,21 +13430,26 @@ export default function ThailandPantiesMarketSite() {
             submitStrikeAppeal={submitStrikeAppeal}
             submittingStrikeAppeal={submittingStrikeAppeal}
             navigate={navigate}
+            onOpenLogin={() => {
+              setPostLoginRedirectPath('/appeals');
+              navigate('/login');
+            }}
           />
         ) : null}
 
         {routeInfo.name === 'privacy-policy' ? <PrivacyPolicyPage uiLanguage={uiLanguage} /> : null}
-        {routeInfo.name === 'terms' ? <TermsPage /> : null}
-        {routeInfo.name === 'shipping-policy' ? <ShippingPolicyPage /> : null}
+        {routeInfo.name === 'terms' ? <TermsPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
+        {routeInfo.name === 'shipping-policy' ? <ShippingPolicyPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
         {routeInfo.name === 'refund-policy' ? <RefundPolicyPage /> : null}
         {routeInfo.name === 'refund-evidence' ? (
           <RefundEvidencePage
             currentUser={currentUser}
             submitRefundEvidence={submitRefundEvidence}
             navigate={navigate}
+            uiLanguage={uiLanguage}
           />
         ) : null}
-        {routeInfo.name === 'community-standards' ? <CommunityStandardsPage /> : null}
+        {routeInfo.name === 'community-standards' ? <CommunityStandardsPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
         {routeInfo.name === 'seller-standards' ? <SellerStandardsPage uiLanguage={uiLanguage} /> : null}
         {routeInfo.name === 'contact' ? <ContactPage uiLanguage={uiLanguage} /> : null}
         {routeInfo.name === 'faq' ? <FaqPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
@@ -13011,13 +13469,29 @@ export default function ThailandPantiesMarketSite() {
           />
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}
-        {routeInfo.name === 'worldwide-shipping' ? <WorldwideShippingPage /> : null}
+        {routeInfo.name === 'worldwide-shipping' ? <WorldwideShippingPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
         {routeInfo.name === 'seller-portfolios' ? <SellerPortfoliosPage sellers={Object.values(sellerMap)} products={availableProducts} navigate={navigate} uiLanguage={uiLanguage} /> : null}
         {routeInfo.name === 'how-to-apply' ? <HowToApplyPage uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'seller-appeals' ? <SellerAppealsPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
         {routeInfo.name === 'seller-guidelines' ? <SellerGuidelinesPage uiLanguage={uiLanguage} /> : null}
         {routeInfo.name === 'portfolio-setup' ? <PortfolioSetupPage uiLanguage={uiLanguage} /> : null}
-        {routeInfo.name === 'order-help' ? <OrderHelpPage uiLanguage={uiLanguage} /> : null}
-        {routeInfo.name === 'privacy-packaging' ? <PrivacyPackagingPage /> : null}
+        {routeInfo.name === 'order-help' ? (
+          <OrderHelpPage
+            uiLanguage={uiLanguage}
+            currentUser={currentUser}
+            submitOrderHelpRequest={submitOrderHelpRequest}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'safety-report' ? (
+          <SafetyReportPage
+            uiLanguage={uiLanguage}
+            currentUser={currentUser}
+            submitSafetyReport={submitSafetyReport}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'privacy-packaging' ? <PrivacyPackagingPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
       </main>
 
       <footer className="border-t border-rose-100 bg-white">

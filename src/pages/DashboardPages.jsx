@@ -1753,6 +1753,7 @@ export function SellerDashboardPage({
   setSellerReplyDraft,
   sendSellerReply,
   notifications,
+  userStrikes,
   currentUser,
   markAllNotificationsRead,
   markNotificationRead,
@@ -1861,12 +1862,23 @@ export function SellerDashboardPage({
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
     [notifications, currentUser]
   );
+  const sellerActiveStrikes = useMemo(
+    () => (userStrikes || []).filter((strike) => strike.userId === currentUser?.id && strike.status === "active"),
+    [userStrikes, currentUser]
+  );
   const filteredSellerNotifications = useMemo(() => {
     if (notificationFilter === "unread") return sellerNotifications.filter((notification) => !notification.read);
     if (notificationFilter === "messages") return sellerNotifications.filter((notification) => notification.type === "message");
     if (notificationFilter === "engagement") return sellerNotifications.filter((notification) => notification.type === "engagement");
     return sellerNotifications;
   }, [sellerNotifications, notificationFilter]);
+  const resolveNotificationActionPath = (notification) => {
+    const explicitPath = String(notification?.actionPath || "").trim();
+    if (explicitPath) return explicitPath;
+    const text = String(notification?.text || "").toLowerCase();
+    if (/(strike|frozen|appeal)/i.test(text)) return "/appeals";
+    return "";
+  };
   const unreadNotificationCount = sellerNotifications.filter((notification) => !notification.read).length;
   const sellerUnreadConversationCount = (sellerInbox || []).filter((message) => message.hasUnread ?? !message.readBySeller).length;
   const firstUnreadSellerConversation = (sellerInbox || []).find((message) => message.hasUnread ?? !message.readBySeller) || null;
@@ -2012,6 +2024,31 @@ export function SellerDashboardPage({
       ) : (
         <>
           <SectionTitle eyebrow={t("sellerDashboardEyebrow")} title={t("sectionTitle")} subtitle={t("sectionSubtitle")} />
+          {sellerActiveStrikes.length > 0 ? (
+            <div className={`mb-4 rounded-3xl border p-4 ${currentUser?.accountStatus === "frozen" ? "border-rose-300 bg-rose-50" : "border-amber-200 bg-amber-50"}`}>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className={`text-sm font-semibold ${currentUser?.accountStatus === "frozen" ? "text-rose-900" : "text-amber-900"}`}>
+                    {currentUser?.accountStatus === "frozen"
+                      ? "Account frozen after two moderation strikes"
+                      : `Moderation strikes on account: ${sellerActiveStrikes.length}/2`}
+                  </div>
+                  <div className={`mt-1 text-sm ${currentUser?.accountStatus === "frozen" ? "text-rose-800" : "text-amber-800"}`}>
+                    {currentUser?.accountStatus === "frozen"
+                      ? "Your seller account is frozen. Submit an appeal to request review."
+                      : "Please review your strike details and submit an appeal if you want admin review."}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/appeals")}
+                  className={`rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold ${currentUser?.accountStatus === "frozen" ? "border-rose-300 text-rose-800" : "border-amber-300 text-amber-800"}`}
+                >
+                  Open appeals
+                </button>
+              </div>
+            </div>
+          ) : null}
           {sellerUnreadConversationCount > 0 ? (
             <div className="mb-4 rounded-3xl border border-amber-200 bg-amber-50 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -2171,6 +2208,20 @@ export function SellerDashboardPage({
                     <div className="flex gap-2">
                       {!notification.read ? (
                         <button onClick={() => markNotificationRead(notification.id)} className="rounded-lg border border-rose-200 px-2 py-1 text-[10px] font-semibold text-rose-700">Mark read</button>
+                      ) : null}
+                      {resolveNotificationActionPath(notification) ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!notification.read) {
+                              markNotificationRead(notification.id);
+                            }
+                            navigate(resolveNotificationActionPath(notification));
+                          }}
+                          className="rounded-lg border border-amber-300 px-2 py-1 text-[10px] font-semibold text-amber-800"
+                        >
+                          {notification.actionLabel || "Appeal now"}
+                        </button>
                       ) : null}
                       {notification.conversationId ? (
                         <button
@@ -4100,6 +4151,8 @@ export function AdminPage({
   customRequests,
   customRequestMessages,
   refundClaims,
+  orderHelpRequests,
+  safetyReports,
   barAffiliationRequests,
   adminInboxReviews,
   updateAdminInboxReview,
@@ -4113,6 +4166,7 @@ export function AdminPage({
   walletTransactions,
   adminDisputeCases,
   updateAdminDisputeCase,
+  updateOrderHelpRequestStatus,
   blocks,
   adminActions,
   pendingSellerApprovals,
@@ -4203,6 +4257,7 @@ export function AdminPage({
   const [adminWorkspaceMode, setAdminWorkspaceMode] = useState("all");
   const [adminUserNoteDraft, setAdminUserNoteDraft] = useState("");
   const [orderShipmentDrafts, setOrderShipmentDrafts] = useState({});
+  const [orderHelpNoteDraftByItemKey, setOrderHelpNoteDraftByItemKey] = useState({});
   const [barDraftsById, setBarDraftsById] = useState({});
   const [payoutSourceFilter, setPayoutSourceFilter] = useState("all");
   const [payoutRoleFilter, setPayoutRoleFilter] = useState("all");
@@ -4681,6 +4736,64 @@ export function AdminPage({
         searchText: `${claim.id} ${claim.orderId || ""} ${claim.expectedItem || ""} ${claim.receivedItem || ""} ${claim.evidenceDetails || ""} ${(claim.evidenceLinks || []).join(" ")} ${buyer?.name || ""}`.toLowerCase(),
       };
     });
+    const orderHelpEvents = (orderHelpRequests || []).map((request) => {
+      const requester = request?.userId ? userById[request.userId] : null;
+      const review = inboxReviewByItemKey[`order_help_request:${request.id}`];
+      const requestBody = String(request?.message || "");
+      return {
+        itemKey: `order_help_request:${request.id}`,
+        id: request.id,
+        conversationId: null,
+        type: "order_help_request",
+        typeLabel: "Order help request",
+        priority: resolvePriority({ text: requestBody, basePriority: "medium" }),
+        reviewStatus: review?.status || "new",
+        reviewUpdatedAt: review?.updatedAt || null,
+        createdAt: request?.createdAt || null,
+        actorLabel: requester?.name || request?.name || request?.email || "Guest",
+        counterpartLabel: "Support",
+        actorUserId: requester?.id || null,
+        counterpartUserId: null,
+        requestStatus: request?.status || "submitted",
+        issueType: String(request?.issueType || "other"),
+        requesterEmail: String(request?.email || ""),
+        adminNote: String(request?.adminNote || ""),
+        body: requestBody,
+        bodySnippet: requestBody.slice(0, 180),
+        requestId: request?.orderId || null,
+        actionPath: "/order-help",
+        searchText: `${request.id} ${request.orderId || ""} ${request.issueType || ""} ${request.message || ""} ${request.name || ""} ${request.email || ""}`.toLowerCase(),
+      };
+    });
+    const safetyReportEvents = (safetyReports || []).map((report) => {
+      const reporter = report?.userId ? userById[report.userId] : null;
+      const review = inboxReviewByItemKey[`safety_report:${report.id}`];
+      const reportBody = String(report?.contextDetails || "");
+      return {
+        itemKey: `safety_report:${report.id}`,
+        id: report.id,
+        conversationId: null,
+        type: "safety_report",
+        typeLabel: "Safety report",
+        priority: resolvePriority({ text: reportBody, basePriority: "high" }),
+        reviewStatus: review?.status || "new",
+        reviewUpdatedAt: review?.updatedAt || null,
+        createdAt: report?.createdAt || null,
+        actorLabel: reporter?.name || report?.name || report?.email || "Guest",
+        counterpartLabel: "Admin",
+        actorUserId: reporter?.id || null,
+        counterpartUserId: null,
+        requestStatus: report?.status || "submitted",
+        reportType: String(report?.reportType || "other"),
+        reporterEmail: String(report?.email || ""),
+        targetHandle: String(report?.targetHandle || ""),
+        body: reportBody,
+        bodySnippet: reportBody.slice(0, 180),
+        requestId: null,
+        actionPath: "/safety-report",
+        searchText: `${report.id} ${report.reportType || ""} ${report.targetHandle || ""} ${report.contextDetails || ""} ${report.name || ""} ${report.email || ""}`.toLowerCase(),
+      };
+    });
     const barAffiliationEvents = (barAffiliationRequests || []).map((request) => {
       const seller = sellerById[request.sellerId];
       const bar = barById[request.barId];
@@ -4723,13 +4836,15 @@ export function AdminPage({
         searchText: `${request.id} ${request.direction || ""} ${request.status || ""} ${seller?.name || ""} ${bar?.name || ""}`.toLowerCase(),
       };
     });
-    return [...directMessages, ...requestEvents, ...requestMessages, ...refundClaimEvents, ...barAffiliationEvents]
+    return [...directMessages, ...requestEvents, ...requestMessages, ...refundClaimEvents, ...orderHelpEvents, ...safetyReportEvents, ...barAffiliationEvents]
       .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   }, [
     messages,
     customRequests,
     customRequestMessages,
     refundClaims,
+    orderHelpRequests,
+    safetyReports,
     barAffiliationRequests,
     sellerUserBySellerId,
     sellerById,
@@ -5747,12 +5862,22 @@ export function AdminPage({
                 <div className="mt-4 space-y-4">
                     {pendingAppeals.length === 0 ? (
                       <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No pending appeals.</div>
-                    ) : pendingAppeals.slice(0, 8).map((appeal) => (
+                    ) : pendingAppeals.slice(0, 8).map((appeal) => {
+                      const appealUser = users.find((user) => user.id === appeal.userId);
+                      const roleLabel = String(appeal?.userRole || appealUser?.role || "").trim();
+                      const sellerIdLabel = String(appeal?.sellerId || appealUser?.sellerId || "").trim();
+                      return (
                     <div key={appeal.id} className="rounded-2xl border border-rose-100 p-5">
                         <div className="text-sm font-semibold">
-                          {users.find((user) => user.id === appeal.userId)?.name || appeal.userId}
+                          {appealUser?.name || appeal.userId}
                         </div>
                       <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(appeal.createdAt || Date.now())}</div>
+                      {(roleLabel || sellerIdLabel) ? (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {roleLabel ? <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">Role: {roleLabel}</span> : null}
+                          {sellerIdLabel ? <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">Seller ID: {sellerIdLabel}</span> : null}
+                        </div>
+                      ) : null}
                         <div className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">{appeal.message}</div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
@@ -5771,7 +5896,8 @@ export function AdminPage({
                           </button>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
@@ -5964,6 +6090,8 @@ export function AdminPage({
                     <option value="custom_request">Custom requests</option>
                     <option value="custom_request_message">Request messages</option>
                     <option value="refund_claim">Refund evidence</option>
+                    <option value="order_help_request">Order help requests</option>
+                    <option value="safety_report">Safety reports</option>
                     <option value="bar_affiliation_request">Bar affiliation requests</option>
                   </select>
                   <select value={inboxPriorityFilter} onChange={(event) => { setInboxPriorityFilter(event.target.value); setInboxVisibleCount(20); }} className="rounded-xl border border-slate-200 px-3 py-2 text-sm">
@@ -6122,6 +6250,24 @@ export function AdminPage({
                       {item.type === "refund_claim" && item.decisionNote ? (
                         <div className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
                           Decision note: {item.decisionNote}
+                        </div>
+                      ) : null}
+                      {item.type === "order_help_request" ? (
+                        <div className="mt-2 rounded-xl bg-slate-50 p-3 text-xs text-slate-700">
+                          <div><span className="font-semibold text-slate-800">Issue type:</span> {item.issueType || "other"}</div>
+                          <div className="mt-1"><span className="font-semibold text-slate-800">Requester email:</span> {item.requesterEmail || "Not provided"}</div>
+                        </div>
+                      ) : null}
+                      {item.type === "safety_report" ? (
+                        <div className="mt-2 rounded-xl bg-rose-50 p-3 text-xs text-rose-900">
+                          <div><span className="font-semibold">Report type:</span> {item.reportType || "other"}</div>
+                          <div className="mt-1"><span className="font-semibold">Reporter email:</span> {item.reporterEmail || "Not provided"}</div>
+                          {item.targetHandle ? <div className="mt-1"><span className="font-semibold">Target:</span> {item.targetHandle}</div> : null}
+                        </div>
+                      ) : null}
+                      {item.type === "order_help_request" && item.adminNote ? (
+                        <div className="mt-2 rounded-xl bg-indigo-50 px-3 py-2 text-xs text-indigo-900">
+                          Admin note: {item.adminNote}
                         </div>
                       ) : null}
                       <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
@@ -6306,6 +6452,52 @@ export function AdminPage({
                     </button>
                   </div>
                 ) : null}
+                        {item.type === "order_help_request" ? (
+                          <>
+                            <input
+                              value={orderHelpNoteDraftByItemKey[item.itemKey] || ""}
+                              onChange={(event) => setOrderHelpNoteDraftByItemKey((prev) => ({ ...prev, [item.itemKey]: event.target.value }))}
+                              className="min-w-[220px] rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                              placeholder="Admin note for this ticket"
+                            />
+                            <button
+                              onClick={() => {
+                                if (!updateOrderHelpRequestStatus) return;
+                                updateOrderHelpRequestStatus(
+                                  item.id,
+                                  "in_review",
+                                  orderHelpNoteDraftByItemKey[item.itemKey] || "",
+                                  () => {
+                                    setInboxActionMessage(`Marked order help request ${item.id} as in review.`);
+                                    updateAdminInboxReview?.(item.itemKey, "follow_up");
+                                  },
+                                  (message) => setInboxActionMessage(message || "Could not update order help request."),
+                                );
+                              }}
+                              className="rounded-xl border border-violet-300 px-3 py-2 text-sm font-semibold text-violet-700"
+                            >
+                              Mark in review
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!updateOrderHelpRequestStatus) return;
+                                updateOrderHelpRequestStatus(
+                                  item.id,
+                                  "resolved",
+                                  orderHelpNoteDraftByItemKey[item.itemKey] || "",
+                                  () => {
+                                    setInboxActionMessage(`Resolved order help request ${item.id}.`);
+                                    updateAdminInboxReview?.(item.itemKey, "resolved");
+                                  },
+                                  (message) => setInboxActionMessage(message || "Could not resolve order help request."),
+                                );
+                              }}
+                              className="rounded-xl border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700"
+                            >
+                              Resolve request
+                            </button>
+                          </>
+                        ) : null}
               </div>
             </div>
           ) : null}
@@ -7796,6 +7988,7 @@ export function AccountPage({
   sendCustomRequestMessage,
   respondToCustomRequestPrice,
   notifications,
+  userStrikes,
   updateNotificationPreference,
   updatePushNotificationPreference,
   pushPermission,
@@ -7881,6 +8074,10 @@ export function AccountPage({
       && !notification.read
     ));
   }, [notifications, currentUser]);
+  const accountActiveStrikes = useMemo(
+    () => (userStrikes || []).filter((strike) => strike.userId === currentUser?.id && strike.status === "active"),
+    [userStrikes, currentUser]
+  );
   const buyerUnreadDirectMessageCount = useMemo(
     () =>
       buyerUnreadMessageNotifications.filter(
@@ -8081,6 +8278,32 @@ export function AccountPage({
       ) : (
         <>
           <SectionTitle eyebrow="Account" title={accountText.accountCenterTitle} subtitle={accountText.accountCenterSubtitle} />
+          {(currentUser.role === "buyer" || currentUser.role === "seller") && accountActiveStrikes.length > 0 ? (
+            <div className={`mb-6 rounded-3xl border p-5 ${currentUser.accountStatus === "frozen" ? "border-rose-300 bg-rose-50" : "border-amber-200 bg-amber-50"}`}>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className={`text-sm font-semibold uppercase tracking-[0.14em] ${currentUser.accountStatus === "frozen" ? "text-rose-700" : "text-amber-700"}`}>
+                    Account moderation notice
+                  </div>
+                  <div className={`mt-1 text-sm ${currentUser.accountStatus === "frozen" ? "text-rose-900" : "text-amber-900"}`}>
+                    {currentUser.accountStatus === "frozen"
+                      ? "Your account is frozen after two moderation strikes."
+                      : `You currently have ${accountActiveStrikes.length} active moderation strike${accountActiveStrikes.length > 1 ? "s" : ""}.`}
+                  </div>
+                  <div className={`mt-1 text-sm ${currentUser.accountStatus === "frozen" ? "text-rose-800" : "text-amber-800"}`}>
+                    Open appeals to submit your explanation and request admin review.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/appeals")}
+                  className={`rounded-xl border bg-white px-3 py-2.5 text-sm font-semibold ${currentUser.accountStatus === "frozen" ? "border-rose-300 text-rose-800" : "border-amber-300 text-amber-800"}`}
+                >
+                  Open appeals
+                </button>
+              </div>
+            </div>
+          ) : null}
           {currentUser.role === "buyer" ? (
             <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
               <button className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
@@ -9130,7 +9353,8 @@ export function AppealsPage({
   userAppeals,
   submitStrikeAppeal,
   submittingStrikeAppeal,
-  navigate
+  navigate,
+  onOpenLogin
 }) {
   const [appealMessage, setAppealMessage] = useState("");
   const activeStrikes = useMemo(
@@ -9149,7 +9373,7 @@ export function AppealsPage({
         <div className="rounded-3xl bg-white p-8 text-center shadow-md ring-1 ring-rose-100">
           <h2 className="text-2xl font-bold">Login required</h2>
           <p className="mt-2 text-sm text-slate-600">Please login to submit a moderation appeal.</p>
-          <button onClick={() => navigate("/login")} className="mt-4 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+          <button onClick={() => (onOpenLogin ? onOpenLogin() : navigate("/login"))} className="mt-4 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
             Go to login
           </button>
         </div>
