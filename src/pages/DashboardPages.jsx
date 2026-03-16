@@ -59,6 +59,13 @@ const SELLER_UI_LANGUAGE_OPTIONS = [
   { value: "ru", label: "Russian" }
 ];
 
+const ADMIN_MOBILE_NAV_I18N = {
+  en: { overview: "Overview", inbox: "Inbox", approvals: "Approvals", payments: "Payments" },
+  th: { overview: "ภาพรวม", inbox: "กล่องข้อความ", approvals: "อนุมัติ", payments: "การชำระเงิน" },
+  my: { overview: "အကျဉ်းချုပ်", inbox: "Inbox", approvals: "အတည်ပြုချက်", payments: "ငွေပေးချေမှု" },
+  ru: { overview: "Обзор", inbox: "Входящие", approvals: "Одобрения", payments: "Платежи" },
+};
+
 const ACCOUNT_PAGE_I18N = {
   en: {
     loginRequired: "Login required",
@@ -108,6 +115,7 @@ const ACCOUNT_PAGE_I18N = {
     conversationList: "Conversation list",
     conversationsAppearHere: "Your seller conversations will appear here.",
     conversationWith: "Conversation with",
+    chattingWith: "Chatting with",
     noDate: "No date",
     newCountSuffix: "new",
     selectOrStartConversation: "Select or start a conversation",
@@ -171,6 +179,7 @@ const ACCOUNT_PAGE_I18N = {
     addWalletReplyPrefix: "Add at least",
     addWalletReplySuffix: "to your wallet to reply.",
     addWalletRequestMessageSuffix: "to your wallet to send custom request messages.",
+    customRequests: "Custom requests",
   },
   th: {
     loginRequired: "ต้องเข้าสู่ระบบ",
@@ -220,6 +229,7 @@ const ACCOUNT_PAGE_I18N = {
     conversationList: "รายการบทสนทนา",
     conversationsAppearHere: "บทสนทนากับผู้ขายของคุณจะแสดงที่นี่",
     conversationWith: "บทสนทนากับ",
+    chattingWith: "กำลังแชทกับ",
     noDate: "ไม่มีวันที่",
     newCountSuffix: "ใหม่",
     selectOrStartConversation: "เลือกหรือเริ่มบทสนทนา",
@@ -283,6 +293,7 @@ const ACCOUNT_PAGE_I18N = {
     addWalletReplyPrefix: "เติมอย่างน้อย",
     addWalletReplySuffix: "ลงในกระเป๋าเพื่อส่งข้อความตอบกลับ",
     addWalletRequestMessageSuffix: "ลงในกระเป๋าเพื่อส่งข้อความคำขอพิเศษ",
+    customRequests: "คำขอพิเศษ",
   },
   my: {
     loginRequired: "လော့ဂ်အင် လိုအပ်သည်",
@@ -332,6 +343,7 @@ const ACCOUNT_PAGE_I18N = {
     conversationList: "conversation စာရင်း",
     conversationsAppearHere: "seller နှင့် conversation များကို ဒီမှာ ပြသပါမည်။",
     conversationWith: "conversation with",
+    chattingWith: "စကားပြောနေသူ",
     noDate: "ရက်စွဲမရှိ",
     newCountSuffix: "အသစ်",
     selectOrStartConversation: "conversation ရွေးပါ သို့မဟုတ် စတင်ပါ",
@@ -395,6 +407,7 @@ const ACCOUNT_PAGE_I18N = {
     addWalletReplyPrefix: "အနည်းဆုံး",
     addWalletReplySuffix: "ကို wallet ထဲ ထည့်ပြီးမှ reply ပို့နိုင်ပါမည်။",
     addWalletRequestMessageSuffix: "ကို wallet ထဲ ထည့်ပြီးမှ custom request message ပို့နိုင်ပါမည်။",
+    customRequests: "စိတ်ကြိုက်တောင်းဆိုချက်များ",
   },
   ru: {
     loginRequired: "Требуется вход",
@@ -444,6 +457,7 @@ const ACCOUNT_PAGE_I18N = {
     conversationList: "Список диалогов",
     conversationsAppearHere: "Здесь появятся ваши диалоги с продавцами.",
     conversationWith: "Диалог с",
+    chattingWith: "Чат с",
     noDate: "Нет даты",
     newCountSuffix: "новых",
     selectOrStartConversation: "Выберите или начните диалог",
@@ -507,6 +521,7 @@ const ACCOUNT_PAGE_I18N = {
     addWalletReplyPrefix: "Добавьте минимум",
     addWalletReplySuffix: "в кошелек, чтобы ответить.",
     addWalletRequestMessageSuffix: "в кошелек, чтобы отправлять сообщения по кастомным запросам.",
+    customRequests: "Индивидуальные запросы",
   },
 };
 
@@ -760,6 +775,15 @@ function buildSellerSelectOptions(baseOptions, currentValue) {
   return [trimmed, ...baseOptions];
 }
 
+function normalizeLegacyLocalizedValue(rawValue, options, fallback = "") {
+  const value = String(rawValue || "").trim();
+  if (!value) return fallback;
+  if (options.includes(value)) return value;
+  const baseEnglish = value.split(" (")[0].trim();
+  if (options.includes(baseEnglish)) return baseEnglish;
+  return fallback || value;
+}
+
 const SELLER_I18N = {
   en: {
     sectionTitle: "Manage your storefront",
@@ -787,6 +811,8 @@ const SELLER_I18N = {
     conversations: "conversation(s)",
     noMessages: "No messages yet.",
     customerConversation: "Customer conversation",
+    chattingWith: "Chatting with",
+    unknownBuyer: "Unknown buyer",
     selectConversation: "Select a conversation to reply.",
     replyPlaceholder: "Reply to buyer",
     reply: "Reply",
@@ -968,7 +994,7 @@ const SELLER_I18N = {
     mediaUpload: "อัปโหลดสินค้า", mediaUploadHelp: "เลือกรูปภาพสำหรับสินค้าของคุณ รูปจะถูกบันทึกในเซสชันปัจจุบัน",
     imagePreview: "ตัวอย่างรูปภาพ", createDraft: "สร้างรายการแบบร่าง", inbox: "กล่องข้อความผู้ขาย",
     liveUpdates: "อัปเดตสด", conversations: "บทสนทนา", noMessages: "ยังไม่มีข้อความ",
-    customerConversation: "บทสนทนาลูกค้า", selectConversation: "เลือกบทสนทนาเพื่อตอบกลับ",
+    customerConversation: "บทสนทนาลูกค้า", chattingWith: "กำลังแชทกับ", unknownBuyer: "ผู้ซื้อที่ไม่ทราบชื่อ", selectConversation: "เลือกบทสนทนาเพื่อตอบกลับ",
     replyPlaceholder: "ตอบกลับผู้ซื้อ", reply: "ตอบกลับ", createFeedPost: "สร้างโพสต์",
     createFeedPostHelp: "แชร์โพสต์ไลฟ์สไตล์ในฟีดสาธารณะของคุณเพื่อให้ผู้ซื้อรู้จักแบรนด์มากขึ้น",
     captionPlaceholder: "เขียนแคปชันเกี่ยวกับวันของคุณ อารมณ์ หรือสไตล์...",
@@ -1095,7 +1121,7 @@ const SELLER_I18N = {
     mediaUpload: "ပစ္စည်း အပ်လုဒ်", mediaUploadHelp: "သင့်ပစ္စည်းအတွက် ပုံကိုရွေးပါ။ ပုံကို လက်ရှိ session တွင် သိမ်းဆည်းမည်",
     imagePreview: "ပုံကြိုတင်ကြည့်ရှုမှု", createDraft: "မူကြမ်းစာရင်း ဖန်တီးမည်", inbox: "ရောင်းသူ စာဝင်ပုံး",
     liveUpdates: "တိုက်ရိုက်အပ်ဒိတ်", conversations: "စကားဝိုင်း", noMessages: "မက်ဆေ့ချ် မရှိသေးပါ",
-    customerConversation: "ဝယ်သူနှင့် စကားဝိုင်း", selectConversation: "ပြန်ရန် စကားဝိုင်းတစ်ခု ရွေးပါ",
+    customerConversation: "ဝယ်သူနှင့် စကားဝိုင်း", chattingWith: "စကားပြောနေသူ", unknownBuyer: "ဝယ်သူအမည်မသိ", selectConversation: "ပြန်ရန် စကားဝိုင်းတစ်ခု ရွေးပါ",
     replyPlaceholder: "ဝယ်သူသို့ ပြန်စာရေးရန်", reply: "ပြန်ပို့မည်", createFeedPost: "Post ဖန်တီးမည်",
     createFeedPostHelp: "သင့် public seller feed တွင် lifestyle update မျှဝေပြီး ဝယ်သူများကို မိတ်ဆက်ပါ",
     captionPlaceholder: "သင့်နေ့စဉ်အကြောင်း၊ စိတ်နေစိတ်ထား သို့မဟုတ် စတိုင်ကို ရေးပါ...",
@@ -1222,7 +1248,7 @@ const SELLER_I18N = {
     mediaUpload: "Загрузка товара", mediaUploadHelp: "Выберите изображение для объявления. Файлы сохраняются в текущей сессии.",
     imagePreview: "Предпросмотр изображения", createDraft: "Создать черновик", inbox: "Входящие продавца",
     liveUpdates: "Онлайн-обновления", conversations: "диалог(ов)", noMessages: "Сообщений пока нет.",
-    customerConversation: "Диалог с покупателем", selectConversation: "Выберите диалог для ответа",
+    customerConversation: "Диалог с покупателем", chattingWith: "Чат с", unknownBuyer: "Неизвестный покупатель", selectConversation: "Выберите диалог для ответа",
     replyPlaceholder: "Ответ покупателю", reply: "Ответить", createFeedPost: "Создать пост",
     createFeedPostHelp: "Публикуйте обновления в ленте продавца, чтобы покупатели узнавали ваш бренд.",
     captionPlaceholder: "Напишите подпись к посту...",
@@ -1478,6 +1504,28 @@ export function SellerDashboardPage({
   const sellerInboxSentCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "seller").length;
   const sellerUnreadConversationCount = (sellerInbox || []).filter((message) => message.hasUnread ?? !message.readBySeller).length;
   const firstUnreadSellerConversation = (sellerInbox || []).find((message) => message.hasUnread ?? !message.readBySeller) || null;
+  const parseBuyerIdFromConversationId = (conversationId) => {
+    const [buyerId] = String(conversationId || "").split("__");
+    return String(buyerId || "").trim();
+  };
+  const resolveBuyerDisplayName = (row) => {
+    if (!row) return t("unknownBuyer");
+    const explicitName = String(row.buyerName || row.buyerDisplayName || row.counterpartName || "").trim();
+    if (explicitName) return explicitName;
+    const explicitId = String(row.buyerId || row.counterpartId || "").trim();
+    if (explicitId) return explicitId;
+    const parsedBuyerId = parseBuyerIdFromConversationId(row.conversationId);
+    return parsedBuyerId || t("unknownBuyer");
+  };
+  const getConversationInitials = (label) => {
+    const parts = String(label || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+  };
+  const activeSellerConversation = (sellerInbox || []).find((row) => row.conversationId === sellerActiveConversationId) || null;
+  const activeSellerConversationLabel = resolveBuyerDisplayName(activeSellerConversation);
+  const activeSellerConversationInitials = getConversationInitials(activeSellerConversationLabel);
   const unlockRevenue = Number(sellerPostAnalytics?.unlockRevenue || 0);
   const messageRevenue = Number(sellerPostAnalytics?.messageRevenue || 0);
   const netEarnings = Number(
@@ -1561,7 +1609,7 @@ export function SellerDashboardPage({
     setCustomRequestImageDraftById((prev) => ({ ...prev, [requestId]: nextImages.filter((item) => item?.image) }));
   };
   return (
-    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-16">
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
       {isPendingSeller ? (
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
@@ -1604,7 +1652,7 @@ export function SellerDashboardPage({
                     }
                     scrollToSection("seller-inbox");
                   }}
-                  className="rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-800"
+                  className="rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-800"
                 >
                   Open unread messages
                 </button>
@@ -1613,11 +1661,11 @@ export function SellerDashboardPage({
           ) : null}
           <div className="mb-4 lg:hidden">
             <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-              <button onClick={() => scrollToSection("seller-profile")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{t("quickProfile")}</button>
-              <button onClick={() => scrollToSection("seller-upload")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{t("quickNewListing")}</button>
-              <button onClick={() => scrollToSection("seller-inbox")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
-              <button onClick={() => scrollToSection("seller-post-create")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{t("quickNewPost")}</button>
-              <button onClick={() => scrollToSection("seller-listings")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{t("quickListings")}</button>
+              <button onClick={() => scrollToSection("seller-profile")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickProfile")}</button>
+              <button onClick={() => scrollToSection("seller-upload")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
+              <button onClick={() => scrollToSection("seller-inbox")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
+              <button onClick={() => scrollToSection("seller-post-create")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickNewPost")}</button>
+              <button onClick={() => scrollToSection("seller-listings")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickListings")}</button>
             </div>
           </div>
           <div className="mb-4 flex justify-start lg:justify-end">
@@ -1650,21 +1698,21 @@ export function SellerDashboardPage({
               <button onClick={markAllNotificationsRead} className="text-sm font-semibold text-rose-700">{t("markAllRead")}</button>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button onClick={() => setNotificationFilter("all")} className={`rounded-xl px-3 py-1 text-xs font-semibold ${notificationFilter === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>All ({sellerNotifications.length})</button>
-              <button onClick={() => setNotificationFilter("unread")} className={`rounded-xl px-3 py-1 text-xs font-semibold ${notificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Unread ({unreadNotificationCount})</button>
-              <button onClick={() => setNotificationFilter("messages")} className={`rounded-xl px-3 py-1 text-xs font-semibold ${notificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Messages</button>
-              <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-1 text-xs font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Engagement</button>
+              <button onClick={() => setNotificationFilter("all")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>All ({sellerNotifications.length})</button>
+              <button onClick={() => setNotificationFilter("unread")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Unread ({unreadNotificationCount})</button>
+              <button onClick={() => setNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Messages</button>
+              <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Engagement</button>
             </div>
             <div className="mt-3 flex flex-wrap gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
               <button
                 onClick={() => updateNotificationPreference("message", !(currentUser?.notificationPreferences?.message !== false))}
-                className={`rounded-xl px-3 py-1 text-xs font-semibold ${(currentUser?.notificationPreferences?.message !== false) ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+                className={`rounded-xl px-3 py-2 text-sm font-semibold ${(currentUser?.notificationPreferences?.message !== false) ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
               >
                 Message alerts: {(currentUser?.notificationPreferences?.message !== false) ? "On" : "Off"}
               </button>
               <button
                 onClick={() => updateNotificationPreference("engagement", !(currentUser?.notificationPreferences?.engagement !== false))}
-                className={`rounded-xl px-3 py-1 text-xs font-semibold ${(currentUser?.notificationPreferences?.engagement !== false) ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+                className={`rounded-xl px-3 py-2 text-sm font-semibold ${(currentUser?.notificationPreferences?.engagement !== false) ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
               >
                 Engagement alerts: {(currentUser?.notificationPreferences?.engagement !== false) ? "On" : "Off"}
               </button>
@@ -1898,39 +1946,79 @@ export function SellerDashboardPage({
                   <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={uploadDraft.price} onChange={(e) => setUploadDraft((prev) => ({ ...prev, price: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("price")} />
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("color")}</span>
-                    <select value={uploadDraft.color} onChange={(e) => setUploadDraft((prev) => ({ ...prev, color: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
-                      {COLOR_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    <select
+                      value={normalizeLegacyLocalizedValue(uploadDraft.color, COLOR_OPTIONS, COLOR_OPTIONS[0])}
+                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, color: e.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                    >
+                      {COLOR_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
                   </label>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("size")}</span>
-                    <select value={uploadDraft.size} onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{SHARED_SIZE_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
+                    <select
+                      value={normalizeLegacyLocalizedValue(uploadDraft.size, SHARED_SIZE_OPTIONS, SHARED_SIZE_OPTIONS[0])}
+                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                    >
+                      {SHARED_SIZE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    </select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("type")}</span>
-                    <select value={uploadDraft.style} onChange={(e) => setUploadDraft((prev) => ({ ...prev, style: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{STYLE_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
+                    <select
+                      value={normalizeLegacyLocalizedValue(uploadDraft.style, STYLE_OPTIONS, STYLE_OPTIONS[0])}
+                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, style: e.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                    >
+                      {STYLE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    </select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("fabric")}</span>
-                    <select value={uploadDraft.fabric} onChange={(e) => setUploadDraft((prev) => ({ ...prev, fabric: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{FABRIC_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
+                    <select
+                      value={normalizeLegacyLocalizedValue(uploadDraft.fabric, FABRIC_OPTIONS, FABRIC_OPTIONS[0])}
+                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, fabric: e.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                    >
+                      {FABRIC_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    </select>
                   </label>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("daysWorn")}</span>
-                    <select value={uploadDraft.daysWorn} onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{DAYS_WORN_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
+                    <select
+                      value={normalizeLegacyLocalizedValue(uploadDraft.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0])}
+                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                    >
+                      {DAYS_WORN_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    </select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("condition")}</span>
-                    <select value={uploadDraft.condition} onChange={(e) => setUploadDraft((prev) => ({ ...prev, condition: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{CONDITION_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
+                    <select
+                      value={normalizeLegacyLocalizedValue(uploadDraft.condition, CONDITION_OPTIONS, CONDITION_OPTIONS[0])}
+                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, condition: e.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                    >
+                      {CONDITION_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    </select>
                   </label>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("scentLevel")}</span>
-                    <select value={uploadDraft.scentLevel} onChange={(e) => setUploadDraft((prev) => ({ ...prev, scentLevel: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{SCENT_LEVEL_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
+                    <select
+                      value={normalizeLegacyLocalizedValue(uploadDraft.scentLevel, SCENT_LEVEL_OPTIONS, SCENT_LEVEL_OPTIONS[0])}
+                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, scentLevel: e.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                    >
+                      {SCENT_LEVEL_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    </select>
                   </label>
                 </div>
                 <input
@@ -2096,33 +2184,45 @@ export function SellerDashboardPage({
                     <MessageSquare className="h-5 w-5 text-rose-600" />
                     <h3 className="text-xl font-semibold">{t("inbox")}</h3>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{t("liveUpdates")}</div>
                     <div className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${sellerUnreadConversationCount > 0 ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-white text-slate-700 ring-rose-100"}`}>
                       Unread {sellerUnreadConversationCount}
                     </div>
                     <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{sellerInbox.length} {t("conversations")}</div>
-                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">Received {sellerInboxReceivedCount}</div>
-                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">Sent {sellerInboxSentCount}</div>
+                    <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Received {sellerInboxReceivedCount}</div>
+                    <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Sent {sellerInboxSentCount}</div>
                   </div>
                 </div>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
                   <div className="space-y-3">
-                    {sellerInbox.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noMessages")}</div> : sellerInbox.map((message) => (
-                      <button key={message.id} onClick={() => { setSellerSelectedConversationId(message.conversationId); markNotificationsReadForConversation(message.conversationId); }} className={`block w-full rounded-2xl p-4 text-left ring-1 ${message.hasUnread ?? !message.readBySeller ? "ring-amber-200 bg-amber-50" : "ring-rose-100"} ${sellerActiveConversationId === message.conversationId ? 'bg-rose-50' : ''}`}>
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="font-semibold">{t("customerConversation")}</div>
-                            <div className="mt-1 text-sm text-slate-500">{message.body}</div>
+                    {sellerInbox.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noMessages")}</div> : sellerInbox.map((message) => {
+                      const buyerName = resolveBuyerDisplayName(message);
+                      const buyerInitials = getConversationInitials(buyerName);
+                      return (
+                        <button key={message.id} onClick={() => { setSellerSelectedConversationId(message.conversationId); markNotificationsReadForConversation(message.conversationId); }} className={`block w-full rounded-2xl p-4 text-left ring-1 ${message.hasUnread ?? !message.readBySeller ? "ring-amber-200 bg-amber-50" : "ring-rose-100"} ${sellerActiveConversationId === message.conversationId ? 'bg-rose-50' : ''}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex items-start gap-2">
+                              <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">{buyerInitials}</span>
+                              <div className="min-w-0">
+                                <div className="truncate font-semibold">{buyerName}</div>
+                                <div className="mt-0.5 text-xs text-slate-500">{t("customerConversation")}</div>
+                                <div className="mt-1 truncate text-sm text-slate-500">{message.body}</div>
+                              </div>
+                            </div>
+                            {message.hasUnread ?? !message.readBySeller ? <span className="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">New</span> : null}
                           </div>
-                          {message.hasUnread ?? !message.readBySeller ? <span className="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">New</span> : null}
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                   <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
                     {sellerActiveConversationMessages.length === 0 ? <div className="text-sm text-slate-500">{t("selectConversation")}</div> : (
                       <>
+                        <div className="mb-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">{activeSellerConversationInitials}</span>
+                          <span>{t("chattingWith")}: {activeSellerConversationLabel}</span>
+                        </div>
                         <div className="max-h-64 space-y-3 overflow-y-auto">
                           {sellerActiveConversationMessages.map((message) => (
                             <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === 'seller' ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
@@ -2170,7 +2270,7 @@ export function SellerDashboardPage({
                         <select
                           value={request.status || "open"}
                           onChange={(event) => updateCustomRequestStatus(request.id, event.target.value)}
-                          className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                          className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
                         >
                           <option value="open">{localizeOptionLabel("open", locale)}</option>
                           <option value="reviewing">{localizeOptionLabel("reviewing", locale)}</option>
@@ -2226,13 +2326,13 @@ export function SellerDashboardPage({
                             step="1"
                             value={customRequestQuoteDraftById[request.id] ?? (Number(request.quotedPriceThb || 0) > 0 ? String(request.quotedPriceThb) : "")}
                             onChange={(event) => setCustomRequestQuoteDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                            className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                            className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
                             placeholder={t("quotePlaceholder")}
                           />
                           <input
                             value={customRequestQuoteNoteById[request.id] || ""}
                             onChange={(event) => setCustomRequestQuoteNoteById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                            className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                            className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
                             placeholder={t("optionalNotePlaceholder")}
                           />
                           <button
@@ -2247,7 +2347,7 @@ export function SellerDashboardPage({
                                 (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
                               );
                             }}
-                            className="rounded-xl border border-indigo-200 px-3 py-2 text-xs font-semibold text-indigo-700"
+                            className="rounded-xl border border-indigo-200 px-3 py-2.5 text-sm font-semibold text-indigo-700"
                           >
                             {t("sendQuote")}
                           </button>
@@ -2266,7 +2366,7 @@ export function SellerDashboardPage({
                                   (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
                                 );
                               }}
-                              className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white"
+                              className="w-full rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto"
                             >
                               {t("acceptCounter")}
                             </button>
@@ -2279,7 +2379,7 @@ export function SellerDashboardPage({
                                   (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
                                 );
                               }}
-                              className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700"
+                              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-700 sm:w-auto"
                             >
                               {t("declineCounter")}
                             </button>
@@ -2324,7 +2424,7 @@ export function SellerDashboardPage({
                           <input
                             value={customRequestReplyDraftById[request.id] || ""}
                             onChange={(event) => setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                            className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                            className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
                             placeholder={t("replyToCustomRequest")}
                           />
                           <button
@@ -2339,7 +2439,7 @@ export function SellerDashboardPage({
                                 },
                               );
                             }}
-                            className="rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white"
+                            className="w-full rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto"
                           >
                             {t("send")}
                           </button>
@@ -2579,16 +2679,16 @@ export function SellerDashboardPage({
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         {post.scheduledFor && new Date(post.scheduledFor).getTime() > Date.now() ? (
                           <>
-                            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">{t("scheduledLabel")}: {formatDateTimeNoSeconds(post.scheduledFor)}</span>
+                            <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{t("scheduledLabel")}: {formatDateTimeNoSeconds(post.scheduledFor)}</span>
                             <button
                               onClick={() => unscheduleSellerPost(post.id)}
-                              className="rounded-lg border border-amber-200 px-2 py-1 text-[10px] font-semibold text-amber-700"
+                              className="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-700"
                             >
                               {t("unschedule")}
                             </button>
                             <button
                               onClick={() => publishSellerPostNow(post.id)}
-                              className="rounded-lg border border-emerald-200 px-2 py-1 text-[10px] font-semibold text-emerald-700"
+                              className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700"
                             >
                               {t("publishNow")}
                             </button>
@@ -2796,7 +2896,7 @@ export function SellerFeedPage({
   const visiblePosts = searchedFeedPosts.slice(0, visibleCount);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-16">
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
       <SectionTitle
         eyebrow={t("feedEyebrow")}
         title={t("feedTitle")}
@@ -3186,6 +3286,10 @@ export function AdminPage({
   const [payoutSourceFilter, setPayoutSourceFilter] = useState("all");
   const [payoutRoleFilter, setPayoutRoleFilter] = useState("all");
   const [payoutDateRangeFilter, setPayoutDateRangeFilter] = useState("all");
+  const adminLocale = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
+    ? currentUser.preferredLanguage
+    : "en";
+  const adminMobileNavText = ADMIN_MOBILE_NAV_I18N[adminLocale] || ADMIN_MOBILE_NAV_I18N.en;
   const emailTestScenarioOptions = [
     { value: "default", label: "Default sample" },
     { value: "buyer_message", label: "Buyer receives seller message" },
@@ -4205,7 +4309,7 @@ export function AdminPage({
       ) : (
         <div className="text-[15px] leading-6 text-slate-800">
           <SectionTitle eyebrow="Admin dashboard" title="Operations center" subtitle="Manage seller approvals, users, listings, payments, and social moderation from one workspace." />
-          <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-4">
+          <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5">
             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">Current workspace</div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <activeAdminTabConfig.icon className="h-4 w-4 text-rose-600" />
@@ -4217,7 +4321,7 @@ export function AdminPage({
                 <button
                   key={modeKey}
                   onClick={() => setAdminWorkspaceMode(modeKey)}
-                  className={`cursor-pointer rounded-xl border px-3 py-1.5 text-xs font-semibold ${adminWorkspaceMode === modeKey ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                  className={`cursor-pointer rounded-xl border px-3 py-2 text-sm font-semibold ${adminWorkspaceMode === modeKey ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
                 >
                   {modeValue.label}
                 </button>
@@ -4229,7 +4333,7 @@ export function AdminPage({
               <button
                 key={tab.key}
                 onClick={() => setAdminTab(tab.key)}
-                className={`cursor-pointer rounded-2xl border px-4 py-3 text-left transition duration-150 hover:-translate-y-0.5 hover:shadow-md ${
+                className={`cursor-pointer rounded-2xl border px-4 py-3.5 text-left transition duration-150 hover:-translate-y-0.5 hover:shadow-md ${
                   adminTab === tab.key
                     ? "border-rose-300 bg-rose-50 ring-1 ring-rose-200"
                     : "border-rose-100 bg-white hover:border-rose-200 hover:bg-rose-50/40"
@@ -4246,15 +4350,15 @@ export function AdminPage({
               </button>
             ))}
           </div>
-          <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-4">
+          <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-2">
-              <button onClick={() => navigate("/account")} className="cursor-pointer rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm">
+              <button onClick={() => navigate("/account")} className="w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
                 Open buyer account
               </button>
-              <button onClick={() => navigate("/seller-dashboard")} className="cursor-pointer rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm">
+              <button onClick={() => navigate("/seller-dashboard")} className="w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
                 Open seller dashboard
               </button>
-              <button onClick={() => navigate("/bar-dashboard")} className="cursor-pointer rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm">
+              <button onClick={() => navigate("/bar-dashboard")} className="w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
                 Open bar dashboard
               </button>
               {currentUser?.role === "admin" ? (
@@ -4262,32 +4366,32 @@ export function AdminPage({
               ) : null}
             </div>
           </div>
-          <div className="mb-8 rounded-3xl border border-rose-100 bg-white p-5">
+          <div className="mb-8 rounded-3xl border border-rose-100 bg-white p-4 sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold text-slate-800">Quick actions</div>
                 <p className="mt-1 text-sm text-slate-600">Jump to the most frequent admin tasks.</p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={() => setAdminTab("auth")} className="cursor-pointer rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm">
+              <div className="grid w-full gap-2 sm:flex sm:flex-wrap">
+                <button onClick={() => setAdminTab("auth")} className="w-full cursor-pointer rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-800 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Seller approvals ({pendingSellerCount})
                 </button>
-                <button onClick={() => setAdminTab("users")} className="cursor-pointer rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm">
+                <button onClick={() => setAdminTab("users")} className="w-full cursor-pointer rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm font-semibold text-violet-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Appeals ({pendingAppeals.length})
                 </button>
-                <button onClick={() => setAdminTab("inbox")} className="cursor-pointer rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm">
+                <button onClick={() => setAdminTab("inbox")} className="w-full cursor-pointer rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Inbox review ({inboxCounts.new + inboxCounts.followUp})
                 </button>
-                <button onClick={() => setAdminTab("disputes")} className="cursor-pointer rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-sm font-semibold text-orange-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm">
+                <button onClick={() => setAdminTab("disputes")} className="w-full cursor-pointer rounded-xl border border-orange-200 bg-orange-50 px-3 py-2.5 text-sm font-semibold text-orange-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Disputes ({disputeCounts.open})
                 </button>
-                <button onClick={() => setAdminTab("social")} className="cursor-pointer rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm">
+                <button onClick={() => setAdminTab("social")} className="w-full cursor-pointer rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Open reports ({openModerationCount})
                 </button>
-                <button onClick={() => setAdminTab("email")} className="cursor-pointer rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm">
+                <button onClick={() => setAdminTab("email")} className="w-full cursor-pointer rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-sm font-semibold text-sky-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Email templates
                 </button>
-                <button onClick={() => setAdminTab("bars")} className="cursor-pointer rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm">
+                <button onClick={() => setAdminTab("bars")} className="w-full cursor-pointer rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Bars ({(bars || []).length})
                 </button>
               </div>
@@ -4346,9 +4450,9 @@ export function AdminPage({
                 <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="text-sm font-semibold text-amber-800">{pendingSellerCount} seller application(s) waiting for review</div>
-                    <div className="flex gap-2">
-                      <button onClick={() => setAdminTab("auth")} className="rounded-xl border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-800">Open review queue</button>
-                      <button onClick={approveAllPendingSellers} className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white">Approve all</button>
+                    <div className="grid w-full gap-2 sm:flex sm:w-auto">
+                      <button onClick={() => setAdminTab("auth")} className="rounded-xl border border-amber-300 px-3 py-2.5 text-sm font-semibold text-amber-800">Open review queue</button>
+                      <button onClick={approveAllPendingSellers} className="rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white">Approve all</button>
                     </div>
                   </div>
                 </div>
@@ -6105,6 +6209,14 @@ export function AdminPage({
               </div>
             </div>
           ) : null}
+          <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
+            <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
+              <button onClick={() => setAdminTab("overview")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "overview" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.overview}</button>
+              <button onClick={() => setAdminTab("inbox")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "inbox" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.inbox}</button>
+              <button onClick={() => setAdminTab("auth")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "auth" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.approvals}</button>
+              <button onClick={() => setAdminTab("payments")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "payments" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.payments}</button>
+            </div>
+          </div>
         </div>
       )}
     </section>
@@ -6764,6 +6876,16 @@ export function AccountPage({
       setCopiedTrackingLinkOrderId(null);
     }
   };
+  const resolveConversationSellerName = (conversationId) => {
+    const sellerId = String(conversationId || "").split("__")[1] || "";
+    return sellerMap[sellerId]?.name || tx("seller");
+  };
+  const getConversationInitials = (label) => {
+    const parts = String(label || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+  };
   const resolveConversationMessageBody = (message) => {
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
@@ -6833,7 +6955,7 @@ export function AccountPage({
                   <button onClick={() => scrollToSection("buyer-favorites")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.favorites}</button>
                   <button onClick={() => scrollToSection("buyer-wallet")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
                   <button onClick={() => scrollToSection("buyer-orders")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
-                  <button onClick={() => scrollToSection("buyer-custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">Custom requests</button>
+                  <button onClick={() => scrollToSection("buyer-custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{tx("customRequests")}</button>
                   <button onClick={() => scrollToSection("buyer-contact")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.contact}</button>
                 </>
               ) : (
@@ -6854,7 +6976,7 @@ export function AccountPage({
                 </div>
                 <button
                   onClick={() => navigate("/admin")}
-                  className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
+                  className="rounded-2xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
                 >
                   Open Admin Dashboard
                 </button>
@@ -6870,7 +6992,7 @@ export function AccountPage({
                 </div>
                 <button
                   onClick={() => navigate("/seller-dashboard")}
-                  className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
+                  className="rounded-2xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
                 >
                   Open Seller Dashboard
                 </button>
@@ -6886,8 +7008,8 @@ export function AccountPage({
                   : `Your seller application was rejected${currentUser.rejectionReason ? `: ${currentUser.rejectionReason}` : "."}`}
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={() => navigate("/seller-dashboard")} className="rounded-xl border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-800">Open Seller Dashboard</button>
-                <button onClick={() => navigate("/contact")} className="rounded-xl border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-800">Contact support</button>
+                <button onClick={() => navigate("/seller-dashboard")} className="rounded-xl border border-amber-300 px-3 py-2.5 text-sm font-semibold text-amber-800">Open Seller Dashboard</button>
+                <button onClick={() => navigate("/contact")} className="rounded-xl border border-amber-300 px-3 py-2.5 text-sm font-semibold text-amber-800">Contact support</button>
               </div>
             </div>
           ) : null}
@@ -6907,7 +7029,7 @@ export function AccountPage({
                     <button
                       type="button"
                       onClick={() => scrollToSection("buyer-messaging")}
-                      className="rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-800"
+                      className="rounded-xl border border-amber-300 bg-white px-3 py-2.5 text-sm font-semibold text-amber-800"
                     >
                       Open messages
                     </button>
@@ -6916,7 +7038,7 @@ export function AccountPage({
                     <button
                       type="button"
                       onClick={() => scrollToSection("buyer-custom-requests")}
-                      className="rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-800"
+                      className="rounded-xl border border-amber-300 bg-white px-3 py-2.5 text-sm font-semibold text-amber-800"
                     >
                       Open custom requests
                     </button>
@@ -6924,7 +7046,7 @@ export function AccountPage({
                   <button
                     type="button"
                     onClick={markAllNotificationsRead}
-                    className="rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-800"
+                    className="rounded-xl border border-amber-300 bg-white px-3 py-2.5 text-sm font-semibold text-amber-800"
                   >
                     Mark as read
                   </button>
@@ -6932,27 +7054,27 @@ export function AccountPage({
               </div>
             </div>
           ) : null}
-          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="space-y-8">
-              <div className="grid gap-6 md:grid-cols-3">
-                <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+                <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <ShoppingBag className="h-6 w-6 text-rose-600" />
                   <div className="mt-4 text-sm text-slate-500">{tx("totalOrders")}</div>
                   <div className="mt-2 text-3xl font-bold">{buyerOrders.length}</div>
                 </div>
-                <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <Clock3 className="h-6 w-6 text-rose-600" />
                   <div className="mt-4 text-sm text-slate-500">{tx("processing")}</div>
                   <div className="mt-2 text-3xl font-bold">{buyerOrders.filter((order) => order.fulfillmentStatus === "processing").length}</div>
                 </div>
-                <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <CheckCircle2 className="h-6 w-6 text-rose-600" />
                   <div className="mt-4 text-sm text-slate-500">{tx("shippedDelivered")}</div>
                   <div className="mt-2 text-3xl font-bold">{buyerOrders.filter((order) => order.fulfillmentStatus !== "processing").length}</div>
                 </div>
               </div>
 
-              <div id="buyer-orders" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <div id="buyer-orders" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <h3 className="text-xl font-semibold">{accountText.orderTracking}</h3>
                 <div className="mt-5 space-y-4">
                   {recentBuyerOrders.length === 0 ? (
@@ -6990,7 +7112,7 @@ export function AccountPage({
                           <div className="inline-block rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">{localizeFulfillmentStatus(order.fulfillmentStatus)}</div>
                           <div className="text-slate-500">{tx("tracking")}: {order.trackingCarrier ? `${order.trackingCarrier} · ` : ""}{order.trackingNumber || tx("pending")}</div>
                           {order.trackingNumber ? (
-                            <div className="flex items-center gap-3 md:justify-end">
+                            <div className="flex flex-wrap items-center gap-2 md:justify-end">
                               <button
                                 type="button"
                                 onClick={() => copyTrackingCode(order.id, order.trackingNumber)}
@@ -7023,12 +7145,12 @@ export function AccountPage({
               </div>
 
               {currentUser.role === "buyer" ? (
-                <div id="buyer-custom-requests" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div id="buyer-custom-requests" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-xl font-semibold">Custom requests</h3>
                     <button
                       onClick={() => navigate("/custom-requests")}
-                      className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"
+                      className="rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700"
                     >
                       Open full custom requests page
                     </button>
@@ -7097,7 +7219,7 @@ export function AccountPage({
                             <input
                               value={customRequestReplyDraftById[request.id] || ""}
                               onChange={(event) => setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                              className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                              className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
                               placeholder="Reply in this request"
                             />
                             <button
@@ -7115,7 +7237,7 @@ export function AccountPage({
                                 );
                               }}
                               disabled={!canAffordCustomRequestMessage}
-                              className={`rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white ${!canAffordCustomRequestMessage ? "cursor-not-allowed opacity-60" : ""}`}
+                              className={`w-full rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto ${!canAffordCustomRequestMessage ? "cursor-not-allowed opacity-60" : ""}`}
                             >
                               {currentUser?.role === "buyer" ? `Send (${formatPriceTHB(MESSAGE_FEE_THB)})` : "Send"}
                             </button>
@@ -7129,13 +7251,13 @@ export function AccountPage({
                                     accept="image/*"
                                     multiple
                                     onChange={(event) => handleCustomRequestImageDraftSelect(request.id, event.target.files)}
-                                    className="max-w-full rounded-xl border border-dashed border-rose-300 px-3 py-2 text-[11px]"
+                                    className="max-w-full rounded-xl border border-dashed border-rose-300 px-3 py-2.5 text-xs"
                                   />
                                   {(customRequestImageDraftById[request.id] || []).length > 0 ? (
                                     <button
                                       type="button"
                                       onClick={() => setCustomRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }))}
-                                      className="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700"
+                                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700"
                                     >
                                       Clear images
                                     </button>
@@ -7164,7 +7286,7 @@ export function AccountPage({
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">Seller quote</div>
                               {isBuyerPaymentPending(request) ? (
-                                <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-800">
+                                <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-amber-800">
                                   Pending payment
                                 </span>
                               ) : null}
@@ -7204,13 +7326,13 @@ export function AccountPage({
                                         setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: message || "" }));
                                       },
                                     )}
-                                    className="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white"
+                                    className="w-full rounded-lg bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto"
                                   >
                                     Accept & pay {formatPriceTHB(Number(request.quotedPriceThb || 0))}
                                   </button>
                                   <button
                                     onClick={() => respondToCustomRequestPrice(request.id, "decline", {}, () => setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: "Quote declined." })), (message) => setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: message || "" })))}
-                                    className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+                                    className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-700 sm:w-auto"
                                   >
                                     Decline
                                   </button>
@@ -7222,7 +7344,7 @@ export function AccountPage({
                                     step="1"
                                     value={customRequestCounterDraftById[request.id] || ""}
                                     onChange={(event) => setCustomRequestCounterDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                                    className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                    className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm"
                                     placeholder="Counter amount (THB)"
                                   />
                                   <button
@@ -7239,7 +7361,7 @@ export function AccountPage({
                                       );
                                     }}
                                     disabled={!canAffordCustomRequestMessage}
-                                    className={`rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${!canAffordCustomRequestMessage ? "cursor-not-allowed opacity-60" : ""}`}
+                                    className={`w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 sm:w-auto ${!canAffordCustomRequestMessage ? "cursor-not-allowed opacity-60" : ""}`}
                                   >
                                     Counter ({formatPriceTHB(MESSAGE_FEE_THB)} fee)
                                   </button>
@@ -7264,7 +7386,7 @@ export function AccountPage({
               ) : null}
 
               {currentUser.role === "buyer" ? (
-                <div id="buyer-messaging" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div id="buyer-messaging" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-xl font-semibold">{tx("messagingCenter")}</h3>
                     <div className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">{formatPriceTHB(MESSAGE_FEE_THB)} {tx("perMessage")}</div>
@@ -7287,7 +7409,7 @@ export function AccountPage({
                             <button
                               key={seller.id}
                               onClick={() => startBuyerConversationWithSeller(seller.id)}
-                              className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2 text-left hover:bg-rose-50"
+                              className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
                             >
                               <span className="text-sm font-medium">{seller.name}</span>
                               <span className="text-xs text-slate-500">{tx("message")}</span>
@@ -7333,7 +7455,7 @@ export function AccountPage({
                             <button
                               key={product.id}
                               onClick={() => startBuyerConversationWithSeller(product.sellerId)}
-                              className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2 text-left hover:bg-rose-50"
+                              className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
                             >
                               <span className="text-sm font-medium">{product.title}</span>
                               <span className="text-xs text-slate-500">{sellerMap[product.sellerId]?.name || tx("seller")} · {product.daysWorn || tx("notSpecified")}</span>
@@ -7347,20 +7469,29 @@ export function AccountPage({
                         <div className="mt-3 space-y-2">
                           {buyerConversations.length === 0 ? (
                             <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("conversationsAppearHere")}</div>
-                          ) : buyerConversations.map((conversation) => (
-                            <button
-                              key={conversation.conversationId}
-                              onClick={() => setBuyerDashboardConversationId(conversation.conversationId)}
-                              className={`w-full rounded-2xl border px-3 py-3 text-left ${buyerDashboardConversationId === conversation.conversationId ? "border-rose-300 bg-rose-50" : "border-rose-100"}`}
-                            >
-                              <div className="font-semibold">{tx("conversationWith")} {sellerMap[conversation.sellerId]?.name || tx("seller")}</div>
-                              <div className="mt-1 text-sm text-slate-500">{conversation.latestBody}</div>
-                              <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
-                                <span>{conversation.latestAt ? formatDateTimeNoSeconds(conversation.latestAt) : tx("noDate")}</span>
-                                {conversation.unreadCount > 0 ? <span className="rounded-full bg-rose-100 px-2 py-1 font-semibold text-rose-700">{conversation.unreadCount} {tx("newCountSuffix")}</span> : null}
-                              </div>
-                            </button>
-                          ))}
+                          ) : buyerConversations.map((conversation) => {
+                            const sellerName = sellerMap[conversation.sellerId]?.name || tx("seller");
+                            const sellerInitials = getConversationInitials(sellerName);
+                            return (
+                              <button
+                                key={conversation.conversationId}
+                                onClick={() => setBuyerDashboardConversationId(conversation.conversationId)}
+                                className={`w-full rounded-2xl border px-3 py-3 text-left ${buyerDashboardConversationId === conversation.conversationId ? "border-rose-300 bg-rose-50" : "border-rose-100"}`}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">{sellerInitials}</span>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="truncate font-semibold">{tx("conversationWith")} {sellerName}</div>
+                                    <div className="mt-1 truncate text-sm text-slate-500">{conversation.latestBody}</div>
+                                    <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
+                                      <span>{conversation.latestAt ? formatDateTimeNoSeconds(conversation.latestAt) : tx("noDate")}</span>
+                                      {conversation.unreadCount > 0 ? <span className="rounded-full bg-rose-100 px-2 py-1 font-semibold text-rose-700">{conversation.unreadCount} {tx("newCountSuffix")}</span> : null}
+                                    </div>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
@@ -7370,6 +7501,14 @@ export function AccountPage({
                           ? `${tx("conversationWith")} ${sellerMap[buyerDashboardConversationId.split("__")[1]]?.name || tx("seller")}`
                           : tx("selectOrStartConversation")}
                       </div>
+                      {buyerDashboardConversationId ? (
+                        <div className="mt-2 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-[11px] font-bold text-rose-700">
+                            {getConversationInitials(resolveConversationSellerName(buyerDashboardConversationId))}
+                          </span>
+                          <span>{tx("chattingWith")} {resolveConversationSellerName(buyerDashboardConversationId)}</span>
+                        </div>
+                      ) : null}
                       <div className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
                         {buyerDashboardConversationMessages.length === 0 ? (
                           <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noMessagesInThread")}</div>
@@ -7421,7 +7560,7 @@ export function AccountPage({
                 </div>
               ) : null}
 
-              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <h3 className="text-xl font-semibold">{accountText.orderHistory}</h3>
                 <div className="mt-5 space-y-3">
                   {recentBuyerOrders.length === 0 ? (
@@ -7440,7 +7579,7 @@ export function AccountPage({
                 </div>
               </div>
 
-              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold">{accountText.billingLedger}</h3>
                   <button onClick={markAllNotificationsRead} className="text-sm font-semibold text-rose-700">{tx("markNotificationsRead")}</button>
@@ -7460,8 +7599,8 @@ export function AccountPage({
               </div>
             </div>
 
-            <div className="space-y-8">
-              <div id="buyer-wallet" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+            <div className="space-y-6 sm:space-y-8">
+              <div id="buyer-wallet" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <div className="flex items-center gap-2">
                   <Wallet className="h-5 w-5 text-rose-600" />
                   <h3 className="text-xl font-semibold">{accountText.accountBalance}</h3>
@@ -7524,7 +7663,7 @@ export function AccountPage({
                           setCustomTopUpError("");
                           runWalletTopUp(amount);
                         }}
-                        className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+                        className="w-full rounded-2xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 sm:w-auto"
                       >
                         Add custom amount
                       </button>
@@ -7541,7 +7680,7 @@ export function AccountPage({
               </div>
 
               {currentUser.role === "buyer" ? (
-                <div id="buyer-favorites" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div id="buyer-favorites" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <div className="flex items-center gap-2">
                     <Bookmark className="h-5 w-5 text-rose-600" />
                     <h3 className="text-xl font-semibold">{accountText.favoriteSellers}</h3>
@@ -7560,16 +7699,16 @@ export function AccountPage({
                           <div className="text-[11px] text-slate-500">{seller.followedAt ? `${tx("savedOn")} ${new Date(seller.followedAt).toLocaleDateString()}` : ""}</div>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <button onClick={() => navigate(`/seller/${seller.id}`)} className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">{tx("view")}</button>
+                          <button onClick={() => navigate(`/seller/${seller.id}`)} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">{tx("view")}</button>
                           <button
                             onClick={() => startBuyerConversationWithSeller(seller.id)}
-                            className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700"
+                            className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
                           >
                             {tx("message")}
                           </button>
                           <button
                             onClick={() => toggleSellerFollow(seller.id)}
-                            className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700"
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
                           >
                             {tx("remove")}
                           </button>
@@ -7580,7 +7719,7 @@ export function AccountPage({
                 </div>
               ) : null}
 
-              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold">{accountText.profile}</h3>
                   <button
@@ -7603,7 +7742,7 @@ export function AccountPage({
               </div>
 
               {currentUser.role === "buyer" ? (
-                <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <h3 className="text-xl font-semibold">{accountText.quickFinder}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{tx("quickFinderHelp")}</p>
                   <input
@@ -7623,7 +7762,7 @@ export function AccountPage({
                             <button onClick={() => navigate(`/seller/${seller.id}`)} className="text-left font-medium hover:text-rose-700">{seller.name}</button>
                             <button
                               onClick={() => toggleSellerFollow(seller.id)}
-                              className={`rounded-xl border px-2 py-1 text-[11px] font-semibold ${followedSellerIds.has(seller.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                              className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${followedSellerIds.has(seller.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
                             >
                               {followedSellerIds.has(seller.id) ? tx("bookmarked") : tx("bookmark")}
                             </button>
@@ -7649,7 +7788,7 @@ export function AccountPage({
                 </div>
               ) : null}
 
-              <div id="buyer-contact" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <div id="buyer-contact" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <h3 className="text-xl font-semibold">{accountText.contactDetails}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{tx("updateContactHelp")}</p>
                 <div className="mt-5 grid gap-4">
@@ -7682,6 +7821,16 @@ export function AccountPage({
 
             </div>
           </div>
+          {currentUser.role === "buyer" ? (
+            <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
+              <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
+                <button onClick={() => scrollToSection("buyer-orders")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
+                <button onClick={() => scrollToSection("buyer-messaging")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
+                <button onClick={() => scrollToSection("buyer-wallet")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
+                <button onClick={() => scrollToSection("buyer-contact")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.contact}</button>
+              </div>
+            </div>
+          ) : null}
         </>
       )}
     </section>
