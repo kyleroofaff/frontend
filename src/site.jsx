@@ -32,7 +32,7 @@ import {
   TermsPage,
   WorldwideShippingPage,
 } from './pages/StaticPages.jsx';
-import { AccountPage, AdminPage, AppealsPage, CheckoutPage, SellerDashboardPage, SellerFeedPage } from './pages/DashboardPages.jsx';
+import { AccountPage, AdminPage, AppealsPage, BuyerMessagesPage, CheckoutPage, SellerDashboardPage, SellerFeedPage, SellerFeedWorkspacePage, SellerMessagesPage } from './pages/DashboardPages.jsx';
 import {
   COLOR_OPTIONS,
   CONDITION_OPTIONS,
@@ -1262,19 +1262,6 @@ const SELLER_STATUS_I18N = {
 const SEED_DB = {
   users: [
     {
-      id: 'admin-1',
-      name: 'Admin',
-      email: 'admin@thailandpanties.com',
-      phone: '+66 2 000 0000',
-      country: 'Thailand',
-      city: 'Bangkok',
-      address: 'Admin Office, Bangkok',
-      walletBalance: 0,
-      role: 'admin',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
       id: 'admin-2',
       name: 'Kyle Roof',
       email: 'kyleroofaff@gmail.com',
@@ -1288,105 +1275,6 @@ const SEED_DB = {
       accountStatus: 'active',
     },
     {
-      id: 'seller-1',
-      name: 'Nina B.',
-      email: 'nina@example.com',
-      phone: '+66 81 111 1111',
-      country: 'Thailand',
-      city: 'Bangkok',
-      address: 'สุขุมวิท, Bangkok',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'nina-b',
-      password: 'demo123',
-      accountStatus: 'active',
-      strikeCount: 1,
-    },
-    {
-      id: 'seller-2',
-      name: 'Mali K.',
-      email: 'mali@example.com',
-      phone: '+66 82 222 2222',
-      country: 'Thailand',
-      city: 'Chiang Mai',
-      address: 'Old City, Chiang Mai',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'mali-k',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-3',
-      name: 'Prae S.',
-      email: 'prae@example.com',
-      phone: '+66 83 333 3333',
-      country: 'Thailand',
-      city: 'Phuket',
-      address: 'Patong, Phuket',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'prae-s',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-4',
-      name: 'Lila R.',
-      email: 'lila@example.com',
-      phone: '+66 84 444 4444',
-      country: 'Thailand',
-      city: 'Pattaya',
-      address: 'Central Pattaya, Chonburi',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'lila-r',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-5',
-      name: 'Anya V.',
-      email: 'anya@example.com',
-      phone: '+66 85 555 5555',
-      country: 'Thailand',
-      city: 'Hat Yai',
-      address: 'Hat Yai City, Songkhla',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'anya-v',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-6',
-      name: 'Sora P.',
-      email: 'sora@example.com',
-      phone: '+66 86 666 6666',
-      country: 'Thailand',
-      city: 'Khon Kaen',
-      address: 'Mueang Khon Kaen',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'sora-p',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-7',
-      name: 'Kiko N.',
-      email: 'kiko@example.com',
-      phone: '+66 87 777 7777',
-      country: 'Thailand',
-      city: 'Bangkok',
-      address: 'Silom, Bangkok',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'kiko-n',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
       id: 'seller-8',
       name: 'Dao P.',
       email: 'dao@example.com',
@@ -1397,61 +1285,6 @@ const SEED_DB = {
       walletBalance: 0,
       role: 'seller',
       sellerId: 'dao-p',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-9',
-      name: 'Lina',
-      email: 'lina@example.com',
-      phone: '+66 82 555 0109',
-      country: 'Thailand',
-      city: 'Chiang Mai',
-      address: 'Loh Kroh, Chiang Mai',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'lina-cm',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-10',
-      name: 'Try',
-      email: 'try@example.com',
-      phone: '+66 82 555 0110',
-      country: 'Thailand',
-      city: 'Chiang Mai',
-      address: 'Loh Kroh, Chiang Mai',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'try-cm',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'seller-11',
-      name: 'Noi Na',
-      email: 'noina@example.com',
-      phone: '+66 82 555 0111',
-      country: 'Thailand',
-      city: 'Chiang Mai',
-      address: 'Loh Kroh, Chiang Mai',
-      walletBalance: 0,
-      role: 'seller',
-      sellerId: 'noi-na-cm',
-      password: 'demo123',
-      accountStatus: 'active',
-    },
-    {
-      id: 'buyer-1',
-      name: 'Alex T.',
-      email: 'alex@example.com',
-      phone: '+1 202 555 0123',
-      country: 'United States',
-      city: 'Seattle',
-      address: '123 Pine Street',
-      walletBalance: 24.6,
-      role: 'buyer',
       password: 'demo123',
       accountStatus: 'active',
     },
@@ -2261,6 +2094,7 @@ const SEED_DB = {
     },
   ],
   commentReports: [],
+  messageReports: [],
   userStrikes: [
     {
       id: 'strike_seed_qa_1',
@@ -2637,6 +2471,8 @@ function normalizeCheckoutFormDraft(value) {
     fullName: String(draft.fullName || ''),
     country: String(draft.country || ''),
     address: String(draft.address || ''),
+    city: String(draft.city || ''),
+    region: String(draft.region || ''),
     postalCode: String(draft.postalCode || ''),
     shippingMethod: draft.shippingMethod === 'express' ? 'express' : 'standard',
     saveAddressToProfile: draft.saveAddressToProfile !== false,
@@ -2733,13 +2569,14 @@ function normalizeCustomRequestImageAttachments(imageAttachments) {
 }
 
 function normalizeNotificationPreferences(preferences, role = '') {
+  const pushDefaultEnabled = role === 'seller' || role === 'bar' || role === 'admin';
   const base = {
     message: preferences?.message !== false,
     engagement: preferences?.engagement !== false,
   };
   const push = {
-    message: preferences?.push?.message !== false,
-    engagement: preferences?.push?.engagement !== false,
+    message: typeof preferences?.push?.message === 'boolean' ? preferences.push.message : pushDefaultEnabled,
+    engagement: typeof preferences?.push?.engagement === 'boolean' ? preferences.push.engagement : pushDefaultEnabled,
   };
   if (role === 'admin') {
     push.adminOps = preferences?.push?.adminOps !== false;
@@ -2750,6 +2587,21 @@ function normalizeNotificationPreferences(preferences, role = '') {
   };
 }
 
+const LEGACY_DEMO_USER_IDS_TO_REMOVE = new Set([
+  'admin-1',
+  'seller-1',
+  'seller-2',
+  'seller-3',
+  'seller-4',
+  'seller-5',
+  'seller-6',
+  'seller-7',
+  'seller-9',
+  'seller-10',
+  'seller-11',
+  'buyer-1',
+]);
+
 function normalizeDbState(nextDb) {
   if (!nextDb || typeof nextDb !== 'object') {
     return structuredClone(SEED_DB);
@@ -2759,9 +2611,12 @@ function normalizeDbState(nextDb) {
     ...structuredClone(SEED_DB),
     ...nextDb,
     users: Array.isArray(nextDb.users)
-      ? nextDb.users.map((user) => ({
+      ? nextDb.users
+        .filter((user) => !LEGACY_DEMO_USER_IDS_TO_REMOVE.has(String(user?.id || '')))
+        .map((user) => ({
           ...user,
           postalCode: String(user?.postalCode || ''),
+          region: String(user?.region || ''),
           strikeCount: Math.max(0, Number(user?.strikeCount || 0)),
           timeFormat: normalizeTimeFormat(user?.timeFormat),
           notificationPreferences: normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
@@ -2804,6 +2659,7 @@ function normalizeDbState(nextDb) {
       : structuredClone(SEED_DB.sellerPosts),
     postReports: Array.isArray(nextDb.postReports) ? nextDb.postReports : [],
     commentReports: Array.isArray(nextDb.commentReports) ? nextDb.commentReports : [],
+    messageReports: Array.isArray(nextDb.messageReports) ? nextDb.messageReports : [],
     userStrikes: Array.isArray(nextDb.userStrikes) ? nextDb.userStrikes : [],
     userAppeals: Array.isArray(nextDb.userAppeals) ? nextDb.userAppeals : [],
     postUnlocks: Array.isArray(nextDb.postUnlocks) ? nextDb.postUnlocks : [],
@@ -3024,6 +2880,9 @@ function parseRoute(pathname) {
   if (pathname === '/checkout/success') return { name: 'checkout-success' };
   if (pathname === '/admin') return { name: 'admin' };
   if (pathname === '/seller-dashboard') return { name: 'account' };
+  if (pathname === '/seller-messages') return { name: 'seller-messages' };
+  if (pathname === '/buyer-messages') return { name: 'buyer-messages' };
+  if (pathname === '/seller-feed-workspace') return { name: 'seller-feed-workspace' };
   if (pathname === '/bar-dashboard') return { name: 'bar-dashboard' };
   if (pathname === '/seller-feed') return { name: 'seller-feed' };
   if (pathname === '/account') return { name: 'account' };
@@ -3224,6 +3083,7 @@ export default function ThailandPantiesMarketSite() {
     phone: '',
     country: '',
     city: '',
+    region: '',
     address: '',
     postalCode: '',
     height: '',
@@ -3311,6 +3171,7 @@ export default function ThailandPantiesMarketSite() {
     imageName: '',
   });
   const [barInviteSellerId, setBarInviteSellerId] = useState('');
+  const [barDashboardSection, setBarDashboardSection] = useState('profile');
   const [creatingBarPost, setCreatingBarPost] = useState(false);
   const [savingBarProfile, setSavingBarProfile] = useState(false);
   const [deletingBarPostId, setDeletingBarPostId] = useState(null);
@@ -3327,11 +3188,15 @@ export default function ThailandPantiesMarketSite() {
   const [creatingSellerPost, setCreatingSellerPost] = useState(false);
   const [reportingSellerPostId, setReportingSellerPostId] = useState(null);
   const [reportingSellerPostCommentId, setReportingSellerPostCommentId] = useState(null);
+  const [reportingDirectMessageId, setReportingDirectMessageId] = useState(null);
   const [deletingSellerPostId, setDeletingSellerPostId] = useState(null);
   const [resolvingPostReportId, setResolvingPostReportId] = useState(null);
   const [resolvingAllPostReports, setResolvingAllPostReports] = useState(false);
   const [resolvingCommentReportId, setResolvingCommentReportId] = useState(null);
   const [resolvingAllCommentReports, setResolvingAllCommentReports] = useState(false);
+  const [resolvingMessageReportId, setResolvingMessageReportId] = useState(null);
+  const [dismissingMessageReportId, setDismissingMessageReportId] = useState(null);
+  const [resolvingAllMessageReports, setResolvingAllMessageReports] = useState(false);
   const [submittingStrikeAppeal, setSubmittingStrikeAppeal] = useState(false);
   const [reviewingAppealId, setReviewingAppealId] = useState(null);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
@@ -3386,6 +3251,7 @@ export default function ThailandPantiesMarketSite() {
   );
   const postReports = db.postReports || [];
   const commentReports = db.commentReports || [];
+  const messageReports = db.messageReports || [];
   const userStrikes = db.userStrikes || [];
   const userAppeals = db.userAppeals || [];
   const postUnlocks = db.postUnlocks || [];
@@ -3835,6 +3701,14 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser) return [];
     return orders.filter((order) => order.buyerUserId === currentUser.id || order.buyerEmail === currentUser.email);
   }, [orders, currentUser]);
+  const buyerHasProcessingOrderForSelectedProduct = useMemo(() => {
+    if (!selectedProduct || currentUser?.role !== 'buyer') return false;
+    return (buyerOrders || []).some((order) => {
+      const status = String(order?.fulfillmentStatus || '').toLowerCase();
+      if (status !== 'processing') return false;
+      return Array.isArray(order?.items) && order.items.includes(selectedProduct.id);
+    });
+  }, [buyerOrders, currentUser?.role, selectedProduct]);
   const recentBuyerOrders = useMemo(
     () => [...buyerOrders].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
     [buyerOrders],
@@ -4671,6 +4545,7 @@ export default function ThailandPantiesMarketSite() {
       phone: currentUser?.phone || '',
       country: currentUser?.country || '',
       city: currentUser?.city || '',
+      region: currentUser?.region || '',
       address: currentUser?.address || '',
       postalCode: currentUser?.postalCode || '',
       height: currentUser?.height || '',
@@ -4682,6 +4557,14 @@ export default function ThailandPantiesMarketSite() {
       timeFormat: normalizeTimeFormat(currentUser?.timeFormat),
     });
   }, [currentUser]);
+
+  useEffect(() => {
+    if (!accountSaveMessage) return undefined;
+    const timeoutId = setTimeout(() => {
+      setAccountSaveMessage('');
+    }, 2500);
+    return () => clearTimeout(timeoutId);
+  }, [accountSaveMessage]);
 
   useEffect(() => {
     const nextTimeFormat = currentUser?.role === 'buyer'
@@ -4704,6 +4587,8 @@ export default function ThailandPantiesMarketSite() {
       || storedCheckoutForm.fullName
       || storedCheckoutForm.country
       || storedCheckoutForm.address
+      || storedCheckoutForm.city
+      || storedCheckoutForm.region
       || storedCheckoutForm.postalCode
     );
     if (hasStoredCheckoutDraft) return;
@@ -4712,6 +4597,8 @@ export default function ThailandPantiesMarketSite() {
       fullName: currentUser.name || '',
       country: currentUser.country || '',
       address: currentUser.address || '',
+      city: currentUser.city || '',
+      region: currentUser.region || '',
       postalCode: currentUser.postalCode || '',
       shippingMethod: 'standard',
       saveAddressToProfile: true,
@@ -4945,6 +4832,15 @@ export default function ThailandPantiesMarketSite() {
     }
     setMobileMenuOpen(false);
     setAccountMenuOpen(false);
+  }
+
+  function openBarDashboardSection(sectionKey, sectionId) {
+    setBarDashboardSection(sectionKey);
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+    window.setTimeout(() => {
+      const node = document.getElementById(sectionId);
+      if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 30);
   }
 
   function openWalletTopUpForFlow(shortfallAmount, returnTo = '/checkout', source = 'checkout') {
@@ -5181,6 +5077,10 @@ export default function ThailandPantiesMarketSite() {
       notificationPreferences: {
         message: true,
         engagement: true,
+        push: {
+          message: role === 'seller' || role === 'bar',
+          engagement: role === 'seller' || role === 'bar',
+        },
       },
       ...(role === 'seller'
         ? {
@@ -5577,14 +5477,14 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function updateAccountField(key, value) {
-    if (['address', 'city', 'country', 'postalCode', 'timeFormat'].includes(key)) {
+    if (['address', 'city', 'region', 'country', 'postalCode', 'timeFormat'].includes(key)) {
       setAccountSaveMessage('');
     }
     setAccountForm((prev) => ({ ...prev, [key]: value }));
   }
 
   function updateCheckoutField(key, value) {
-    if (key === 'country' || key === 'shippingMethod' || key === 'postalCode') {
+    if (key === 'country' || key === 'shippingMethod' || key === 'postalCode' || key === 'city' || key === 'region') {
       setCheckoutError('');
     }
     setCheckoutForm((prev) => ({ ...prev, [key]: value }));
@@ -6340,9 +6240,11 @@ export default function ThailandPantiesMarketSite() {
   function isSellerPostPrivate(post) {
     const seller = sellerMap[post?.sellerId];
     if (!post || !seller) return false;
+    if (post.visibility === 'private') return true;
+    if (post.visibility === 'public') return false;
     if (seller.feedVisibility === 'private') return true;
     if (seller.feedVisibility === 'public') return false;
-    return post.visibility === 'private';
+    return false;
   }
 
   function canViewSellerPost(post) {
@@ -8584,11 +8486,30 @@ export default function ThailandPantiesMarketSite() {
 
   async function runWalletCheckout() {
     if (!currentUser || currentUser.role !== 'buyer' || currentUser.accountStatus !== 'active') return;
+    const shippingCountry = String(checkoutForm.country || '').trim();
+    const shippingAddress = String(checkoutForm.address || '').trim();
+    const shippingCity = String(checkoutForm.city || '').trim();
+    const shippingRegion = String(checkoutForm.region || '').trim();
+    const shippingPostalCode = String(checkoutForm.postalCode || '').trim();
+    const normalizedCountry = shippingCountry.toLowerCase();
+    const requiresRegion = ['united states', 'usa', 'us', 'u.s.', 'u.s.a.', 'canada'].includes(normalizedCountry);
     if (!checkoutForm.country.trim()) {
       setCheckoutError('Enter a destination country to calculate shipping.');
       return;
     }
-    if (!String(checkoutForm.postalCode || '').trim()) {
+    if (!shippingAddress) {
+      setCheckoutError('Enter a street address for delivery.');
+      return;
+    }
+    if (!shippingCity) {
+      setCheckoutError('Enter a city for delivery.');
+      return;
+    }
+    if (requiresRegion && !shippingRegion) {
+      setCheckoutError('Enter a state/province for delivery.');
+      return;
+    }
+    if (!shippingPostalCode) {
       setCheckoutError('Enter a ZIP/postal code for delivery.');
       return;
     }
@@ -8612,9 +8533,11 @@ export default function ThailandPantiesMarketSite() {
           body: {
             itemIds: requestItemIds,
             buyerEmail: (buyerEmail || currentUser.email || '').trim(),
-            shippingAddress: String(checkoutForm.address || '').trim(),
-            shippingCountry: String(checkoutForm.country || '').trim(),
-            shippingPostalCode: String(checkoutForm.postalCode || '').trim(),
+            shippingAddress,
+            shippingCity,
+            shippingRegion,
+            shippingCountry,
+            shippingPostalCode,
             shippingMethod: checkoutForm.shippingMethod,
             shippingFee,
             saveAddressToProfile: checkoutForm.saveAddressToProfile !== false,
@@ -8706,6 +8629,8 @@ export default function ThailandPantiesMarketSite() {
       const shouldSaveCheckoutAddress = checkoutForm.saveAddressToProfile !== false;
       const normalizedCheckoutAddress = String(checkoutForm.address || '').trim();
       const normalizedCheckoutCountry = String(checkoutForm.country || '').trim();
+      const normalizedCheckoutCity = String(checkoutForm.city || '').trim();
+      const normalizedCheckoutRegion = String(checkoutForm.region || '').trim();
       const normalizedCheckoutPostalCode = String(checkoutForm.postalCode || '').trim();
       const base = {
         ...prev,
@@ -8717,6 +8642,8 @@ export default function ThailandPantiesMarketSite() {
               ...(shouldSaveCheckoutAddress ? {
                 address: normalizedCheckoutAddress || user.address || '',
                 country: normalizedCheckoutCountry || user.country || '',
+                city: normalizedCheckoutCity || user.city || '',
+                region: normalizedCheckoutRegion || user.region || '',
                 postalCode: normalizedCheckoutPostalCode || user.postalCode || '',
               } : {}),
             }
@@ -8736,6 +8663,8 @@ export default function ThailandPantiesMarketSite() {
             buyerEmail: (buyerEmail || currentUser.email || '').trim(),
             buyerUserId: currentUser.id,
             shippingAddress: normalizedCheckoutAddress,
+            shippingCity: normalizedCheckoutCity,
+            shippingRegion: normalizedCheckoutRegion,
             shippingCountry: checkoutForm.country.trim(),
             shippingPostalCode: normalizedCheckoutPostalCode,
             shippingMethod: checkoutForm.shippingMethod,
@@ -8853,8 +8782,7 @@ export default function ThailandPantiesMarketSite() {
     if (creatingSellerPost) return;
 
     const draftVisibility = sellerPostDraft.visibility === 'private' ? 'private' : 'public';
-    const feedMode = currentSellerProfile?.feedVisibility || 'public';
-    const effectiveVisibility = feedMode === 'per-post' ? draftVisibility : (feedMode === 'private' ? 'private' : 'public');
+    const effectiveVisibility = draftVisibility;
     const basePostPayload = {
       sellerId: currentSellerId,
       caption: sellerPostDraft.caption.trim().slice(0, 500),
@@ -8915,7 +8843,7 @@ export default function ThailandPantiesMarketSite() {
         image: '',
         imageName: '',
         scheduledFor: '',
-        visibility: feedMode === 'private' ? 'private' : 'public',
+        visibility: draftVisibility,
         accessPriceUsd: MIN_SELLER_PRICE_THB,
       });
       if (typeof window !== 'undefined') {
@@ -9367,6 +9295,106 @@ export default function ThailandPantiesMarketSite() {
     }
   }
 
+  async function reportDirectMessage(messageId, reasonCategory, providedReasonText = '') {
+    if (!currentUser) {
+      setSellerProfileMessage('Please login to report messages.');
+      return false;
+    }
+    if (currentUser.accountStatus !== 'active') {
+      setSellerProfileMessage('Your account must be active to submit reports.');
+      return false;
+    }
+    if (currentUser.role !== 'buyer') {
+      setSellerProfileMessage('Only buyers can report direct messages.');
+      return false;
+    }
+    if (reportingDirectMessageId === messageId) return false;
+    const message = messages.find((entry) => entry.id === messageId);
+    if (!message) return false;
+    if (String(message.senderRole || '').toLowerCase() !== 'seller') {
+      setSellerProfileMessage('Only seller messages can be reported from this view.');
+      return false;
+    }
+    if ((message.senderId || message.senderUserId) === currentUser.id) {
+      setSellerProfileMessage('You cannot report your own message.');
+      return false;
+    }
+    const existingOpenReport = messageReports.find(
+      (report) => report.messageId === messageId && report.reporterUserId === currentUser.id && report.status !== 'resolved' && report.status !== 'dismissed'
+    );
+    if (existingOpenReport) {
+      setSellerProfileMessage('You already reported this message.');
+      return false;
+    }
+
+    const normalizedReasonCategory = [
+      'direct_payment_request',
+      'off_platform_contact',
+      'harassment_abuse',
+      'scam_fraud',
+      'other',
+    ].includes(String(reasonCategory || '').trim())
+      ? String(reasonCategory || '').trim()
+      : 'other';
+    const trimmedReasonText = String(providedReasonText || '').trim();
+    if (!trimmedReasonText) return false;
+    const targetSellerUser = users.find(
+      (entry) => entry.role === 'seller' && entry.sellerId === message.sellerId
+    );
+    const targetUserId = targetSellerUser?.id || message.senderId || message.senderUserId || null;
+    const now = new Date().toISOString();
+    const priority = ['direct_payment_request', 'off_platform_contact'].includes(normalizedReasonCategory)
+      ? 'high'
+      : 'medium';
+
+    setReportingDirectMessageId(messageId);
+    try {
+      setDb((prev) => ({
+        ...prev,
+        messageReports: [
+          {
+            id: `message_report_local_${Date.now()}`,
+            messageId,
+            conversationId: message.conversationId || null,
+            targetUserId,
+            targetSellerId: message.sellerId || null,
+            contentType: 'direct_message',
+            contentId: messageId,
+            reporterUserId: currentUser.id,
+            reporterRole: currentUser.role,
+            reasonCategory: normalizedReasonCategory,
+            reason: trimmedReasonText.slice(0, 500),
+            priority,
+            status: 'open',
+            createdAt: now,
+            resolvedAt: null,
+            resolvedByUserId: null,
+          },
+          ...(prev.messageReports || []),
+        ],
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'report_direct_message',
+            targetMessageId: messageId,
+            conversationId: message.conversationId || null,
+            targetUserId,
+            reporterUserId: currentUser.id,
+            reporterRole: currentUser.role,
+            reasonCategory: normalizedReasonCategory,
+            reason: trimmedReasonText.slice(0, 500),
+            createdAt: now,
+          },
+        ],
+      }));
+      setSellerProfileMessage('Message reported. Admin will review it.');
+      return true;
+    } finally {
+      setReportingDirectMessageId(null);
+    }
+  }
+
   async function resolvePostReport(reportId) {
     if (!currentUser || currentUser.role !== 'admin') return;
     if (resolvingPostReportId === reportId) return;
@@ -9519,6 +9547,106 @@ export default function ThailandPantiesMarketSite() {
       }
     } finally {
       setResolvingAllCommentReports(false);
+    }
+  }
+
+  function resolveMessageReport(reportId) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (resolvingMessageReportId === reportId) return;
+    const report = messageReports.find((entry) => entry.id === reportId);
+    if (!report || report.status === 'resolved') return;
+    setResolvingMessageReportId(reportId);
+    try {
+      const resolvedAt = new Date().toISOString();
+      setDb((prev) => {
+        const liveReport = (prev.messageReports || []).find((entry) => entry.id === reportId);
+        if (!liveReport || liveReport.status === 'resolved') return prev;
+        const resolvedBase = {
+          ...prev,
+          messageReports: (prev.messageReports || []).map((entry) => (
+            entry.id === reportId
+              ? { ...entry, status: 'resolved', resolvedAt, resolvedByUserId: currentUser.id }
+              : entry
+          )),
+          adminActions: [
+            ...(prev.adminActions || []),
+            {
+              id: `admin_action_${Date.now()}`,
+              type: 'resolve_message_report',
+              targetReportId: reportId,
+              targetMessageId: liveReport.messageId,
+              conversationId: liveReport.conversationId || null,
+              targetUserId: liveReport.targetUserId || null,
+              adminUserId: currentUser.id,
+              createdAt: resolvedAt,
+            },
+          ],
+        };
+        return liveReport.targetUserId
+          ? applyStrikeAndAutoFreeze(resolvedBase, {
+              targetUserId: liveReport.targetUserId,
+              reason: liveReport.reason,
+              sourceType: 'direct_message',
+              sourceId: liveReport.messageId,
+              reportId,
+              adminUserId: currentUser.id,
+            })
+          : resolvedBase;
+      });
+      setSellerProfileMessage('Message report resolved.');
+    } finally {
+      setResolvingMessageReportId(null);
+    }
+  }
+
+  function dismissMessageReport(reportId) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (dismissingMessageReportId === reportId) return;
+    const report = messageReports.find((entry) => entry.id === reportId);
+    if (!report || ['resolved', 'dismissed'].includes(report.status)) return;
+    setDismissingMessageReportId(reportId);
+    try {
+      const dismissedAt = new Date().toISOString();
+      setDb((prev) => ({
+        ...prev,
+        messageReports: (prev.messageReports || []).map((entry) => (
+          entry.id === reportId
+            ? { ...entry, status: 'dismissed', resolvedAt: dismissedAt, resolvedByUserId: currentUser.id }
+            : entry
+        )),
+        adminActions: [
+          ...(prev.adminActions || []),
+          {
+            id: `admin_action_${Date.now()}`,
+            type: 'dismiss_message_report',
+            targetReportId: reportId,
+            targetMessageId: report.messageId,
+            conversationId: report.conversationId || null,
+            targetUserId: report.targetUserId || null,
+            adminUserId: currentUser.id,
+            createdAt: dismissedAt,
+          },
+        ],
+      }));
+      setSellerProfileMessage('Message report dismissed.');
+    } finally {
+      setDismissingMessageReportId(null);
+    }
+  }
+
+  async function resolveAllMessageReports() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    const openReports = messageReports.filter((report) => report.status === 'open');
+    if (openReports.length === 0 || resolvingAllMessageReports) return;
+    if (typeof window !== 'undefined' && !window.confirm(`Resolve all ${openReports.length} open direct message reports?`)) return;
+    try {
+      setResolvingAllMessageReports(true);
+      for (const report of openReports) {
+        // eslint-disable-next-line no-await-in-loop
+        await resolveMessageReport(report.id);
+      }
+    } finally {
+      setResolvingAllMessageReports(false);
     }
   }
 
@@ -10015,6 +10143,7 @@ export default function ThailandPantiesMarketSite() {
   const isPendingSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'pending';
   const isRejectedSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'rejected';
   const accountRoute = currentUser?.role === 'bar' ? '/bar-dashboard' : '/account';
+  const messagesRoute = currentUser?.role === 'seller' ? '/seller-messages' : currentUser?.role === 'buyer' ? '/buyer-messages' : accountRoute;
   const resolveMarketplaceConversationBody = (message) => {
     const original = String(message?.bodyOriginal || message?.body || '');
     const translations = message?.translations || {};
@@ -10174,7 +10303,7 @@ export default function ThailandPantiesMarketSite() {
             <button onClick={() => navigate('/faq')} className="whitespace-nowrap transition hover:text-rose-600">{navText.faq}</button>
             <button onClick={() => navigate('/contact')} className="hidden whitespace-nowrap transition hover:text-rose-600 2xl:inline-flex">{navText.contact}</button>
             <button onClick={() => navigate(accountRoute)} className="whitespace-nowrap transition hover:text-rose-600">{navText.account}</button>
-            <button onClick={() => navigate(accountRoute)} className="inline-flex items-center gap-2 whitespace-nowrap transition hover:text-rose-600">
+            <button onClick={() => navigate(messagesRoute)} className="inline-flex items-center gap-2 whitespace-nowrap transition hover:text-rose-600">
               {navText.messages}
               {unreadMessageCount > 0 ? <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{unreadMessageCount}</span> : null}
             </button>
@@ -10240,7 +10369,7 @@ export default function ThailandPantiesMarketSite() {
               <button onClick={() => navigate('/faq')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.faq}</button>
               <button onClick={() => navigate('/contact')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.contact}</button>
               <button onClick={() => navigate(accountRoute)} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.account}</button>
-              <button onClick={() => navigate(accountRoute)} className="flex items-center justify-between rounded-xl px-3 py-2 text-left hover:bg-rose-50">
+              <button onClick={() => navigate(messagesRoute)} className="flex items-center justify-between rounded-xl px-3 py-2 text-left hover:bg-rose-50">
                 <span>{navText.messages}</span>
                 {unreadMessageCount > 0 ? <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{unreadMessageCount}</span> : null}
               </button>
@@ -10998,13 +11127,19 @@ export default function ThailandPantiesMarketSite() {
                   </div>
                 ) : null}
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <button
-                    onClick={() => addToCart(selectedProduct.id)}
-                    disabled={cart.includes(selectedProduct.id)}
-                    className={`rounded-2xl px-6 py-3 font-semibold text-white ${cart.includes(selectedProduct.id) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
-                  >
-                    {cart.includes(selectedProduct.id) ? publicText.inCartLabel : publicText.addToCart}
-                  </button>
+                  {buyerHasProcessingOrderForSelectedProduct ? (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-6 py-3 text-sm font-semibold text-amber-800">
+                      This order is being processed. You will receive it soon.
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => addToCart(selectedProduct.id)}
+                      disabled={cart.includes(selectedProduct.id)}
+                      className={`rounded-2xl px-6 py-3 font-semibold text-white ${cart.includes(selectedProduct.id) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
+                    >
+                      {cart.includes(selectedProduct.id) ? publicText.inCartLabel : publicText.addToCart}
+                    </button>
+                  )}
                   <button onClick={() => navigate(`/seller/${selectedProduct.sellerId}`)} className="rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">{publicText.viewSellerProfile}</button>
                 </div>
               </div>
@@ -11022,7 +11157,7 @@ export default function ThailandPantiesMarketSite() {
         ) : null}
 
         {(routeInfo.name === 'bar-dashboard' || (routeInfo.name === 'account' && currentUser?.role === 'bar')) ? (
-          <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
+          <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
             {!isBar ? (
               <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
                 <Lock className="mx-auto h-10 w-10 text-rose-600" />
@@ -11036,6 +11171,43 @@ export default function ThailandPantiesMarketSite() {
                   title={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).title}
                   subtitle={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).subtitle}
                 />
+                <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+                  <button
+                    type="button"
+                    onClick={() => openBarDashboardSection('profile', 'bar-profile')}
+                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'profile' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
+                  >
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openBarDashboardSection('feed', 'bar-feed')}
+                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'feed' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
+                  >
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openBarDashboardSection('affiliations', 'bar-affiliations')}
+                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'affiliations' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
+                  >
+                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openBarDashboardSection('earnings', 'bar-earnings')}
+                    className={`w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold sm:w-auto ${barDashboardSection === 'earnings' ? 'bg-rose-600 text-white' : 'border border-rose-200 bg-white text-rose-700'}`}
+                  >
+                    Affiliate earnings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/seller-feed')}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                  >
+                    {navText.sellerFeed || 'Seller feed'}
+                  </button>
+                </div>
                 <div className="mt-4 flex justify-start lg:justify-end">
                   <label className="flex items-center gap-2 text-sm text-slate-600">
                     {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).language}
@@ -11050,7 +11222,7 @@ export default function ThailandPantiesMarketSite() {
                     </select>
                   </label>
                 </div>
-                <div className="mt-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div id="bar-earnings" className={`mt-6 rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'earnings' ? 'ring-rose-300' : 'ring-rose-100'}`}>
                   <h3 className="text-xl font-semibold">Affiliate earnings</h3>
                   <p className="mt-1 text-sm text-slate-600">Track the money your bar earns from affiliated seller sales and paid buyer interactions.</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -11071,7 +11243,7 @@ export default function ThailandPantiesMarketSite() {
                       <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(barAffiliateEarnings.bySource.customRequests)}</div>
                     </div>
                   </div>
-                  <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div className="mt-4 space-y-4">
                     <div className="rounded-2xl border border-rose-100 bg-slate-50 p-4">
                       <div className="text-sm font-semibold text-slate-800">Top affiliated sellers (order commissions)</div>
                       <div className="mt-3 space-y-2">
@@ -11106,8 +11278,8 @@ export default function ThailandPantiesMarketSite() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-6 grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="mt-6 space-y-8">
+                  <div id="bar-profile" className={`rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'profile' ? 'ring-rose-300' : 'ring-rose-100'}`}>
                     {currentBarProfile ? <div className="mb-4"><BarQrCard bar={currentBarProfile} compact /></div> : null}
                     <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}</h3>
                     <div className="mt-4 h-48">
@@ -11137,7 +11309,7 @@ export default function ThailandPantiesMarketSite() {
                       ) : null}
                     </div>
                   </div>
-                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                  <div id="bar-feed" className={`rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'feed' ? 'ring-rose-300' : 'ring-rose-100'}`}>
                     <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}</h3>
                     <p className="mt-2 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedSubtitle}</p>
                     <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedPlaceholder} />
@@ -11167,8 +11339,8 @@ export default function ThailandPantiesMarketSite() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="mt-8 space-y-6">
+                  <div id="bar-affiliations" className={`rounded-3xl bg-white p-6 shadow-md ring-1 ${barDashboardSection === 'affiliations' ? 'ring-rose-300' : 'ring-rose-100'}`}>
                     <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}</h3>
                     <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsSubtitle}</p>
                     <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
@@ -11347,8 +11519,6 @@ export default function ThailandPantiesMarketSite() {
             updateSellerLanguage={updateSellerLanguage}
             isSellerOnline={Boolean(currentSellerProfile?.isOnline)}
             toggleSellerOnlineStatus={toggleSellerOnlineStatus}
-            sellerFeedVisibility={currentSellerProfile?.feedVisibility || 'public'}
-            setSellerFeedVisibility={setSellerFeedVisibility}
             updateSellerPostVisibility={updateSellerPostVisibility}
             updateSellerPostPrice={updateSellerPostPrice}
             updateAllPrivatePostPrices={updateAllPrivatePostPrices}
@@ -11362,6 +11532,81 @@ export default function ThailandPantiesMarketSite() {
             respondToCustomRequestCounter={respondToCustomRequestCounter}
             toggleCustomRequestBuyerImageUpload={toggleCustomRequestBuyerImageUpload}
             sendCustomRequestMessage={sendCustomRequestMessage}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'seller-messages' ? (
+          <SellerMessagesPage
+            isSeller={isSeller}
+            isPendingSeller={isPendingSeller}
+            isRejectedSeller={isRejectedSeller}
+            sellerInbox={sellerInbox}
+            sellerMessageHistory={sellerMessageHistory}
+            setSellerSelectedConversationId={setSellerSelectedConversationId}
+            markNotificationsReadForConversation={markNotificationsReadForConversation}
+            sellerActiveConversationId={sellerActiveConversationId}
+            sellerActiveConversationMessages={sellerActiveConversationMessages}
+            sellerReplyDraft={sellerReplyDraft}
+            setSellerReplyDraft={setSellerReplyDraft}
+            sendSellerReply={sendSellerReply}
+            sellerLanguage={currentUser?.preferredLanguage || 'en'}
+            currentUser={currentUser}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'buyer-messages' ? (
+          <BuyerMessagesPage
+            currentUser={currentUser}
+            sellerMap={sellerMap}
+            buyerMessageSellerSearch={buyerMessageSellerSearch}
+            setBuyerMessageSellerSearch={setBuyerMessageSellerSearch}
+            buyerMessageSellerResults={buyerMessageSellerResults}
+            buyerMessageProductFilters={buyerMessageProductFilters}
+            buyerMessageFilterOptions={buyerMessageFilterOptions}
+            updateBuyerMessageProductFilter={updateBuyerMessageProductFilter}
+            buyerMessageProductResults={buyerMessageProductResults}
+            buyerConversations={buyerConversations}
+            buyerDashboardConversationId={buyerDashboardConversationId}
+            setBuyerDashboardConversationId={setBuyerDashboardConversationId}
+            buyerDashboardConversationMessages={buyerDashboardConversationMessages}
+            buyerDashboardMessageDraft={buyerDashboardMessageDraft}
+            setBuyerDashboardMessageDraft={setBuyerDashboardMessageDraft}
+            sendBuyerDashboardMessage={sendBuyerDashboardMessage}
+            buyerDashboardMessageError={buyerDashboardMessageError}
+            messageReports={messageReports}
+            reportDirectMessage={reportDirectMessage}
+            reportingDirectMessageId={reportingDirectMessageId}
+            startBuyerConversationWithSeller={startBuyerConversationWithSeller}
+            currentWalletBalance={currentWalletBalance}
+            uiLanguage={currentUser?.preferredLanguage || 'en'}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'seller-feed-workspace' ? (
+          <SellerFeedWorkspacePage
+            isSeller={isSeller}
+            isPendingSeller={isPendingSeller}
+            isRejectedSeller={isRejectedSeller}
+            sellerMap={sellerMap}
+            currentSellerId={currentSellerId}
+            currentSellerProfile={currentSellerProfile}
+            sellerDashboardPosts={sellerDashboardPosts}
+            sellerPostDraft={sellerPostDraft}
+            sellerPostDraftSavedAt={sellerPostDraftSavedAt}
+            setSellerPostDraft={setSellerPostDraft}
+            handleSellerPostImageUpload={handleSellerPostImageUpload}
+            createSellerPost={createSellerPost}
+            creatingSellerPost={creatingSellerPost}
+            deleteSellerPost={deleteSellerPost}
+            deletingSellerPostId={deletingSellerPostId}
+            sellerLanguage={currentUser?.preferredLanguage || 'en'}
+            isSellerOnline={Boolean(currentSellerProfile?.isOnline)}
+            updateSellerPostVisibility={updateSellerPostVisibility}
+            updateSellerPostPrice={updateSellerPostPrice}
+            updateAllPrivatePostPrices={updateAllPrivatePostPrices}
+            unscheduleSellerPost={unscheduleSellerPost}
+            publishSellerPostNow={publishSellerPostNow}
+            sellerPostAnalytics={sellerPostAnalytics}
             navigate={navigate}
           />
         ) : null}
@@ -11424,6 +11669,7 @@ export default function ThailandPantiesMarketSite() {
             sellerPosts={sellerFeedPosts}
             postReports={postReports}
             commentReports={commentReports}
+            messageReports={messageReports}
             sellerPostLikes={sellerPostLikes}
             sellerPostComments={sellerPostComments}
             sellerFollows={sellerFollows}
@@ -11437,6 +11683,12 @@ export default function ThailandPantiesMarketSite() {
             resolvingCommentReportId={resolvingCommentReportId}
             resolveAllCommentReports={resolveAllCommentReports}
             resolvingAllCommentReports={resolvingAllCommentReports}
+            resolveMessageReport={resolveMessageReport}
+            resolvingMessageReportId={resolvingMessageReportId}
+            dismissMessageReport={dismissMessageReport}
+            dismissingMessageReportId={dismissingMessageReportId}
+            resolveAllMessageReports={resolveAllMessageReports}
+            resolvingAllMessageReports={resolvingAllMessageReports}
             userStrikes={userStrikes}
             userAppeals={userAppeals}
             reviewUserAppeal={reviewUserAppeal}
@@ -11755,6 +12007,7 @@ export default function ThailandPantiesMarketSite() {
             currentUser={currentUser}
             sellers={Object.values(sellerMap)}
             buyerCustomRequests={buyerCustomRequests}
+            sellerCustomRequests={sellerCustomRequests}
             customRequestMessagesByRequestId={customRequestMessagesByRequestId}
             submitCustomRequest={submitCustomRequest}
             sendCustomRequestMessage={sendCustomRequestMessage}

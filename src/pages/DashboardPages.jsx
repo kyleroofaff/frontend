@@ -52,6 +52,35 @@ const CHECKOUT_SHAKE_KEYFRAMES = `
 }
 `;
 
+function getAddressConventionMeta(countryValue) {
+  const normalized = String(countryValue || "").trim().toLowerCase();
+  if (["united states", "usa", "us", "u.s.", "u.s.a."].includes(normalized)) {
+    return {
+      regionLabel: "State",
+      regionPlaceholder: "State",
+      postalLabel: "ZIP code",
+      postalPlaceholder: "ZIP code",
+      regionRequired: true,
+    };
+  }
+  if (normalized === "canada") {
+    return {
+      regionLabel: "Province",
+      regionPlaceholder: "Province",
+      postalLabel: "Postal code",
+      postalPlaceholder: "Postal code",
+      regionRequired: true,
+    };
+  }
+  return {
+    regionLabel: "State / Province / Region",
+    regionPlaceholder: "State / Province / Region",
+    postalLabel: "ZIP / Postal code",
+    postalPlaceholder: "ZIP / Postal code",
+    regionRequired: false,
+  };
+}
+
 const SELLER_UI_LANGUAGE_OPTIONS = [
   { value: "en", label: "English" },
   { value: "th", label: "Thai" },
@@ -122,6 +151,20 @@ const ACCOUNT_PAGE_I18N = {
     noMessagesInThread: "No messages in this thread yet. Send the first message to start the conversation.",
     writeMessage: "Write your message",
     sendMessage: "Send message",
+    safetyNoticeKeepOnPlatform: "For your safety, keep all communication and payments on-platform. Never move chats to outside apps or pay sellers directly.",
+    reportMessage: "Report",
+    reportReasonLabel: "Reason",
+    reportReasonDirectPayment: "Asked for direct payment outside platform",
+    reportReasonOffPlatform: "Asked to move to another messaging app",
+    reportReasonHarassment: "Harassment or abusive language",
+    reportReasonScam: "Scam or suspicious behavior",
+    reportReasonOther: "Other",
+    reportDetailsOptional: "Optional details",
+    reportDetailsRequiredOther: "Please add details when selecting Other.",
+    submitReport: "Submit report",
+    reportingMessage: "Reporting...",
+    alreadyReportedMessage: "Already reported",
+    reportSubmitFailed: "Unable to submit report right now.",
     purchaseHistoryHelp: "Your purchase history will appear here after checkout.",
     markNotificationsRead: "Mark notifications read",
     noWalletActivity: "No wallet activity yet.",
@@ -132,7 +175,7 @@ const ACCOUNT_PAGE_I18N = {
     walletProcessing: "Processing wallet top-up...",
     walletAddedPrefix: "Added",
     walletAddedSuffix: "to your wallet.",
-    walletPresetHelp: "Use a preset amount to simulate a Stripe wallet top-up.",
+    walletPresetHelp: "Minimum top-up is 500 baht.",
     favoritesHelp: "Bookmark sellers for quick profile and messaging access.",
     noFavorites: "No favorite sellers yet. Use Bookmark in the quick finder or Follow in seller feed.",
     locationNotSet: "Location not set",
@@ -236,6 +279,20 @@ const ACCOUNT_PAGE_I18N = {
     noMessagesInThread: "ยังไม่มีข้อความในเธรดนี้ ส่งข้อความแรกเพื่อเริ่มการสนทนา",
     writeMessage: "พิมพ์ข้อความของคุณ",
     sendMessage: "ส่งข้อความ",
+    safetyNoticeKeepOnPlatform: "เพื่อความปลอดภัยของคุณ โปรดสื่อสารและชำระเงินบนแพลตฟอร์มเท่านั้น อย่าย้ายแชตไปแอปอื่นหรือจ่ายเงินให้ผู้ขายโดยตรง",
+    reportMessage: "รายงาน",
+    reportReasonLabel: "เหตุผล",
+    reportReasonDirectPayment: "ขอชำระเงินนอกแพลตฟอร์ม",
+    reportReasonOffPlatform: "ขอให้ย้ายไปแชตในแอปอื่น",
+    reportReasonHarassment: "คุกคามหรือใช้ภาษาที่ไม่เหมาะสม",
+    reportReasonScam: "หลอกลวงหรือพฤติกรรมน่าสงสัย",
+    reportReasonOther: "อื่นๆ",
+    reportDetailsOptional: "รายละเอียดเพิ่มเติม (ไม่บังคับ)",
+    reportDetailsRequiredOther: "โปรดระบุรายละเอียดเมื่อเลือก อื่นๆ",
+    submitReport: "ส่งรายงาน",
+    reportingMessage: "กำลังรายงาน...",
+    alreadyReportedMessage: "รายงานแล้ว",
+    reportSubmitFailed: "ไม่สามารถส่งรายงานได้ในขณะนี้",
     purchaseHistoryHelp: "ประวัติการซื้อของคุณจะแสดงที่นี่หลังชำระเงิน",
     markNotificationsRead: "ทำเครื่องหมายการแจ้งเตือนว่าอ่านแล้ว",
     noWalletActivity: "ยังไม่มีกิจกรรมในกระเป๋าเงิน",
@@ -246,7 +303,7 @@ const ACCOUNT_PAGE_I18N = {
     walletProcessing: "กำลังเติมเงินกระเป๋า...",
     walletAddedPrefix: "เพิ่ม",
     walletAddedSuffix: "เข้าสู่กระเป๋าเงินของคุณแล้ว",
-    walletPresetHelp: "ใช้จำนวนเงินที่กำหนดไว้ล่วงหน้าเพื่อจำลองการเติมเงินผ่าน Stripe",
+    walletPresetHelp: "ยอดเติมขั้นต่ำคือ 500 บาท",
     favoritesHelp: "บันทึกผู้ขายไว้เพื่อเข้าถึงโปรไฟล์และข้อความได้รวดเร็ว",
     noFavorites: "ยังไม่มีผู้ขายที่ชื่นชอบ ใช้ Bookmark ใน quick finder หรือ Follow ในฟีดผู้ขาย",
     locationNotSet: "ยังไม่ได้ระบุที่อยู่",
@@ -350,6 +407,20 @@ const ACCOUNT_PAGE_I18N = {
     noMessagesInThread: "ဒီ thread ထဲတွင် မက်ဆေ့ချ်မရှိသေးပါ။ conversation စရန် ပထမမက်ဆေ့ချ်ကို ပို့ပါ။",
     writeMessage: "သင့်မက်ဆေ့ချ်ရေးပါ",
     sendMessage: "မက်ဆေ့ချ်ပို့ရန်",
+    safetyNoticeKeepOnPlatform: "လုံခြုံရေးအတွက် စကားပြောခြင်းနှင့် ငွေပေးချေမှုကို platform အတွင်းသာ လုပ်ပါ။ ပြင်ပ app များသို့ မပြောင်းပါနှင့် seller ကို တိုက်ရိုက် မပေးချေပါနှင့်။",
+    reportMessage: "Report",
+    reportReasonLabel: "အကြောင်းပြချက်",
+    reportReasonDirectPayment: "Platform ပြင်ပ တိုက်ရိုက်ငွေပေးချေခိုင်းခြင်း",
+    reportReasonOffPlatform: "အခြား messaging app သို့ ပြောင်းခိုင်းခြင်း",
+    reportReasonHarassment: "အနိုင်ကျင့်မှု/မသင့်လျော်သည့်စကား",
+    reportReasonScam: "လိမ်လည်မှု သို့မဟုတ် သံသယဖြစ်ဖွယ် အပြုအမူ",
+    reportReasonOther: "အခြား",
+    reportDetailsOptional: "အသေးစိတ် (ရွေးချယ်နိုင်)",
+    reportDetailsRequiredOther: "အခြား ကိုရွေးပါက အသေးစိတ် ထည့်ပါ။",
+    submitReport: "Report ပို့ရန်",
+    reportingMessage: "Report လုပ်နေသည်...",
+    alreadyReportedMessage: "Report လုပ်ပြီး",
+    reportSubmitFailed: "ယခုအချိန်တွင် report မပို့နိုင်ပါ။",
     purchaseHistoryHelp: "checkout ပြီးနောက် သင့်ဝယ်ယူမှတ်တမ်းကို ဒီနေရာတွင် ပြသပါမည်။",
     markNotificationsRead: "အသိပေးချက်အားလုံး ဖတ်ပြီးဟုမှတ်ပါ",
     noWalletActivity: "wallet လှုပ်ရှားမှု မရှိသေးပါ။",
@@ -360,7 +431,7 @@ const ACCOUNT_PAGE_I18N = {
     walletProcessing: "wallet top-up ဆောင်ရွက်နေသည်...",
     walletAddedPrefix: "ထည့်ပြီး",
     walletAddedSuffix: "သင့် wallet ထဲသို့ ရောက်ရှိပါပြီ။",
-    walletPresetHelp: "Stripe wallet top-up ကို စမ်းသပ်ရန် preset ပမာဏကို သုံးပါ။",
+    walletPresetHelp: "အနည်းဆုံး top-up ပမာဏသည် 500 ဘတ် ဖြစ်သည်။",
     favoritesHelp: "profile နှင့် messaging ကို မြန်မြန်ဝင်ကြည့်ရန် seller များကို bookmark လုပ်ပါ။",
     noFavorites: "အကြိုက်ဆုံး seller မရှိသေးပါ။ quick finder တွင် Bookmark သို့မဟုတ် seller feed တွင် Follow ကို သုံးပါ။",
     locationNotSet: "တည်နေရာ မသတ်မှတ်ရသေး",
@@ -464,6 +535,20 @@ const ACCOUNT_PAGE_I18N = {
     noMessagesInThread: "В этом диалоге пока нет сообщений. Отправьте первое сообщение, чтобы начать общение.",
     writeMessage: "Напишите сообщение",
     sendMessage: "Отправить сообщение",
+    safetyNoticeKeepOnPlatform: "Для вашей безопасности общайтесь и оплачивайте только на платформе. Не переходите в сторонние мессенджеры и не платите продавцам напрямую.",
+    reportMessage: "Пожаловаться",
+    reportReasonLabel: "Причина",
+    reportReasonDirectPayment: "Просьба об оплате вне платформы",
+    reportReasonOffPlatform: "Просьба перейти в другой мессенджер",
+    reportReasonHarassment: "Оскорбления или неподобающий язык",
+    reportReasonScam: "Мошенничество или подозрительное поведение",
+    reportReasonOther: "Другое",
+    reportDetailsOptional: "Дополнительные детали (необязательно)",
+    reportDetailsRequiredOther: "Если выбрано «Другое», добавьте детали.",
+    submitReport: "Отправить жалобу",
+    reportingMessage: "Отправка...",
+    alreadyReportedMessage: "Уже пожаловались",
+    reportSubmitFailed: "Сейчас не удалось отправить жалобу.",
     purchaseHistoryHelp: "После оформления заказа здесь появится история ваших покупок.",
     markNotificationsRead: "Отметить уведомления прочитанными",
     noWalletActivity: "Активности кошелька пока нет.",
@@ -474,7 +559,7 @@ const ACCOUNT_PAGE_I18N = {
     walletProcessing: "Обрабатывается пополнение кошелька...",
     walletAddedPrefix: "Добавлено",
     walletAddedSuffix: "в ваш кошелек.",
-    walletPresetHelp: "Используйте готовую сумму для симуляции пополнения кошелька через Stripe.",
+    walletPresetHelp: "Минимальное пополнение — 500 бат.",
     favoritesHelp: "Добавляйте продавцов в закладки для быстрого доступа к профилю и сообщениям.",
     noFavorites: "Пока нет избранных продавцов. Используйте Bookmark в быстром поиске или Follow в ленте продавца.",
     locationNotSet: "Локация не указана",
@@ -1128,6 +1213,10 @@ const SELLER_I18N = {
     quickProfile: "Profile",
     quickNewListing: "New Listing",
     quickInbox: "Inbox",
+    messagesTab: "Messages",
+    customRequestsTab: "Custom requests",
+    unreadChatsCount: "Unread chats",
+    openRequestsCount: "Open requests",
     quickNewPost: "New Post",
     quickListings: "Listings",
     showTranslation: "Show translation",
@@ -1258,7 +1347,7 @@ const SELLER_I18N = {
     reasonInappropriate: "เนื้อหาไม่เหมาะสม", reasonHarassment: "คุกคามหรือกลั่นแกล้ง",
     reasonSpam: "สแปม", reasonImpersonation: "แอบอ้างตัวตน", reasonOther: "อื่นๆ",
     customReason: "เหตุผลเพิ่มเติม", report: "รายงาน", reporting: "กำลังรายงาน...", loadMorePosts: "โหลดโพสต์เพิ่มเติม",
-    quickProfile: "โปรไฟล์", quickNewListing: "ลงสินค้าใหม่", quickInbox: "กล่องข้อความ", quickNewPost: "โพสต์ใหม่", quickListings: "รายการสินค้า",
+    quickProfile: "โปรไฟล์", quickNewListing: "ลงสินค้าใหม่", quickInbox: "กล่องข้อความ", messagesTab: "ข้อความ", customRequestsTab: "คำขอพิเศษ", unreadChatsCount: "แชทยังไม่อ่าน", openRequestsCount: "คำขอที่เปิดอยู่", quickNewPost: "โพสต์ใหม่", quickListings: "รายการสินค้า",
     showTranslation: "แสดงคำแปล", showOriginal: "แสดงต้นฉบับ",
     addWalletReplyPrefix: "เติมอย่างน้อย", addWalletReplySuffix: "ลงในกระเป๋าเพื่อส่งข้อความตอบกลับ",
     languages: "ภาษา",
@@ -1385,7 +1474,7 @@ const SELLER_I18N = {
     reasonInappropriate: "မသင့်လျော်သော အကြောင်းအရာ", reasonHarassment: "အနှောင့်အယှက် သို့မဟုတ် အနိုင်ကျင့်မှု",
     reasonSpam: "spam", reasonImpersonation: "အယောင်ဆောင်မှု", reasonOther: "အခြား",
     customReason: "စိတ်ကြိုက် အကြောင်းပြချက်", report: "report", reporting: "report လုပ်နေသည်...", loadMorePosts: "post များထပ်ဖွင့်မည်",
-    quickProfile: "ပရိုဖိုင်", quickNewListing: "စာရင်းသစ်", quickInbox: "စာဝင်ပုံး", quickNewPost: "post အသစ်", quickListings: "စာရင်းများ",
+    quickProfile: "ပရိုဖိုင်", quickNewListing: "စာရင်းသစ်", quickInbox: "စာဝင်ပုံး", messagesTab: "မက်ဆေ့ချ်များ", customRequestsTab: "စိတ်ကြိုက်တောင်းဆိုချက်များ", unreadChatsCount: "မဖတ်ရသေးသော chat", openRequestsCount: "ဖွင့်ထားသော request များ", quickNewPost: "post အသစ်", quickListings: "စာရင်းများ",
     showTranslation: "ဘာသာပြန်ကိုပြရန်", showOriginal: "မူရင်းကိုပြရန်",
     addWalletReplyPrefix: "အနည်းဆုံး", addWalletReplySuffix: "ကို wallet ထဲ ထည့်ပြီးမှ reply ပို့နိုင်ပါမည်။",
     languages: "ဘာသာစကားများ",
@@ -1512,7 +1601,7 @@ const SELLER_I18N = {
     reasonInappropriate: "Неприемлемый контент", reasonHarassment: "Оскорбления или травля",
     reasonSpam: "Спам", reasonImpersonation: "Выдача себя за другого", reasonOther: "Другое",
     customReason: "Своя причина", report: "Пожаловаться", reporting: "Отправка...", loadMorePosts: "Загрузить еще",
-    quickProfile: "Профиль", quickNewListing: "Новое объявление", quickInbox: "Входящие", quickNewPost: "Новый пост", quickListings: "Объявления",
+    quickProfile: "Профиль", quickNewListing: "Новое объявление", quickInbox: "Входящие", messagesTab: "Сообщения", customRequestsTab: "Индивидуальные запросы", unreadChatsCount: "Непрочитанные чаты", openRequestsCount: "Открытые запросы", quickNewPost: "Новый пост", quickListings: "Объявления",
     showTranslation: "Показать перевод", showOriginal: "Показать оригинал",
     addWalletReplyPrefix: "Добавьте минимум", addWalletReplySuffix: "в кошелек, чтобы ответить.",
     languages: "Языки",
@@ -1676,8 +1765,6 @@ export function SellerDashboardPage({
   updateSellerLanguage,
   isSellerOnline,
   toggleSellerOnlineStatus,
-  sellerFeedVisibility,
-  setSellerFeedVisibility,
   updateSellerPostVisibility,
   updateSellerPostPrice,
   updateAllPrivatePostPrices,
@@ -1697,8 +1784,6 @@ export function SellerDashboardPage({
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
   const sellerProfileSelectText = SELLER_PROFILE_SELECT_I18N[locale] || SELLER_PROFILE_SELECT_I18N.en;
   const sellerWritingPresetText = SELLER_WRITING_PRESETS_I18N[locale] || SELLER_WRITING_PRESETS_I18N.en;
-  const [bulkPrivatePostPrice, setBulkPrivatePostPrice] = useState("1");
-  const [privatePostPricingMode, setPrivatePostPricingMode] = useState("all");
   const [bundleDraft, setBundleDraft] = useState({
     title: "",
     price: "",
@@ -1743,9 +1828,6 @@ export function SellerDashboardPage({
     () => (sellerDashboardProducts || []).filter((product) => product?.isBundle),
     [sellerDashboardProducts],
   );
-  const feedVisibilityMode = sellerFeedVisibility === "per-post" ? "per-post" : (sellerFeedVisibility === "private" ? "private" : "public");
-  const draftPostVisibility = sellerPostDraft.visibility === "private" ? "private" : "public";
-  const effectiveDraftVisibility = feedVisibilityMode === "per-post" ? draftPostVisibility : feedVisibilityMode;
   const [customRequestReplyDraftById, setCustomRequestReplyDraftById] = useState({});
   const [customRequestImageDraftById, setCustomRequestImageDraftById] = useState({});
   const [customRequestQuoteDraftById, setCustomRequestQuoteDraftById] = useState({});
@@ -1773,8 +1855,6 @@ export function SellerDashboardPage({
     return sellerNotifications;
   }, [sellerNotifications, notificationFilter]);
   const unreadNotificationCount = sellerNotifications.filter((notification) => !notification.read).length;
-  const sellerInboxReceivedCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "buyer").length;
-  const sellerInboxSentCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "seller").length;
   const sellerUnreadConversationCount = (sellerInbox || []).filter((message) => message.hasUnread ?? !message.readBySeller).length;
   const firstUnreadSellerConversation = (sellerInbox || []).find((message) => message.hasUnread ?? !message.readBySeller) || null;
   const parseBuyerIdFromConversationId = (conversationId) => {
@@ -1808,19 +1888,21 @@ export function SellerDashboardPage({
   const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.7 : 0.8;
   const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
   const grossEarnings = Number((unlockRevenue + grossMessageFees).toFixed(2));
-  const customRequestMessageStats = useMemo(() => {
-    const requestIdSet = new Set((sellerCustomRequests || []).map((request) => request.id));
-    let sent = 0;
-    let received = 0;
-    Object.entries(customRequestMessagesByRequestId || {}).forEach(([requestId, rows]) => {
-      if (!requestIdSet.has(requestId)) return;
-      (rows || []).forEach((message) => {
-        if (message.senderRole === "seller") sent += 1;
-        else received += 1;
-      });
-    });
-    return { sent, received };
-  }, [sellerCustomRequests, customRequestMessagesByRequestId]);
+  const openSellerRequestCount = useMemo(
+    () =>
+      (sellerCustomRequests || []).filter((request) => {
+        const status = String(request?.status || "open");
+        return status === "open" || status === "reviewing";
+      }).length,
+    [sellerCustomRequests],
+  );
+  const inAppAllEnabled =
+    (currentUser?.notificationPreferences?.message !== false)
+    && (currentUser?.notificationPreferences?.engagement !== false);
+  const pushAllEnabled =
+    (currentUser?.notificationPreferences?.push?.message !== false)
+    && (currentUser?.notificationPreferences?.push?.engagement !== false)
+    && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
   const scrollToSection = (sectionId) => {
     if (typeof document === "undefined") return;
     const node = document.getElementById(sectionId);
@@ -1932,7 +2014,7 @@ export function SellerDashboardPage({
                     if (firstUnreadSellerConversation?.conversationId) {
                       setSellerSelectedConversationId(firstUnreadSellerConversation.conversationId);
                     }
-                    scrollToSection("seller-inbox");
+                    navigate("/seller-messages");
                   }}
                   className="rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-800"
                 >
@@ -1941,12 +2023,43 @@ export function SellerDashboardPage({
               </div>
             </div>
           ) : null}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/seller-dashboard")}
+              className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white"
+            >
+              {t("quickProfile")}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/seller-messages")}
+              className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700"
+            >
+              {t("messagesTab")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/custom-requests")}
+              className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700"
+            >
+              {t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/seller-feed-workspace")}
+              className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700"
+            >
+              {t("feedEyebrow")}
+            </button>
+          </div>
           <div className="mb-4 lg:hidden">
             <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
               <button onClick={() => scrollToSection("seller-profile")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickProfile")}</button>
               <button onClick={() => scrollToSection("seller-upload")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
-              <button onClick={() => scrollToSection("seller-inbox")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
-              <button onClick={() => scrollToSection("seller-post-create")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickNewPost")}</button>
+              <button onClick={() => navigate("/seller-messages")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
+              <button onClick={() => navigate("/custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}</button>
+              <button onClick={() => navigate("/seller-feed-workspace")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
               <button onClick={() => scrollToSection("seller-listings")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickListings")}</button>
             </div>
           </div>
@@ -1964,6 +2077,21 @@ export function SellerDashboardPage({
                 ))}
               </select>
               </label>
+            </div>
+          </div>
+          <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-white p-3">
+                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("grossEarnings")}</div>
+                <div className="mt-1 text-2xl font-semibold text-slate-900">{formatPriceTHB(grossEarnings)}</div>
+                <div className="mt-1 text-xs text-slate-500">{t("grossEarningsHelp")}</div>
+              </div>
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+                <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("netEarnings")}</div>
+                <div className="mt-1 text-2xl font-semibold text-emerald-800">{formatPriceTHB(netEarnings)}</div>
+                <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
+              </div>
             </div>
           </div>
           <div className="mb-6 rounded-3xl border border-rose-100 bg-slate-50 p-5">
@@ -1985,43 +2113,32 @@ export function SellerDashboardPage({
               <button onClick={() => setNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Messages</button>
               <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Engagement</button>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-              {(() => {
-                const inAppAllEnabled =
-                  (currentUser?.notificationPreferences?.message !== false)
-                  && (currentUser?.notificationPreferences?.engagement !== false);
-                const pushAllEnabled =
-                  (currentUser?.notificationPreferences?.push?.message !== false)
-                  && (currentUser?.notificationPreferences?.push?.engagement !== false)
-                  && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
-                return (
-                  <>
-                    <button
-                      onClick={() => {
-                        const nextEnabled = !inAppAllEnabled;
-                        updateNotificationPreference("message", nextEnabled);
-                        updateNotificationPreference("engagement", nextEnabled);
-                      }}
-                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
-                    >
-                      Email notifications: {inAppAllEnabled ? "On" : "Off"}
-                    </button>
-                    <button
-                      onClick={() => {
-                        const nextEnabled = !pushAllEnabled;
-                        updatePushNotificationPreference("message", nextEnabled);
-                        updatePushNotificationPreference("engagement", nextEnabled);
-                        if (currentUser?.role === "admin") {
-                          updatePushNotificationPreference("adminOps", nextEnabled);
-                        }
-                      }}
-                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
-                    >
-                      Browser notifications: {pushAllEnabled ? "On" : "Off"}
-                    </button>
-                  </>
-                );
-              })()}
+            <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const nextEnabled = !inAppAllEnabled;
+                    updateNotificationPreference("message", nextEnabled);
+                    updateNotificationPreference("engagement", nextEnabled);
+                  }}
+                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+                >
+                  Email notifications: {inAppAllEnabled ? "On" : "Off"}
+                </button>
+                <button
+                  onClick={() => {
+                    const nextEnabled = !pushAllEnabled;
+                    updatePushNotificationPreference("message", nextEnabled);
+                    updatePushNotificationPreference("engagement", nextEnabled);
+                    if (currentUser?.role === "admin") {
+                      updatePushNotificationPreference("adminOps", nextEnabled);
+                    }
+                  }}
+                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
+                >
+                  Browser notifications: {pushAllEnabled ? "On" : "Off"}
+                </button>
+              </div>
             </div>
             {!pushSupported ? (
               <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
@@ -2047,7 +2164,7 @@ export function SellerDashboardPage({
                           onClick={() => {
                             setSellerSelectedConversationId(notification.conversationId);
                             markNotificationsReadForConversation(notification.conversationId);
-                            scrollToSection("seller-inbox");
+                            navigate("/seller-messages");
                           }}
                           className="rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-700"
                         >
@@ -2060,7 +2177,10 @@ export function SellerDashboardPage({
               ))}
             </div>
           </div>
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="space-y-8">
+            <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <SellerQrCard seller={sellerMap[currentSellerId]} />
+            </div>
             <div id="seller-profile" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
               <h3 className="text-xl font-semibold">{t("profileChecklist")}</h3>
               <div className="mt-1 text-sm text-slate-500">Profile: {currentSellerProfile?.name || "Seller profile"}</div>
@@ -2073,30 +2193,6 @@ export function SellerDashboardPage({
                   >
                     {isSellerOnline ? t("online") : t("offline")}
                   </button>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-slate-500">{t("feedVisibilityMode")}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSellerFeedVisibility("public")}
-                      className={`rounded-xl border px-3 py-2 text-xs font-semibold ${sellerFeedVisibility === "public" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600"}`}
-                    >
-                      {t("publicAllPosts")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSellerFeedVisibility("private")}
-                      className={`rounded-xl border px-3 py-2 text-xs font-semibold ${sellerFeedVisibility === "private" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-slate-200 bg-white text-slate-600"}`}
-                    >
-                      {t("privateAllPosts")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSellerFeedVisibility("per-post")}
-                      className={`rounded-xl border px-3 py-2 text-xs font-semibold ${sellerFeedVisibility === "per-post" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 bg-white text-slate-600"}`}
-                    >
-                      {t("chooseEachPost")}
-                    </button>
-                  </div>
                 </div>
                 <p className="mt-2 text-xs text-slate-500">{t("presenceHelp")}</p>
               </div>
@@ -2427,7 +2523,7 @@ export function SellerDashboardPage({
                   <span className="text-xs text-slate-600">{uploadDraft.imageName || t("noFileChosen")}</span>
                 </div>
                 <div className="h-40">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} /> : <ProductImage label={t("imagePreview")} />}</div>
-                <button onClick={createProductFromUpload} className="rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
+                <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
               </div>
               <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -2568,601 +2664,9 @@ export function SellerDashboardPage({
               </div>
             </div>
 
-            <div className="space-y-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-              <SellerQrCard seller={sellerMap[currentSellerId]} compact />
-              <div id="seller-inbox" className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-rose-600" />
-                    <h3 className="text-xl font-semibold">{t("inbox")}</h3>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{t("liveUpdates")}</div>
-                    <div className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${sellerUnreadConversationCount > 0 ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-white text-slate-700 ring-rose-100"}`}>
-                      Unread {sellerUnreadConversationCount}
-                    </div>
-                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{sellerInbox.length} {t("conversations")}</div>
-                    <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Received {sellerInboxReceivedCount}</div>
-                    <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Sent {sellerInboxSentCount}</div>
-                  </div>
-                </div>
-                <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="space-y-3">
-                    {sellerInbox.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noMessages")}</div> : sellerInbox.map((message) => {
-                      const buyerName = resolveBuyerDisplayName(message);
-                      const buyerInitials = getConversationInitials(buyerName);
-                      return (
-                        <button key={message.id} onClick={() => { setSellerSelectedConversationId(message.conversationId); markNotificationsReadForConversation(message.conversationId); }} className={`block w-full rounded-2xl p-4 text-left ring-1 ${message.hasUnread ?? !message.readBySeller ? "ring-amber-200 bg-amber-50" : "ring-rose-100"} ${sellerActiveConversationId === message.conversationId ? 'bg-rose-50' : ''}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0 flex items-start gap-2">
-                              <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">{buyerInitials}</span>
-                              <div className="min-w-0">
-                                <div className="truncate font-semibold">{buyerName}</div>
-                                <div className="mt-0.5 text-xs text-slate-500">{t("customerConversation")}</div>
-                                <div className="mt-1 truncate text-sm text-slate-500">{message.body}</div>
-                              </div>
-                            </div>
-                            {message.hasUnread ?? !message.readBySeller ? <span className="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">New</span> : null}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                    {sellerActiveConversationMessages.length === 0 ? <div className="text-sm text-slate-500">{t("selectConversation")}</div> : (
-                      <>
-                        <div className="mb-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">{activeSellerConversationInitials}</span>
-                          <span>{t("chattingWith")}: {activeSellerConversationLabel}</span>
-                        </div>
-                        <div className="max-h-64 space-y-3 overflow-y-auto">
-                          {sellerActiveConversationMessages.map((message) => (
-                            <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === 'seller' ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                              {resolveConversationMessageBody(message)}
-                              {canToggleConversationTranslation(message) ? (
-                                <button
-                                  type="button"
-                                  onClick={() => setShowOriginalMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
-                                  className={`mt-2 block text-[11px] font-semibold ${message.senderRole === 'seller' ? 'text-rose-100' : 'text-slate-500'}`}
-                                >
-                                  {showOriginalMessageById[message.id] ? t("showTranslation") : t("showOriginal")}
-                                </button>
-                              ) : null}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.messagePresetLabel}</div>
-                          <div className="mt-2 space-y-2">
-                            {(sellerWritingPresetText.inboxMessageCategories || sellerWritingPresetText.messageCategories || []).map((category) => (
-                              <div key={category.label}>
-                                <div className="text-[11px] font-semibold text-slate-500">{category.label}</div>
-                                <div className="mt-1.5 flex flex-wrap gap-2">
-                                  {(category.presets || []).map((preset) => (
-                                    <button
-                                      key={`${category.label}-${preset}`}
-                                      type="button"
-                                      onClick={() => setSellerReplyDraft(applyPresetToDraft(sellerReplyDraft, preset))}
-                                      className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                                    >
-                                      {preset}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                          <textarea value={sellerReplyDraft} onChange={(e) => setSellerReplyDraft(e.target.value)} className="min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm sm:flex-1" placeholder={t("replyPlaceholder")} />
-                          <button onClick={sendSellerReply} className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto sm:self-end">{t("reply")}</button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-semibold">{t("customRequests")}</h3>
-                  <div className="flex items-center gap-2">
-                    <div className="text-sm text-slate-500">{(sellerCustomRequests || []).length} {t("requestsCount")}</div>
-                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{t("receivedLabel")} {customRequestMessageStats.received}</div>
-                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{t("sentLabel")} {customRequestMessageStats.sent}</div>
-                  </div>
-                </div>
-                <div className="mt-4 space-y-3">
-                  {(sellerCustomRequests || []).length === 0 ? (
-                    <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noCustomRequests")}</div>
-                  ) : (sellerCustomRequests || []).map((request) => (
-                    <div key={request.id} className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <div className="font-semibold">{request.buyerName || t("buyer")} · {request.buyerEmail || t("noEmail")}</div>
-                          <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(request.createdAt || Date.now())}</div>
-                        </div>
-                        <select
-                          value={request.status || "open"}
-                          onChange={(event) => updateCustomRequestStatus(request.id, event.target.value)}
-                          className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
-                        >
-                          <option value="open">{localizeOptionLabel("open", locale)}</option>
-                          <option value="reviewing">{localizeOptionLabel("reviewing", locale)}</option>
-                          <option value="fulfilled">{localizeOptionLabel("fulfilled", locale)}</option>
-                          <option value="closed">{localizeOptionLabel("closed", locale)}</option>
-                        </select>
-                      </div>
-                      <div className="mt-2 text-sm text-slate-700"><span className="font-medium">{t("preferencesLabel")}:</span> {request.preferredDetails || t("notProvided")}</div>
-                      <div className="mt-1 text-sm text-slate-700"><span className="font-medium">{t("shippingCountryLabel")}:</span> {request.shippingCountry || t("notProvided")}</div>
-                      <div className="mt-2 text-sm leading-6 text-slate-600">{request.requestBody || t("noDetailsProvided")}</div>
-                      <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/40 p-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("buyerImageUploads")}</div>
-                          <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-700">
-                            <input
-                              type="checkbox"
-                              checked={Boolean(request.buyerImageUploadEnabled)}
-                              onChange={(event) => {
-                                toggleCustomRequestBuyerImageUpload(
-                                  request.id,
-                                  event.target.checked,
-                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: event.target.checked ? t("buyerUploadsEnabled") : t("buyerUploadsDisabled") })),
-                                  (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
-                                );
-                              }}
-                              className="h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
-                            />
-                            {t("allowBuyerUploads")}
-                          </label>
-                        </div>
-                        <div className="mt-1 text-[11px] text-slate-500">
-                          {t("buyerUploadsHelp")}
-                        </div>
-                      </div>
-                      <div className="mt-3 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">{t("priceProposal")}</div>
-                        <div className="mt-2 text-sm text-slate-700">
-                          {t("currentQuoteLabel")}:{" "}
-                          <span className="font-semibold">
-                            {Number(request.quotedPriceThb || 0) > 0 ? formatPriceTHB(Number(request.quotedPriceThb || 0)) : t("notProposedYet")}
-                          </span>
-                          {" · "}
-                          <span className="capitalize">{getQuoteStatusLabel(request)}</span>
-                          {Number(request.buyerCounterPriceThb || 0) > 0 ? ` · ${t("buyerCounterLabel")}: ${formatPriceTHB(Number(request.buyerCounterPriceThb || 0))}` : ""}
-                        </div>
-                        {request.quoteMessage ? (
-                          <div className="mt-1 text-xs text-slate-600">{t("lastNoteLabel")}: {request.quoteMessage}</div>
-                        ) : null}
-                        <div className="mt-2 grid gap-2 sm:grid-cols-[0.55fr_1fr_auto]">
-                          <input
-                            type="number"
-                            min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
-                            step="1"
-                            value={customRequestQuoteDraftById[request.id] ?? (Number(request.quotedPriceThb || 0) > 0 ? String(request.quotedPriceThb) : "")}
-                            onChange={(event) => setCustomRequestQuoteDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                            className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
-                            placeholder={t("quotePlaceholder")}
-                          />
-                          <input
-                            value={customRequestQuoteNoteById[request.id] || ""}
-                            onChange={(event) => setCustomRequestQuoteNoteById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                            className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
-                            placeholder={t("optionalNotePlaceholder")}
-                          />
-                          <button
-                            onClick={() => {
-                              const priceDraft = customRequestQuoteDraftById[request.id] ?? request.quotedPriceThb;
-                              const noteDraft = customRequestQuoteNoteById[request.id] || "";
-                              proposeCustomRequestPrice(
-                                request.id,
-                                priceDraft,
-                                noteDraft,
-                                () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: t("quoteSent") })),
-                                (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
-                              );
-                            }}
-                            className="rounded-xl border border-indigo-200 px-3 py-2.5 text-sm font-semibold text-indigo-700"
-                          >
-                            {t("sendQuote")}
-                          </button>
-                        </div>
-                        {customRequestQuoteMessageById[request.id] ? (
-                          <div className="mt-2 text-[11px] text-indigo-700">{customRequestQuoteMessageById[request.id]}</div>
-                        ) : null}
-                        {request.quoteStatus === "countered" && Number(request.buyerCounterPriceThb || 0) > 0 ? (
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <button
-                              onClick={() => {
-                                respondToCustomRequestCounter(
-                                  request.id,
-                                  "accept",
-                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: t("counterAccepted") })),
-                                  (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
-                                );
-                              }}
-                              className="w-full rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto"
-                            >
-                              {t("acceptCounter")}
-                            </button>
-                            <button
-                              onClick={() => {
-                                respondToCustomRequestCounter(
-                                  request.id,
-                                  "decline",
-                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: t("counterDeclined") })),
-                                  (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
-                                );
-                              }}
-                              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-700 sm:w-auto"
-                            >
-                              {t("declineCounter")}
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className="mt-3 rounded-2xl bg-slate-50 p-3">
-                        <div className="max-h-40 space-y-2 overflow-y-auto">
-                          {(customRequestMessagesByRequestId?.[request.id] || []).length === 0 ? (
-                            <div className="text-xs text-slate-500">{t("noRepliesYet")}</div>
-                          ) : (customRequestMessagesByRequestId?.[request.id] || []).map((message) => (
-                            <div key={message.id} className={`max-w-[90%] rounded-xl px-3 py-2 text-xs ${message.senderRole === "seller" ? "ml-auto bg-rose-600 text-white" : "bg-white text-slate-700 ring-1 ring-rose-100"}`}>
-                              <div>{resolveConversationMessageBody(message)}</div>
-                              {(message.imageAttachments || []).length > 0 ? (
-                                <div className="mt-2 grid grid-cols-2 gap-2">
-                                  {(message.imageAttachments || []).map((image) => (
-                                    <a
-                                      key={image.id}
-                                      href={image.image}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="block overflow-hidden rounded-lg ring-1 ring-rose-200/60"
-                                    >
-                                      <ProductImage src={image.image} label={image.imageName || t("customRequestAttachment")} />
-                                    </a>
-                                  ))}
-                                </div>
-                              ) : null}
-                              {canToggleConversationTranslation(message) ? (
-                                <button
-                                  type="button"
-                                  onClick={() => setShowOriginalMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
-                                  className={`mt-1 block text-[11px] font-semibold ${message.senderRole === "seller" ? "text-rose-100" : "text-slate-500"}`}
-                                >
-                                  {showOriginalMessageById[message.id] ? t("showTranslation") : t("showOriginal")}
-                                </button>
-                              ) : null}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="mt-2 rounded-xl border border-slate-200 bg-white p-2.5">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.messagePresetLabel}</div>
-                          <div className="mt-1.5 space-y-1.5">
-                            {(sellerWritingPresetText.messageCategories || []).map((category) => (
-                              <div key={`${request.id}-${category.label}`}>
-                                <div className="text-[10px] font-semibold text-slate-500">{category.label}</div>
-                                <div className="mt-1 flex flex-wrap gap-1.5">
-                                  {(category.presets || []).map((preset) => (
-                                    <button
-                                      key={`${request.id}-${category.label}-${preset}`}
-                                      type="button"
-                                      onClick={() => setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: applyPresetToDraft(prev[request.id] || "", preset) }))}
-                                      className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700"
-                                    >
-                                      {preset}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                          <input
-                            value={customRequestReplyDraftById[request.id] || ""}
-                            onChange={(event) => setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                            className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
-                            placeholder={t("replyToCustomRequest")}
-                          />
-                          <button
-                            onClick={() => {
-                              sendCustomRequestMessage(
-                                request.id,
-                                customRequestReplyDraftById[request.id] || "",
-                                customRequestImageDraftById[request.id] || [],
-                                () => {
-                                  setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: "" }));
-                                  setCustomRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }));
-                                },
-                              );
-                            }}
-                            className="w-full rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto"
-                          >
-                            {t("send")}
-                          </button>
-                        </div>
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <input
-                            id={`custom-request-image-${request.id}`}
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={(event) => handleCustomRequestImageDraftSelect(request.id, event.target.files)}
-                            className="sr-only"
-                          />
-                          <label
-                            htmlFor={`custom-request-image-${request.id}`}
-                            className="cursor-pointer rounded-lg border border-rose-200 bg-white px-2 py-1 text-[11px] font-semibold text-rose-700"
-                          >
-                            {t("chooseFiles")}
-                          </label>
-                          <span className="text-[11px] text-slate-600">
-                            {(customRequestImageDraftById[request.id] || []).length > 0
-                              ? `${(customRequestImageDraftById[request.id] || []).length} ${t("filesSelected")}`
-                              : t("noFileChosen")}
-                          </span>
-                          {(customRequestImageDraftById[request.id] || []).length > 0 ? (
-                            <button
-                              type="button"
-                              onClick={() => setCustomRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }))}
-                              className="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700"
-                            >
-                              {t("clearImages")}
-                            </button>
-                          ) : null}
-                        </div>
-                        {(customRequestImageDraftById[request.id] || []).length > 0 ? (
-                          <div className="mt-2 grid grid-cols-2 gap-2">
-                            {(customRequestImageDraftById[request.id] || []).map((image) => (
-                              <div key={image.id} className="overflow-hidden rounded-lg ring-1 ring-rose-200/60">
-                                <ProductImage src={image.image} label={image.imageName || t("draftAttachment")} />
-                              </div>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div id="seller-post-create" className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
-                <div className="flex items-center gap-3"><Upload className="h-5 w-5 text-rose-600" /><h3 className="text-xl font-semibold">{t("createFeedPost")}</h3></div>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{t("createFeedPostHelp")}</p>
-                <div className="mt-5 grid gap-4">
-                  <textarea
-                    value={sellerPostDraft.caption}
-                    onChange={(e) => setSellerPostDraft((prev) => ({ ...prev, caption: e.target.value }))}
-                    className="min-h-[96px] rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    maxLength={500}
-                    placeholder={t("captionPlaceholder")}
-                  />
-                  <input
-                    id="seller-post-image-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleSellerPostImageUpload}
-                    className="sr-only"
-                  />
-                  <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
-                    <label htmlFor="seller-post-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
-                      {t("chooseFile")}
-                    </label>
-                    <span className="text-xs text-slate-600">{sellerPostDraft.imageName || t("noFileChosen")}</span>
-                  </div>
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("scheduleOptional")}</span>
-                    <input
-                      type="datetime-local"
-                      value={sellerPostDraft.scheduledFor || ""}
-                      onChange={(event) => setSellerPostDraft((prev) => ({ ...prev, scheduledFor: event.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    />
-                    <span className="text-[11px] text-slate-500">{t("futureTimeOnly")}</span>
-                  </label>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <label className="grid gap-1 text-sm text-slate-600">
-                      <span className="font-medium">{t("postVisibility")}</span>
-                      {feedVisibilityMode === "per-post" ? (
-                        <select
-                          value={draftPostVisibility}
-                          onChange={(event) => setSellerPostDraft((prev) => ({ ...prev, visibility: event.target.value === "private" ? "private" : "public" }))}
-                          className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        >
-                          <option value="public">{localizeOptionLabel("Public", locale)}</option>
-                          <option value="private">{localizeOptionLabel("Private (paid)", locale)}</option>
-                        </select>
-                      ) : (
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                          {t("controlledByFeedMode")}: {feedVisibilityMode === "private" ? t("privateAllPosts") : t("publicAllPosts")}
-                        </div>
-                      )}
-                    </label>
-                    {effectiveDraftVisibility === "private" ? (
-                      <label className="grid gap-1 text-sm text-slate-600">
-                        <span className="font-medium">{t("privateUnlockPrice")}</span>
-                        <input
-                          type="number"
-                          min={MIN_SELLER_PRICE_THB}
-                          step="1"
-                          value={Number(sellerPostDraft.accessPriceUsd || MIN_SELLER_PRICE_THB)}
-                          onChange={(event) =>
-                            setSellerPostDraft((prev) => ({
-                              ...prev,
-                              accessPriceUsd: Number.isFinite(Number(event.target.value)) && Number(event.target.value) >= MIN_SELLER_PRICE_THB
-                                ? Number(Number(event.target.value).toFixed(2))
-                                : MIN_SELLER_PRICE_THB,
-                            }))
-                          }
-                          className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        />
-                      </label>
-                    ) : <div />}
-                  </div>
-                  <div className="h-40">{sellerPostDraft.image ? <ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} /> : <ProductImage label={t("postImagePreview")} />}</div>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-xs text-slate-500">
-                      {sellerPostDraft.caption.length}/500
-                      {sellerPostDraftSavedAt ? ` · Draft auto-saved ${formatTimeNoSeconds(sellerPostDraftSavedAt)}` : ""}
-                    </div>
-                    <button
-                      onClick={createSellerPost}
-                      disabled={creatingSellerPost}
-                      className={`w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto ${creatingSellerPost ? "cursor-not-allowed opacity-60" : ""}`}
-                    >
-                      {creatingSellerPost ? t("posting") : t("postToFeed")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-semibold">{t("yourFeedPosts")}</h3>
-                  <div className="text-sm text-slate-500">{sellerDashboardPosts.length} post(s)</div>
-                </div>
-                <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("lockedPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.lockedPostCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("paidUnlocks")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.unlockCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("unlockRevenue")}</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(sellerPostAnalytics.unlockRevenue)}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("topPost")}</div><div className="mt-1 text-xs text-slate-600">{sellerPostAnalytics.topPostTitle} ({sellerPostAnalytics.topPostUnlocks})</div></div>
-                </div>
-                <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
-                  <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    <div className="rounded-xl border border-slate-200 bg-white p-3">
-                      <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("grossEarnings")}</div>
-                      <div className="mt-1 text-2xl font-semibold text-slate-900">{formatPriceTHB(grossEarnings)}</div>
-                      <div className="mt-1 text-xs text-slate-500">{t("grossEarningsHelp")}</div>
-                    </div>
-                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
-                      <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("netEarnings")}</div>
-                      <div className="mt-1 text-2xl font-semibold text-emerald-800">{formatPriceTHB(netEarnings)}</div>
-                      <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("scheduledPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.scheduledPostCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("likes")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.likeCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("comments")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.commentCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("followers")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.followerCount}</div></div>
-                </div>
-                <div className="mt-3 rounded-2xl bg-white p-3 text-xs text-slate-600 ring-1 ring-rose-100">
-                  {t("engagement7Day")}: <span className="font-semibold text-slate-900">{sellerPostAnalytics.recentEngagement}</span>
-                  {" · "}
-                  {t("trendVsPrevious7Day")}: <span className={`font-semibold ${sellerPostAnalytics.engagementTrendPct >= 0 ? "text-emerald-700" : "text-rose-700"}`}>{sellerPostAnalytics.engagementTrendPct >= 0 ? "+" : ""}{sellerPostAnalytics.engagementTrendPct}%</span>
-                </div>
-                <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("privatePostPricingMode")}</div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPrivatePostPricingMode("all")}
-                      className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
-                    >
-                      {t("samePriceForAllPrivate")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPrivatePostPricingMode("individual")}
-                      className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "individual" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
-                    >
-                      {t("individualPricePerPost")}
-                    </button>
-                  </div>
-                  {privatePostPricingMode === "all" ? (
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="w-full text-xs text-slate-500 sm:w-auto">{t("bulkPriceForAllPrivate")}</span>
-                      <input
-                        type="number"
-                        min={MIN_SELLER_PRICE_THB}
-                        step="1"
-                        value={bulkPrivatePostPrice}
-                        onChange={(event) => setBulkPrivatePostPrice(event.target.value)}
-                        className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                      />
-                      <button
-                        onClick={() => updateAllPrivatePostPrices(bulkPrivatePostPrice)}
-                        className="w-full rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 sm:w-auto sm:py-1"
-                      >
-                        {t("applyToAllPrivate")}
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-3 text-xs text-slate-500">
-                      {t("individualModeHelp")} ({formatPriceTHB(MIN_SELLER_PRICE_THB)} / {formatPriceTHB(MIN_SELLER_PRICE_THB + 500)}).
-                    </div>
-                  )}
-                </div>
-                <div className="mt-4 space-y-3">
-                  {sellerDashboardPosts.length === 0 ? (
-                    <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noPosts")}</div>
-                  ) : sellerDashboardPosts.map((post) => (
-                    <div key={post.id} className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${isSellerOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
-                            {isSellerOnline ? t("online") : t("offline")}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => deleteSellerPost(post.id)}
-                          disabled={deletingSellerPostId === post.id}
-                          className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${deletingSellerPostId === post.id ? "cursor-not-allowed opacity-60" : ""}`}
-                        >
-                          {deletingSellerPostId === post.id ? t("deleting") : t("delete")}
-                        </button>
-                      </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        {post.scheduledFor && new Date(post.scheduledFor).getTime() > Date.now() ? (
-                          <>
-                            <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{t("scheduledLabel")}: {formatDateTimeNoSeconds(post.scheduledFor)}</span>
-                            <button
-                              onClick={() => unscheduleSellerPost(post.id)}
-                              className="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-700"
-                            >
-                              {t("unschedule")}
-                            </button>
-                            <button
-                              onClick={() => publishSellerPostNow(post.id)}
-                              className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700"
-                            >
-                              {t("publishNow")}
-                            </button>
-                          </>
-                        ) : null}
-                        <span className="text-xs text-slate-500">{t("postVisibility")}</span>
-                        <select
-                          value={post.visibility === "private" ? "private" : "public"}
-                          onChange={(event) => updateSellerPostVisibility(post.id, event.target.value, post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
-                          className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                        >
-                          <option value="public">{localizeOptionLabel("Public", locale)}</option>
-                          <option value="private">{localizeOptionLabel("Private (paid)", locale)}</option>
-                        </select>
-                        {post.visibility === "private" && privatePostPricingMode === "individual" ? (
-                          <input
-                            type="number"
-                            min={MIN_SELLER_PRICE_THB}
-                            step="1"
-                            value={Number(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
-                            onChange={(event) => updateSellerPostPrice(post.id, event.target.value)}
-                            className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                          />
-                        ) : null}
-                        {post.visibility === "private" && privatePostPricingMode === "all" ? (
-                          <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                            {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="mt-2 text-sm text-slate-700">{post.caption || t("noCaption")}</div>
-                      <div className="mt-3 h-36">{post.image ? <ProductImage src={post.image} label={post.imageName || "Feed image"} /> : <ProductImage label={t("noImage")} />}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div id="seller-listings" className="flex items-center justify-between gap-4"><h3 className="text-xl font-semibold">{t("listingLibrary")}</h3><div className="text-sm text-slate-500">{sellerDashboardProducts.length} {t("items")}</div></div>
-              <div className="mt-5 space-y-4">
+          </div>
+          <div id="seller-listings" className="mt-8 flex items-center justify-between gap-4"><h3 className="text-xl font-semibold">{t("listingLibrary")}</h3><div className="text-sm text-slate-500">{sellerDashboardProducts.length} {t("items")}</div></div>
+          <div className="mt-5 space-y-4">
                 {sellerDashboardProducts.map((product) => (
                   <div key={product.id} className="flex flex-col gap-4 rounded-2xl border border-rose-100 p-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -3191,11 +2695,526 @@ export function SellerDashboardPage({
                     </div>
                   </div>
                 ))}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+export function SellerFeedWorkspacePage({
+  isSeller,
+  isPendingSeller,
+  isRejectedSeller,
+  sellerMap,
+  currentSellerId,
+  currentSellerProfile,
+  sellerDashboardPosts,
+  sellerPostDraft,
+  sellerPostDraftSavedAt,
+  setSellerPostDraft,
+  handleSellerPostImageUpload,
+  createSellerPost,
+  creatingSellerPost,
+  deleteSellerPost,
+  deletingSellerPostId,
+  sellerLanguage,
+  isSellerOnline,
+  updateSellerPostVisibility,
+  updateSellerPostPrice,
+  updateAllPrivatePostPrices,
+  unscheduleSellerPost,
+  publishSellerPostNow,
+  sellerPostAnalytics,
+  navigate,
+}) {
+  const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
+  const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
+  const [bulkPrivatePostPrice, setBulkPrivatePostPrice] = useState("1");
+  const [privatePostPricingMode, setPrivatePostPricingMode] = useState("all");
+  const draftPostVisibility = sellerPostDraft.visibility === "private" ? "private" : "public";
+  const effectiveDraftVisibility = draftPostVisibility;
+  const unlockRevenue = Number(sellerPostAnalytics?.unlockRevenue || 0);
+  const messageRevenue = Number(sellerPostAnalytics?.messageRevenue || 0);
+  const netEarnings = Number(
+    sellerPostAnalytics?.totalRevenue
+    ?? Number((unlockRevenue + messageRevenue).toFixed(2))
+  );
+  const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.7 : 0.8;
+  const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
+  const grossEarnings = Number((unlockRevenue + grossMessageFees).toFixed(2));
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+      {isPendingSeller ? (
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <Lock className="mx-auto h-10 w-10 text-rose-600" />
+          <h2 className="mt-4 text-2xl font-bold">Seller application under review</h2>
+          <p className="mt-2 text-slate-600">Your application has been submitted and is currently being reviewed. Seller tools unlock as soon as you are approved.</p>
+        </div>
+      ) : isRejectedSeller ? (
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <Lock className="mx-auto h-10 w-10 text-rose-600" />
+          <h2 className="mt-4 text-2xl font-bold">Seller application rejected</h2>
+          <p className="mt-2 text-slate-600">Your previous application was not approved. Update your details and submit a new registration.</p>
+          <button onClick={() => navigate("/register")} className="mt-5 rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white">Reapply as Seller</button>
+        </div>
+      ) : !isSeller ? (
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <Lock className="mx-auto h-10 w-10 text-rose-600" />
+          <h2 className="mt-4 text-2xl font-bold">{t("loginRequired")}</h2>
+          <p className="mt-2 text-slate-600">Use the Seller Login button in the header to access this page.</p>
+        </div>
+      ) : (
+        <>
+          <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+            <button type="button" onClick={() => navigate("/seller-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+              {t("quickProfile")}
+            </button>
+            <button type="button" onClick={() => navigate("/seller-messages")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+              {t("messagesTab")}
+            </button>
+            <button type="button" onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+              {t("customRequestsTab")}
+            </button>
+            <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+              {t("feedEyebrow")}
+            </button>
+          </div>
+          <SectionTitle eyebrow={t("feedEyebrow")} title={t("createFeedPost")} subtitle={t("createFeedPostHelp")} />
+          <div className="mt-6 space-y-6">
+            <div id="seller-post-create" className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
+              <div className="mt-5 grid gap-4">
+                <textarea
+                  value={sellerPostDraft.caption}
+                  onChange={(e) => setSellerPostDraft((prev) => ({ ...prev, caption: e.target.value }))}
+                  className="min-h-[96px] rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  maxLength={500}
+                  placeholder={t("captionPlaceholder")}
+                />
+                <input
+                  id="seller-post-image-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleSellerPostImageUpload}
+                  className="sr-only"
+                />
+                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
+                  <label htmlFor="seller-post-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
+                    {t("chooseFile")}
+                  </label>
+                  <span className="text-xs text-slate-600">{sellerPostDraft.imageName || t("noFileChosen")}</span>
+                </div>
+                <label className="grid gap-1 text-sm text-slate-600">
+                  <span className="font-medium">{t("scheduleOptional")}</span>
+                  <input
+                    type="datetime-local"
+                    value={sellerPostDraft.scheduledFor || ""}
+                    onChange={(event) => setSellerPostDraft((prev) => ({ ...prev, scheduledFor: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  />
+                  <span className="text-[11px] text-slate-500">{t("futureTimeOnly")}</span>
+                </label>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">{t("postVisibility")}</span>
+                    <select
+                      value={draftPostVisibility}
+                      onChange={(event) => setSellerPostDraft((prev) => ({ ...prev, visibility: event.target.value === "private" ? "private" : "public" }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    >
+                      <option value="public">{localizeOptionLabel("Public", locale)}</option>
+                      <option value="private">{localizeOptionLabel("Private (paid)", locale)}</option>
+                    </select>
+                  </label>
+                  {effectiveDraftVisibility === "private" ? (
+                    <label className="grid gap-1 text-sm text-slate-600">
+                      <span className="font-medium">{t("privateUnlockPrice")}</span>
+                      <input
+                        type="number"
+                        min={MIN_SELLER_PRICE_THB}
+                        step="1"
+                        value={Number(sellerPostDraft.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                        onChange={(event) =>
+                          setSellerPostDraft((prev) => ({
+                            ...prev,
+                            accessPriceUsd: Number.isFinite(Number(event.target.value)) && Number(event.target.value) >= MIN_SELLER_PRICE_THB
+                              ? Number(Number(event.target.value).toFixed(2))
+                              : MIN_SELLER_PRICE_THB,
+                          }))
+                        }
+                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      />
+                    </label>
+                  ) : <div />}
+                </div>
+                <div className="h-40">{sellerPostDraft.image ? <ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} /> : <ProductImage label={t("postImagePreview")} />}</div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-xs text-slate-500">
+                    {sellerPostDraft.caption.length}/500
+                    {sellerPostDraftSavedAt ? ` · Draft auto-saved ${formatTimeNoSeconds(sellerPostDraftSavedAt)}` : ""}
+                  </div>
+                  <button
+                    onClick={createSellerPost}
+                    disabled={creatingSellerPost}
+                    className={`w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto ${creatingSellerPost ? "cursor-not-allowed opacity-60" : ""}`}
+                  >
+                    {creatingSellerPost ? t("posting") : t("postToFeed")}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-xl font-semibold">{t("yourFeedPosts")}</h3>
+                <div className="text-sm text-slate-500">{sellerDashboardPosts.length} post(s)</div>
+              </div>
+              <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("lockedPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.lockedPostCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("paidUnlocks")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.unlockCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("unlockRevenue")}</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(sellerPostAnalytics.unlockRevenue)}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("topPost")}</div><div className="mt-1 text-xs text-slate-600">{sellerPostAnalytics.topPostTitle} ({sellerPostAnalytics.topPostUnlocks})</div></div>
+              </div>
+              <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-rose-100">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("grossEarnings")}</div>
+                    <div className="mt-1 text-2xl font-semibold text-slate-900">{formatPriceTHB(grossEarnings)}</div>
+                    <div className="mt-1 text-xs text-slate-500">{t("grossEarningsHelp")}</div>
+                  </div>
+                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("netEarnings")}</div>
+                    <div className="mt-1 text-2xl font-semibold text-emerald-800">{formatPriceTHB(netEarnings)}</div>
+                    <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("scheduledPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.scheduledPostCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("likes")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.likeCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("comments")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.commentCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("followers")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.followerCount}</div></div>
+              </div>
+              <div className="mt-3 rounded-2xl bg-white p-3 text-xs text-slate-600 ring-1 ring-rose-100">
+                {t("engagement7Day")}: <span className="font-semibold text-slate-900">{sellerPostAnalytics.recentEngagement}</span>
+                {" · "}
+                {t("trendVsPrevious7Day")}: <span className={`font-semibold ${sellerPostAnalytics.engagementTrendPct >= 0 ? "text-emerald-700" : "text-rose-700"}`}>{sellerPostAnalytics.engagementTrendPct >= 0 ? "+" : ""}{sellerPostAnalytics.engagementTrendPct}%</span>
+              </div>
+              <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("privatePostPricingMode")}</div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPrivatePostPricingMode("all")}
+                    className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
+                  >
+                    {t("samePriceForAllPrivate")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPrivatePostPricingMode("individual")}
+                    className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "individual" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
+                  >
+                    {t("individualPricePerPost")}
+                  </button>
+                </div>
+                {privatePostPricingMode === "all" ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="w-full text-xs text-slate-500 sm:w-auto">{t("bulkPriceForAllPrivate")}</span>
+                    <input
+                      type="number"
+                      min={MIN_SELLER_PRICE_THB}
+                      step="1"
+                      value={bulkPrivatePostPrice}
+                      onChange={(event) => setBulkPrivatePostPrice(event.target.value)}
+                      className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                    />
+                    <button
+                      onClick={() => updateAllPrivatePostPrices(bulkPrivatePostPrice)}
+                      className="w-full rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 sm:w-auto sm:py-1"
+                    >
+                      {t("applyToAllPrivate")}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-3 text-xs text-slate-500">
+                    {t("individualModeHelp")} ({formatPriceTHB(MIN_SELLER_PRICE_THB)} / {formatPriceTHB(MIN_SELLER_PRICE_THB + 500)}).
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 space-y-3">
+                {sellerDashboardPosts.length === 0 ? (
+                  <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noPosts")}</div>
+                ) : sellerDashboardPosts.map((post) => (
+                  <div key={post.id} className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${isSellerOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
+                          {isSellerOnline ? t("online") : t("offline")}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => deleteSellerPost(post.id)}
+                        disabled={deletingSellerPostId === post.id}
+                        className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${deletingSellerPostId === post.id ? "cursor-not-allowed opacity-60" : ""}`}
+                      >
+                        {deletingSellerPostId === post.id ? t("deleting") : t("delete")}
+                      </button>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      {post.scheduledFor && new Date(post.scheduledFor).getTime() > Date.now() ? (
+                        <>
+                          <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{t("scheduledLabel")}: {formatDateTimeNoSeconds(post.scheduledFor)}</span>
+                          <button
+                            onClick={() => unscheduleSellerPost(post.id)}
+                            className="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-700"
+                          >
+                            {t("unschedule")}
+                          </button>
+                          <button
+                            onClick={() => publishSellerPostNow(post.id)}
+                            className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700"
+                          >
+                            {t("publishNow")}
+                          </button>
+                        </>
+                      ) : null}
+                      <span className="text-xs text-slate-500">{t("postVisibility")}</span>
+                      <select
+                        value={post.visibility === "private" ? "private" : "public"}
+                        onChange={(event) => updateSellerPostVisibility(post.id, event.target.value, post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                        className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                      >
+                        <option value="public">{localizeOptionLabel("Public", locale)}</option>
+                        <option value="private">{localizeOptionLabel("Private (paid)", locale)}</option>
+                      </select>
+                      {post.visibility === "private" && privatePostPricingMode === "individual" ? (
+                        <input
+                          type="number"
+                          min={MIN_SELLER_PRICE_THB}
+                          step="1"
+                          value={Number(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                          onChange={(event) => updateSellerPostPrice(post.id, event.target.value)}
+                          className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                        />
+                      ) : null}
+                      {post.visibility === "private" && privatePostPricingMode === "all" ? (
+                        <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                          {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="mt-2 text-sm text-slate-700">{post.caption || t("noCaption")}</div>
+                    <div className="mt-3 h-36">{post.image ? <ProductImage src={post.image} label={post.imageName || "Feed image"} /> : <ProductImage label={t("noImage")} />}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </>
       )}
+    </section>
+  );
+}
+
+export function SellerMessagesPage({
+  isSeller,
+  isPendingSeller,
+  isRejectedSeller,
+  sellerInbox,
+  sellerMessageHistory,
+  setSellerSelectedConversationId,
+  markNotificationsReadForConversation,
+  sellerActiveConversationId,
+  sellerActiveConversationMessages,
+  sellerReplyDraft,
+  setSellerReplyDraft,
+  sendSellerReply,
+  sellerLanguage,
+  currentUser,
+  navigate
+}) {
+  const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
+  const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
+  const sellerWritingPresetText = SELLER_WRITING_PRESETS_I18N[locale] || SELLER_WRITING_PRESETS_I18N.en;
+  const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
+  const sellerInboxReceivedCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "buyer").length;
+  const sellerInboxSentCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "seller").length;
+  const sellerUnreadConversationCount = (sellerInbox || []).filter((message) => message.hasUnread ?? !message.readBySeller).length;
+  const parseBuyerIdFromConversationId = (conversationId) => {
+    const [buyerId] = String(conversationId || "").split("__");
+    return String(buyerId || "").trim();
+  };
+  const resolveBuyerDisplayName = (row) => {
+    if (!row) return t("unknownBuyer");
+    const explicitName = String(row.buyerName || row.buyerDisplayName || row.counterpartName || "").trim();
+    if (explicitName) return explicitName;
+    const explicitId = String(row.buyerId || row.counterpartId || "").trim();
+    if (explicitId) return explicitId;
+    const parsedBuyerId = parseBuyerIdFromConversationId(row.conversationId);
+    return parsedBuyerId || t("unknownBuyer");
+  };
+  const getConversationInitials = (label) => {
+    const parts = String(label || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+  };
+  const activeSellerConversation = (sellerInbox || []).find((row) => row.conversationId === sellerActiveConversationId) || null;
+  const activeSellerConversationLabel = resolveBuyerDisplayName(activeSellerConversation);
+  const activeSellerConversationInitials = getConversationInitials(activeSellerConversationLabel);
+  const resolveConversationMessageBody = (message) => {
+    const original = String(message?.bodyOriginal || message?.body || "");
+    const translations = message?.translations || {};
+    const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
+      ? currentUser.preferredLanguage
+      : "en";
+    const translated = String(translations?.[preferredLanguage] || translations?.en || "");
+    const isOwnMessage = (message?.senderId || message?.senderUserId) === currentUser?.id;
+    const showOriginal = Boolean(showOriginalMessageById[message?.id]);
+    if (isOwnMessage || showOriginal) return original;
+    return translated || original;
+  };
+  const canToggleConversationTranslation = (message) => {
+    const original = String(message?.bodyOriginal || message?.body || "");
+    const translations = message?.translations || {};
+    const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
+      ? currentUser.preferredLanguage
+      : "en";
+    const translated = String(translations?.[preferredLanguage] || translations?.en || "");
+    const isOwnMessage = (message?.senderId || message?.senderUserId) === currentUser?.id;
+    return !isOwnMessage && Boolean(translated) && translated !== original;
+  };
+  const applyPresetToDraft = (currentValue, preset) => {
+    if (String(currentValue || "").trim()) return `${String(currentValue || "").trim()}\n${preset}`;
+    return preset;
+  };
+  if (isPendingSeller || isRejectedSeller || !isSeller) {
+    return (
+      <section className="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6 md:pb-16 md:py-16">
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <h2 className="text-2xl font-bold">{t("loginRequired")}</h2>
+          <button onClick={() => navigate("/account")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">
+            {t("customRequestsTab")}
+          </button>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+        <button onClick={() => navigate("/seller-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          {t("quickProfile")}
+        </button>
+        <button className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+          {t("messagesTab")}
+        </button>
+        <button onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          {t("customRequestsTab")}
+        </button>
+        <button onClick={() => navigate("/seller-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          {t("feedEyebrow")}
+        </button>
+      </div>
+      <div className="mb-5">
+        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("messagesTab")}</div>
+        <h2 className="text-2xl font-bold text-slate-900">{t("inbox")}</h2>
+      </div>
+      <div id="seller-inbox" className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-rose-600" />
+            <h3 className="text-xl font-semibold">{t("inbox")}</h3>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{t("liveUpdates")}</div>
+            <div className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${sellerUnreadConversationCount > 0 ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-white text-slate-700 ring-rose-100"}`}>
+              Unread {sellerUnreadConversationCount}
+            </div>
+            <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{sellerInbox.length} {t("conversations")}</div>
+            <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Received {sellerInboxReceivedCount}</div>
+            <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Sent {sellerInboxSentCount}</div>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="space-y-3">
+            {sellerInbox.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noMessages")}</div> : sellerInbox.map((message) => {
+              const buyerName = resolveBuyerDisplayName(message);
+              const buyerInitials = getConversationInitials(buyerName);
+              return (
+                <button key={message.id} onClick={() => { setSellerSelectedConversationId(message.conversationId); markNotificationsReadForConversation(message.conversationId); }} className={`block w-full rounded-2xl p-4 text-left ring-1 ${message.hasUnread ?? !message.readBySeller ? "ring-amber-200 bg-amber-50" : "ring-rose-100"} ${sellerActiveConversationId === message.conversationId ? 'bg-rose-50' : ''}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex items-start gap-2">
+                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">{buyerInitials}</span>
+                      <div className="min-w-0">
+                        <div className="truncate font-semibold">{buyerName}</div>
+                        <div className="mt-0.5 text-xs text-slate-500">{t("customerConversation")}</div>
+                        <div className="mt-1 truncate text-sm text-slate-500">{message.body}</div>
+                      </div>
+                    </div>
+                    {message.hasUnread ?? !message.readBySeller ? <span className="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">New</span> : null}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
+            {sellerActiveConversationMessages.length === 0 ? <div className="text-sm text-slate-500">{t("selectConversation")}</div> : (
+              <>
+                <div className="mb-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">{activeSellerConversationInitials}</span>
+                  <span>{t("chattingWith")}: {activeSellerConversationLabel}</span>
+                </div>
+                <div className="max-h-64 space-y-3 overflow-y-auto">
+                  {sellerActiveConversationMessages.map((message) => (
+                    <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === 'seller' ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                      {resolveConversationMessageBody(message)}
+                      {canToggleConversationTranslation(message) ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowOriginalMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
+                          className={`mt-2 block text-[11px] font-semibold ${message.senderRole === 'seller' ? 'text-rose-100' : 'text-slate-500'}`}
+                        >
+                          {showOriginalMessageById[message.id] ? t("showTranslation") : t("showOriginal")}
+                        </button>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.messagePresetLabel}</div>
+                  <div className="mt-2 space-y-2">
+                    {(sellerWritingPresetText.inboxMessageCategories || sellerWritingPresetText.messageCategories || []).map((category) => (
+                      <div key={category.label}>
+                        <div className="text-[11px] font-semibold text-slate-500">{category.label}</div>
+                        <div className="mt-1.5 flex flex-wrap gap-2">
+                          {(category.presets || []).map((preset) => (
+                            <button
+                              key={`${category.label}-${preset}`}
+                              type="button"
+                              onClick={() => setSellerReplyDraft(applyPresetToDraft(sellerReplyDraft, preset))}
+                              className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                            >
+                              {preset}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <textarea value={sellerReplyDraft} onChange={(e) => setSellerReplyDraft(e.target.value)} className="min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm sm:flex-1" placeholder={t("replyPlaceholder")} />
+                  <button onClick={sendSellerReply} className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto sm:self-end">{t("reply")}</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -3333,6 +3352,32 @@ export function SellerFeedPage({
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+      {currentUser?.role === "buyer" ? (
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <button type="button" onClick={() => navigate("/account")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            {t("quickProfile")}
+          </button>
+          <button type="button" onClick={() => navigate("/buyer-messages")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            {t("messagesTab")}
+          </button>
+          <button type="button" onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            {t("customRequestsTab")}
+          </button>
+          <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+            {t("feedEyebrow")}
+          </button>
+        </div>
+      ) : null}
+      {currentUser?.role === "bar" ? (
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <button type="button" onClick={() => navigate("/bar-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            {t("quickProfile")}
+          </button>
+          <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+            {t("feedEyebrow")}
+          </button>
+        </div>
+      ) : null}
       <SectionTitle
         eyebrow={t("feedEyebrow")}
         title={t("feedTitle")}
@@ -3394,7 +3439,7 @@ export function SellerFeedPage({
           }}
           placeholder={t("searchFeedPlaceholder")}
           aria-label={t("searchFeedPlaceholder")}
-          className="min-w-[240px] flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm sm:min-w-[320px]"
+          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm sm:w-80 md:w-96"
         />
         <button
           onClick={() => {
@@ -3668,6 +3713,7 @@ export function AdminPage({
   sellerPosts,
   postReports,
   commentReports,
+  messageReports,
   sellerPostLikes,
   sellerPostComments,
   sellerFollows,
@@ -3681,6 +3727,12 @@ export function AdminPage({
   resolvingCommentReportId,
   resolveAllCommentReports,
   resolvingAllCommentReports,
+  resolveMessageReport,
+  resolvingMessageReportId,
+  dismissMessageReport,
+  dismissingMessageReportId,
+  resolveAllMessageReports,
+  resolvingAllMessageReports,
   userStrikes,
   userAppeals,
   reviewUserAppeal,
@@ -3859,6 +3911,20 @@ export function AdminPage({
     () => (commentReports || []).filter((report) => report.status !== "resolved"),
     [commentReports]
   );
+  const unresolvedMessageReports = useMemo(
+    () => (messageReports || []).filter((report) => report.status === "open"),
+    [messageReports]
+  );
+  const getAdminMessageReportReasonLabel = (reasonCategory) => {
+    const labels = {
+      direct_payment_request: "Asked for direct payment outside platform",
+      off_platform_contact: "Asked to move to another messaging app",
+      harassment_abuse: "Harassment or abusive language",
+      scam_fraud: "Scam or suspicious behavior",
+      other: "Other",
+    };
+    return labels[reasonCategory] || labels.other;
+  };
   const reportedPostIds = useMemo(
     () => new Set(unresolvedReports.map((report) => report.postId)),
     [unresolvedReports]
@@ -3880,6 +3946,7 @@ export function AdminPage({
   const visibleSocialPosts = socialPostsFiltered.slice(0, socialVisibleCount);
   const visibleOpenReports = unresolvedReports.slice(0, reportVisibleCount);
   const visibleOpenCommentReports = unresolvedCommentReports.slice(0, reportVisibleCount);
+  const visibleOpenMessageReports = unresolvedMessageReports.slice(0, reportVisibleCount);
   const pendingAppeals = useMemo(
     () => (userAppeals || []).filter((appeal) => appeal.status === "pending"),
     [userAppeals]
@@ -3907,7 +3974,14 @@ export function AdminPage({
   const recentModerationActions = useMemo(
     () =>
       (adminActions || [])
-        .filter((action) => ["report_seller_post", "resolve_post_report", "delete_seller_post"].includes(action.type))
+        .filter((action) => [
+          "report_seller_post",
+          "resolve_post_report",
+          "delete_seller_post",
+          "report_direct_message",
+          "resolve_message_report",
+          "dismiss_message_report",
+        ].includes(action.type))
         .slice(-12)
         .reverse(),
     [adminActions]
@@ -4604,7 +4678,8 @@ export function AdminPage({
     : null;
   const openPostReportCount = unresolvedReports.length;
   const openCommentReportCount = unresolvedCommentReports.length;
-  const openModerationCount = openPostReportCount + openCommentReportCount;
+  const openMessageReportCount = unresolvedMessageReports.length;
+  const openModerationCount = openPostReportCount + openCommentReportCount + openMessageReportCount;
   const whatNeedsAttention = useMemo(() => ({
     pendingSellerCount,
     openModerationCount,
@@ -4735,7 +4810,7 @@ export function AdminPage({
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-16">
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
       {!isAdmin ? (
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
@@ -5448,7 +5523,7 @@ export function AdminPage({
                       setInboxVisibleCount(20);
                     }}
                     placeholder="Search by message text, user name, request id, item id"
-                    className="min-w-[240px] flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm sm:w-80 md:w-96"
                   />
                   <select value={inboxTypeFilter} onChange={(event) => { setInboxTypeFilter(event.target.value); setInboxVisibleCount(20); }} className="rounded-xl border border-slate-200 px-3 py-2 text-sm">
                     <option value="all">All types</option>
@@ -5941,7 +6016,13 @@ export function AdminPage({
                         ? "Post reported"
                         : action.type === "resolve_post_report"
                           ? "Report resolved"
-                          : "Post deleted by admin";
+                          : action.type === "report_direct_message"
+                            ? "Direct message reported"
+                            : action.type === "resolve_message_report"
+                              ? "Direct message report resolved"
+                              : action.type === "dismiss_message_report"
+                                ? "Direct message report dismissed"
+                                : "Post deleted by admin";
                     return (
                       <div key={action.id} className="rounded-2xl border border-rose-100 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -5950,6 +6031,8 @@ export function AdminPage({
                         </div>
                         <div className="mt-2 text-sm text-slate-700">
                           {action.targetPostId ? `Post: ${action.targetPostId}` : null}
+                          {action.targetMessageId ? `Message: ${action.targetMessageId}` : null}
+                          {action.conversationId ? ` · Conversation: ${action.conversationId}` : null}
                           {action.targetPostId && action.targetReportId ? " · " : null}
                           {action.targetReportId ? `Report: ${action.targetReportId}` : null}
                           {(action.adminUserId || action.reporterUserId) ? " · " : null}
@@ -6050,6 +6133,64 @@ export function AdminPage({
                   <div className="mt-4">
                     <button onClick={() => setReportVisibleCount((count) => count + 8)} className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">
                       Load more comment reports
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-xl font-semibold">Open direct message reports queue</h3>
+                    <p className="mt-1 text-sm text-slate-600">Review reported seller messages. Resolve adds a moderation strike, dismiss closes without a strike.</p>
+                  </div>
+                  <button
+                    onClick={resolveAllMessageReports}
+                    disabled={resolvingAllMessageReports || unresolvedMessageReports.length === 0}
+                    className={`rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 ${resolvingAllMessageReports || unresolvedMessageReports.length === 0 ? "cursor-not-allowed opacity-60" : ""}`}
+                  >
+                    {resolvingAllMessageReports ? "Resolving all..." : `Resolve all (${unresolvedMessageReports.length})`}
+                  </button>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {visibleOpenMessageReports.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No open direct message reports.</div>
+                  ) : visibleOpenMessageReports.map((report) => (
+                    <div key={report.id} className="rounded-2xl border border-rose-100 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="font-semibold">Message: {report.messageId}</div>
+                          <div className="mt-1 text-sm text-slate-600">
+                            Conversation: {report.conversationId || "N/A"} · Reporter: {report.reporterUserId} ({report.reporterRole}) · Priority: {report.priority || "medium"} · {formatDateTimeNoSeconds(report.createdAt || Date.now())}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => resolveMessageReport(report.id)}
+                            disabled={resolvingMessageReportId === report.id}
+                            className={`rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 ${resolvingMessageReportId === report.id ? "cursor-not-allowed opacity-60" : ""}`}
+                          >
+                            {resolvingMessageReportId === report.id ? "Resolving..." : "Resolve"}
+                          </button>
+                          <button
+                            onClick={() => dismissMessageReport(report.id)}
+                            disabled={dismissingMessageReportId === report.id}
+                            className={`rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 ${dismissingMessageReportId === report.id ? "cursor-not-allowed opacity-60" : ""}`}
+                          >
+                            {dismissingMessageReportId === report.id ? "Dismissing..." : "Dismiss"}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+                        <div><span className="font-semibold">Category:</span> {getAdminMessageReportReasonLabel(report.reasonCategory)}</div>
+                        <div className="mt-1">{report.reason}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {unresolvedMessageReports.length > reportVisibleCount ? (
+                  <div className="mt-4">
+                    <button onClick={() => setReportVisibleCount((count) => count + 8)} className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">
+                      Load more message reports
                     </button>
                   </div>
                 ) : null}
@@ -6696,10 +6837,14 @@ export function CheckoutPage({
   const [shakeName, setShakeName] = useState(false);
   const [shakeCountry, setShakeCountry] = useState(false);
   const [shakeAddress, setShakeAddress] = useState(false);
+  const [shakeCity, setShakeCity] = useState(false);
+  const [shakeRegion, setShakeRegion] = useState(false);
   const [shakePostalCode, setShakePostalCode] = useState(false);
   const stepOneEmailRef = useRef(null);
   const stepOneNameRef = useRef(null);
   const stepTwoCountryRef = useRef(null);
+  const stepTwoCityRef = useRef(null);
+  const stepTwoRegionRef = useRef(null);
   const stepTwoPostalCodeRef = useRef(null);
   const stepTwoAddressRef = useRef(null);
   const triggerShake = (setter) => {
@@ -6709,14 +6854,25 @@ export function CheckoutPage({
   const trimmedEmail = String(buyerEmail || "").trim();
   const trimmedFullName = String(checkoutForm.fullName || "").trim();
   const trimmedAddress = String(checkoutForm.address || "").trim();
+  const trimmedCity = String(checkoutForm.city || "").trim();
+  const trimmedRegion = String(checkoutForm.region || "").trim();
   const trimmedCountry = String(checkoutForm.country || "").trim();
   const trimmedPostalCode = String(checkoutForm.postalCode || "").trim();
+  const checkoutAddressMeta = getAddressConventionMeta(checkoutForm.country);
   const emailLooksValid = /\S+@\S+\.\S+/.test(trimmedEmail);
   const canContinueToDelivery = emailLooksValid && trimmedFullName.length >= 2;
   const stepOneComplete = canContinueToDelivery;
-  const stepTwoComplete = Boolean(trimmedCountry && trimmedAddress && trimmedPostalCode && shippingSupported);
+  const stepTwoComplete = Boolean(
+    trimmedCountry
+    && trimmedAddress
+    && trimmedCity
+    && (!checkoutAddressMeta.regionRequired || trimmedRegion)
+    && trimmedPostalCode
+    && shippingSupported
+  );
   const walletShortfall = Math.max(0, Number((total - Number(currentWalletBalance || 0)).toFixed(2)));
   const requiredTopUpAmount = getRequiredTopUpAmount(walletShortfall);
+  const shouldShowTopUpPrompt = currentUser?.role === "buyer" && walletShortfall > 0;
   return (
     <>
       <style>{CHECKOUT_SHAKE_KEYFRAMES}</style>
@@ -6754,6 +6910,20 @@ export function CheckoutPage({
               {checkoutStep === 1 ? (
                 <div className="grid gap-4">
                   <h3 className="text-xl font-semibold">Customer information</h3>
+                  {shouldShowTopUpPrompt ? (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                      <div>Short by: {formatPriceTHB(walletShortfall)}</div>
+                      <div className="mt-1">
+                        Top up required: {formatPriceTHB(requiredTopUpAmount)}. Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.
+                      </div>
+                      <button
+                        onClick={() => onOpenWalletTopUp(requiredTopUpAmount)}
+                        className="mt-2 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
+                      >
+                        Top up now ({formatPriceTHB(requiredTopUpAmount)})
+                      </button>
+                    </div>
+                  ) : null}
                   {currentUser ? (
                     <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                       Welcome back, {currentUser.name}. We pre-filled your account details below - please review and edit if needed, then continue to delivery.
@@ -6804,6 +6974,20 @@ export function CheckoutPage({
               {checkoutStep === 2 ? (
                 <div className="grid gap-4">
                   <h3 className="text-xl font-semibold">Delivery details</h3>
+                  {shouldShowTopUpPrompt ? (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                      <div>Short by: {formatPriceTHB(walletShortfall)}</div>
+                      <div className="mt-1">
+                        Top up required: {formatPriceTHB(requiredTopUpAmount)}. Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.
+                      </div>
+                      <button
+                        onClick={() => onOpenWalletTopUp(requiredTopUpAmount)}
+                        className="mt-2 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
+                      >
+                        Top up now ({formatPriceTHB(requiredTopUpAmount)})
+                      </button>
+                    </div>
+                  ) : null}
                   <div className="rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
                     You can edit your shipping address directly here in cart before payment.
                   </div>
@@ -6820,14 +7004,6 @@ export function CheckoutPage({
                   </select>
                   {attemptedStepTwoContinue && !trimmedCountry ? <div className="text-xs text-rose-600">Destination country is required.</div> : null}
                   <input
-                    ref={stepTwoPostalCodeRef}
-                    value={checkoutForm.postalCode || ""}
-                    onChange={(e) => updateCheckoutField("postalCode", e.target.value)}
-                    className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakePostalCode ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                    placeholder="ZIP / Postal code"
-                  />
-                  {attemptedStepTwoContinue && !trimmedPostalCode ? <div className="text-xs text-rose-600">ZIP / Postal code is required.</div> : null}
-                  <input
                     ref={stepTwoAddressRef}
                     value={checkoutForm.address}
                     onChange={(e) => updateCheckoutField("address", e.target.value)}
@@ -6835,13 +7011,41 @@ export function CheckoutPage({
                     placeholder="Street address"
                   />
                   {attemptedStepTwoContinue && !trimmedAddress ? <div className="text-xs text-rose-600">Street address is required.</div> : null}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <input
+                      ref={stepTwoCityRef}
+                      value={checkoutForm.city || ""}
+                      onChange={(e) => updateCheckoutField("city", e.target.value)}
+                      className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeCity ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                      placeholder="City"
+                    />
+                    <input
+                      ref={stepTwoRegionRef}
+                      value={checkoutForm.region || ""}
+                      onChange={(e) => updateCheckoutField("region", e.target.value)}
+                      className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeRegion ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                      placeholder={checkoutAddressMeta.regionPlaceholder}
+                    />
+                  </div>
+                  {attemptedStepTwoContinue && !trimmedCity ? <div className="text-xs text-rose-600">City is required.</div> : null}
+                  {attemptedStepTwoContinue && checkoutAddressMeta.regionRequired && !trimmedRegion ? <div className="text-xs text-rose-600">{checkoutAddressMeta.regionLabel} is required.</div> : null}
+                  <input
+                    ref={stepTwoPostalCodeRef}
+                    value={checkoutForm.postalCode || ""}
+                    onChange={(e) => updateCheckoutField("postalCode", e.target.value)}
+                    className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakePostalCode ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                    placeholder={checkoutAddressMeta.postalPlaceholder}
+                  />
+                  {attemptedStepTwoContinue && !trimmedPostalCode ? <div className="text-xs text-rose-600">{checkoutAddressMeta.postalLabel} is required.</div> : null}
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                     <div className="font-semibold text-slate-900">Delivery preview</div>
                     <div className="mt-2 grid gap-1">
                       <div><span className="font-medium">Name:</span> {trimmedFullName || "Add your name in Step 1"}</div>
                       <div><span className="font-medium">Email:</span> {trimmedEmail || "Add your email in Step 1"}</div>
                       <div><span className="font-medium">Address:</span> {trimmedAddress || "Enter street address"}</div>
-                      <div><span className="font-medium">ZIP / Postal:</span> {trimmedPostalCode || "Enter ZIP / Postal code"}</div>
+                      <div><span className="font-medium">City:</span> {trimmedCity || "Enter city"}</div>
+                      <div><span className="font-medium">{checkoutAddressMeta.regionLabel}:</span> {trimmedRegion || `Enter ${checkoutAddressMeta.regionPlaceholder}`}</div>
+                      <div><span className="font-medium">{checkoutAddressMeta.postalLabel}:</span> {trimmedPostalCode || `Enter ${checkoutAddressMeta.postalPlaceholder}`}</div>
                       <div><span className="font-medium">Country:</span> {trimmedCountry || "Select destination country"}</div>
                       <div><span className="font-medium">Method:</span> {checkoutForm.shippingMethod === "express" ? "Express" : "Standard"}</div>
                     </div>
@@ -6900,16 +7104,26 @@ export function CheckoutPage({
                           stepTwoCountryRef.current?.focus();
                           return;
                         }
-                        if (!trimmedPostalCode) {
-                          triggerShake(setShakePostalCode);
-                          stepTwoPostalCodeRef.current?.focus();
-                          return;
-                        }
                         if (!trimmedAddress) {
                           triggerShake(setShakeAddress);
                           stepTwoAddressRef.current?.focus();
                           return;
                         }
+                      if (!trimmedCity) {
+                        triggerShake(setShakeCity);
+                        stepTwoCityRef.current?.focus();
+                        return;
+                      }
+                      if (checkoutAddressMeta.regionRequired && !trimmedRegion) {
+                        triggerShake(setShakeRegion);
+                        stepTwoRegionRef.current?.focus();
+                        return;
+                      }
+                      if (!trimmedPostalCode) {
+                        triggerShake(setShakePostalCode);
+                        stepTwoPostalCodeRef.current?.focus();
+                        return;
+                      }
                         if (!shippingSupported) {
                           triggerShake(setShakeCountry);
                           stepTwoCountryRef.current?.focus();
@@ -6929,7 +7143,7 @@ export function CheckoutPage({
                   <h3 className="text-xl font-semibold">Payment</h3>
                   <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">Wallet balance available: {formatPriceTHB(currentWalletBalance)}</div>
                   <div className="mt-2 text-xs text-slate-500">{formatExchangeEstimates(currentWalletBalance)}</div>
-                  {currentUser?.role === "buyer" && walletShortfall > 0 ? (
+                  {shouldShowTopUpPrompt ? (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                       <div>Short by: {formatPriceTHB(walletShortfall)}</div>
                       <div className="mt-1">
@@ -6951,7 +7165,7 @@ export function CheckoutPage({
                         <button type="button" onClick={() => setCheckoutStep(1)} className="ml-2 text-xs font-semibold text-rose-700">Edit</button>
                       </div>
                       <div>
-                        <span className="font-medium">Ship to:</span> {trimmedAddress || "No address"}, {trimmedPostalCode || "No ZIP"}, {trimmedCountry || "No country"}
+                        <span className="font-medium">Ship to:</span> {trimmedAddress || "No address"}, {trimmedCity || "No city"}, {trimmedRegion || checkoutAddressMeta.regionPlaceholder}, {trimmedPostalCode || checkoutAddressMeta.postalPlaceholder}, {trimmedCountry || "No country"}
                         <button type="button" onClick={() => setCheckoutStep(2)} className="ml-2 text-xs font-semibold text-rose-700">Edit</button>
                       </div>
                       <div><span className="font-medium">Shipping:</span> {checkoutForm.shippingMethod === "express" ? "Express" : "Standard"} ({formatPriceTHB(shippingFee)})</div>
@@ -7046,7 +7260,13 @@ export function CheckoutPage({
               <div className="mt-6 space-y-3 rounded-2xl bg-white/10 p-4 text-sm">
                 <div className="flex items-center justify-between text-slate-200"><span>Subtotal</span><span>{formatPriceTHB(subtotal)}</span></div>
                 <div className="flex items-center justify-between text-slate-200"><span>Shipping ({checkoutForm.shippingMethod === "express" ? "Express" : "Standard"})</span><span>{formatPriceTHB(shippingFee)}</span></div>
-                <div className="text-xs text-slate-300">Shipping destination: {checkoutForm.country.trim() || "Enter country"}{trimmedPostalCode ? ` (${trimmedPostalCode})` : ""} · Carrier: international carriers</div>
+                <div className="text-xs text-slate-300">
+                  Shipping destination: {checkoutForm.country.trim() || "Enter country"}
+                  {trimmedCity ? ` · ${trimmedCity}` : ""}
+                  {trimmedRegion ? `, ${trimmedRegion}` : ""}
+                  {trimmedPostalCode ? ` (${trimmedPostalCode})` : ""}
+                  {" "}· Carrier: international carriers
+                </div>
                 <div className="flex items-center justify-between border-t border-white/10 pt-3 text-base font-bold text-white"><span>Total</span><span>{formatPriceTHB(total)}</span></div>
               </div>
             </div>
@@ -7187,6 +7407,11 @@ export function AccountPage({
   const [customRequestStatusMessageById, setCustomRequestStatusMessageById] = useState({});
   const [customTopUpAmount, setCustomTopUpAmount] = useState("500");
   const [customTopUpError, setCustomTopUpError] = useState("");
+  const [showAllOrderHistory, setShowAllOrderHistory] = useState(false);
+  const [orderHistoryPage, setOrderHistoryPage] = useState(1);
+  const [showAllBillingLedger, setShowAllBillingLedger] = useState(false);
+  const [billingLedgerPage, setBillingLedgerPage] = useState(1);
+  const detailPageSize = 10;
   const checkoutRequiredTopUpAmount = getRequiredTopUpAmount(walletTopUpContext?.topupRequired || 0);
   const checkoutReturnPath = String(walletTopUpContext?.returnTo || "").trim();
   useEffect(() => {
@@ -7359,6 +7584,22 @@ export function AccountPage({
     const quotedPrice = Number(request?.quotedPriceThb || 0);
     return quoteStatus === "proposed" && quotedPrice >= MIN_CUSTOM_REQUEST_PURCHASE_THB;
   };
+  const buyerInAppAllEnabled =
+    (currentUser?.notificationPreferences?.message !== false)
+    && (currentUser?.notificationPreferences?.engagement !== false);
+  const buyerPushAllEnabled =
+    (currentUser?.notificationPreferences?.push?.message !== false)
+    && (currentUser?.notificationPreferences?.push?.engagement !== false)
+    && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
+  const accountAddressMeta = getAddressConventionMeta(accountForm.country);
+  const orderHistoryPageCount = Math.max(1, Math.ceil(recentBuyerOrders.length / detailPageSize));
+  const visibleOrderHistory = showAllOrderHistory
+    ? recentBuyerOrders.slice((orderHistoryPage - 1) * detailPageSize, orderHistoryPage * detailPageSize)
+    : recentBuyerOrders.slice(0, 3);
+  const billingLedgerPageCount = Math.max(1, Math.ceil(buyerLedger.length / detailPageSize));
+  const visibleBillingLedger = showAllBillingLedger
+    ? buyerLedger.slice((billingLedgerPage - 1) * detailPageSize, billingLedgerPage * detailPageSize)
+    : buyerLedger.slice(0, 3);
   const handleCustomRequestImageDraftSelect = async (requestId, fileList) => {
     const files = Array.from(fileList || []).slice(0, 4);
     if (!requestId || files.length === 0) return;
@@ -7387,15 +7628,43 @@ export function AccountPage({
       ) : (
         <>
           <SectionTitle eyebrow="Account" title={accountText.accountCenterTitle} subtitle={accountText.accountCenterSubtitle} />
+          {currentUser.role === "buyer" ? (
+            <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+              <button className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+                {tx("profile")}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/buyer-messages")}
+                className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+              >
+                {tx("messages")}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/custom-requests")}
+                className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+              >
+                {tx("customRequests")}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/seller-feed")}
+                className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+              >
+                Seller feed
+              </button>
+            </div>
+          ) : null}
           <div className="mb-4 lg:hidden">
             <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
               {currentUser.role === "buyer" ? (
                 <>
-                  <button onClick={() => scrollToSection("buyer-messaging")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
+                  <button onClick={() => navigate("/buyer-messages")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
                   <button onClick={() => scrollToSection("buyer-favorites")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.favorites}</button>
                   <button onClick={() => scrollToSection("buyer-wallet")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
                   <button onClick={() => scrollToSection("buyer-orders")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
-                  <button onClick={() => scrollToSection("buyer-custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{tx("customRequests")}</button>
+                  <button onClick={() => navigate("/custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{tx("customRequests")}</button>
                   <button onClick={() => scrollToSection("buyer-contact")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.contact}</button>
                 </>
               ) : (
@@ -7468,7 +7737,7 @@ export function AccountPage({
                   {buyerUnreadDirectMessageCount > 0 ? (
                     <button
                       type="button"
-                      onClick={() => scrollToSection("buyer-messaging")}
+                      onClick={() => navigate("/buyer-messages")}
                       className="rounded-xl border border-amber-300 bg-white px-3 py-2.5 text-sm font-semibold text-amber-800"
                     >
                       Open messages
@@ -7477,7 +7746,7 @@ export function AccountPage({
                   {buyerUnreadCustomRequestMessageCount > 0 ? (
                     <button
                       type="button"
-                      onClick={() => scrollToSection("buyer-custom-requests")}
+                      onClick={() => navigate("/custom-requests")}
                       className="rounded-xl border border-amber-300 bg-white px-3 py-2.5 text-sm font-semibold text-amber-800"
                     >
                       Open custom requests
@@ -7498,45 +7767,34 @@ export function AccountPage({
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-lg font-semibold">Notification preferences</h3>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {(() => {
-                const inAppAllEnabled =
-                  (currentUser?.notificationPreferences?.message !== false)
-                  && (currentUser?.notificationPreferences?.engagement !== false);
-                const pushAllEnabled =
-                  (currentUser?.notificationPreferences?.push?.message !== false)
-                  && (currentUser?.notificationPreferences?.push?.engagement !== false)
-                  && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
-                return (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const nextEnabled = !inAppAllEnabled;
-                        updateNotificationPreference("message", nextEnabled);
-                        updateNotificationPreference("engagement", nextEnabled);
-                      }}
-                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
-                    >
-                      Email notifications: {inAppAllEnabled ? "On" : "Off"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const nextEnabled = !pushAllEnabled;
-                        updatePushNotificationPreference("message", nextEnabled);
-                        updatePushNotificationPreference("engagement", nextEnabled);
-                        if (currentUser?.role === "admin") {
-                          updatePushNotificationPreference("adminOps", nextEnabled);
-                        }
-                      }}
-                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
-                    >
-                      Browser notifications: {pushAllEnabled ? "On" : "Off"}
-                    </button>
-                  </>
-                );
-              })()}
+            <div className="mt-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextEnabled = !buyerInAppAllEnabled;
+                    updateNotificationPreference("message", nextEnabled);
+                    updateNotificationPreference("engagement", nextEnabled);
+                  }}
+                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerInAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+                >
+                  Email notifications: {buyerInAppAllEnabled ? "On" : "Off"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextEnabled = !buyerPushAllEnabled;
+                    updatePushNotificationPreference("message", nextEnabled);
+                    updatePushNotificationPreference("engagement", nextEnabled);
+                    if (currentUser?.role === "admin") {
+                      updatePushNotificationPreference("adminOps", nextEnabled);
+                    }
+                  }}
+                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerPushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
+                >
+                  Browser notifications: {buyerPushAllEnabled ? "On" : "Off"}
+                </button>
+              </div>
             </div>
             {!pushSupported ? (
               <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
@@ -7545,8 +7803,7 @@ export function AccountPage({
               <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
             ) : null}
           </div>
-          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
-            <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-5 sm:space-y-6">
               <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
                 <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <ShoppingBag className="h-6 w-6 text-rose-600" />
@@ -7563,6 +7820,90 @@ export function AccountPage({
                   <div className="mt-4 text-sm text-slate-500">{tx("shippedDelivered")}</div>
                   <div className="mt-2 text-3xl font-bold">{buyerOrders.filter((order) => order.fulfillmentStatus !== "processing").length}</div>
                 </div>
+              </div>
+
+              <div id="buyer-wallet" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-5 w-5 text-rose-600" />
+                  <h3 className="text-xl font-semibold">{accountText.accountBalance}</h3>
+                </div>
+                <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">
+                  {tx("availableBalance")}: <span className="font-bold">{formatPriceTHB(currentWalletBalance)}</span>
+                </div>
+                {checkoutRequiredTopUpAmount > 0 ? (
+                  <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    <div>You need {formatPriceTHB(checkoutRequiredTopUpAmount)} to complete your checkout.</div>
+                    <div className="mt-1">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.</div>
+                    {checkoutReturnPath ? (
+                      <button
+                        type="button"
+                        onClick={() => navigate(checkoutReturnPath)}
+                        className="mt-2 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
+                      >
+                        Back to checkout
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
+                <p className="mt-3 text-sm leading-6 text-slate-600">{tx("walletHelp")} {formatPriceTHB(MESSAGE_FEE_THB)} {tx("walletHelpPart2")} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)}.</p>
+                {currentUser.role === "buyer" || currentUser.role === "seller" ? (
+                  <>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {[500, 1000, 10000].map((amount) => (
+                        <button
+                          key={amount}
+                          onClick={() => {
+                            setCustomTopUpError("");
+                            runWalletTopUp(amount);
+                          }}
+                          className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+                        >
+                          {tx("add")} {formatPriceTHB(amount)}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <div className="relative w-44">
+                        <span className="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-sm font-semibold text-slate-500">฿</span>
+                        <input
+                          type="number"
+                          min={MIN_WALLET_TOP_UP_THB}
+                          step="1"
+                          value={customTopUpAmount}
+                          onChange={(event) => {
+                            setCustomTopUpError("");
+                            setCustomTopUpAmount(event.target.value);
+                          }}
+                          className="w-full rounded-2xl border border-slate-200 py-2 pl-8 pr-4 text-sm"
+                          placeholder={`Custom amount (min ${MIN_WALLET_TOP_UP_THB})`}
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          const amount = Number(customTopUpAmount);
+                          if (!isValidWalletTopUpAmount(amount)) {
+                            setCustomTopUpError(`Custom amount must be at least ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
+                            return;
+                          }
+                          setCustomTopUpError("");
+                          runWalletTopUp(amount);
+                        }}
+                        className="w-full rounded-2xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 sm:w-auto"
+                      >
+                        Add custom amount
+                      </button>
+                    </div>
+                    {customTopUpError ? <div className="mt-2 text-sm font-medium text-rose-600">{customTopUpError}</div> : null}
+                    <div className={`mt-3 text-sm ${walletStatus === "success" ? "font-medium text-emerald-700" : walletStatus === "processing" ? "font-medium text-indigo-700" : "text-slate-500"}`}>
+                      {walletStatus === "processing" ? tx("walletProcessing") : walletStatus === "success" ? `${tx("walletAddedPrefix")} ${formatPriceTHB(topUpAmount)} ${tx("walletAddedSuffix")}` : tx("walletPresetHelp")}
+                    </div>
+                    {walletStatus === "success" && checkoutReturnPath ? (
+                      <div className="mt-2 text-xs font-medium text-emerald-700">
+                        Top-up complete. Returning to checkout...
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
               </div>
 
               <div id="buyer-orders" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
@@ -7636,541 +7977,6 @@ export function AccountPage({
               </div>
 
               {currentUser.role === "buyer" ? (
-                <div id="buyer-custom-requests" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-xl font-semibold">Custom requests</h3>
-                    <button
-                      onClick={() => navigate("/custom-requests")}
-                      className="rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700"
-                    >
-                      Open full custom requests page
-                    </button>
-                  </div>
-                  <p className="mt-2 text-sm text-slate-600">
-                    Manage quotes, counters, and request messages directly from your dashboard.
-                  </p>
-                  <div className="mt-5 space-y-4">
-                    {(buyerCustomRequests || []).length === 0 ? (
-                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No custom requests yet.</div>
-                    ) : (buyerCustomRequests || []).slice(0, 8).map((request) => (
-                      <div key={request.id} className="rounded-2xl border border-rose-100 p-4">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <div className="font-semibold">{sellerMap?.[request.sellerId]?.name || request.sellerId}</div>
-                            <div className="mt-1 text-xs text-slate-500">
-                              {formatDateTimeNoSeconds(request.createdAt || Date.now())} · {request.status || "open"}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-semibold text-rose-700">{formatPriceTHB(Number(request.quotedPriceThb || 0) || 0)}</div>
-                            <div className="mt-1 text-xs capitalize text-slate-500">{getCustomRequestQuoteStatusLabel(request)}</div>
-                            {isBuyerPaymentPending(request) ? (
-                              <div className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-800">
-                                Pending payment
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        <div className="mt-3 rounded-xl bg-slate-50 p-3">
-                          <div className="max-h-40 space-y-2 overflow-y-auto">
-                            {(customRequestMessagesByRequestId?.[request.id] || []).length === 0 ? (
-                              <div className="text-xs text-slate-500">No replies yet.</div>
-                            ) : (customRequestMessagesByRequestId?.[request.id] || []).map((message) => (
-                            <div key={message.id} className={`max-w-[90%] rounded-xl px-3 py-2 text-xs ${message.senderRole === "buyer" ? "ml-auto bg-rose-100 text-rose-900 ring-1 ring-rose-200" : "bg-white text-slate-700 ring-1 ring-rose-100"}`}>
-                                <div>{resolveConversationMessageBody(message)}</div>
-                                {(message.imageAttachments || []).length > 0 ? (
-                                  <div className="mt-2 grid grid-cols-2 gap-2">
-                                    {(message.imageAttachments || []).map((image) => (
-                                      <a
-                                        key={image.id}
-                                        href={image.image}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="block overflow-hidden rounded-lg ring-1 ring-rose-200/60"
-                                      >
-                                        <ProductImage src={image.image} label={image.imageName || "Custom request attachment"} />
-                                      </a>
-                                    ))}
-                                  </div>
-                                ) : null}
-                                {canToggleConversationTranslation(message) ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => setShowOriginalMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
-                                    className={`mt-1 block text-[11px] font-semibold ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}
-                                  >
-                                    {showOriginalMessageById[message.id] ? tx("showTranslation") : tx("showOriginal")}
-                                  </button>
-                                ) : null}
-                              </div>
-                            ))}
-                          </div>
-                          <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                            <input
-                              value={customRequestReplyDraftById[request.id] || ""}
-                              onChange={(event) => setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                              className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
-                              placeholder="Reply in this request"
-                            />
-                            <button
-                              onClick={() => {
-                                sendCustomRequestMessage(
-                                  request.id,
-                                  customRequestReplyDraftById[request.id] || "",
-                                  customRequestImageDraftById[request.id] || [],
-                                  () => {
-                                    setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: "" }));
-                                    setCustomRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }));
-                                    setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: "" }));
-                                  },
-                                  (message) => setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: message || "" })),
-                                );
-                              }}
-                              disabled={!canAffordCustomRequestMessage}
-                              className={`w-full rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto ${!canAffordCustomRequestMessage ? "cursor-not-allowed opacity-60" : ""}`}
-                            >
-                              {currentUser?.role === "buyer" ? `Send (${formatPriceTHB(MESSAGE_FEE_THB)})` : "Send"}
-                            </button>
-                          </div>
-                          <div className="mt-2">
-                            {request.buyerImageUploadEnabled ? (
-                              <>
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={(event) => handleCustomRequestImageDraftSelect(request.id, event.target.files)}
-                                    className="max-w-full rounded-xl border border-dashed border-rose-300 px-3 py-2.5 text-xs"
-                                  />
-                                  {(customRequestImageDraftById[request.id] || []).length > 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => setCustomRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }))}
-                                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700"
-                                    >
-                                      Clear images
-                                    </button>
-                                  ) : null}
-                                </div>
-                                {(customRequestImageDraftById[request.id] || []).length > 0 ? (
-                                  <div className="mt-2 grid grid-cols-2 gap-2">
-                                    {(customRequestImageDraftById[request.id] || []).map((image) => (
-                                      <div key={image.id} className="overflow-hidden rounded-lg ring-1 ring-rose-200/60">
-                                        <ProductImage src={image.image} label={image.imageName || "Draft attachment"} />
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : null}
-                              </>
-                            ) : (
-                              <div className="text-[11px] text-slate-500">
-                                Seller has not enabled buyer image uploads for this request yet.
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {Number(request.quotedPriceThb || 0) >= MIN_CUSTOM_REQUEST_PURCHASE_THB ? (
-                          <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">Seller quote</div>
-                              {isBuyerPaymentPending(request) ? (
-                                <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-amber-800">
-                                  Pending payment
-                                </span>
-                              ) : null}
-                            </div>
-                            <div className="mt-1 text-sm text-slate-700">
-                              {formatPriceTHB(Number(request.quotedPriceThb || 0))} · <span className="capitalize">{getCustomRequestQuoteStatusLabel(request)}</span>
-                              {Number(request.buyerCounterPriceThb || 0) > 0 ? ` · Your counter ${formatPriceTHB(Number(request.buyerCounterPriceThb || 0))}` : ""}
-                            </div>
-                            {request.quoteMessage ? <div className="mt-1 text-xs text-slate-600">Seller note: {request.quoteMessage}</div> : null}
-                            {request.quoteStatus === "countered" && Number(request.buyerCounterPriceThb || 0) > 0 ? (
-                              <div className="mt-2 text-xs text-slate-700">
-                                Waiting for seller response to your counter {formatPriceTHB(Number(request.buyerCounterPriceThb || 0))}.
-                              </div>
-                            ) : ["accepted", "declined"].includes(request.quoteStatus || "") ? null : (
-                              <>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                  <button
-                                    onClick={() => respondToCustomRequestPrice(
-                                      request.id,
-                                      "accept",
-                                      {},
-                                      () => setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: "Quote accepted and payment sent." })),
-                                      (message) => {
-                                        const quotedPrice = Number(request.quotedPriceThb || 0);
-                                        const walletBalance = Number(currentWalletBalance || 0);
-                                        const shortfall = Number((quotedPrice - walletBalance).toFixed(2));
-                                        if (shortfall > 0) {
-                                          const requiredTopUp = getRequiredTopUpAmount(shortfall);
-                                          setCustomTopUpAmount(String(Math.ceil(requiredTopUp)));
-                                          setCustomRequestStatusMessageById((prev) => ({
-                                            ...prev,
-                                            [request.id]: `You need ${formatPriceTHB(quotedPrice)} to accept this quote. Top up at least ${formatPriceTHB(requiredTopUp)} and try again.`,
-                                          }));
-                                          scrollToSection("buyer-wallet");
-                                          return;
-                                        }
-                                        setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: message || "" }));
-                                      },
-                                    )}
-                                    className="w-full rounded-lg bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white sm:w-auto"
-                                  >
-                                    Accept & pay {formatPriceTHB(Number(request.quotedPriceThb || 0))}
-                                  </button>
-                                  <button
-                                    onClick={() => respondToCustomRequestPrice(request.id, "decline", {}, () => setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: "Quote declined." })), (message) => setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: message || "" })))}
-                                    className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-700 sm:w-auto"
-                                  >
-                                    Decline
-                                  </button>
-                                </div>
-                                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                                  <input
-                                    type="number"
-                                    min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
-                                    step="1"
-                                    value={customRequestCounterDraftById[request.id] || ""}
-                                    onChange={(event) => setCustomRequestCounterDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                                    className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm"
-                                    placeholder="Counter amount (THB)"
-                                  />
-                                  <button
-                                    onClick={() => {
-                                      respondToCustomRequestPrice(
-                                        request.id,
-                                        "counter",
-                                        { counterPriceThb: customRequestCounterDraftById[request.id] || 0 },
-                                        () => {
-                                          setCustomRequestCounterDraftById((prev) => ({ ...prev, [request.id]: "" }));
-                                          setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: `Counter sent. ${formatPriceTHB(MESSAGE_FEE_THB)} message fee charged.` }));
-                                        },
-                                        (message) => setCustomRequestStatusMessageById((prev) => ({ ...prev, [request.id]: message || "" })),
-                                      );
-                                    }}
-                                    disabled={!canAffordCustomRequestMessage}
-                                    className={`w-full rounded-lg border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 sm:w-auto ${!canAffordCustomRequestMessage ? "cursor-not-allowed opacity-60" : ""}`}
-                                  >
-                                    Counter ({formatPriceTHB(MESSAGE_FEE_THB)} fee)
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        ) : null}
-
-                        {customRequestStatusMessageById[request.id] ? (
-                          <div className="mt-2 text-[11px] text-indigo-700">{customRequestStatusMessageById[request.id]}</div>
-                        ) : null}
-                        {currentUser?.role === "buyer" && !canAffordCustomRequestMessage ? (
-                          <div className="mt-2 text-[11px] text-amber-700">
-                            {tx("addWalletReplyPrefix")} {formatPriceTHB(MESSAGE_FEE_THB)} {tx("addWalletRequestMessageSuffix")}
-                          </div>
-                        ) : null}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {currentUser.role === "buyer" ? (
-                <div id="buyer-messaging" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-xl font-semibold">{tx("messagingCenter")}</h3>
-                    <div className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">{formatPriceTHB(MESSAGE_FEE_THB)} {tx("perMessage")}</div>
-                  </div>
-                  <p className="mt-2 text-sm text-slate-600">{tx("messagingHelp")}</p>
-                  <div className="mt-5 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-                    <div className="space-y-3">
-                      <div className="rounded-2xl border border-rose-100 p-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findSellers")}</div>
-                        <input
-                          value={buyerMessageSellerSearch}
-                          onChange={(event) => setBuyerMessageSellerSearch(event.target.value)}
-                          className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                          placeholder={tx("searchSellers")}
-                        />
-                        <div className="mt-3 space-y-2">
-                          {buyerMessageSellerResults.length === 0 ? (
-                          <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noSellerSearchResults")}</div>
-                          ) : buyerMessageSellerResults.map((seller) => (
-                            <button
-                              key={seller.id}
-                              onClick={() => startBuyerConversationWithSeller(seller.id)}
-                              className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
-                            >
-                              <span className="text-sm font-medium">{seller.name}</span>
-                              <span className="text-xs text-slate-500">{tx("message")}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl border border-rose-100 p-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findByProduct")}</div>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <input
-                            value={buyerMessageProductFilters.search}
-                            onChange={(event) => updateBuyerMessageProductFilter("search", event.target.value)}
-                            className="rounded-2xl border border-slate-200 px-3 py-2 text-sm sm:col-span-2"
-                            placeholder={tx("searchProductOrSeller")}
-                          />
-                          <select value={buyerMessageProductFilters.size} onChange={(event) => updateBuyerMessageProductFilter("size", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                            {(buyerMessageFilterOptions?.size || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                          </select>
-                          <select value={buyerMessageProductFilters.style} onChange={(event) => updateBuyerMessageProductFilter("style", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                            {(buyerMessageFilterOptions?.style || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                          </select>
-                          <select value={buyerMessageProductFilters.fabric} onChange={(event) => updateBuyerMessageProductFilter("fabric", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                            {(buyerMessageFilterOptions?.fabric || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                          </select>
-                          <select value={buyerMessageProductFilters.daysWorn} onChange={(event) => updateBuyerMessageProductFilter("daysWorn", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                            {(buyerMessageFilterOptions?.daysWorn || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                          </select>
-                          <select value={buyerMessageProductFilters.price} onChange={(event) => updateBuyerMessageProductFilter("price", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                            {[
-                              { value: "All", label: localizeOptionLabel("All", uiLanguage) },
-                              { value: `Under ${formatPriceTHB(1400)}`, label: `${localizeOptionLabel("Under", uiLanguage)} ${formatPriceTHB(1400)}` },
-                              { value: `${formatPriceTHB(1400)}-${formatPriceTHB(2000)}`, label: `${formatPriceTHB(1400)}-${formatPriceTHB(2000)}` },
-                              { value: `${formatPriceTHB(2000)}+`, label: `${formatPriceTHB(2000)}+` }
-                            ].map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                          </select>
-                        </div>
-                        <div className="mt-3 space-y-2">
-                          {buyerMessageProductResults.length === 0 ? (
-                            <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noProductFilterResults")}</div>
-                          ) : buyerMessageProductResults.slice(0, 5).map((product) => (
-                            <button
-                              key={product.id}
-                              onClick={() => startBuyerConversationWithSeller(product.sellerId)}
-                              className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
-                            >
-                              <span className="text-sm font-medium">{product.title}</span>
-                              <span className="text-xs text-slate-500">{sellerMap[product.sellerId]?.name || tx("seller")} · {product.daysWorn || tx("notSpecified")}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl border border-rose-100 p-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("conversationList")}</div>
-                        <div className="mt-3 space-y-2">
-                          {buyerConversations.length === 0 ? (
-                            <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("conversationsAppearHere")}</div>
-                          ) : buyerConversations.map((conversation) => {
-                            const sellerName = sellerMap[conversation.sellerId]?.name || tx("seller");
-                            const sellerInitials = getConversationInitials(sellerName);
-                            return (
-                              <button
-                                key={conversation.conversationId}
-                                onClick={() => setBuyerDashboardConversationId(conversation.conversationId)}
-                                className={`w-full rounded-2xl border px-3 py-3 text-left ${buyerDashboardConversationId === conversation.conversationId ? "border-rose-300 bg-rose-50" : "border-rose-100"}`}
-                              >
-                                <div className="flex items-start gap-2">
-                                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">{sellerInitials}</span>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="truncate font-semibold">{tx("conversationWith")} {sellerName}</div>
-                                    <div className="mt-1 truncate text-sm text-slate-500">{conversation.latestBody}</div>
-                                    <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
-                                      <span>{conversation.latestAt ? formatDateTimeNoSeconds(conversation.latestAt) : tx("noDate")}</span>
-                                      {conversation.unreadCount > 0 ? <span className="rounded-full bg-rose-100 px-2 py-1 font-semibold text-rose-700">{conversation.unreadCount} {tx("newCountSuffix")}</span> : null}
-                                    </div>
-                                  </div>
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-rose-100 p-4">
-                      <div className="text-sm font-semibold">
-                        {buyerDashboardConversationId
-                          ? `${tx("conversationWith")} ${sellerMap[buyerDashboardConversationId.split("__")[1]]?.name || tx("seller")}`
-                          : tx("selectOrStartConversation")}
-                      </div>
-                      {buyerDashboardConversationId ? (
-                        <div className="mt-2 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-[11px] font-bold text-rose-700">
-                            {getConversationInitials(resolveConversationSellerName(buyerDashboardConversationId))}
-                          </span>
-                          <span>{tx("chattingWith")} {resolveConversationSellerName(buyerDashboardConversationId)}</span>
-                        </div>
-                      ) : null}
-                      <div className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
-                        {buyerDashboardConversationMessages.length === 0 ? (
-                          <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noMessagesInThread")}</div>
-                        ) : buyerDashboardConversationMessages.map((message) => (
-                          <div key={message.id} className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === "buyer" ? "ml-auto bg-rose-100 text-rose-900 ring-1 ring-rose-200" : "bg-slate-100 text-slate-700"}`}>
-                            <div>{resolveConversationMessageBody(message)}</div>
-                            <div className={`mt-1 text-[11px] ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}>
-                              {formatTimeNoSeconds(message.createdAt)}
-                            </div>
-                            {canToggleConversationTranslation(message) ? (
-                              <button
-                                type="button"
-                                onClick={() => setShowOriginalMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
-                                className={`mt-1 text-[11px] font-semibold ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}
-                              >
-                                {showOriginalMessageById[message.id] ? tx("showTranslation") : tx("showOriginal")}
-                              </button>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                  <div className="mt-4 space-y-3">
-                        <textarea
-                          value={buyerDashboardMessageDraft}
-                          onChange={(event) => setBuyerDashboardMessageDraft(event.target.value)}
-                          className="min-h-[110px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                          placeholder={tx("writeMessage")}
-                        />
-                        <button
-                          onClick={sendBuyerDashboardMessage}
-                          disabled={!buyerDashboardConversationId || !buyerDashboardMessageDraft.trim()}
-                          className="w-full rounded-2xl bg-rose-500 px-5 py-3 font-semibold text-white hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {tx("sendMessage")} ({formatPriceTHB(MESSAGE_FEE_THB)})
-                        </button>
-                        {buyerDashboardMessageError ? <div className="text-sm font-medium text-rose-600">{buyerDashboardMessageError}</div> : null}
-                        {buyerDashboardMessageError && !canAffordCustomRequestMessage ? (
-                          <button
-                            type="button"
-                            onClick={() => scrollToSection("buyer-wallet")}
-                            className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800"
-                          >
-                            Top up wallet
-                          </button>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <h3 className="text-xl font-semibold">{accountText.orderHistory}</h3>
-                <div className="mt-5 space-y-3">
-                  {recentBuyerOrders.length === 0 ? (
-                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("purchaseHistoryHelp")}</div>
-                  ) : recentBuyerOrders.map((order) => (
-                    <div key={`${order.id}-history`} className="grid gap-3 rounded-2xl border border-rose-100 p-4 md:grid-cols-[1.3fr_0.9fr_0.8fr_0.8fr]">
-                      <div>
-                        <div className="font-semibold">{order.id}</div>
-                        <div className="mt-1 text-sm text-slate-500">{order.items.length} {tx("items")}</div>
-                      </div>
-                      <div className="text-sm text-slate-600">{new Date(order.createdAt || Date.now()).toLocaleDateString()}</div>
-                      <div className="text-sm text-slate-600">{localizePaymentStatus(order.paymentStatus)}</div>
-                      <div className="text-sm font-semibold text-rose-700">{formatPriceTHB(order.total)}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-semibold">{accountText.billingLedger}</h3>
-                  <button onClick={markAllNotificationsRead} className="text-sm font-semibold text-rose-700">{tx("markNotificationsRead")}</button>
-                </div>
-                <div className="mt-4 space-y-3">
-                  {buyerLedger.length === 0 ? <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("noWalletActivity")}</div> : buyerLedger.map((entry) => (
-                    <div key={entry.id} className="grid gap-2 rounded-2xl border border-rose-100 p-4 md:grid-cols-[1.2fr_0.9fr_0.7fr]">
-                      <div>
-                        <div className="font-semibold">{entry.description}</div>
-                        <div className="mt-1 text-sm text-slate-500">{entry.type}</div>
-                      </div>
-                      <div className="text-sm text-slate-600">{new Date(entry.createdAt).toLocaleDateString()}</div>
-                      <div className={`text-sm font-semibold ${entry.amount >= 0 ? "text-emerald-600" : "text-rose-700"}`}>{entry.amount >= 0 ? "+" : ""}{formatPriceTHB(Math.abs(entry.amount))}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6 sm:space-y-8">
-              <div id="buyer-wallet" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-5 w-5 text-rose-600" />
-                  <h3 className="text-xl font-semibold">{accountText.accountBalance}</h3>
-                </div>
-                <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">
-                  {tx("availableBalance")}: <span className="font-bold">{formatPriceTHB(currentWalletBalance)}</span>
-                </div>
-                {checkoutRequiredTopUpAmount > 0 ? (
-                  <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                    <div>You need {formatPriceTHB(checkoutRequiredTopUpAmount)} to complete your checkout.</div>
-                    <div className="mt-1">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.</div>
-                    {checkoutReturnPath ? (
-                      <button
-                        type="button"
-                        onClick={() => navigate(checkoutReturnPath)}
-                        className="mt-2 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
-                      >
-                        Back to checkout
-                      </button>
-                    ) : null}
-                  </div>
-                ) : null}
-                <p className="mt-3 text-sm leading-6 text-slate-600">{tx("walletHelp")} {formatPriceTHB(MESSAGE_FEE_THB)} {tx("walletHelpPart2")} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)}.</p>
-                {currentUser.role === "buyer" || currentUser.role === "seller" ? (
-                  <>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {[500, 1000, 10000].map((amount) => (
-                        <button
-                          key={amount}
-                          onClick={() => {
-                            setCustomTopUpError("");
-                            runWalletTopUp(amount);
-                          }}
-                          className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
-                        >
-                          {tx("add")} {formatPriceTHB(amount)}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <input
-                        type="number"
-                        min={MIN_WALLET_TOP_UP_THB}
-                        step="1"
-                        value={customTopUpAmount}
-                        onChange={(event) => {
-                          setCustomTopUpError("");
-                          setCustomTopUpAmount(event.target.value);
-                        }}
-                        className="w-44 rounded-2xl border border-slate-200 px-4 py-2 text-sm"
-                        placeholder={`Custom amount (min ${MIN_WALLET_TOP_UP_THB})`}
-                      />
-                      <button
-                        onClick={() => {
-                          const amount = Number(customTopUpAmount);
-                          if (!isValidWalletTopUpAmount(amount)) {
-                            setCustomTopUpError(`Custom amount must be at least ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
-                            return;
-                          }
-                          setCustomTopUpError("");
-                          runWalletTopUp(amount);
-                        }}
-                        className="w-full rounded-2xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 sm:w-auto"
-                      >
-                        Add custom amount
-                      </button>
-                    </div>
-                    {customTopUpError ? <div className="mt-2 text-sm font-medium text-rose-600">{customTopUpError}</div> : null}
-                    <div className="mt-3 text-sm text-slate-500">{walletStatus === "processing" ? tx("walletProcessing") : walletStatus === "success" ? `${tx("walletAddedPrefix")} ${formatPriceTHB(topUpAmount)} ${tx("walletAddedSuffix")}` : tx("walletPresetHelp")}</div>
-                    {walletStatus === "success" && checkoutReturnPath ? (
-                      <div className="mt-2 text-xs font-medium text-rose-700">
-                        Top-up complete. Returning to checkout...
-                      </div>
-                    ) : null}
-                  </>
-                ) : null}
-              </div>
-
-              {currentUser.role === "buyer" ? (
                 <div id="buyer-favorites" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <div className="flex items-center gap-2">
                     <Bookmark className="h-5 w-5 text-rose-600" />
@@ -8210,28 +8016,6 @@ export function AccountPage({
                 </div>
               ) : null}
 
-              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-semibold">{accountText.profile}</h3>
-                  <button
-                    type="button"
-                    onClick={() => document.getElementById("buyer-contact")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                    className="rounded-xl border border-rose-200 p-2 text-rose-700 hover:bg-rose-50"
-                    aria-label={tx("editProfileDetails")}
-                    title={tx("editProfileDetails")}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                </div>
-                <div className="mt-4 space-y-3 text-sm text-slate-600">
-                  <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-rose-600" /> {accountForm.address || tx("noAddressSaved")}</div>
-                  <div>{accountForm.city || tx("cityFallback")}{accountForm.city && accountForm.country ? ", " : ""}{accountForm.country || tx("countryFallback")}</div>
-                  <div>{accountForm.postalCode || tx("postalCodeFallback")}</div>
-                  <div>{accountForm.phone || tx("phoneNotSet")}</div>
-                  <div>{accountForm.email || tx("emailNotSet")}</div>
-                </div>
-              </div>
-
               {currentUser.role === "buyer" ? (
                 <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <h3 className="text-xl font-semibold">{accountText.quickFinder}</h3>
@@ -8250,7 +8034,18 @@ export function AccountPage({
                       ) : quickSellerResults.map((seller) => (
                         <div key={seller.id} className="rounded-2xl border border-rose-100 px-4 py-3">
                           <div className="flex items-center justify-between gap-2">
-                            <button onClick={() => navigate(`/seller/${seller.id}`)} className="text-left font-medium hover:text-rose-700">{seller.name}</button>
+                            <button onClick={() => navigate(`/seller/${seller.id}`)} className="flex min-w-0 items-center gap-3 text-left hover:text-rose-700">
+                              {seller.profileImageResolved || seller.profileImage ? (
+                                <span className="h-10 w-10 overflow-hidden rounded-xl ring-1 ring-rose-100">
+                                  <ProductImage src={seller.profileImageResolved || seller.profileImage} label={seller.name || "Seller"} />
+                                </span>
+                              ) : (
+                                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-xs font-bold text-rose-700">
+                                  {getConversationInitials(seller.name)}
+                                </span>
+                              )}
+                              <span className="truncate font-medium">{seller.name}</span>
+                            </button>
                             <button
                               onClick={() => toggleSellerFollow(seller.id)}
                               className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${followedSellerIds.has(seller.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
@@ -8270,7 +8065,12 @@ export function AccountPage({
                         <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noProductsFound")}</div>
                       ) : quickProductResults.map((product) => (
                         <button key={product.id} onClick={() => navigate(`/product/${product.slug}`)} className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-4 py-3 text-left hover:bg-rose-50">
-                          <span className="font-medium">{product.title}</span>
+                          <span className="flex min-w-0 items-center gap-3">
+                            <span className="h-10 w-10 overflow-hidden rounded-xl ring-1 ring-rose-100">
+                              {product.image ? <ProductImage src={product.image} label={product.imageName || product.title} /> : <ProductImage label={product.title} />}
+                            </span>
+                            <span className="truncate font-medium">{product.title}</span>
+                          </span>
                           <span className="text-xs text-slate-500">${product.price}</span>
                         </button>
                       ))}
@@ -8278,6 +8078,33 @@ export function AccountPage({
                   </div>
                 </div>
               ) : null}
+
+              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold">{accountText.profile}</h3>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("buyer-contact")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                    className="rounded-xl border border-rose-200 p-2 text-rose-700 hover:bg-rose-50"
+                    aria-label={tx("editProfileDetails")}
+                    title={tx("editProfileDetails")}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="mt-4 space-y-3 text-sm text-slate-600">
+                  <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-rose-600" /> {accountForm.address || tx("noAddressSaved")}</div>
+                  <div>
+                    {accountForm.city || tx("cityFallback")}
+                    {accountForm.region ? `, ${accountForm.region}` : ""}
+                    {(accountForm.city || accountForm.region) && accountForm.postalCode ? ", " : ""}
+                    {accountForm.postalCode || tx("postalCodeFallback")}
+                  </div>
+                  <div>{accountForm.country || tx("countryFallback")}</div>
+                  <div>{accountForm.phone || tx("phoneNotSet")}</div>
+                  <div>{accountForm.email || tx("emailNotSet")}</div>
+                </div>
+              </div>
 
               <div id="buyer-contact" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <h3 className="text-xl font-semibold">{accountText.contactDetails}</h3>
@@ -8299,24 +8126,134 @@ export function AccountPage({
                       </select>
                     </label>
                   ) : null}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <input value={accountForm.country} onChange={(e) => updateAccountField("country", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("country")} />
-                    <input value={accountForm.city} onChange={(e) => updateAccountField("city", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("city")} />
-                  </div>
-                  <input value={accountForm.postalCode || ""} onChange={(e) => updateAccountField("postalCode", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("postalCode")} />
+                  <input value={accountForm.country} onChange={(e) => updateAccountField("country", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("country")} />
                   <textarea value={accountForm.address} onChange={(e) => updateAccountField("address", e.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("address")} />
-                  <button onClick={saveAccountDetails} className="rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{accountText.saveDetails}</button>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <input value={accountForm.city} onChange={(e) => updateAccountField("city", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("city")} />
+                    <input value={accountForm.region || ""} onChange={(e) => updateAccountField("region", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={accountAddressMeta.regionPlaceholder} />
+                  </div>
+                  <input value={accountForm.postalCode || ""} onChange={(e) => updateAccountField("postalCode", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={accountAddressMeta.postalPlaceholder} />
+                  <button onClick={saveAccountDetails} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{accountText.saveDetails}</button>
                   {accountSaveMessage ? <div className="text-sm font-medium text-emerald-700">{accountSaveMessage}</div> : null}
                 </div>
               </div>
 
-            </div>
+              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold">{accountText.orderHistory}</h3>
+                  {recentBuyerOrders.length > 3 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !showAllOrderHistory;
+                        setShowAllOrderHistory(next);
+                        setOrderHistoryPage(1);
+                      }}
+                      className="text-sm font-semibold text-rose-700"
+                    >
+                      {showAllOrderHistory ? "Show less" : "View all"}
+                    </button>
+                  ) : null}
+                </div>
+                <div className="mt-5 space-y-3">
+                  {recentBuyerOrders.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("purchaseHistoryHelp")}</div>
+                  ) : visibleOrderHistory.map((order) => (
+                    <div key={`${order.id}-history`} className="grid gap-3 rounded-2xl border border-rose-100 p-4 md:grid-cols-[1.3fr_0.9fr_0.8fr_0.8fr]">
+                      <div>
+                        <div className="font-semibold">{order.id}</div>
+                        <div className="mt-1 text-sm text-slate-500">{order.items.length} {tx("items")}</div>
+                      </div>
+                      <div className="text-sm text-slate-600">{new Date(order.createdAt || Date.now()).toLocaleDateString()}</div>
+                      <div className="text-sm text-slate-600">{localizePaymentStatus(order.paymentStatus)}</div>
+                      <div className="text-sm font-semibold text-rose-700">{formatPriceTHB(order.total)}</div>
+                    </div>
+                  ))}
+                </div>
+                {showAllOrderHistory && recentBuyerOrders.length > detailPageSize ? (
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setOrderHistoryPage((prev) => Math.max(1, prev - 1))}
+                      disabled={orderHistoryPage <= 1}
+                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${orderHistoryPage <= 1 ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                    >
+                      Previous
+                    </button>
+                    <div className="text-xs text-slate-500">Page {orderHistoryPage} of {orderHistoryPageCount}</div>
+                    <button
+                      type="button"
+                      onClick={() => setOrderHistoryPage((prev) => Math.min(orderHistoryPageCount, prev + 1))}
+                      disabled={orderHistoryPage >= orderHistoryPageCount}
+                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${orderHistoryPage >= orderHistoryPageCount ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold">{accountText.billingLedger}</h3>
+                  <div className="flex items-center gap-3">
+                    {buyerLedger.length > 3 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = !showAllBillingLedger;
+                          setShowAllBillingLedger(next);
+                          setBillingLedgerPage(1);
+                        }}
+                        className="text-sm font-semibold text-rose-700"
+                      >
+                        {showAllBillingLedger ? "Show less" : "View all"}
+                      </button>
+                    ) : null}
+                    <button onClick={markAllNotificationsRead} className="text-sm font-semibold text-rose-700">{tx("markNotificationsRead")}</button>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {buyerLedger.length === 0 ? <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("noWalletActivity")}</div> : visibleBillingLedger.map((entry) => (
+                    <div key={entry.id} className="grid gap-2 rounded-2xl border border-rose-100 p-4 md:grid-cols-[1.2fr_0.9fr_0.7fr]">
+                      <div>
+                        <div className="font-semibold">{entry.description}</div>
+                        <div className="mt-1 text-sm text-slate-500">{entry.type}</div>
+                      </div>
+                      <div className="text-sm text-slate-600">{new Date(entry.createdAt).toLocaleDateString()}</div>
+                      <div className={`text-sm font-semibold ${entry.amount >= 0 ? "text-emerald-600" : "text-rose-700"}`}>{entry.amount >= 0 ? "+" : ""}{formatPriceTHB(Math.abs(entry.amount))}</div>
+                    </div>
+                  ))}
+                </div>
+                {showAllBillingLedger && buyerLedger.length > detailPageSize ? (
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setBillingLedgerPage((prev) => Math.max(1, prev - 1))}
+                      disabled={billingLedgerPage <= 1}
+                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${billingLedgerPage <= 1 ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                    >
+                      Previous
+                    </button>
+                    <div className="text-xs text-slate-500">Page {billingLedgerPage} of {billingLedgerPageCount}</div>
+                    <button
+                      type="button"
+                      onClick={() => setBillingLedgerPage((prev) => Math.min(billingLedgerPageCount, prev + 1))}
+                      disabled={billingLedgerPage >= billingLedgerPageCount}
+                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${billingLedgerPage >= billingLedgerPageCount ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+
           </div>
           {currentUser.role === "buyer" ? (
             <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
               <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
                 <button onClick={() => scrollToSection("buyer-orders")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
-                <button onClick={() => scrollToSection("buyer-messaging")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
+                <button onClick={() => navigate("/buyer-messages")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
                 <button onClick={() => scrollToSection("buyer-wallet")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
                 <button onClick={() => scrollToSection("buyer-contact")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.contact}</button>
               </div>
@@ -8324,6 +8261,365 @@ export function AccountPage({
           ) : null}
         </>
       )}
+    </section>
+  );
+}
+
+export function BuyerMessagesPage({
+  currentUser,
+  sellerMap,
+  buyerMessageSellerSearch,
+  setBuyerMessageSellerSearch,
+  buyerMessageSellerResults,
+  buyerMessageProductFilters,
+  buyerMessageFilterOptions,
+  updateBuyerMessageProductFilter,
+  buyerMessageProductResults,
+  buyerConversations,
+  buyerDashboardConversationId,
+  setBuyerDashboardConversationId,
+  buyerDashboardConversationMessages,
+  buyerDashboardMessageDraft,
+  setBuyerDashboardMessageDraft,
+  sendBuyerDashboardMessage,
+  buyerDashboardMessageError,
+  messageReports,
+  reportDirectMessage,
+  reportingDirectMessageId,
+  startBuyerConversationWithSeller,
+  currentWalletBalance,
+  uiLanguage = "en",
+  navigate,
+}) {
+  const locale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
+  const accountText = ACCOUNT_PAGE_I18N[locale];
+  const tx = (key) => ACCOUNT_PAGE_I18N[locale]?.[key] || ACCOUNT_PAGE_I18N.en[key] || key;
+  const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
+  const [messageReportOpenById, setMessageReportOpenById] = useState({});
+  const [messageReportReasonById, setMessageReportReasonById] = useState({});
+  const [messageReportDetailsById, setMessageReportDetailsById] = useState({});
+  const [messageReportErrorById, setMessageReportErrorById] = useState({});
+  const reportedOpenMessageIds = useMemo(
+    () => new Set(
+      (messageReports || [])
+        .filter((entry) => entry.reporterUserId === currentUser?.id && entry.status !== "resolved" && entry.status !== "dismissed")
+        .map((entry) => entry.messageId)
+    ),
+    [messageReports, currentUser?.id]
+  );
+  const messageReportReasonOptions = [
+    { value: "direct_payment_request", label: tx("reportReasonDirectPayment") },
+    { value: "off_platform_contact", label: tx("reportReasonOffPlatform") },
+    { value: "harassment_abuse", label: tx("reportReasonHarassment") },
+    { value: "scam_fraud", label: tx("reportReasonScam") },
+    { value: "other", label: tx("reportReasonOther") },
+  ];
+  const getMessageReportReasonLabel = (reasonCategory) => (
+    messageReportReasonOptions.find((entry) => entry.value === reasonCategory)?.label || tx("reportReasonOther")
+  );
+
+  const getConversationInitials = (name) => {
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "SL";
+    return parts.slice(0, 2).map((part) => part[0]?.toUpperCase() || "").join("");
+  };
+  const resolveConversationSellerName = (conversationId) => {
+    const sellerId = String(conversationId || "").split("__")[1] || "";
+    return sellerMap?.[sellerId]?.name || tx("seller");
+  };
+  const resolveConversationMessageBody = (message) => {
+    if (!message) return "";
+    if (showOriginalMessageById[message.id]) return message.body || "";
+    const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
+      ? currentUser.preferredLanguage
+      : "en";
+    return String(message.translations?.[preferredLanguage] || message.translations?.en || message.body || "");
+  };
+  const canToggleConversationTranslation = (message) => {
+    if (!message || !message.translations) return false;
+    const original = String(message.body || "");
+    const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
+      ? currentUser.preferredLanguage
+      : "en";
+    const translated = String(message.translations?.[preferredLanguage] || message.translations?.en || "");
+    const isOwnMessage = (message?.senderId || message?.senderUserId) === currentUser?.id;
+    return !isOwnMessage && Boolean(translated) && translated !== original;
+  };
+  const canAffordMessage = Number(currentWalletBalance || 0) >= MESSAGE_FEE_THB;
+  const submitMessageReport = async (message) => {
+    if (!message?.id) return;
+    const reasonCategory = messageReportReasonById[message.id] || "off_platform_contact";
+    const details = String(messageReportDetailsById[message.id] || "").trim();
+    if (reasonCategory === "other" && !details) {
+      setMessageReportErrorById((prev) => ({ ...prev, [message.id]: tx("reportDetailsRequiredOther") }));
+      return;
+    }
+    const reasonLabel = getMessageReportReasonLabel(reasonCategory);
+    const reportBody = details ? `${reasonLabel}: ${details}` : reasonLabel;
+    const didSubmit = await reportDirectMessage?.(message.id, reasonCategory, reportBody);
+    if (!didSubmit) {
+      setMessageReportErrorById((prev) => ({ ...prev, [message.id]: tx("reportSubmitFailed") }));
+      return;
+    }
+    setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+    setMessageReportOpenById((prev) => ({ ...prev, [message.id]: false }));
+  };
+
+  if (!currentUser || currentUser.role !== "buyer") {
+    return (
+      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-16">
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <h2 className="text-2xl font-bold">{tx("loginRequired")}</h2>
+          <p className="mt-2 text-slate-600">{tx("loginHelp")}</p>
+          <button onClick={() => navigate("/account")} className="mt-4 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+            {tx("profile")}
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:py-16">
+      <SectionTitle eyebrow="Account" title={tx("messagingCenter")} subtitle={tx("messagingHelp")} />
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+        <button type="button" onClick={() => navigate("/account")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          {tx("profile")}
+        </button>
+        <button className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+          {tx("messages")}
+        </button>
+        <button type="button" onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          {tx("customRequests")}
+        </button>
+        <button type="button" onClick={() => navigate("/seller-feed")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          Seller feed
+        </button>
+      </div>
+      <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-xl font-semibold">{tx("messagingCenter")}</h3>
+          <div className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">{formatPriceTHB(MESSAGE_FEE_THB)} {tx("perMessage")}</div>
+        </div>
+        <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {tx("safetyNoticeKeepOnPlatform")}
+        </div>
+        <div className="mt-5 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="space-y-3">
+            <div className="rounded-2xl border border-rose-100 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findSellers")}</div>
+              <input
+                value={buyerMessageSellerSearch}
+                onChange={(event) => setBuyerMessageSellerSearch(event.target.value)}
+                className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder={tx("searchSellers")}
+              />
+              <div className="mt-3 space-y-2">
+                {buyerMessageSellerResults.length === 0 ? (
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noSellerSearchResults")}</div>
+                ) : buyerMessageSellerResults.map((seller) => (
+                  <button
+                    key={seller.id}
+                    onClick={() => startBuyerConversationWithSeller(seller.id)}
+                    className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
+                  >
+                    <span className="text-sm font-medium">{seller.name}</span>
+                    <span className="text-xs text-slate-500">{tx("message")}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-rose-100 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findByProduct")}</div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <input
+                  value={buyerMessageProductFilters.search}
+                  onChange={(event) => updateBuyerMessageProductFilter("search", event.target.value)}
+                  className="rounded-2xl border border-slate-200 px-3 py-2 text-sm sm:col-span-2"
+                  placeholder={tx("searchProductOrSeller")}
+                />
+                <select value={buyerMessageProductFilters.size} onChange={(event) => updateBuyerMessageProductFilter("size", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                  {(buyerMessageFilterOptions?.size || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+                <select value={buyerMessageProductFilters.style} onChange={(event) => updateBuyerMessageProductFilter("style", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                  {(buyerMessageFilterOptions?.style || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+                <select value={buyerMessageProductFilters.fabric} onChange={(event) => updateBuyerMessageProductFilter("fabric", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                  {(buyerMessageFilterOptions?.fabric || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+                <select value={buyerMessageProductFilters.daysWorn} onChange={(event) => updateBuyerMessageProductFilter("daysWorn", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                  {(buyerMessageFilterOptions?.daysWorn || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+              </div>
+              <div className="mt-3 space-y-2">
+                {buyerMessageProductResults.length === 0 ? (
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noProductFilterResults")}</div>
+                ) : buyerMessageProductResults.slice(0, 5).map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => startBuyerConversationWithSeller(product.sellerId)}
+                    className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
+                  >
+                    <span className="text-sm font-medium">{product.title}</span>
+                    <span className="text-xs text-slate-500">{sellerMap[product.sellerId]?.name || tx("seller")} · {product.daysWorn || tx("notSpecified")}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-rose-100 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("conversationList")}</div>
+              <div className="mt-3 space-y-2">
+                {buyerConversations.length === 0 ? (
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("conversationsAppearHere")}</div>
+                ) : buyerConversations.map((conversation) => {
+                  const sellerName = sellerMap[conversation.sellerId]?.name || tx("seller");
+                  const sellerInitials = getConversationInitials(sellerName);
+                  return (
+                    <button
+                      key={conversation.conversationId}
+                      onClick={() => setBuyerDashboardConversationId(conversation.conversationId)}
+                      className={`w-full rounded-2xl border px-3 py-3 text-left ${buyerDashboardConversationId === conversation.conversationId ? "border-rose-300 bg-rose-50" : "border-rose-100"}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">{sellerInitials}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-semibold">{tx("conversationWith")} {sellerName}</div>
+                          <div className="mt-1 truncate text-sm text-slate-500">{conversation.latestBody}</div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-rose-100 p-4">
+            <div className="text-sm font-semibold">
+              {buyerDashboardConversationId
+                ? `${tx("conversationWith")} ${sellerMap[buyerDashboardConversationId.split("__")[1]]?.name || tx("seller")}`
+                : tx("selectOrStartConversation")}
+            </div>
+            {buyerDashboardConversationId ? (
+              <div className="mt-2 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-[11px] font-bold text-rose-700">
+                  {getConversationInitials(resolveConversationSellerName(buyerDashboardConversationId))}
+                </span>
+                <span>{tx("chattingWith")} {resolveConversationSellerName(buyerDashboardConversationId)}</span>
+              </div>
+            ) : null}
+            <div className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
+              {buyerDashboardConversationMessages.length === 0 ? (
+                <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noMessagesInThread")}</div>
+              ) : buyerDashboardConversationMessages.map((message) => (
+                <div key={message.id} className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === "buyer" ? "ml-auto bg-rose-100 text-rose-900 ring-1 ring-rose-200" : "bg-slate-100 text-slate-700"}`}>
+                  <div>{resolveConversationMessageBody(message)}</div>
+                  <div className={`mt-1 text-[11px] ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}>
+                    {formatTimeNoSeconds(message.createdAt)}
+                  </div>
+                  {canToggleConversationTranslation(message) ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowOriginalMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
+                      className={`mt-1 text-[11px] font-semibold ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}
+                    >
+                      {showOriginalMessageById[message.id] ? tx("showTranslation") : tx("showOriginal")}
+                    </button>
+                  ) : null}
+                  {message.senderRole === "seller" ? (
+                    <div className="mt-2">
+                      {reportedOpenMessageIds.has(message.id) ? (
+                        <div className="text-[11px] font-semibold text-amber-700">{tx("alreadyReportedMessage")}</div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMessageReportOpenById((prev) => ({ ...prev, [message.id]: !prev[message.id] }));
+                            setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+                            if (!messageReportReasonById[message.id]) {
+                              setMessageReportReasonById((prev) => ({ ...prev, [message.id]: "off_platform_contact" }));
+                            }
+                          }}
+                          className="text-[11px] font-semibold text-rose-700"
+                        >
+                          {tx("reportMessage")}
+                        </button>
+                      )}
+                      {messageReportOpenById[message.id] && !reportedOpenMessageIds.has(message.id) ? (
+                        <div className="mt-2 space-y-2 rounded-xl border border-rose-200 bg-white p-3">
+                          <div className="text-[11px] font-semibold text-slate-600">{tx("reportReasonLabel")}</div>
+                          <select
+                            value={messageReportReasonById[message.id] || "off_platform_contact"}
+                            onChange={(event) => {
+                              const nextReason = event.target.value;
+                              setMessageReportReasonById((prev) => ({ ...prev, [message.id]: nextReason }));
+                              setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs"
+                          >
+                            {messageReportReasonOptions.map((entry) => (
+                              <option key={entry.value} value={entry.value}>{entry.label}</option>
+                            ))}
+                          </select>
+                          <textarea
+                            value={messageReportDetailsById[message.id] || ""}
+                            onChange={(event) => {
+                              setMessageReportDetailsById((prev) => ({ ...prev, [message.id]: event.target.value }));
+                              setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
+                            }}
+                            className="min-h-[72px] w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs"
+                            placeholder={tx("reportDetailsOptional")}
+                          />
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => submitMessageReport(message)}
+                              disabled={reportingDirectMessageId === message.id}
+                              className={`rounded-lg border border-rose-200 px-2.5 py-1 text-xs font-semibold text-rose-700 ${reportingDirectMessageId === message.id ? "cursor-not-allowed opacity-60" : ""}`}
+                            >
+                              {reportingDirectMessageId === message.id ? tx("reportingMessage") : tx("submitReport")}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setMessageReportOpenById((prev) => ({ ...prev, [message.id]: false }))}
+                              className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                          {messageReportErrorById[message.id] ? (
+                            <div className="text-[11px] font-medium text-rose-600">{messageReportErrorById[message.id]}</div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 space-y-3">
+              <textarea
+                value={buyerDashboardMessageDraft}
+                onChange={(event) => setBuyerDashboardMessageDraft(event.target.value)}
+                className="min-h-[110px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder={tx("writeMessage")}
+              />
+              <button
+                onClick={sendBuyerDashboardMessage}
+                disabled={!buyerDashboardConversationId || !buyerDashboardMessageDraft.trim()}
+                className="w-full rounded-2xl bg-rose-500 px-5 py-3 font-semibold text-white hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {tx("sendMessage")} ({formatPriceTHB(MESSAGE_FEE_THB)})
+              </button>
+              {buyerDashboardMessageError ? <div className="text-sm font-medium text-rose-600">{buyerDashboardMessageError}</div> : null}
+              {buyerDashboardMessageError && !canAffordMessage ? (
+                <button type="button" onClick={() => navigate("/account")} className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+                  Top up wallet
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
