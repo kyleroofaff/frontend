@@ -32,6 +32,7 @@ import {
   localizeOptionLabel,
   MESSAGE_FEE_THB,
   MIN_CUSTOM_REQUEST_PURCHASE_THB,
+  MIN_FEED_UNLOCK_PRICE_THB,
   MIN_SELLER_PRICE_THB,
   SCENT_LEVEL_OPTIONS,
   SELLER_LANGUAGE_OPTIONS,
@@ -2844,15 +2845,15 @@ export function SellerFeedWorkspacePage({
                       <span className="font-medium">{t("privateUnlockPrice")}</span>
                       <input
                         type="number"
-                        min={MIN_SELLER_PRICE_THB}
+                        min={MIN_FEED_UNLOCK_PRICE_THB}
                         step="1"
-                        value={Number(sellerPostDraft.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                        value={Number(sellerPostDraft.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
                         onChange={(event) =>
                           setSellerPostDraft((prev) => ({
                             ...prev,
-                            accessPriceUsd: Number.isFinite(Number(event.target.value)) && Number(event.target.value) >= MIN_SELLER_PRICE_THB
+                            accessPriceUsd: Number.isFinite(Number(event.target.value)) && Number(event.target.value) >= MIN_FEED_UNLOCK_PRICE_THB
                               ? Number(Number(event.target.value).toFixed(2))
-                              : MIN_SELLER_PRICE_THB,
+                              : MIN_FEED_UNLOCK_PRICE_THB,
                           }))
                         }
                         className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
@@ -2936,7 +2937,7 @@ export function SellerFeedWorkspacePage({
                     <span className="w-full text-xs text-slate-500 sm:w-auto">{t("bulkPriceForAllPrivate")}</span>
                     <input
                       type="number"
-                      min={MIN_SELLER_PRICE_THB}
+                      min={MIN_FEED_UNLOCK_PRICE_THB}
                       step="1"
                       value={bulkPrivatePostPrice}
                       onChange={(event) => setBulkPrivatePostPrice(event.target.value)}
@@ -2951,7 +2952,7 @@ export function SellerFeedWorkspacePage({
                   </div>
                 ) : (
                   <div className="mt-3 text-xs text-slate-500">
-                    {t("individualModeHelp")} ({formatPriceTHB(MIN_SELLER_PRICE_THB)} / {formatPriceTHB(MIN_SELLER_PRICE_THB + 500)}).
+                    {t("individualModeHelp")} ({formatPriceTHB(MIN_FEED_UNLOCK_PRICE_THB)} / {formatPriceTHB(MIN_FEED_UNLOCK_PRICE_THB + 500)}).
                   </div>
                 )}
               </div>
@@ -2996,7 +2997,7 @@ export function SellerFeedWorkspacePage({
                       <span className="text-xs text-slate-500">{t("postVisibility")}</span>
                       <select
                         value={post.visibility === "private" ? "private" : "public"}
-                        onChange={(event) => updateSellerPostVisibility(post.id, event.target.value, post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                        onChange={(event) => updateSellerPostVisibility(post.id, event.target.value, post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
                         className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
                       >
                         <option value="public">{localizeOptionLabel("Public", locale)}</option>
@@ -3005,16 +3006,16 @@ export function SellerFeedWorkspacePage({
                       {post.visibility === "private" && privatePostPricingMode === "individual" ? (
                         <input
                           type="number"
-                          min={MIN_SELLER_PRICE_THB}
+                          min={MIN_FEED_UNLOCK_PRICE_THB}
                           step="1"
-                          value={Number(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                          value={Number(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
                           onChange={(event) => updateSellerPostPrice(post.id, event.target.value)}
                           className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs"
                         />
                       ) : null}
                       {post.visibility === "private" && privatePostPricingMode === "all" ? (
                         <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                          {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                          {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
                         </span>
                       ) : null}
                     </div>
@@ -3235,6 +3236,7 @@ export function BarMessagesPage({
   currentUser,
   barMap,
   barMessageInbox,
+  barMessageEligibleContacts,
   barMessageActiveConversationId,
   setBarMessageActiveConversationId,
   barMessageActiveConversationMessages,
@@ -3356,6 +3358,27 @@ export function BarMessagesPage({
         </div>
         <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-3">
+            {isBar && (barMessageEligibleContacts || []).length > 0 ? (
+              <div className="rounded-2xl border border-rose-200 bg-white p-3">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-500">Eligible contacts</div>
+                <div className="mt-2 space-y-2">
+                  {(barMessageEligibleContacts || []).map((contact) => (
+                    <button
+                      key={`eligible_${contact.conversationId}`}
+                      type="button"
+                      onClick={() => setBarMessageActiveConversationId(contact.conversationId)}
+                      className={`block w-full rounded-xl border px-3 py-2 text-left ${barMessageActiveConversationId === contact.conversationId ? "border-rose-300 bg-rose-50" : "border-rose-100 bg-slate-50"}`}
+                    >
+                      <div className="text-sm font-semibold text-slate-800">
+                        {contact.participantName} ({contact.participantRole})
+                      </div>
+                      <div className="mt-1 text-[11px] text-slate-500">{(contact.sourceLabels || []).join(" · ")}</div>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-2 text-[11px] text-slate-500">Select one contact to message. Bulk select is disabled.</div>
+              </div>
+            ) : null}
             {(barMessageInbox || []).length === 0 ? (
               <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">No conversations yet.</div>
             ) : (barMessageInbox || []).map((row) => (
@@ -3380,7 +3403,7 @@ export function BarMessagesPage({
             ))}
           </div>
           <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-            {(barMessageActiveConversationMessages || []).length === 0 ? (
+            {!barMessageActiveConversationId ? (
               <div className="text-sm text-slate-500">Select a conversation.</div>
             ) : (
               <>
@@ -3388,7 +3411,9 @@ export function BarMessagesPage({
                   Chatting with: {activeLabel}
                 </div>
                 <div className="max-h-64 space-y-3 overflow-y-auto">
-                  {(barMessageActiveConversationMessages || []).map((message) => (
+                  {(barMessageActiveConversationMessages || []).length === 0 ? (
+                    <div className="text-sm text-slate-500">No messages yet. Send the first message.</div>
+                  ) : (barMessageActiveConversationMessages || []).map((message) => (
                     <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderId === currentUser?.id ? "ml-auto bg-rose-600 text-white" : "bg-slate-100 text-slate-700"}`}>
                       {message.body}
                       {message.senderId !== currentUser?.id && String(message.senderRole || "").toLowerCase() === "bar" ? (
@@ -3582,7 +3607,7 @@ export function SellerFeedPage({
       new Set(
         (sellerSavedPosts || [])
           .filter((entry) => entry.userId === currentUser?.id)
-          .map((entry) => entry.postId)
+          .map((entry) => `${entry.feedType || "seller"}:${entry.postId}`)
       ),
     [sellerSavedPosts, currentUser]
   );
@@ -3644,7 +3669,7 @@ export function SellerFeedPage({
               : feedMode === "favorite-bars"
                 ? allFeedItems.filter((post) => post.feedType === "bar" && followedBarIds.has(post.barId))
                 : feedMode === "saved"
-                  ? allFeedItems.filter((post) => post.feedType === "seller" && savedPostIds.has(post.id))
+                  ? allFeedItems.filter((post) => savedPostIds.has(`${post.feedType}:${post.id}`))
                   : allFeedItems;
       const ranked = [...basePosts];
       if (sortMode === "engaged") {
@@ -3710,6 +3735,9 @@ export function SellerFeedPage({
           </button>
           <button type="button" onClick={() => navigate("/bar-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
             Bar Feed
+          </button>
+          <button type="button" onClick={() => navigate("/bar-messages")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+            {t("messagesTab")}
           </button>
           <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
             {t("watchFeeds")}
@@ -3847,6 +3875,14 @@ export function SellerFeedPage({
                       {isFollowingBar ? t("followingBar") : t("followBar")}
                     </button>
                   ) : null}
+                  {currentUser?.role === "bar" ? (
+                    <button
+                      onClick={() => toggleSavedSellerPost(post.id, "bar")}
+                      className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${savedPostIds.has(`bar:${post.id}`) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
+                    >
+                      {savedPostIds.has(`bar:${post.id}`) ? t("saved") : t("savePost")}
+                    </button>
+                  ) : null}
                 </div>
                 <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
                 <div className="mt-3 h-72">
@@ -3866,7 +3902,7 @@ export function SellerFeedPage({
                   <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800">
                     {sellerMap[post.sellerId]?.name || post.sellerId}
                   </button>
-                  {currentUser?.role === "buyer" ? (
+                  {currentUser?.role === "buyer" || currentUser?.role === "bar" ? (
                     <button
                       onClick={() => toggleSellerFollow(post.sellerId)}
                       className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${followedSellerIds.has(post.sellerId) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
@@ -3876,10 +3912,10 @@ export function SellerFeedPage({
                   ) : null}
                   {currentUser ? (
                     <button
-                      onClick={() => toggleSavedSellerPost(post.id)}
-                      className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${savedPostIds.has(post.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
+                      onClick={() => toggleSavedSellerPost(post.id, "seller")}
+                      className={`rounded-xl border px-2 py-0.5 text-[11px] font-semibold ${savedPostIds.has(`seller:${post.id}`) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600"}`}
                     >
-                      {savedPostIds.has(post.id) ? t("saved") : t("savePost")}
+                      {savedPostIds.has(`seller:${post.id}`) ? t("saved") : t("savePost")}
                     </button>
                   ) : null}
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
@@ -3910,7 +3946,7 @@ export function SellerFeedPage({
                   {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
-                        Unlock for {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                        Unlock for {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
                       </button>
                     </div>
                   ) : null}

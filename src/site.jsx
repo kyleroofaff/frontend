@@ -53,6 +53,7 @@ import {
   localizeOptionLabel,
   formatPriceTHB,
   MESSAGE_FEE_THB,
+  MIN_FEED_UNLOCK_PRICE_THB,
   MIN_CUSTOM_REQUEST_PURCHASE_THB,
   MIN_SELLER_PRICE_THB,
   FABRIC_OPTIONS,
@@ -309,6 +310,36 @@ const BAR_PROFILE_TEXT_PRESET_OPTIONS = {
         th: 'บาร์ที่เน้นชุมชน มีกิจกรรมธีมประจำและโปรโมชันร่วมกับพาร์ทเนอร์',
         my: 'themed nights နှင့် partner promotions များရှိသော community အခြေပြု bar',
         ru: 'Бар для сообщества: регулярные тематические вечера и партнерские акции.',
+      },
+    },
+    {
+      id: 'social-hotspot',
+      label: { en: 'Social hotspot', th: 'จุดนัดพบสายปาร์ตี้', my: 'လူစုလူဝေး hotspot', ru: 'Точка притяжения' },
+      text: {
+        en: 'A social hotspot for friends and travelers with a fun crowd and upbeat atmosphere.',
+        th: 'จุดนัดพบของเพื่อนและนักท่องเที่ยว บรรยากาศสนุกและคึกคัก',
+        my: 'သူငယ်ချင်းများနှင့် ခရီးသွားများအတွက် စည်ကားပျော်ရွှင်သော social hotspot',
+        ru: 'Популярное место для друзей и путешественников с веселой публикой и живой атмосферой.',
+      },
+    },
+    {
+      id: 'signature-experience',
+      label: { en: 'Signature experience', th: 'ประสบการณ์เฉพาะของร้าน', my: 'ထူးခြားသော အတွေ့အကြုံ', ru: 'Фирменный формат' },
+      text: {
+        en: 'Known for a signature bar experience with creative events, music, and memorable nights.',
+        th: 'ขึ้นชื่อเรื่องประสบการณ์เฉพาะของร้าน พร้อมอีเวนต์ ดนตรี และค่ำคืนที่น่าจดจำ',
+        my: 'ဖန်တီးမှုရှိသော events, music နှင့် မှတ်မိနေမည့်ညများပါဝင်သော ထူးခြားသောအတွေ့အကြုံ',
+        ru: 'Известен фирменной атмосферой: креативные события, музыка и запоминающиеся вечера.',
+      },
+    },
+    {
+      id: 'late-night-vibe',
+      label: { en: 'Late-night vibe', th: 'บรรยากาศยามดึก', my: 'ညနက်ပိုင်း vibe', ru: 'Атмосфера поздней ночи' },
+      text: {
+        en: 'A go-to late-night spot with energetic playlists, cozy seating, and engaging crowd energy.',
+        th: 'สถานที่ยามดึกที่หลายคนเลือก ด้วยเพลย์ลิสต์มันส์ๆ ที่นั่งสบาย และพลังความสนุกของผู้คน',
+        my: 'energetic playlists, သက်တောင့်သက်သာထိုင်ခုံများနှင့် စိတ်လှုပ်ရှားဖွယ် crowd energy ပါဝင်သော ညနက်ပိုင်းနေရာ',
+        ru: 'Любимое место поздней ночью: энергичные плейлисты, уютные места и живая энергия гостей.',
       },
     },
   ],
@@ -2796,7 +2827,7 @@ function normalizeDbState(nextDb) {
       ? nextDb.sellerPosts.map((post) => ({
           ...post,
           visibility: post?.visibility === 'private' ? 'private' : 'public',
-          accessPriceUsd: Math.max(MIN_SELLER_PRICE_THB, Number(post?.accessPriceUsd || MIN_SELLER_PRICE_THB)),
+          accessPriceUsd: Math.max(MIN_FEED_UNLOCK_PRICE_THB, Number(post?.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)),
           scheduledFor: typeof post?.scheduledFor === 'string' ? post.scheduledFor : '',
         }))
       : structuredClone(SEED_DB.sellerPosts),
@@ -2810,7 +2841,13 @@ function normalizeDbState(nextDb) {
     sellerPostComments: Array.isArray(nextDb.sellerPostComments) ? nextDb.sellerPostComments : [],
     sellerFollows: Array.isArray(nextDb.sellerFollows) ? nextDb.sellerFollows : [],
     barFollows: Array.isArray(nextDb.barFollows) ? nextDb.barFollows : [],
-    sellerSavedPosts: Array.isArray(nextDb.sellerSavedPosts) ? nextDb.sellerSavedPosts : [],
+    sellerSavedPosts: Array.isArray(nextDb.sellerSavedPosts)
+      ? nextDb.sellerSavedPosts
+        .map((entry) => ({
+          ...entry,
+          feedType: entry?.feedType === 'bar' ? 'bar' : 'seller',
+        }))
+      : [],
     customRequests: Array.isArray(nextDb.customRequests)
       ? nextDb.customRequests.map((request) => ({
           ...request,
@@ -3345,7 +3382,7 @@ export default function ThailandPantiesMarketSite() {
     imageName: '',
     scheduledFor: '',
     visibility: 'public',
-    accessPriceUsd: MIN_SELLER_PRICE_THB,
+    accessPriceUsd: MIN_FEED_UNLOCK_PRICE_THB,
   });
   const [sellerPostDraftSavedAt, setSellerPostDraftSavedAt] = useState('');
   const [creatingSellerPost, setCreatingSellerPost] = useState(false);
@@ -3757,14 +3794,14 @@ export default function ThailandPantiesMarketSite() {
     if (typeof window === 'undefined') return;
     const raw = window.localStorage.getItem('tlm-seller-post-drafts');
     if (!raw) {
-      setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_SELLER_PRICE_THB }));
+      setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_FEED_UNLOCK_PRICE_THB }));
       return;
     }
     try {
       const parsed = JSON.parse(raw);
       const draft = parsed?.[currentSellerId];
       if (!draft) {
-        setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_SELLER_PRICE_THB }));
+        setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_FEED_UNLOCK_PRICE_THB }));
         return;
       }
       setSellerPostDraft({
@@ -3773,13 +3810,13 @@ export default function ThailandPantiesMarketSite() {
         imageName: String(draft.imageName || ''),
         scheduledFor: String(draft.scheduledFor || ''),
         visibility: draft.visibility === 'private' ? 'private' : 'public',
-        accessPriceUsd: Number.isFinite(Number(draft.accessPriceUsd)) && Number(draft.accessPriceUsd) >= MIN_SELLER_PRICE_THB
+        accessPriceUsd: Number.isFinite(Number(draft.accessPriceUsd)) && Number(draft.accessPriceUsd) >= MIN_FEED_UNLOCK_PRICE_THB
           ? Number(Number(draft.accessPriceUsd).toFixed(2))
-          : MIN_SELLER_PRICE_THB,
+          : MIN_FEED_UNLOCK_PRICE_THB,
       });
       setSellerPostDraftSavedAt(String(draft.savedAt || ''));
     } catch {
-      setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_SELLER_PRICE_THB }));
+      setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_FEED_UNLOCK_PRICE_THB }));
     }
   }, [currentSellerId]);
 
@@ -4055,6 +4092,98 @@ export default function ThailandPantiesMarketSite() {
     });
     return [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [messages, currentUser]);
+  const barOutreachEligibilityByParticipantKey = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'bar') return {};
+    const currentBarId = String(currentUser.barId || '').trim();
+    if (!currentBarId) return {};
+    const affiliatedSellerIds = new Set(
+      (sellers || [])
+        .filter((seller) => String(seller?.affiliatedBarId || '').trim() === currentBarId)
+        .map((seller) => String(seller?.id || '').trim())
+        .filter(Boolean),
+    );
+    const eligibilityMap = {};
+    const upsert = (participantRole, participantUserId, createdAt, sourceType) => {
+      const normalizedRole = participantRole === 'buyer' || participantRole === 'seller' ? participantRole : '';
+      const normalizedUserId = String(participantUserId || '').trim();
+      if (!normalizedRole || !normalizedUserId) return;
+      if (normalizedUserId === String(currentUser.id || '').trim()) return;
+      const key = `${normalizedRole}:${normalizedUserId}`;
+      const existing = eligibilityMap[key];
+      const nextTimestamp = new Date(createdAt || 0).getTime() || 0;
+      const existingTimestamp = new Date(existing?.lastActivityAt || 0).getTime() || 0;
+      const mergedSourceTypes = { ...(existing?.sourceTypes || {}) };
+      if (sourceType) mergedSourceTypes[sourceType] = true;
+      eligibilityMap[key] = {
+        participantRole: normalizedRole,
+        participantUserId: normalizedUserId,
+        lastActivityAt: (!existing || nextTimestamp >= existingTimestamp)
+          ? (createdAt || existing?.lastActivityAt || '')
+          : (existing?.lastActivityAt || ''),
+        sourceTypes: mergedSourceTypes,
+      };
+    };
+    (users || []).forEach((user) => {
+      if (user?.role !== 'seller') return;
+      if (!affiliatedSellerIds.has(String(user?.sellerId || '').trim())) return;
+      upsert('seller', user.id, user?.createdAt || '', 'affiliate_seller');
+    });
+    (messages || []).forEach((message) => {
+      const parsedBarConversation = parseBarConversationId(message.conversationId);
+      if (parsedBarConversation && parsedBarConversation.barId === currentBarId) {
+        upsert(parsedBarConversation.participantRole, parsedBarConversation.participantUserId, message.createdAt, 'direct_bar');
+        return;
+      }
+      const sellerId = String(message?.sellerId || '').trim();
+      if (!sellerId || !affiliatedSellerIds.has(sellerId)) return;
+      upsert('buyer', message?.buyerId, message?.createdAt, 'affiliate_message');
+      if (message?.senderRole === 'buyer') {
+        upsert('buyer', message?.senderId, message?.createdAt, 'affiliate_message');
+      }
+      if (message?.senderRole === 'seller') {
+        upsert('seller', message?.senderId, message?.createdAt, 'affiliate_message');
+      }
+    });
+    (orders || []).forEach((order) => {
+      const hasAffiliateSeller = (order?.payoutSummary?.bySeller || []).some((row) => affiliatedSellerIds.has(String(row?.sellerId || '').trim()));
+      if (!hasAffiliateSeller) return;
+      upsert('buyer', order?.buyerUserId, order?.createdAt, 'affiliate_sale');
+    });
+    (customRequests || []).forEach((request) => {
+      if (!affiliatedSellerIds.has(String(request?.sellerId || '').trim())) return;
+      if ((request?.quoteStatus || '') !== 'accepted' || (request?.status || '') === 'cancelled') return;
+      upsert('buyer', request?.buyerUserId, request?.updatedAt || request?.createdAt, 'affiliate_sale');
+    });
+    return eligibilityMap;
+  }, [messages, currentUser, sellers, users, orders, customRequests]);
+  const barMessageEligibleContacts = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'bar') return [];
+    const currentBarId = String(currentUser.barId || '').trim();
+    return Object.values(barOutreachEligibilityByParticipantKey || [])
+      .map((entry) => {
+        const participantUser = users.find((user) => user.id === entry.participantUserId);
+        const sourceTypes = entry?.sourceTypes || {};
+        const sourceLabels = [
+          sourceTypes.affiliate_seller ? 'Affiliate seller' : '',
+          sourceTypes.affiliate_message ? 'Affiliate message contact' : '',
+          sourceTypes.affiliate_sale ? 'Affiliate buyer' : '',
+          sourceTypes.direct_bar ? 'Direct bar contact' : '',
+        ].filter(Boolean);
+        return {
+          participantRole: entry.participantRole,
+          participantUserId: entry.participantUserId,
+          participantName: participantUser?.name || entry.participantUserId,
+          conversationId: buildBarConversationId(currentBarId, entry.participantRole, entry.participantUserId),
+          sourceLabels,
+          lastActivityAt: entry.lastActivityAt || '',
+        };
+      })
+      .sort((a, b) => {
+        const byTime = new Date(b.lastActivityAt || 0).getTime() - new Date(a.lastActivityAt || 0).getTime();
+        if (byTime !== 0) return byTime;
+        return String(a.participantName || '').localeCompare(String(b.participantName || ''));
+      });
+  }, [barOutreachEligibilityByParticipantKey, currentUser, users]);
   const barMessageInbox = useMemo(() => {
     if (!currentUser) return [];
     const grouped = {};
@@ -4062,33 +4191,54 @@ export default function ThailandPantiesMarketSite() {
       if (!grouped[message.conversationId]) grouped[message.conversationId] = [];
       grouped[message.conversationId].push(message);
     });
-    return Object.entries(grouped)
-      .map(([conversationId, conversation]) => {
-        const sorted = [...conversation].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        const latest = sorted[0];
-        const parsed = parseBarConversationId(conversationId);
-        const participantUser = parsed ? users.find((entry) => entry.id === parsed.participantUserId) : null;
-        const barEntity = parsed ? barMap?.[parsed.barId] : null;
-        const hasUnread = currentUser.role === 'bar'
-          ? sorted.some((entry) => !entry.readByBar && entry.senderRole !== 'bar')
-          : sorted.some((entry) => !entry.readByParticipant && entry.senderRole === 'bar');
-        return {
-          ...latest,
+    const inboxRows = Object.entries(grouped).map(([conversationId, conversation]) => {
+      const sorted = [...conversation].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      const latest = sorted[0];
+      const parsed = parseBarConversationId(conversationId);
+      const participantUser = parsed ? users.find((entry) => entry.id === parsed.participantUserId) : null;
+      const barEntity = parsed ? barMap?.[parsed.barId] : null;
+      const hasUnread = currentUser.role === 'bar'
+        ? sorted.some((entry) => !entry.readByBar && entry.senderRole !== 'bar')
+        : sorted.some((entry) => !entry.readByParticipant && entry.senderRole === 'bar');
+      return {
+        ...latest,
+        conversationId,
+        participantRole: parsed?.participantRole || '',
+        participantUserId: parsed?.participantUserId || '',
+        participantName: participantUser?.name || parsed?.participantUserId || '',
+        barId: parsed?.barId || '',
+        barName: barEntity?.name || parsed?.barId || '',
+        hasUnread,
+      };
+    });
+    if (currentUser.role === 'bar') {
+      const currentBarId = String(currentUser.barId || '').trim();
+      const barName = barMap?.[currentBarId]?.name || currentBarId;
+      const existingConversationIds = new Set(inboxRows.map((row) => row.conversationId));
+      Object.values(barOutreachEligibilityByParticipantKey || {}).forEach((eligible) => {
+        const conversationId = buildBarConversationId(currentBarId, eligible.participantRole, eligible.participantUserId);
+        if (existingConversationIds.has(conversationId)) return;
+        const participantUser = users.find((entry) => entry.id === eligible.participantUserId);
+        inboxRows.push({
+          id: `bar_outreach_${conversationId}`,
           conversationId,
-          participantRole: parsed?.participantRole || '',
-          participantUserId: parsed?.participantUserId || '',
-          participantName: participantUser?.name || parsed?.participantUserId || '',
-          barId: parsed?.barId || '',
-          barName: barEntity?.name || parsed?.barId || '',
-          hasUnread,
-        };
-      })
-      .sort((a, b) => {
+          participantRole: eligible.participantRole,
+          participantUserId: eligible.participantUserId,
+          participantName: participantUser?.name || eligible.participantUserId,
+          barId: currentBarId,
+          barName,
+          body: '',
+          createdAt: eligible.lastActivityAt || '',
+          hasUnread: false,
+        });
+      });
+    }
+    return inboxRows.sort((a, b) => {
         const unreadDiff = Number(Boolean(b.hasUnread)) - Number(Boolean(a.hasUnread));
         if (unreadDiff !== 0) return unreadDiff;
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
-  }, [barMessageHistory, currentUser, users, barMap]);
+  }, [barMessageHistory, currentUser, users, barMap, barOutreachEligibilityByParticipantKey]);
   const barMessageActiveConversationId = barMessagesConversationId || barMessageInbox[0]?.conversationId || '';
   const barMessageActiveConversationMessages = useMemo(() => {
     if (!barMessageActiveConversationId) return [];
@@ -5043,7 +5193,7 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser) return [];
     const savedIds = new Set(
       (sellerSavedPosts || [])
-        .filter((entry) => entry.userId === currentUser.id)
+        .filter((entry) => entry.userId === currentUser.id && (entry.feedType || 'seller') === 'seller')
         .map((entry) => entry.postId),
     );
     return sellerFeedPosts.filter((post) => savedIds.has(post.id)).slice(0, 6);
@@ -6585,7 +6735,7 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
     if (!['public', 'private'].includes(visibility)) return;
     const parsedPrice = Number(nextPriceInput);
-    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_SELLER_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_SELLER_PRICE_THB;
+    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_FEED_UNLOCK_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_FEED_UNLOCK_PRICE_THB;
     setDb((prev) => ({
       ...prev,
       sellerPosts: (prev.sellerPosts || []).map((post) => (
@@ -6600,7 +6750,7 @@ export default function ThailandPantiesMarketSite() {
   function updateSellerPostPrice(postId, nextPriceInput) {
     if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
     const parsedPrice = Number(nextPriceInput);
-    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_SELLER_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_SELLER_PRICE_THB;
+    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_FEED_UNLOCK_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_FEED_UNLOCK_PRICE_THB;
     setDb((prev) => ({
       ...prev,
       sellerPosts: (prev.sellerPosts || []).map((post) => (
@@ -6614,7 +6764,7 @@ export default function ThailandPantiesMarketSite() {
   function updateAllPrivatePostPrices(nextPriceInput) {
     if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
     const parsedPrice = Number(nextPriceInput);
-    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_SELLER_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_SELLER_PRICE_THB;
+    const normalizedPrice = Number.isFinite(parsedPrice) && parsedPrice >= MIN_FEED_UNLOCK_PRICE_THB ? Number(parsedPrice.toFixed(2)) : MIN_FEED_UNLOCK_PRICE_THB;
     setDb((prev) => ({
       ...prev,
       sellerPosts: (prev.sellerPosts || []).map((post) => (
@@ -6933,26 +7083,39 @@ export default function ThailandPantiesMarketSite() {
     return true;
   }
 
-  function toggleSavedSellerPost(postId) {
+  function toggleSavedSellerPost(postId, feedType = 'seller') {
     if (!currentUser) {
       setSellerProfileMessage('Please login to save posts.');
       return false;
     }
-    const post = sellerPosts.find((entry) => entry.id === postId);
-    if (!post || !canViewSellerPost(post)) return false;
-    const alreadySaved = sellerSavedPosts.some((entry) => entry.postId === postId && entry.userId === currentUser.id);
+    const normalizedFeedType = feedType === 'bar' ? 'bar' : 'seller';
+    const post = normalizedFeedType === 'bar'
+      ? barPosts.find((entry) => entry.id === postId)
+      : sellerPosts.find((entry) => entry.id === postId);
+    if (!post) return false;
+    if (normalizedFeedType === 'seller' && !canViewSellerPost(post)) return false;
+    const alreadySaved = sellerSavedPosts.some((entry) => (
+      entry.postId === postId
+      && entry.userId === currentUser.id
+      && (entry.feedType || 'seller') === normalizedFeedType
+    ));
     const createdAt = new Date().toISOString();
     setDb((prev) => {
       const rows = prev.sellerSavedPosts || [];
       return {
         ...prev,
         sellerSavedPosts: alreadySaved
-          ? rows.filter((entry) => !(entry.postId === postId && entry.userId === currentUser.id))
+          ? rows.filter((entry) => !(
+            entry.postId === postId
+            && entry.userId === currentUser.id
+            && (entry.feedType || 'seller') === normalizedFeedType
+          ))
           : [
               {
                 id: `saved_post_${Date.now()}`,
                 postId,
                 userId: currentUser.id,
+                feedType: normalizedFeedType,
                 createdAt,
               },
               ...rows,
@@ -6965,7 +7128,7 @@ export default function ThailandPantiesMarketSite() {
   function unlockPrivatePost(postId) {
     const post = sellerPosts.find((candidate) => candidate.id === postId);
     if (!post || !isSellerPostPrivate(post)) return;
-    const unlockPrice = Math.max(MIN_SELLER_PRICE_THB, Number(post.accessPriceUsd || MIN_SELLER_PRICE_THB));
+    const unlockPrice = Math.max(MIN_FEED_UNLOCK_PRICE_THB, Number(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB));
     if (!currentUser) {
       navigate('/login');
       return;
@@ -7343,8 +7506,11 @@ export default function ThailandPantiesMarketSite() {
       if (String(currentUser.barId || '').trim() !== barId) return;
       const existingCount = (messages || []).filter((entry) => entry.conversationId === barMessageActiveConversationId).length;
       if (existingCount === 0) {
-        setBarMessagesError('Bars can only reply to existing conversations.');
-        return;
+        const participantKey = `${participantRole}:${participantUserId}`;
+        if (!barOutreachEligibilityByParticipantKey?.[participantKey]) {
+          setBarMessagesError('Bars can message users who contacted the bar or affiliated sellers.');
+          return;
+        }
       }
     } else if (currentUser.role === 'buyer' || currentUser.role === 'seller') {
       if (participantRole !== currentUser.role || participantUserId !== currentUser.id) return;
@@ -9322,9 +9488,9 @@ export default function ThailandPantiesMarketSite() {
       image: sellerPostDraft.image,
       imageName: sellerPostDraft.imageName,
       visibility: effectiveVisibility,
-      accessPriceUsd: Number.isFinite(Number(sellerPostDraft.accessPriceUsd)) && Number(sellerPostDraft.accessPriceUsd) >= MIN_SELLER_PRICE_THB
+      accessPriceUsd: Number.isFinite(Number(sellerPostDraft.accessPriceUsd)) && Number(sellerPostDraft.accessPriceUsd) >= MIN_FEED_UNLOCK_PRICE_THB
         ? Number(Number(sellerPostDraft.accessPriceUsd).toFixed(2))
-        : MIN_SELLER_PRICE_THB,
+        : MIN_FEED_UNLOCK_PRICE_THB,
     };
     const captionI18n = await buildTextTranslations(basePostPayload.caption);
     const apiPostPayload = { ...basePostPayload, captionI18n };
@@ -9364,7 +9530,7 @@ export default function ThailandPantiesMarketSite() {
         ...createdPost,
         captionI18n,
         visibility: createdPost?.visibility === 'private' ? 'private' : 'public',
-        accessPriceUsd: Math.max(MIN_SELLER_PRICE_THB, Number(createdPost?.accessPriceUsd || MIN_SELLER_PRICE_THB)),
+        accessPriceUsd: Math.max(MIN_FEED_UNLOCK_PRICE_THB, Number(createdPost?.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)),
         scheduledFor: createdPost?.scheduledFor || '',
       };
       setDb((prev) => ({
@@ -9377,7 +9543,7 @@ export default function ThailandPantiesMarketSite() {
         imageName: '',
         scheduledFor: '',
         visibility: draftVisibility,
-        accessPriceUsd: MIN_SELLER_PRICE_THB,
+        accessPriceUsd: MIN_FEED_UNLOCK_PRICE_THB,
       });
       if (typeof window !== 'undefined') {
         const raw = window.localStorage.getItem('tlm-seller-post-drafts');
@@ -11222,7 +11388,7 @@ export default function ThailandPantiesMarketSite() {
                           {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
-                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
                               </button>
                             </div>
                           ) : null}
@@ -11232,10 +11398,10 @@ export default function ThailandPantiesMarketSite() {
                       {canViewSellerPost(post) && currentUser ? (
                         <div className="mt-3">
                           <button
-                            onClick={() => toggleSavedSellerPost(post.id)}
-                            className={`rounded-xl border px-3 py-1 text-xs font-semibold ${(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id) ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 text-slate-700'}`}
+                            onClick={() => toggleSavedSellerPost(post.id, 'seller')}
+                            className={`rounded-xl border px-3 py-1 text-xs font-semibold ${(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id && (entry.feedType || 'seller') === 'seller') ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 text-slate-700'}`}
                           >
-                            {(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id) ? publicText.saved : publicText.savePost}
+                            {(sellerSavedPosts || []).some((entry) => entry.postId === post.id && entry.userId === currentUser.id && (entry.feedType || 'seller') === 'seller') ? publicText.saved : publicText.savePost}
                           </button>
                         </div>
                       ) : null}
@@ -11693,7 +11859,7 @@ export default function ThailandPantiesMarketSite() {
                           {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <button onClick={(event) => { event.stopPropagation(); unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
-                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
+                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
                               </button>
                             </div>
                           ) : null}
@@ -11934,6 +12100,7 @@ export default function ThailandPantiesMarketSite() {
                       <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).aboutPlaceholder} />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">About presets</div>
+                        <p className="mt-1 text-xs text-slate-500">Tap any preset to append text, then edit it however you want.</p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {BAR_PROFILE_TEXT_PRESET_OPTIONS.about.map((preset) => (
                             <button
@@ -12288,6 +12455,7 @@ export default function ThailandPantiesMarketSite() {
             currentUser={currentUser}
             barMap={barMap}
             barMessageInbox={barMessageInbox}
+            barMessageEligibleContacts={barMessageEligibleContacts}
             barMessageActiveConversationId={barMessageActiveConversationId}
             setBarMessageActiveConversationId={setBarMessagesConversationId}
             barMessageActiveConversationMessages={barMessageActiveConversationMessages}
