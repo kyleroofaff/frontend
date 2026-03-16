@@ -1408,6 +1408,9 @@ export function SellerDashboardPage({
   markAllNotificationsRead,
   markNotificationRead,
   updateNotificationPreference,
+  updatePushNotificationPreference,
+  pushPermission,
+  pushSupported,
   sellerDashboardProducts,
   sellerDashboardPosts,
   publishProduct,
@@ -1704,19 +1707,49 @@ export function SellerDashboardPage({
               <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Engagement</button>
             </div>
             <div className="mt-3 flex flex-wrap gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-              <button
-                onClick={() => updateNotificationPreference("message", !(currentUser?.notificationPreferences?.message !== false))}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold ${(currentUser?.notificationPreferences?.message !== false) ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
-              >
-                Message alerts: {(currentUser?.notificationPreferences?.message !== false) ? "On" : "Off"}
-              </button>
-              <button
-                onClick={() => updateNotificationPreference("engagement", !(currentUser?.notificationPreferences?.engagement !== false))}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold ${(currentUser?.notificationPreferences?.engagement !== false) ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
-              >
-                Engagement alerts: {(currentUser?.notificationPreferences?.engagement !== false) ? "On" : "Off"}
-              </button>
+              {(() => {
+                const inAppAllEnabled =
+                  (currentUser?.notificationPreferences?.message !== false)
+                  && (currentUser?.notificationPreferences?.engagement !== false);
+                const pushAllEnabled =
+                  (currentUser?.notificationPreferences?.push?.message !== false)
+                  && (currentUser?.notificationPreferences?.push?.engagement !== false)
+                  && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
+                return (
+                  <>
+                    <button
+                      onClick={() => {
+                        const nextEnabled = !inAppAllEnabled;
+                        updateNotificationPreference("message", nextEnabled);
+                        updateNotificationPreference("engagement", nextEnabled);
+                      }}
+                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+                    >
+                      Email notifications: {inAppAllEnabled ? "On" : "Off"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const nextEnabled = !pushAllEnabled;
+                        updatePushNotificationPreference("message", nextEnabled);
+                        updatePushNotificationPreference("engagement", nextEnabled);
+                        if (currentUser?.role === "admin") {
+                          updatePushNotificationPreference("adminOps", nextEnabled);
+                        }
+                      }}
+                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
+                    >
+                      Browser notifications: {pushAllEnabled ? "On" : "Off"}
+                    </button>
+                  </>
+                );
+              })()}
             </div>
+            {!pushSupported ? (
+              <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
+            ) : null}
+            {pushSupported && pushPermission === "denied" ? (
+              <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
+            ) : null}
             <div className="mt-4 space-y-3">
               {filteredSellerNotifications.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noNotifications")}</div> : filteredSellerNotifications.map((notification) => (
                 <div key={notification.id} className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
@@ -6704,6 +6737,10 @@ export function AccountPage({
   sendCustomRequestMessage,
   respondToCustomRequestPrice,
   notifications,
+  updateNotificationPreference,
+  updatePushNotificationPreference,
+  pushPermission,
+  pushSupported,
   walletTopUpContext,
   clearWalletTopUpContext,
   uiLanguage = "en",
@@ -7054,6 +7091,57 @@ export function AccountPage({
               </div>
             </div>
           ) : null}
+          <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold">Notification preferences</h3>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(() => {
+                const inAppAllEnabled =
+                  (currentUser?.notificationPreferences?.message !== false)
+                  && (currentUser?.notificationPreferences?.engagement !== false);
+                const pushAllEnabled =
+                  (currentUser?.notificationPreferences?.push?.message !== false)
+                  && (currentUser?.notificationPreferences?.push?.engagement !== false)
+                  && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
+                return (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextEnabled = !inAppAllEnabled;
+                        updateNotificationPreference("message", nextEnabled);
+                        updateNotificationPreference("engagement", nextEnabled);
+                      }}
+                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+                    >
+                      Email notifications: {inAppAllEnabled ? "On" : "Off"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextEnabled = !pushAllEnabled;
+                        updatePushNotificationPreference("message", nextEnabled);
+                        updatePushNotificationPreference("engagement", nextEnabled);
+                        if (currentUser?.role === "admin") {
+                          updatePushNotificationPreference("adminOps", nextEnabled);
+                        }
+                      }}
+                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
+                    >
+                      Browser notifications: {pushAllEnabled ? "On" : "Off"}
+                    </button>
+                  </>
+                );
+              })()}
+            </div>
+            {!pushSupported ? (
+              <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
+            ) : null}
+            {pushSupported && pushPermission === "denied" ? (
+              <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
+            ) : null}
+          </div>
           <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
             <div className="space-y-6 sm:space-y-8">
               <div className="grid gap-4 sm:gap-6 md:grid-cols-3">

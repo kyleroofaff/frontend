@@ -2732,6 +2732,24 @@ function normalizeCustomRequestImageAttachments(imageAttachments) {
     .slice(0, 6);
 }
 
+function normalizeNotificationPreferences(preferences, role = '') {
+  const base = {
+    message: preferences?.message !== false,
+    engagement: preferences?.engagement !== false,
+  };
+  const push = {
+    message: preferences?.push?.message !== false,
+    engagement: preferences?.push?.engagement !== false,
+  };
+  if (role === 'admin') {
+    push.adminOps = preferences?.push?.adminOps !== false;
+  }
+  return {
+    ...base,
+    push,
+  };
+}
+
 function normalizeDbState(nextDb) {
   if (!nextDb || typeof nextDb !== 'object') {
     return structuredClone(SEED_DB);
@@ -2746,10 +2764,7 @@ function normalizeDbState(nextDb) {
           postalCode: String(user?.postalCode || ''),
           strikeCount: Math.max(0, Number(user?.strikeCount || 0)),
           timeFormat: normalizeTimeFormat(user?.timeFormat),
-          notificationPreferences: {
-            message: user?.notificationPreferences?.message !== false,
-            engagement: user?.notificationPreferences?.engagement !== false,
-          },
+          notificationPreferences: normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
         }))
       : structuredClone(SEED_DB.users),
     sellers: Array.isArray(nextDb.sellers)
@@ -2836,6 +2851,7 @@ function normalizeDbState(nextDb) {
         })
       : [],
     notifications: Array.isArray(nextDb.notifications) ? nextDb.notifications : [],
+    pushSubscriptions: Array.isArray(nextDb.pushSubscriptions) ? nextDb.pushSubscriptions : [],
     blocks: Array.isArray(nextDb.blocks) ? nextDb.blocks : [],
     adminActions: Array.isArray(nextDb.adminActions) ? nextDb.adminActions : [],
     stripeEvents: Array.isArray(nextDb.stripeEvents) ? nextDb.stripeEvents : [],
@@ -3305,6 +3321,15 @@ export default function ThailandPantiesMarketSite() {
   const cartPulseTimerRef = useRef(null);
   const [messageRefreshTick, setMessageRefreshTick] = useState(0);
   const [backendStatus, setBackendStatus] = useState('idle');
+  const [pushSupport, setPushSupport] = useState({
+    serviceWorker: false,
+    notification: false,
+    pushManager: false,
+  });
+  const [pushPermission, setPushPermission] = useState(
+    typeof window !== 'undefined' && typeof Notification !== 'undefined' ? Notification.permission : 'default'
+  );
+  const [pushConfig, setPushConfig] = useState({ enabled: false, publicKey: '' });
   const [feedNow, setFeedNow] = useState(Date.now());
   const emailDispatchInFlightRef = useRef(false);
 
@@ -3459,6 +3484,89 @@ export default function ThailandPantiesMarketSite() {
     }
     return { ok: response.ok, status: response.status, payload };
   }
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i += 1) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  async function getPushRegistration() {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return null;
+    try {
+      const existing = await navigator.serviceWorker.getRegistration('/');
+      if (existing) return existing;
+      return navigator.serviceWorker.register('/sw.js');
+    } catch {
+      return null;
+    }
+  }
+
+  async function fetchPushConfig() {
+    if (backendStatus !== 'connected') return;
+    const { ok, payload } = await apiRequestJson('/api/push/config');
+    if (!ok) return;
+    const enabled = Boolean(payload?.push?.enabled);
+    const publicKey = String(payload?.push?.publicKey || '');
+    setPushConfig({ enabled, publicKey });
+  }
+
+  async function subscribeToPushIfEnabled() {
+    if (typeof window === 'undefined') return false;
+    if (!currentUser || !apiAuthToken || backendStatus !== 'connected') return false;
+    if (!pushConfig.enabled || !pushConfig.publicKey) return false;
+    const pushPref = currentUser?.notificationPreferences?.push || {};
+    const shouldEnablePush =
+      pushPref.message !== false ||
+      pushPref.engagement !== false ||
+      (currentUser.role === 'admin' && pushPref.adminOps !== false);
+    if (!shouldEnablePush) return false;
+    const registration = await getPushRegistration();
+    if (!registration || !registration.pushManager) return false;
+
+    let permission = pushPermission;
+    if (permission !== 'granted') {
+      if (typeof Notification === 'undefined') return false;
+      permission = await Notification.requestPermission();
+      setPushPermission(permission);
+    }
+    if (permission !== 'granted') return false;
+
+    const existing = await registration.pushManager.getSubscription();
+    const subscription = existing || await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(pushConfig.publicKey)
+    });
+    const response = await apiRequestJson('/api/push/subscribe', {
+      method: 'POST',
+      body: {
+        subscription: subscription.toJSON()
+      }
+    });
+    return Boolean(response.ok);
+  }
+
+  async function unsubscribeFromPush() {
+    if (typeof window === 'undefined') return false;
+    const registration = await getPushRegistration();
+    if (!registration || !registration.pushManager) return false;
+    const existing = await registration.pushManager.getSubscription();
+    if (!existing) return true;
+    await apiRequestJson('/api/push/unsubscribe', {
+      method: 'POST',
+      body: {
+        endpoint: existing.endpoint
+      }
+    });
+    await existing.unsubscribe().catch(() => {});
+    return true;
+  }
+
   async function requestTextTranslation(text, targetLang) {
     const normalizedText = String(text || '').trim();
     if (!normalizedText) return '';
@@ -4460,6 +4568,45 @@ export default function ThailandPantiesMarketSite() {
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setPushSupport({
+      serviceWorker: 'serviceWorker' in navigator,
+      notification: 'Notification' in window,
+      pushManager: 'PushManager' in window,
+    });
+    if ('Notification' in window) {
+      setPushPermission(Notification.permission);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPushConfig().catch(() => {});
+  }, [backendStatus]);
+
+  useEffect(() => {
+    if (!currentUser || !apiAuthToken) return;
+    subscribeToPushIfEnabled().catch(() => {});
+  }, [currentUser?.id, currentUser?.role, backendStatus, apiAuthToken, pushConfig.enabled, pushConfig.publicKey, currentUser?.notificationPreferences]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search || '');
+    const scope = String(params.get('scope') || '').trim();
+    const conversationId = String(params.get('conversationId') || '').trim();
+    const requestId = String(params.get('requestId') || '').trim();
+    if (!currentUser || route !== '/account') return;
+    if (currentUser.role === 'seller' && scope === 'seller') {
+      if (conversationId) setSellerSelectedConversationId(conversationId);
+      if (requestId) {
+        setSellerSelectedConversationId((prev) => prev || '');
+      }
+    }
+    if (currentUser.role === 'buyer' && conversationId) {
+      setBuyerDashboardConversationId(conversationId);
+    }
+  }, [route, currentUser?.id, currentUser?.role]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -8049,14 +8196,74 @@ export default function ThailandPantiesMarketSite() {
           ? {
               ...user,
               notificationPreferences: {
-                message: user?.notificationPreferences?.message !== false,
-                engagement: user?.notificationPreferences?.engagement !== false,
+                ...normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
                 [type]: Boolean(enabled),
-              },
+              }
             }
           : user,
       ),
     }));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const current = normalizeNotificationPreferences(currentUser.notificationPreferences, currentUser.role);
+      const next = {
+        ...current.push,
+        [type]: Boolean(enabled),
+      };
+      apiRequestJson('/api/push/preferences', {
+        method: 'POST',
+        body: { push: next }
+      }).catch(() => {});
+    }
+  }
+
+  async function updatePushNotificationPreference(type, enabled) {
+    if (!currentUser || !['message', 'engagement', 'adminOps'].includes(type)) return;
+    if (type === 'adminOps' && currentUser.role !== 'admin') return;
+    setDb((prev) => ({
+      ...prev,
+      users: (prev.users || []).map((user) =>
+        user.id === currentUser.id
+          ? {
+              ...user,
+              notificationPreferences: {
+                ...normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
+                push: {
+                  ...normalizeNotificationPreferences(user?.notificationPreferences, user?.role).push,
+                  [type]: Boolean(enabled),
+                }
+              }
+            }
+          : user
+      )
+    }));
+
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const preferences = normalizeNotificationPreferences(currentUser.notificationPreferences, currentUser.role);
+      const payload = {
+        ...preferences.push,
+        [type]: Boolean(enabled),
+      };
+      await apiRequestJson('/api/push/preferences', {
+        method: 'POST',
+        body: {
+          push: payload
+        }
+      }).catch(() => {});
+    }
+
+    if (enabled) {
+      await subscribeToPushIfEnabled().catch(() => {});
+      return;
+    }
+    const latest = normalizeNotificationPreferences(currentUser.notificationPreferences, currentUser.role).push;
+    const nextPush = {
+      ...latest,
+      [type]: Boolean(enabled),
+    };
+    const anyEnabled = Object.values(nextPush).some((value) => value !== false);
+    if (!anyEnabled) {
+      await unsubscribeFromPush().catch(() => {});
+    }
   }
 
   function updateEmailTemplate(templateKey, nextTemplateDraft) {
@@ -11083,6 +11290,9 @@ export default function ThailandPantiesMarketSite() {
             markAllNotificationsRead={markAllNotificationsRead}
             markNotificationRead={markNotificationRead}
             updateNotificationPreference={updateNotificationPreference}
+            updatePushNotificationPreference={updatePushNotificationPreference}
+            pushPermission={pushPermission}
+            pushSupported={pushSupport.serviceWorker && pushSupport.notification && pushSupport.pushManager}
             sellerDashboardProducts={sellerDashboardProducts}
             sellerDashboardPosts={sellerDashboardPosts}
             publishProduct={publishProduct}
@@ -11470,6 +11680,10 @@ export default function ThailandPantiesMarketSite() {
             sendCustomRequestMessage={sendCustomRequestMessage}
             respondToCustomRequestPrice={respondToCustomRequestPrice}
             notifications={notifications}
+            updateNotificationPreference={updateNotificationPreference}
+            updatePushNotificationPreference={updatePushNotificationPreference}
+            pushPermission={pushPermission}
+            pushSupported={pushSupport.serviceWorker && pushSupport.notification && pushSupport.pushManager}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />
