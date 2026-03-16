@@ -769,6 +769,253 @@ const SELLER_PROFILE_SELECT_I18N = {
   },
 };
 
+const SELLER_WRITING_PRESETS_I18N = {
+  en: {
+    bioPresetLabel: "Profile description presets",
+    messagePresetLabel: "Message presets",
+    inboxMessageCategories: [
+      {
+        label: "Friendly",
+        presets: [
+          "I'm good today, how are you?",
+          "Hey, hope your day is going well.",
+          "Just checking in, how has your day been?"
+        ],
+      },
+      {
+        label: "Affectionate",
+        presets: [
+          "I miss you, I'm thinking of you.",
+          "You crossed my mind and made me smile.",
+          "You have such a lovely vibe - I always enjoy chatting with you."
+        ],
+      }
+    ],
+    bioCategories: [
+      {
+        label: "Professional",
+        presets: [
+          "I offer premium used panties with clear listing details, discreet shipping, and respectful communication.",
+          "I focus on everyday and sporty styles, quick replies, and consistent quality."
+        ],
+      },
+      {
+        label: "Style-focused",
+        presets: [
+          "I curate lace, satin, and silk options with careful hygiene and reliable turnaround.",
+          "I specialize in comfort-first styles with clear photos, transparent pricing, and dependable service."
+        ],
+      }
+    ],
+    messageCategories: [
+      {
+        label: "Availability",
+        presets: [
+          "I can do that. What color and size do you prefer?",
+          "Thanks for your request. I can share options and pricing shortly."
+        ],
+      },
+      {
+        label: "Follow-up",
+        presets: [
+          "I received your message and will reply with details soon.",
+          "I can start this request today and share an update once it is ready."
+        ],
+      },
+      {
+        label: "Pricing",
+        presets: [
+          "I cannot accept this quote right now, but I can suggest an alternative.",
+          "That budget is a little low for this request. I can offer a revised quote."
+        ],
+      }
+    ],
+  },
+  th: {
+    bioPresetLabel: "ข้อความแนะนำโปรไฟล์",
+    messagePresetLabel: "ข้อความตอบกลับสำเร็จรูป",
+    inboxMessageCategories: [
+      {
+        label: "ทักทายแบบเป็นกันเอง",
+        presets: [
+          "วันนี้ฉันสบายดี คุณเป็นยังไงบ้าง?",
+          "หวังว่าวันนี้ของคุณจะเป็นวันที่ดีนะ",
+          "แวะมาทักเฉยๆ วันนี้ของคุณเป็นยังไงบ้าง?"
+        ],
+      },
+      {
+        label: "คิดถึง",
+        presets: [
+          "ฉันคิดถึงคุณนะ กำลังนึกถึงคุณอยู่เลย",
+          "วันนี้คุณเข้ามาในความคิดของฉันแล้วทำให้ยิ้มได้",
+          "คุณมีเสน่ห์มาก คุยกับคุณทีไรก็รู้สึกดีเสมอ"
+        ],
+      }
+    ],
+    bioCategories: [
+      {
+        label: "มืออาชีพ",
+        presets: [
+          "ฉันมีสินค้าพรีเมียมพร้อมรายละเอียดชัดเจน จัดส่งแบบเป็นส่วนตัว และสื่อสารอย่างสุภาพ",
+          "ฉันเน้นสไตล์ใส่ง่ายและสปอร์ต ตอบไว และคุมคุณภาพสม่ำเสมอ"
+        ],
+      },
+      {
+        label: "เน้นสไตล์",
+        presets: [
+          "ฉันคัดสรรงานลูกไม้ ซาติน และไหม พร้อมดูแลความสะอาดและจัดส่งตรงเวลา",
+          "ฉันเน้นงานใส่สบาย พร้อมรูปชัดเจน ราคาโปร่งใส และบริการที่เชื่อถือได้"
+        ],
+      }
+    ],
+    messageCategories: [
+      {
+        label: "พร้อมให้บริการ",
+        presets: [
+          "ได้ค่ะ/ครับ ต้องการสีและไซซ์แบบไหนคะ/ครับ?",
+          "ขอบคุณสำหรับคำขอ เดี๋ยวฉันส่งตัวเลือกและราคาให้เร็วที่สุด"
+        ],
+      },
+      {
+        label: "ติดตามงาน",
+        presets: [
+          "ได้รับข้อความแล้ว เดี๋ยวตอบรายละเอียดเพิ่มเติมให้นะคะ/ครับ",
+          "ฉันเริ่มคำขอนี้ได้วันนี้ และจะแจ้งอัปเดตให้เมื่อพร้อมค่ะ/ครับ"
+        ],
+      },
+      {
+        label: "เรื่องราคา",
+        presets: [
+          "ตอนนี้ยังรับราคานี้ไม่ได้ แต่ฉันเสนอทางเลือกอื่นให้ได้ค่ะ/ครับ",
+          "งบนี้อาจต่ำไปเล็กน้อยสำหรับคำขอนี้ ฉันสามารถเสนอราคาใหม่ให้ได้ค่ะ/ครับ"
+        ],
+      }
+    ],
+  },
+  my: {
+    bioPresetLabel: "Profile ဖော်ပြချက် preset များ",
+    messagePresetLabel: "Reply preset များ",
+    inboxMessageCategories: [
+      {
+        label: "Friendly",
+        presets: [
+          "ဒီနေ့ကျွန်မ/ကျွန်တော် အဆင်ပြေပါတယ်၊ သင်ကော ဘယ်လိုလဲ?",
+          "ဟယ်လို, သင့်နေ့လေး ကောင်းကောင်းဖြတ်သန်းနေရမယ်လို့ မျှော်လင့်ပါတယ်။",
+          "အခြေအနေမေးချင်လို့ပါ - ဒီနေ့ သင့်နေ့လေး ဘယ်လိုလဲ?"
+        ],
+      },
+      {
+        label: "Affectionate",
+        presets: [
+          "သင့်ကို လွမ်းနေတယ်၊ သင့်ကို စဉ်းစားနေတယ်။",
+          "သင့်ကို စဉ်းစားမိတိုင်း ကျွန်မ/ကျွန်တော် ပြုံးမိတယ်။",
+          "သင့် vibe က အရမ်းချစ်စရာကောင်းလို့ သင်နဲ့ chat လုပ်ရတာ အမြဲပျော်ပါတယ်။"
+        ],
+      }
+    ],
+    bioCategories: [
+      {
+        label: "Professional",
+        presets: [
+          "ကျွန်မ/ကျွန်တော်သည် premium used panties များကို အသေးစိတ်ဖော်ပြချက်၊ discreet shipping နှင့် လေးစားသောဆက်သွယ်ရေးဖြင့် ပေးပါသည်။",
+          "Everyday နှင့် sporty style များကို အဓိကထားပြီး မြန်မြန်ပြန်လည်တုံ့ပြန်ကာ အရည်အသွေးကို တည်ငြိမ်စွာ ထိန်းသိမ်းပါသည်။"
+        ],
+      },
+      {
+        label: "Style-focused",
+        presets: [
+          "Lace၊ satin နှင့် silk option များကို သန့်ရှင်းရေးဂရုစိုက်မှုနှင့် ယုံကြည်စိတ်ချရသော turnaround ဖြင့် ကောင်းစွာရွေးချယ်ပေးပါသည်။",
+          "သက်တောင့်သက်သာ style များကို အဓိကထားပြီး ပုံရှင်းလင်းမှု၊ စျေးနှုန်းပွင့်လင်းမှု နှင့် ယုံကြည်ရသော service ကို ပေးပါသည်။"
+        ],
+      }
+    ],
+    messageCategories: [
+      {
+        label: "Availability",
+        presets: [
+          "ရပါတယ်။ အရောင်နဲ့ size ဘာလိုချင်ပါသလဲ?",
+          "Request အတွက် ကျေးဇူးတင်ပါတယ်။ Option နဲ့ စျေးနှုန်းကို မကြာခင်ပေးပါမယ်။"
+        ],
+      },
+      {
+        label: "Follow-up",
+        presets: [
+          "သင့် message ကို လက်ခံရရှိပြီးပါပြီ။ မကြာခင် အသေးစိတ်ပြန်ဖြေပါမယ်။",
+          "ဒီ request ကို ဒီနေ့စလို့ရပါတယ်။ အဆင်သင့်ဖြစ်တာနဲ့ update ပို့ပါမယ်။"
+        ],
+      },
+      {
+        label: "Pricing",
+        presets: [
+          "ဒီ quote ကို အခုမလက်ခံနိုင်သေးပါ၊ ဒါပေမယ့် အစားထိုး option တစ်ခု အကြံပြုနိုင်ပါတယ်။",
+          "ဒီ budget က ဒီ request အတွက် နည်းနည်းနိမ့်နေပါတယ်။ ပြန်လည်စျေးနှုန်းပေးနိုင်ပါတယ်။"
+        ],
+      }
+    ],
+  },
+  ru: {
+    bioPresetLabel: "Шаблоны описания профиля",
+    messagePresetLabel: "Шаблоны ответов",
+    inboxMessageCategories: [
+      {
+        label: "Дружелюбно",
+        presets: [
+          "У меня сегодня все хорошо, как ты?",
+          "Привет, надеюсь, у тебя хороший день.",
+          "Просто решила написать: как у тебя проходит день?"
+        ],
+      },
+      {
+        label: "Нежно",
+        presets: [
+          "Я скучаю по тебе, думаю о тебе.",
+          "Ты пришел(пришла) мне в голову и заставил(а) улыбнуться.",
+          "У тебя очень приятная энергия, мне всегда нравится с тобой переписываться."
+        ],
+      }
+    ],
+    bioCategories: [
+      {
+        label: "Профессионально",
+        presets: [
+          "Я предлагаю премиальные товары с понятными деталями, деликатной доставкой и уважительным общением.",
+          "Мой фокус - повседневные и спортивные стили, быстрые ответы и стабильное качество."
+        ],
+      },
+      {
+        label: "По стилю",
+        presets: [
+          "Я подбираю варианты из кружева, сатина и шелка с аккуратной гигиеной и надежными сроками отправки.",
+          "Я делаю акцент на комфортных стилях, четких фото, прозрачной цене и надежном сервисе."
+        ],
+      }
+    ],
+    messageCategories: [
+      {
+        label: "Наличие",
+        presets: [
+          "Да, могу сделать. Какой цвет и размер вы хотите?",
+          "Спасибо за запрос. Скоро отправлю варианты и цену."
+        ],
+      },
+      {
+        label: "Уточнение",
+        presets: [
+          "Я получила(а) ваше сообщение и скоро отвечу с деталями.",
+          "Я могу начать этот запрос сегодня и сообщу, когда все будет готово."
+        ],
+      },
+      {
+        label: "Цена",
+        presets: [
+          "Сейчас не могу принять эту цену, но могу предложить альтернативу.",
+          "Этот бюджет немного низкий для такого запроса. Могу предложить обновленную цену."
+        ],
+      }
+    ],
+  },
+};
+
 function buildSellerSelectOptions(baseOptions, currentValue) {
   const trimmed = (currentValue || "").trim();
   if (!trimmed || baseOptions.includes(trimmed)) return baseOptions;
@@ -1449,6 +1696,7 @@ export function SellerDashboardPage({
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
   const sellerProfileSelectText = SELLER_PROFILE_SELECT_I18N[locale] || SELLER_PROFILE_SELECT_I18N.en;
+  const sellerWritingPresetText = SELLER_WRITING_PRESETS_I18N[locale] || SELLER_WRITING_PRESETS_I18N.en;
   const [bulkPrivatePostPrice, setBulkPrivatePostPrice] = useState("1");
   const [privatePostPricingMode, setPrivatePostPricingMode] = useState("all");
   const [bundleDraft, setBundleDraft] = useState({
@@ -1505,6 +1753,12 @@ export function SellerDashboardPage({
   const [customRequestQuoteMessageById, setCustomRequestQuoteMessageById] = useState({});
   const [notificationFilter, setNotificationFilter] = useState("all");
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
+  const applyPresetToDraft = (currentValue, preset) => {
+    if (String(currentValue || "").trim()) {
+      return `${String(currentValue || "").trim()}\n${preset}`;
+    }
+    return preset;
+  };
   const sellerNotifications = useMemo(
     () =>
       (notifications || [])
@@ -2050,6 +2304,28 @@ export function SellerDashboardPage({
                   </label>
                 </div>
                 <textarea value={sellerProfileDraft.bio} onChange={(e) => updateSellerProfileField("bio", e.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("bio")} />
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.bioPresetLabel}</div>
+                  <div className="mt-2 space-y-2">
+                    {(sellerWritingPresetText.bioCategories || []).map((category) => (
+                      <div key={category.label}>
+                        <div className="text-[11px] font-semibold text-slate-500">{category.label}</div>
+                        <div className="mt-1.5 flex flex-wrap gap-2">
+                          {(category.presets || []).map((preset) => (
+                            <button
+                              key={`${category.label}-${preset}`}
+                              type="button"
+                              onClick={() => updateSellerProfileField("bio", applyPresetToDraft(sellerProfileDraft.bio, preset))}
+                              className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                            >
+                              {preset}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 <button onClick={saveSellerProfile} className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">{t("saveProfile")}</button>
                 {sellerProfileMessage ? <div className="text-sm font-medium text-rose-700">{sellerProfileMessage}</div> : null}
               </div>
@@ -2355,7 +2631,29 @@ export function SellerDashboardPage({
                             </div>
                           ))}
                         </div>
-                        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.messagePresetLabel}</div>
+                          <div className="mt-2 space-y-2">
+                            {(sellerWritingPresetText.inboxMessageCategories || sellerWritingPresetText.messageCategories || []).map((category) => (
+                              <div key={category.label}>
+                                <div className="text-[11px] font-semibold text-slate-500">{category.label}</div>
+                                <div className="mt-1.5 flex flex-wrap gap-2">
+                                  {(category.presets || []).map((preset) => (
+                                    <button
+                                      key={`${category.label}-${preset}`}
+                                      type="button"
+                                      onClick={() => setSellerReplyDraft(applyPresetToDraft(sellerReplyDraft, preset))}
+                                      className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                                    >
+                                      {preset}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
                           <textarea value={sellerReplyDraft} onChange={(e) => setSellerReplyDraft(e.target.value)} className="min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm sm:flex-1" placeholder={t("replyPlaceholder")} />
                           <button onClick={sendSellerReply} className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto sm:self-end">{t("reply")}</button>
                         </div>
@@ -2535,6 +2833,28 @@ export function SellerDashboardPage({
                               ) : null}
                             </div>
                           ))}
+                        </div>
+                        <div className="mt-2 rounded-xl border border-slate-200 bg-white p-2.5">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.messagePresetLabel}</div>
+                          <div className="mt-1.5 space-y-1.5">
+                            {(sellerWritingPresetText.messageCategories || []).map((category) => (
+                              <div key={`${request.id}-${category.label}`}>
+                                <div className="text-[10px] font-semibold text-slate-500">{category.label}</div>
+                                <div className="mt-1 flex flex-wrap gap-1.5">
+                                  {(category.presets || []).map((preset) => (
+                                    <button
+                                      key={`${request.id}-${category.label}-${preset}`}
+                                      type="button"
+                                      onClick={() => setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: applyPresetToDraft(prev[request.id] || "", preset) }))}
+                                      className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700"
+                                    >
+                                      {preset}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                           <input

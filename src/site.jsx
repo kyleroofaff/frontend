@@ -3151,6 +3151,7 @@ function applyStrikeAndAutoFreeze(prev, { targetUserId, reason, sourceType, sour
 
 export default function ThailandPantiesMarketSite() {
   const apiIdempotencyKeysRef = useRef({});
+  const accountMenuRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [db, setDb] = useState(() => {
@@ -3236,6 +3237,21 @@ export default function ThailandPantiesMarketSite() {
   const [accountSaveMessage, setAccountSaveMessage] = useState('');
   const [accountSearchQuery, setAccountSearchQuery] = useState('');
   const [adminUserSearch, setAdminUserSearch] = useState('');
+  useEffect(() => {
+    if (!accountMenuOpen) return undefined;
+    const closeOnOutsideClick = (event) => {
+      const menuElement = accountMenuRef.current;
+      if (!menuElement) return;
+      if (menuElement.contains(event.target)) return;
+      setAccountMenuOpen(false);
+    };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('touchstart', closeOnOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('touchstart', closeOnOutsideClick);
+    };
+  }, [accountMenuOpen]);
   const [adminSelectedUserId, setAdminSelectedUserId] = useState('');
   const [adminSellerReviewFilter, setAdminSellerReviewFilter] = useState('pending');
   const [adminAuthActionMessage, setAdminAuthActionMessage] = useState('');
@@ -10165,7 +10181,7 @@ export default function ThailandPantiesMarketSite() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2">
-            <div className="relative hidden lg:block">
+            <div ref={accountMenuRef} className="relative hidden lg:block">
               <button
                 onClick={() => setAccountMenuOpen((prev) => !prev)}
                 className="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
