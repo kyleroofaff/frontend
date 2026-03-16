@@ -860,7 +860,106 @@ const SELLER_I18N = {
     showTranslation: "Show translation",
     showOriginal: "Show original",
     addWalletReplyPrefix: "Add at least",
-    addWalletReplySuffix: "to your wallet to reply."
+    addWalletReplySuffix: "to your wallet to reply.",
+    languages: "Languages",
+    barAffiliation: "Bar affiliation",
+    barAffiliationHelp: "Adding a bar now creates an approval request. Removing your affiliation applies immediately.",
+    currentlyAffiliatedWith: "Currently affiliated with",
+    removeAffiliation: "Remove affiliation",
+    pendingBarRequests: "Pending requests to bars",
+    barInvitesAwaitingApproval: "Bar invites awaiting your approval",
+    cancel: "Cancel",
+    approve: "Approve",
+    reject: "Reject",
+    customRequests: "Custom requests",
+    requestsCount: "request(s)",
+    receivedLabel: "Received",
+    sentLabel: "Sent",
+    noCustomRequests: "No custom requests yet.",
+    buyer: "Buyer",
+    noEmail: "No email",
+    preferencesLabel: "Preferences",
+    shippingCountryLabel: "Shipping country",
+    notProvided: "Not provided",
+    noDetailsProvided: "No details provided.",
+    buyerImageUploads: "Buyer image uploads",
+    buyerUploadsEnabled: "Buyer image uploads enabled.",
+    buyerUploadsDisabled: "Buyer image uploads disabled.",
+    allowBuyerUploads: "Allow buyer to upload images",
+    buyerUploadsHelp: "Sellers can always upload images. Buyer uploads are blocked by default until enabled here.",
+    priceProposal: "Price proposal",
+    currentQuoteLabel: "Current quote",
+    notProposedYet: "Not proposed yet",
+    buyerCounterLabel: "Buyer counter",
+    lastNoteLabel: "Last note",
+    quotePlaceholder: "Quote THB",
+    optionalNotePlaceholder: "Optional note to buyer",
+    quoteSent: "Quote sent.",
+    sendQuote: "Send quote",
+    counterAccepted: "Counter accepted. Buyer can now pay.",
+    acceptCounter: "Accept counter",
+    counterDeclined: "Counter declined. Quote remains active.",
+    declineCounter: "Decline counter",
+    noRepliesYet: "No replies yet.",
+    customRequestAttachment: "Custom request attachment",
+    replyToCustomRequest: "Reply to this custom request",
+    send: "Send",
+    clearImages: "Clear images",
+    draftAttachment: "Draft attachment",
+    awaitingBuyerPayment: "awaiting buyer payment",
+    statusNone: "none",
+    statusProposed: "proposed",
+    statusCountered: "countered",
+    statusAccepted: "accepted",
+    statusDeclined: "declined",
+    statusPaid: "paid",
+    statusExpired: "expired",
+    sellerDashboardEyebrow: "Seller dashboard",
+    sellerPresence: "Seller presence",
+    online: "Online",
+    offline: "Offline",
+    feedVisibilityMode: "Feed visibility mode",
+    publicAllPosts: "Public all posts",
+    privateAllPosts: "Private all posts",
+    chooseEachPost: "Choose each post",
+    presenceHelp: "Online/offline appears on your listings and posts. Use a global visibility mode or choose visibility per post.",
+    size: "Size",
+    type: "Type",
+    fabric: "Fabric",
+    daysWorn: "Days worn",
+    condition: "Condition",
+    scentLevel: "Scent level",
+    scheduleOptional: "Schedule (optional)",
+    futureTimeOnly: "Future time only. Leave blank to publish now.",
+    postVisibility: "Post visibility",
+    controlledByFeedMode: "Controlled by feed mode",
+    privateUnlockPrice: "Private unlock price (THB)",
+    lockedPosts: "Locked posts",
+    paidUnlocks: "Paid unlocks",
+    unlockRevenue: "Unlock revenue",
+    topPost: "Top post",
+    earnings: "Earnings",
+    grossEarnings: "Gross earnings",
+    grossEarningsHelp: "Before platform/bar fee allocation.",
+    netEarnings: "Net earnings",
+    netEarningsHelp: "Amount credited to your wallet.",
+    scheduledPosts: "Scheduled posts",
+    likes: "Likes",
+    engagement7Day: "7-day engagement",
+    trendVsPrevious7Day: "Trend vs previous 7 days",
+    privatePostPricingMode: "Private post pricing mode",
+    samePriceForAllPrivate: "Same price for all private posts",
+    individualPricePerPost: "Individual price per post",
+    bulkPriceForAllPrivate: "Bulk price for all private posts",
+    applyToAllPrivate: "Apply to all private",
+    individualModeHelp: "Individual mode is active. Set each private post price in the post list below",
+    scheduledLabel: "Scheduled",
+    unschedule: "Unschedule",
+    publishNow: "Publish now",
+    chooseFile: "Choose file",
+    chooseFiles: "Choose files",
+    noFileChosen: "No file chosen",
+    filesSelected: "file(s) selected"
   },
   th: {
     sectionTitle: "จัดการหน้าร้านของคุณ", sectionSubtitle: "อัปเดตโปรไฟล์ เผยแพร่สินค้า และแชร์โพสต์ไลฟ์สไตล์ให้ผู้ซื้อเห็น",
@@ -888,7 +987,106 @@ const SELLER_I18N = {
     customReason: "เหตุผลเพิ่มเติม", report: "รายงาน", reporting: "กำลังรายงาน...", loadMorePosts: "โหลดโพสต์เพิ่มเติม",
     quickProfile: "โปรไฟล์", quickNewListing: "ลงสินค้าใหม่", quickInbox: "กล่องข้อความ", quickNewPost: "โพสต์ใหม่", quickListings: "รายการสินค้า",
     showTranslation: "แสดงคำแปล", showOriginal: "แสดงต้นฉบับ",
-    addWalletReplyPrefix: "เติมอย่างน้อย", addWalletReplySuffix: "ลงในกระเป๋าเพื่อส่งข้อความตอบกลับ"
+    addWalletReplyPrefix: "เติมอย่างน้อย", addWalletReplySuffix: "ลงในกระเป๋าเพื่อส่งข้อความตอบกลับ",
+    languages: "ภาษา",
+    barAffiliation: "การเชื่อมกับบาร์",
+    barAffiliationHelp: "เมื่อเลือกบาร์จะสร้างคำขออนุมัติทันที การยกเลิกการเชื่อมจะมีผลทันที",
+    currentlyAffiliatedWith: "เชื่อมอยู่กับ",
+    removeAffiliation: "ยกเลิกการเชื่อม",
+    pendingBarRequests: "คำขอที่ส่งถึงบาร์ (รอดำเนินการ)",
+    barInvitesAwaitingApproval: "คำเชิญจากบาร์ที่รอการอนุมัติ",
+    cancel: "ยกเลิก",
+    approve: "อนุมัติ",
+    reject: "ปฏิเสธ",
+    customRequests: "คำขอพิเศษ",
+    requestsCount: "คำขอ",
+    receivedLabel: "ได้รับ",
+    sentLabel: "ส่งแล้ว",
+    noCustomRequests: "ยังไม่มีคำขอพิเศษ",
+    buyer: "ผู้ซื้อ",
+    noEmail: "ไม่มีอีเมล",
+    preferencesLabel: "ความต้องการ",
+    shippingCountryLabel: "ประเทศปลายทาง",
+    notProvided: "ไม่ได้ระบุ",
+    noDetailsProvided: "ไม่มีรายละเอียด",
+    buyerImageUploads: "การอัปโหลดรูปของผู้ซื้อ",
+    buyerUploadsEnabled: "เปิดให้ผู้ซื้ออัปโหลดรูปแล้ว",
+    buyerUploadsDisabled: "ปิดการอัปโหลดรูปของผู้ซื้อแล้ว",
+    allowBuyerUploads: "อนุญาตให้ผู้ซื้ออัปโหลดรูป",
+    buyerUploadsHelp: "ผู้ขายอัปโหลดรูปได้เสมอ ฝั่งผู้ซื้อจะถูกปิดไว้เป็นค่าเริ่มต้นจนกว่าจะเปิดที่นี่",
+    priceProposal: "ข้อเสนอราคา",
+    currentQuoteLabel: "ราคาที่เสนอปัจจุบัน",
+    notProposedYet: "ยังไม่ได้เสนอราคา",
+    buyerCounterLabel: "ราคาต่อรองจากผู้ซื้อ",
+    lastNoteLabel: "หมายเหตุล่าสุด",
+    quotePlaceholder: "ราคาเสนอ (บาท)",
+    optionalNotePlaceholder: "หมายเหตุถึงผู้ซื้อ (ไม่บังคับ)",
+    quoteSent: "ส่งข้อเสนอราคาแล้ว",
+    sendQuote: "ส่งราคา",
+    counterAccepted: "ยอมรับราคาต่อรองแล้ว ผู้ซื้อสามารถชำระเงินได้",
+    acceptCounter: "ยอมรับการต่อรอง",
+    counterDeclined: "ปฏิเสธการต่อรองแล้ว ข้อเสนอเดิมยังใช้งานอยู่",
+    declineCounter: "ปฏิเสธการต่อรอง",
+    noRepliesYet: "ยังไม่มีการตอบกลับ",
+    customRequestAttachment: "ไฟล์แนบคำขอพิเศษ",
+    replyToCustomRequest: "ตอบกลับคำขอนี้",
+    send: "ส่ง",
+    clearImages: "ล้างรูป",
+    draftAttachment: "ไฟล์แนบแบบร่าง",
+    awaitingBuyerPayment: "รอผู้ซื้อชำระเงิน",
+    statusNone: "ไม่มี",
+    statusProposed: "เสนอราคาแล้ว",
+    statusCountered: "มีการต่อรอง",
+    statusAccepted: "ยอมรับแล้ว",
+    statusDeclined: "ปฏิเสธแล้ว",
+    statusPaid: "ชำระแล้ว",
+    statusExpired: "หมดอายุ",
+    sellerDashboardEyebrow: "แดชบอร์ดผู้ขาย",
+    sellerPresence: "สถานะผู้ขาย",
+    online: "ออนไลน์",
+    offline: "ออฟไลน์",
+    feedVisibilityMode: "โหมดการมองเห็นฟีด",
+    publicAllPosts: "โพสต์สาธารณะทั้งหมด",
+    privateAllPosts: "โพสต์ส่วนตัวทั้งหมด",
+    chooseEachPost: "เลือกทีละโพสต์",
+    presenceHelp: "สถานะออนไลน์/ออฟไลน์จะแสดงบนรายการสินค้าและโพสต์ของคุณ ใช้โหมดทั้งระบบหรือกำหนดทีละโพสต์",
+    size: "ไซซ์",
+    type: "ประเภท",
+    fabric: "เนื้อผ้า",
+    daysWorn: "จำนวนวันที่สวม",
+    condition: "สภาพ",
+    scentLevel: "ระดับกลิ่น",
+    scheduleOptional: "ตั้งเวลา (ไม่บังคับ)",
+    futureTimeOnly: "ตั้งเวลาในอนาคตเท่านั้น เว้นว่างเพื่อโพสต์ตอนนี้",
+    postVisibility: "การมองเห็นโพสต์",
+    controlledByFeedMode: "ควบคุมโดยโหมดฟีด",
+    privateUnlockPrice: "ราคาปลดล็อกโพสต์ส่วนตัว (THB)",
+    lockedPosts: "โพสต์ล็อก",
+    paidUnlocks: "การปลดล็อกแบบชำระเงิน",
+    unlockRevenue: "รายได้จากการปลดล็อก",
+    topPost: "โพสต์ยอดนิยม",
+    earnings: "รายได้",
+    grossEarnings: "รายได้รวม",
+    grossEarningsHelp: "ก่อนหักส่วนแบ่งแพลตฟอร์ม/บาร์",
+    netEarnings: "รายได้สุทธิ",
+    netEarningsHelp: "ยอดที่เข้ากระเป๋าเงินของคุณ",
+    scheduledPosts: "โพสต์ที่ตั้งเวลาไว้",
+    likes: "ถูกใจ",
+    engagement7Day: "การมีส่วนร่วม 7 วัน",
+    trendVsPrevious7Day: "เทียบกับ 7 วันก่อนหน้า",
+    privatePostPricingMode: "โหมดราคาของโพสต์ส่วนตัว",
+    samePriceForAllPrivate: "ราคาเดียวสำหรับโพสต์ส่วนตัวทั้งหมด",
+    individualPricePerPost: "ตั้งราคาแยกแต่ละโพสต์",
+    bulkPriceForAllPrivate: "ราคาแบบรวมสำหรับโพสต์ส่วนตัวทั้งหมด",
+    applyToAllPrivate: "ใช้กับทั้งหมด",
+    individualModeHelp: "กำลังใช้โหมดรายโพสต์ ตั้งราคาแต่ละโพสต์ในรายการด้านล่าง",
+    scheduledLabel: "ตั้งเวลา",
+    unschedule: "ยกเลิกเวลา",
+    publishNow: "เผยแพร่ทันที",
+    chooseFile: "เลือกรูปไฟล์",
+    chooseFiles: "เลือกหลายไฟล์",
+    noFileChosen: "ยังไม่ได้เลือกไฟล์",
+    filesSelected: "ไฟล์ที่เลือก"
   },
   my: {
     sectionTitle: "သင့်စတိုးကို စီမံပါ", sectionSubtitle: "ပရိုဖိုင်ပြင်ဆင်ခြင်း၊ စာရင်းထုတ်ခြင်းနှင့် lifestyle post များကို မျှဝေပါ",
@@ -916,7 +1114,106 @@ const SELLER_I18N = {
     customReason: "စိတ်ကြိုက် အကြောင်းပြချက်", report: "report", reporting: "report လုပ်နေသည်...", loadMorePosts: "post များထပ်ဖွင့်မည်",
     quickProfile: "ပရိုဖိုင်", quickNewListing: "စာရင်းသစ်", quickInbox: "စာဝင်ပုံး", quickNewPost: "post အသစ်", quickListings: "စာရင်းများ",
     showTranslation: "ဘာသာပြန်ကိုပြရန်", showOriginal: "မူရင်းကိုပြရန်",
-    addWalletReplyPrefix: "အနည်းဆုံး", addWalletReplySuffix: "ကို wallet ထဲ ထည့်ပြီးမှ reply ပို့နိုင်ပါမည်။"
+    addWalletReplyPrefix: "အနည်းဆုံး", addWalletReplySuffix: "ကို wallet ထဲ ထည့်ပြီးမှ reply ပို့နိုင်ပါမည်။",
+    languages: "ဘာသာစကားများ",
+    barAffiliation: "bar ချိတ်ဆက်မှု",
+    barAffiliationHelp: "bar ရွေးချယ်ပါက အတည်ပြုခွင့်ပြုရန် တောင်းဆိုချက် ပို့မည်။ ချိတ်ဆက်မှုဖယ်ရှားခြင်းသည် ချက်ချင်းအသက်ဝင်သည်",
+    currentlyAffiliatedWith: "လက်ရှိချိတ်ဆက်ထားသည်",
+    removeAffiliation: "ချိတ်ဆက်မှုဖယ်ရှားရန်",
+    pendingBarRequests: "bar များသို့ ပို့ထားသော တောင်းဆိုချက်များ",
+    barInvitesAwaitingApproval: "သင်အတည်ပြုရန် စောင့်နေသော bar ဖိတ်ကြားချက်များ",
+    cancel: "ပယ်ဖျက်မည်",
+    approve: "အတည်ပြုမည်",
+    reject: "ငြင်းပယ်မည်",
+    customRequests: "စိတ်ကြိုက်တောင်းဆိုချက်များ",
+    requestsCount: "တောင်းဆိုချက်",
+    receivedLabel: "လက်ခံရရှိ",
+    sentLabel: "ပို့ပြီး",
+    noCustomRequests: "စိတ်ကြိုက်တောင်းဆိုချက် မရှိသေးပါ",
+    buyer: "ဝယ်သူ",
+    noEmail: "အီးမေးလ်မရှိ",
+    preferencesLabel: "လိုလားချက်",
+    shippingCountryLabel: "ပို့ဆောင်မည့်နိုင်ငံ",
+    notProvided: "မဖော်ပြထား",
+    noDetailsProvided: "အသေးစိတ်မရှိပါ",
+    buyerImageUploads: "ဝယ်သူ၏ပုံအပ်လုဒ်",
+    buyerUploadsEnabled: "ဝယ်သူပုံအပ်လုဒ်ကို ဖွင့်ပြီးပါပြီ",
+    buyerUploadsDisabled: "ဝယ်သူပုံအပ်လုဒ်ကို ပိတ်ပြီးပါပြီ",
+    allowBuyerUploads: "ဝယ်သူအား ပုံအပ်လုဒ်ခွင့်ပြုမည်",
+    buyerUploadsHelp: "ရောင်းသူက ပုံကို အမြဲတမ်းတင်နိုင်သည်။ ဝယ်သူတင်ခြင်းကို ဒီနေရာမှာမဖွင့်မချင်း မူလအတိုင်း ပိတ်ထားသည်",
+    priceProposal: "စျေးနှုန်းအဆိုပြု",
+    currentQuoteLabel: "လက်ရှိအဆိုပြုစျေး",
+    notProposedYet: "မအဆိုပြုရသေးပါ",
+    buyerCounterLabel: "ဝယ်သူပြန်ညှိစျေး",
+    lastNoteLabel: "နောက်ဆုံးမှတ်ချက်",
+    quotePlaceholder: "အဆိုပြုစျေး (THB)",
+    optionalNotePlaceholder: "ဝယ်သူသို့ မှတ်ချက် (optional)",
+    quoteSent: "အဆိုပြုစျေးပို့ပြီးပါပြီ",
+    sendQuote: "စျေးပို့မည်",
+    counterAccepted: "ပြန်ညှိစျေးလက်ခံပြီး ဝယ်သူသည် ယခုပေးချေနိုင်ပါသည်",
+    acceptCounter: "ပြန်ညှိစျေးလက်ခံမည်",
+    counterDeclined: "ပြန်ညှိစျေးကို ငြင်းပယ်ပြီး မူလအဆိုပြုစျေး ဆက်လက်အသက်ဝင်သည်",
+    declineCounter: "ပြန်ညှိစျေးငြင်းပယ်မည်",
+    noRepliesYet: "ပြန်စာမရှိသေးပါ",
+    customRequestAttachment: "စိတ်ကြိုက်တောင်းဆိုချက် ပူးတွဲဖိုင်",
+    replyToCustomRequest: "ဤတောင်းဆိုချက်ကို ပြန်စာရေးပါ",
+    send: "ပို့မည်",
+    clearImages: "ပုံဖျက်မည်",
+    draftAttachment: "မူကြမ်းပူးတွဲဖိုင်",
+    awaitingBuyerPayment: "ဝယ်သူပေးချေမှု စောင့်နေသည်",
+    statusNone: "မရှိ",
+    statusProposed: "အဆိုပြုထားသည်",
+    statusCountered: "ပြန်ညှိထားသည်",
+    statusAccepted: "လက်ခံပြီး",
+    statusDeclined: "ငြင်းပယ်ပြီး",
+    statusPaid: "ပေးချေပြီး",
+    statusExpired: "သက်တမ်းကုန်",
+    sellerDashboardEyebrow: "seller dashboard",
+    sellerPresence: "seller အခြေအနေ",
+    online: "အွန်လိုင်း",
+    offline: "အော့ဖ်လိုင်း",
+    feedVisibilityMode: "feed မြင်နိုင်မှုမုဒ်",
+    publicAllPosts: "post အားလုံး public",
+    privateAllPosts: "post အားလုံး private",
+    chooseEachPost: "post တစ်ခုချင်းရွေးမည်",
+    presenceHelp: "online/offline အခြေအနေကို သင့်စာရင်းနှင့် post များတွင်ပြမည်။ global mode သို့မဟုတ် post တစ်ခုချင်း သတ်မှတ်နိုင်သည်",
+    size: "အရွယ်အစား",
+    type: "အမျိုးအစား",
+    fabric: "အထည်",
+    daysWorn: "ဝတ်ထားသည့်ရက်",
+    condition: "အခြေအနေ",
+    scentLevel: "အနံ့အဆင့်",
+    scheduleOptional: "အချိန်ဇယား (ရွေးချယ်နိုင်)",
+    futureTimeOnly: "အနာဂတ်အချိန်ကိုသာ ရွေးပါ။ ယခုပဲတင်လိုပါက ကွက်လပ်ထားပါ",
+    postVisibility: "post မြင်နိုင်မှု",
+    controlledByFeedMode: "feed mode ဖြင့် ထိန်းချုပ်သည်",
+    privateUnlockPrice: "private unlock စျေး (THB)",
+    lockedPosts: "locked post များ",
+    paidUnlocks: "ငွေပေး unlock များ",
+    unlockRevenue: "unlock ဝင်ငွေ",
+    topPost: "ထိပ်တန်း post",
+    earnings: "ဝင်ငွေ",
+    grossEarnings: "စုစုပေါင်းဝင်ငွေ",
+    grossEarningsHelp: "platform/bar fee ခွဲဝေမတိုင်မီ",
+    netEarnings: "စစ်ဝင်ငွေ",
+    netEarningsHelp: "သင့် wallet သို့ ထည့်သွင်းသောပမာဏ",
+    scheduledPosts: "အချိန်ဇယားတင်ထားသော post များ",
+    likes: "ကြိုက်နှစ်သက်မှု",
+    engagement7Day: "၇ ရက်အတွင်း engagement",
+    trendVsPrevious7Day: "မတိုင်မီ ၇ ရက်နှင့် နှိုင်းယှဉ်ချက်",
+    privatePostPricingMode: "private post ဈေးနှုန်းမုဒ်",
+    samePriceForAllPrivate: "private post အားလုံး တူညီဈေး",
+    individualPricePerPost: "post တစ်ခုချင်းဈေး",
+    bulkPriceForAllPrivate: "private post အားလုံးအတွက် bulk ဈေး",
+    applyToAllPrivate: "အားလုံးသို့ သတ်မှတ်မည်",
+    individualModeHelp: "individual mode အသုံးပြုနေသည်။ အောက်တွင် post တစ်ခုချင်းဈေး သတ်မှတ်ပါ",
+    scheduledLabel: "စီစဉ်ထားသည်",
+    unschedule: "အချိန်ဇယားဖျက်မည်",
+    publishNow: "ယခုပဲ တင်မည်",
+    chooseFile: "ဖိုင်ရွေးမည်",
+    chooseFiles: "ဖိုင်များရွေးမည်",
+    noFileChosen: "ဖိုင်မရွေးရသေးပါ",
+    filesSelected: "ဖိုင်ရွေးထားသည်"
   },
   ru: {
     sectionTitle: "Управление витриной", sectionSubtitle: "Обновляйте профиль, публикуйте объявления и делитесь постами.",
@@ -944,7 +1241,106 @@ const SELLER_I18N = {
     customReason: "Своя причина", report: "Пожаловаться", reporting: "Отправка...", loadMorePosts: "Загрузить еще",
     quickProfile: "Профиль", quickNewListing: "Новое объявление", quickInbox: "Входящие", quickNewPost: "Новый пост", quickListings: "Объявления",
     showTranslation: "Показать перевод", showOriginal: "Показать оригинал",
-    addWalletReplyPrefix: "Добавьте минимум", addWalletReplySuffix: "в кошелек, чтобы ответить."
+    addWalletReplyPrefix: "Добавьте минимум", addWalletReplySuffix: "в кошелек, чтобы ответить.",
+    languages: "Языки",
+    barAffiliation: "Привязка к бару",
+    barAffiliationHelp: "При выборе бара создается запрос на одобрение. Удаление привязки применяется сразу.",
+    currentlyAffiliatedWith: "Сейчас привязан к",
+    removeAffiliation: "Убрать привязку",
+    pendingBarRequests: "Ожидающие запросы в бары",
+    barInvitesAwaitingApproval: "Приглашения от баров, ожидающие вашего одобрения",
+    cancel: "Отменить",
+    approve: "Одобрить",
+    reject: "Отклонить",
+    customRequests: "Индивидуальные запросы",
+    requestsCount: "запрос(ов)",
+    receivedLabel: "Получено",
+    sentLabel: "Отправлено",
+    noCustomRequests: "Пока нет индивидуальных запросов.",
+    buyer: "Покупатель",
+    noEmail: "Нет email",
+    preferencesLabel: "Пожелания",
+    shippingCountryLabel: "Страна доставки",
+    notProvided: "Не указано",
+    noDetailsProvided: "Детали не указаны.",
+    buyerImageUploads: "Загрузка фото покупателем",
+    buyerUploadsEnabled: "Загрузка фото покупателем включена.",
+    buyerUploadsDisabled: "Загрузка фото покупателем отключена.",
+    allowBuyerUploads: "Разрешить покупателю загружать фото",
+    buyerUploadsHelp: "Продавец всегда может загружать фото. Загрузка покупателем по умолчанию отключена, пока не включите здесь.",
+    priceProposal: "Предложение цены",
+    currentQuoteLabel: "Текущая цена",
+    notProposedYet: "Пока не предложена",
+    buyerCounterLabel: "Встречная цена покупателя",
+    lastNoteLabel: "Последняя заметка",
+    quotePlaceholder: "Цена (THB)",
+    optionalNotePlaceholder: "Комментарий покупателю (необязательно)",
+    quoteSent: "Предложение отправлено.",
+    sendQuote: "Отправить цену",
+    counterAccepted: "Встречная цена принята. Покупатель может оплатить.",
+    acceptCounter: "Принять встречную цену",
+    counterDeclined: "Встречная цена отклонена. Текущая цена остается активной.",
+    declineCounter: "Отклонить встречную цену",
+    noRepliesYet: "Ответов пока нет.",
+    customRequestAttachment: "Вложение запроса",
+    replyToCustomRequest: "Ответить по этому запросу",
+    send: "Отправить",
+    clearImages: "Очистить фото",
+    draftAttachment: "Черновое вложение",
+    awaitingBuyerPayment: "ожидает оплату покупателя",
+    statusNone: "нет",
+    statusProposed: "предложено",
+    statusCountered: "встречное предложение",
+    statusAccepted: "принято",
+    statusDeclined: "отклонено",
+    statusPaid: "оплачено",
+    statusExpired: "истекло",
+    sellerDashboardEyebrow: "Панель продавца",
+    sellerPresence: "Статус продавца",
+    online: "Онлайн",
+    offline: "Оффлайн",
+    feedVisibilityMode: "Режим видимости ленты",
+    publicAllPosts: "Все посты публичные",
+    privateAllPosts: "Все посты приватные",
+    chooseEachPost: "Выбирать для каждого поста",
+    presenceHelp: "Статус онлайн/оффлайн отображается в ваших объявлениях и постах. Используйте общий режим или настройку для каждого поста.",
+    size: "Размер",
+    type: "Тип",
+    fabric: "Ткань",
+    daysWorn: "Дней ношения",
+    condition: "Состояние",
+    scentLevel: "Уровень запаха",
+    scheduleOptional: "Расписание (необязательно)",
+    futureTimeOnly: "Только будущее время. Оставьте пустым, чтобы опубликовать сейчас.",
+    postVisibility: "Видимость поста",
+    controlledByFeedMode: "Управляется режимом ленты",
+    privateUnlockPrice: "Цена разблокировки приватного поста (THB)",
+    lockedPosts: "Закрытые посты",
+    paidUnlocks: "Платные разблокировки",
+    unlockRevenue: "Доход от разблокировок",
+    topPost: "Топ-пост",
+    earnings: "Доход",
+    grossEarnings: "Валовый доход",
+    grossEarningsHelp: "До распределения комиссии платформы/бара.",
+    netEarnings: "Чистый доход",
+    netEarningsHelp: "Сумма, зачисленная в ваш кошелек.",
+    scheduledPosts: "Запланированные посты",
+    likes: "Лайки",
+    engagement7Day: "Вовлеченность за 7 дней",
+    trendVsPrevious7Day: "Тренд к предыдущим 7 дням",
+    privatePostPricingMode: "Режим цены приватных постов",
+    samePriceForAllPrivate: "Одинаковая цена для всех приватных постов",
+    individualPricePerPost: "Отдельная цена для каждого поста",
+    bulkPriceForAllPrivate: "Общая цена для всех приватных постов",
+    applyToAllPrivate: "Применить ко всем",
+    individualModeHelp: "Включен индивидуальный режим. Укажите цену для каждого приватного поста ниже",
+    scheduledLabel: "Запланирован",
+    unschedule: "Отменить расписание",
+    publishNow: "Опубликовать сейчас",
+    chooseFile: "Выбрать файл",
+    chooseFiles: "Выбрать файлы",
+    noFileChosen: "Файл не выбран",
+    filesSelected: "файл(ов) выбрано"
   }
 };
 
@@ -1082,6 +1478,15 @@ export function SellerDashboardPage({
   const sellerInboxSentCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "seller").length;
   const sellerUnreadConversationCount = (sellerInbox || []).filter((message) => message.hasUnread ?? !message.readBySeller).length;
   const firstUnreadSellerConversation = (sellerInbox || []).find((message) => message.hasUnread ?? !message.readBySeller) || null;
+  const unlockRevenue = Number(sellerPostAnalytics?.unlockRevenue || 0);
+  const messageRevenue = Number(sellerPostAnalytics?.messageRevenue || 0);
+  const netEarnings = Number(
+    sellerPostAnalytics?.totalRevenue
+    ?? Number((unlockRevenue + messageRevenue).toFixed(2))
+  );
+  const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.7 : 0.8;
+  const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
+  const grossEarnings = Number((unlockRevenue + grossMessageFees).toFixed(2));
   const customRequestMessageStats = useMemo(() => {
     const requestIdSet = new Set((sellerCustomRequests || []).map((request) => request.id));
     let sent = 0;
@@ -1124,9 +1529,19 @@ export function SellerDashboardPage({
   };
   const getQuoteStatusLabel = (request) => {
     if ((request?.quoteStatus || "") === "proposed" && request?.quoteAwaitingBuyerPayment) {
-      return "awaiting buyer payment";
+      return t("awaitingBuyerPayment");
     }
-    return request?.quoteStatus || "none";
+    const status = String(request?.quoteStatus || "none");
+    const statusMap = {
+      none: t("statusNone"),
+      proposed: t("statusProposed"),
+      countered: t("statusCountered"),
+      accepted: t("statusAccepted"),
+      declined: t("statusDeclined"),
+      paid: t("statusPaid"),
+      expired: t("statusExpired"),
+    };
+    return statusMap[status] || status;
   };
   const handleCustomRequestImageDraftSelect = async (requestId, fileList) => {
     const files = Array.from(fileList || []).slice(0, 4);
@@ -1171,7 +1586,7 @@ export function SellerDashboardPage({
         </div>
       ) : (
         <>
-          <SectionTitle eyebrow="Seller dashboard" title={t("sectionTitle")} subtitle={t("sectionSubtitle")} />
+          <SectionTitle eyebrow={t("sellerDashboardEyebrow")} title={t("sectionTitle")} subtitle={t("sectionSubtitle")} />
           {sellerUnreadConversationCount > 0 ? (
             <div className="mb-4 rounded-3xl border border-amber-200 bg-amber-50 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1290,40 +1705,40 @@ export function SellerDashboardPage({
               <h3 className="text-xl font-semibold">{t("profileChecklist")}</h3>
               <div className="mt-1 text-sm text-slate-500">Profile: {currentSellerProfile?.name || "Seller profile"}</div>
               <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Seller presence</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("sellerPresence")}</div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     onClick={toggleSellerOnlineStatus}
                     className={`rounded-xl border px-3 py-2 text-xs font-semibold ${isSellerOnline ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600"}`}
                   >
-                    {isSellerOnline ? "Online" : "Offline"}
+                    {isSellerOnline ? t("online") : t("offline")}
                   </button>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-slate-500">Feed visibility mode</span>
+                    <span className="text-xs text-slate-500">{t("feedVisibilityMode")}</span>
                     <button
                       type="button"
                       onClick={() => setSellerFeedVisibility("public")}
                       className={`rounded-xl border px-3 py-2 text-xs font-semibold ${sellerFeedVisibility === "public" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600"}`}
                     >
-                      Public all posts
+                      {t("publicAllPosts")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setSellerFeedVisibility("private")}
                       className={`rounded-xl border px-3 py-2 text-xs font-semibold ${sellerFeedVisibility === "private" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-slate-200 bg-white text-slate-600"}`}
                     >
-                      Private all posts
+                      {t("privateAllPosts")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setSellerFeedVisibility("per-post")}
                       className={`rounded-xl border px-3 py-2 text-xs font-semibold ${sellerFeedVisibility === "per-post" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 bg-white text-slate-600"}`}
                     >
-                      Choose each post
+                      {t("chooseEachPost")}
                     </button>
                   </div>
                 </div>
-                <p className="mt-2 text-xs text-slate-500">Online/offline appears on your listings and posts. Use a global visibility mode or choose visibility per post.</p>
+                <p className="mt-2 text-xs text-slate-500">{t("presenceHelp")}</p>
               </div>
               <div className="mt-4 space-y-2">
                 {sellerProfileChecklist.length === 0 ? (
@@ -1342,11 +1757,18 @@ export function SellerDashboardPage({
                     />
                   </div>
                   <input
+                    id="seller-profile-image-input"
                     type="file"
                     accept="image/*"
                     onChange={handleSellerProfileImageUpload}
-                    className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm"
+                    className="sr-only"
                   />
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
+                    <label htmlFor="seller-profile-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
+                      {t("chooseFile")}
+                    </label>
+                    <span className="text-xs text-slate-600">{sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("noFileChosen")}</span>
+                  </div>
                   <div className="mt-2 text-xs text-slate-500">If no image is uploaded, buyers will see a default placeholder with your seller name.</div>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1369,14 +1791,14 @@ export function SellerDashboardPage({
                             onClick={() => updateSellerProfileField("specialties", selected ? sellerSpecialties.filter((item) => item !== value) : [...sellerSpecialties, value])}
                             className={`rounded-xl px-3 py-2 text-xs font-semibold ${selected ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
                           >
-                            {value}
+                            {localizeOptionLabel(value, locale)}
                           </button>
                         );
                       })}
                     </div>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Languages</span>
+                    <span className="font-medium">{t("languages")}</span>
                     <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 px-3 py-3">
                       {SELLER_LANGUAGE_OPTIONS.map((value) => {
                         const selected = sellerLanguages.includes(value);
@@ -1387,14 +1809,14 @@ export function SellerDashboardPage({
                             onClick={() => updateSellerProfileField("languages", selected ? sellerLanguages.filter((item) => item !== value) : [...sellerLanguages, value])}
                             className={`rounded-xl px-3 py-2 text-xs font-semibold ${selected ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
                           >
-                            {value}
+                            {localizeOptionLabel(value, locale)}
                           </button>
                         );
                       })}
                     </div>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Bar affiliation</span>
+                    <span className="font-medium">{t("barAffiliation")}</span>
                     <select
                       value={sellerProfileDraft.affiliatedBarId || ""}
                       onChange={(event) => updateSellerProfileField("affiliatedBarId", event.target.value)}
@@ -1405,22 +1827,22 @@ export function SellerDashboardPage({
                         <option key={bar.id} value={bar.id}>{bar.name}</option>
                       ))}
                     </select>
-                    <span className="text-xs text-slate-500">Adding a bar now creates an approval request. Removing your affiliation applies immediately.</span>
+                    <span className="text-xs text-slate-500">{t("barAffiliationHelp")}</span>
                     {currentAffiliatedBar ? (
                       <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
-                        Currently affiliated with <span className="font-semibold">{currentAffiliatedBar.name}</span>.
+                        {t("currentlyAffiliatedWith")} <span className="font-semibold">{currentAffiliatedBar.name}</span>.
                         <button
                           type="button"
                           onClick={removeSellerFromCurrentBarBySeller}
                           className="ml-2 rounded-lg border border-indigo-200 px-2 py-0.5 font-semibold text-indigo-700"
                         >
-                          Remove affiliation
+                          {t("removeAffiliation")}
                         </button>
                       </div>
                     ) : null}
                     {(sellerOutgoingAffiliationRequests || []).length > 0 ? (
                       <div className="space-y-2 rounded-2xl border border-amber-100 bg-amber-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">Pending requests to bars</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">{t("pendingBarRequests")}</div>
                         {(sellerOutgoingAffiliationRequests || []).map((request) => (
                           <div key={request.id} className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-amber-100">
                             <span>{barMap?.[request.barId]?.name || request.barId}</span>
@@ -1429,7 +1851,7 @@ export function SellerDashboardPage({
                               onClick={() => cancelBarAffiliationRequest?.(request.id)}
                               className="rounded-lg border border-slate-200 px-2 py-0.5 font-semibold text-slate-700"
                             >
-                              Cancel
+                              {t("cancel")}
                             </button>
                           </div>
                         ))}
@@ -1437,7 +1859,7 @@ export function SellerDashboardPage({
                     ) : null}
                     {(sellerIncomingAffiliationRequests || []).length > 0 ? (
                       <div className="space-y-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Bar invites awaiting your approval</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{t("barInvitesAwaitingApproval")}</div>
                         {(sellerIncomingAffiliationRequests || []).map((request) => (
                           <div key={request.id} className="rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-emerald-100">
                             <div className="font-semibold">{barMap?.[request.barId]?.name || request.barId}</div>
@@ -1447,14 +1869,14 @@ export function SellerDashboardPage({
                                 onClick={() => respondToBarAffiliationRequest?.(request.id, "approved")}
                                 className="rounded-lg border border-emerald-200 px-2 py-1 font-semibold text-emerald-700"
                               >
-                                Approve
+                                {t("approve")}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => respondToBarAffiliationRequest?.(request.id, "rejected")}
                                 className="rounded-lg border border-rose-200 px-2 py-1 font-semibold text-rose-700"
                               >
-                                Reject
+                                {t("reject")}
                               </button>
                             </div>
                           </div>
@@ -1475,7 +1897,7 @@ export function SellerDashboardPage({
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={uploadDraft.price} onChange={(e) => setUploadDraft((prev) => ({ ...prev, price: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("price")} />
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Color</span>
+                    <span className="font-medium">{t("color")}</span>
                     <select value={uploadDraft.color} onChange={(e) => setUploadDraft((prev) => ({ ...prev, color: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
                       {COLOR_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
@@ -1483,35 +1905,47 @@ export function SellerDashboardPage({
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Size</span>
+                    <span className="font-medium">{t("size")}</span>
                     <select value={uploadDraft.size} onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{SHARED_SIZE_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Type</span>
+                    <span className="font-medium">{t("type")}</span>
                     <select value={uploadDraft.style} onChange={(e) => setUploadDraft((prev) => ({ ...prev, style: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{STYLE_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Fabric</span>
+                    <span className="font-medium">{t("fabric")}</span>
                     <select value={uploadDraft.fabric} onChange={(e) => setUploadDraft((prev) => ({ ...prev, fabric: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{FABRIC_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
                   </label>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Days worn</span>
+                    <span className="font-medium">{t("daysWorn")}</span>
                     <select value={uploadDraft.daysWorn} onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{DAYS_WORN_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Condition</span>
+                    <span className="font-medium">{t("condition")}</span>
                     <select value={uploadDraft.condition} onChange={(e) => setUploadDraft((prev) => ({ ...prev, condition: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{CONDITION_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
                   </label>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Scent level</span>
+                    <span className="font-medium">{t("scentLevel")}</span>
                     <select value={uploadDraft.scentLevel} onChange={(e) => setUploadDraft((prev) => ({ ...prev, scentLevel: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">{SCENT_LEVEL_OPTIONS.map((value) => <option key={value}>{localizeOptionLabel(value, locale)}</option>)}</select>
                   </label>
                 </div>
-                <input type="file" accept="image/*" onChange={handleUploadFile} className="rounded-2xl border border-dashed border-rose-300 px-4 py-3" />
+                <input
+                  id="seller-product-image-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleUploadFile}
+                  className="sr-only"
+                />
+                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
+                  <label htmlFor="seller-product-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
+                    {t("chooseFile")}
+                  </label>
+                  <span className="text-xs text-slate-600">{uploadDraft.imageName || t("noFileChosen")}</span>
+                </div>
                 <div className="h-40">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} /> : <ProductImage label={t("imagePreview")} />}</div>
                 <button onClick={createProductFromUpload} className="rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
               </div>
@@ -1716,21 +2150,21 @@ export function SellerDashboardPage({
               </div>
               <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-semibold">Custom requests</h3>
+                  <h3 className="text-xl font-semibold">{t("customRequests")}</h3>
                   <div className="flex items-center gap-2">
-                    <div className="text-sm text-slate-500">{(sellerCustomRequests || []).length} request(s)</div>
-                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">Received {customRequestMessageStats.received}</div>
-                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">Sent {customRequestMessageStats.sent}</div>
+                    <div className="text-sm text-slate-500">{(sellerCustomRequests || []).length} {t("requestsCount")}</div>
+                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{t("receivedLabel")} {customRequestMessageStats.received}</div>
+                    <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{t("sentLabel")} {customRequestMessageStats.sent}</div>
                   </div>
                 </div>
                 <div className="mt-4 space-y-3">
                   {(sellerCustomRequests || []).length === 0 ? (
-                    <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">No custom requests yet.</div>
+                    <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noCustomRequests")}</div>
                   ) : (sellerCustomRequests || []).map((request) => (
                     <div key={request.id} className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <div className="font-semibold">{request.buyerName || "Buyer"} · {request.buyerEmail || "No email"}</div>
+                          <div className="font-semibold">{request.buyerName || t("buyer")} · {request.buyerEmail || t("noEmail")}</div>
                           <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(request.createdAt || Date.now())}</div>
                         </div>
                         <select
@@ -1744,12 +2178,12 @@ export function SellerDashboardPage({
                           <option value="closed">{localizeOptionLabel("closed", locale)}</option>
                         </select>
                       </div>
-                      <div className="mt-2 text-sm text-slate-700"><span className="font-medium">Preferences:</span> {request.preferredDetails || "Not provided"}</div>
-                      <div className="mt-1 text-sm text-slate-700"><span className="font-medium">Shipping country:</span> {request.shippingCountry || "Not provided"}</div>
-                      <div className="mt-2 text-sm leading-6 text-slate-600">{request.requestBody || "No details provided."}</div>
+                      <div className="mt-2 text-sm text-slate-700"><span className="font-medium">{t("preferencesLabel")}:</span> {request.preferredDetails || t("notProvided")}</div>
+                      <div className="mt-1 text-sm text-slate-700"><span className="font-medium">{t("shippingCountryLabel")}:</span> {request.shippingCountry || t("notProvided")}</div>
+                      <div className="mt-2 text-sm leading-6 text-slate-600">{request.requestBody || t("noDetailsProvided")}</div>
                       <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/40 p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">Buyer image uploads</div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("buyerImageUploads")}</div>
                           <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-700">
                             <input
                               type="checkbox"
@@ -1758,32 +2192,32 @@ export function SellerDashboardPage({
                                 toggleCustomRequestBuyerImageUpload(
                                   request.id,
                                   event.target.checked,
-                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: event.target.checked ? "Buyer image uploads enabled." : "Buyer image uploads disabled." })),
+                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: event.target.checked ? t("buyerUploadsEnabled") : t("buyerUploadsDisabled") })),
                                   (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
                                 );
                               }}
                               className="h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
                             />
-                            Allow buyer to upload images
+                            {t("allowBuyerUploads")}
                           </label>
                         </div>
                         <div className="mt-1 text-[11px] text-slate-500">
-                          Sellers can always upload images. Buyer uploads are blocked by default until enabled here.
+                          {t("buyerUploadsHelp")}
                         </div>
                       </div>
                       <div className="mt-3 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">Price proposal</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">{t("priceProposal")}</div>
                         <div className="mt-2 text-sm text-slate-700">
-                          Current quote:{" "}
+                          {t("currentQuoteLabel")}:{" "}
                           <span className="font-semibold">
-                            {Number(request.quotedPriceThb || 0) > 0 ? formatPriceTHB(Number(request.quotedPriceThb || 0)) : "Not proposed yet"}
+                            {Number(request.quotedPriceThb || 0) > 0 ? formatPriceTHB(Number(request.quotedPriceThb || 0)) : t("notProposedYet")}
                           </span>
                           {" · "}
                           <span className="capitalize">{getQuoteStatusLabel(request)}</span>
-                          {Number(request.buyerCounterPriceThb || 0) > 0 ? ` · Buyer counter: ${formatPriceTHB(Number(request.buyerCounterPriceThb || 0))}` : ""}
+                          {Number(request.buyerCounterPriceThb || 0) > 0 ? ` · ${t("buyerCounterLabel")}: ${formatPriceTHB(Number(request.buyerCounterPriceThb || 0))}` : ""}
                         </div>
                         {request.quoteMessage ? (
-                          <div className="mt-1 text-xs text-slate-600">Last note: {request.quoteMessage}</div>
+                          <div className="mt-1 text-xs text-slate-600">{t("lastNoteLabel")}: {request.quoteMessage}</div>
                         ) : null}
                         <div className="mt-2 grid gap-2 sm:grid-cols-[0.55fr_1fr_auto]">
                           <input
@@ -1793,13 +2227,13 @@ export function SellerDashboardPage({
                             value={customRequestQuoteDraftById[request.id] ?? (Number(request.quotedPriceThb || 0) > 0 ? String(request.quotedPriceThb) : "")}
                             onChange={(event) => setCustomRequestQuoteDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
                             className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
-                            placeholder="Quote THB"
+                            placeholder={t("quotePlaceholder")}
                           />
                           <input
                             value={customRequestQuoteNoteById[request.id] || ""}
                             onChange={(event) => setCustomRequestQuoteNoteById((prev) => ({ ...prev, [request.id]: event.target.value }))}
                             className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
-                            placeholder="Optional note to buyer"
+                            placeholder={t("optionalNotePlaceholder")}
                           />
                           <button
                             onClick={() => {
@@ -1809,13 +2243,13 @@ export function SellerDashboardPage({
                                 request.id,
                                 priceDraft,
                                 noteDraft,
-                                () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: "Quote sent." })),
+                                () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: t("quoteSent") })),
                                 (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
                               );
                             }}
                             className="rounded-xl border border-indigo-200 px-3 py-2 text-xs font-semibold text-indigo-700"
                           >
-                            Send quote
+                            {t("sendQuote")}
                           </button>
                         </div>
                         {customRequestQuoteMessageById[request.id] ? (
@@ -1828,26 +2262,26 @@ export function SellerDashboardPage({
                                 respondToCustomRequestCounter(
                                   request.id,
                                   "accept",
-                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: "Counter accepted. Buyer can now pay." })),
+                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: t("counterAccepted") })),
                                   (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
                                 );
                               }}
                               className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white"
                             >
-                              Accept counter
+                              {t("acceptCounter")}
                             </button>
                             <button
                               onClick={() => {
                                 respondToCustomRequestCounter(
                                   request.id,
                                   "decline",
-                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: "Counter declined. Quote remains active." })),
+                                  () => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: t("counterDeclined") })),
                                   (errorMessage) => setCustomRequestQuoteMessageById((prev) => ({ ...prev, [request.id]: errorMessage || "" })),
                                 );
                               }}
                               className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700"
                             >
-                              Decline counter
+                              {t("declineCounter")}
                             </button>
                           </div>
                         ) : null}
@@ -1855,7 +2289,7 @@ export function SellerDashboardPage({
                       <div className="mt-3 rounded-2xl bg-slate-50 p-3">
                         <div className="max-h-40 space-y-2 overflow-y-auto">
                           {(customRequestMessagesByRequestId?.[request.id] || []).length === 0 ? (
-                            <div className="text-xs text-slate-500">No replies yet.</div>
+                            <div className="text-xs text-slate-500">{t("noRepliesYet")}</div>
                           ) : (customRequestMessagesByRequestId?.[request.id] || []).map((message) => (
                             <div key={message.id} className={`max-w-[90%] rounded-xl px-3 py-2 text-xs ${message.senderRole === "seller" ? "ml-auto bg-rose-600 text-white" : "bg-white text-slate-700 ring-1 ring-rose-100"}`}>
                               <div>{resolveConversationMessageBody(message)}</div>
@@ -1869,7 +2303,7 @@ export function SellerDashboardPage({
                                       rel="noreferrer"
                                       className="block overflow-hidden rounded-lg ring-1 ring-rose-200/60"
                                     >
-                                      <ProductImage src={image.image} label={image.imageName || "Custom request attachment"} />
+                                      <ProductImage src={image.image} label={image.imageName || t("customRequestAttachment")} />
                                     </a>
                                   ))}
                                 </div>
@@ -1891,7 +2325,7 @@ export function SellerDashboardPage({
                             value={customRequestReplyDraftById[request.id] || ""}
                             onChange={(event) => setCustomRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
                             className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-xs"
-                            placeholder="Reply to this custom request"
+                            placeholder={t("replyToCustomRequest")}
                           />
                           <button
                             onClick={() => {
@@ -1907,24 +2341,36 @@ export function SellerDashboardPage({
                             }}
                             className="rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white"
                           >
-                            Send
+                            {t("send")}
                           </button>
                         </div>
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           <input
+                            id={`custom-request-image-${request.id}`}
                             type="file"
                             accept="image/*"
                             multiple
                             onChange={(event) => handleCustomRequestImageDraftSelect(request.id, event.target.files)}
-                            className="max-w-full rounded-xl border border-dashed border-rose-300 px-3 py-2 text-[11px]"
+                            className="sr-only"
                           />
+                          <label
+                            htmlFor={`custom-request-image-${request.id}`}
+                            className="cursor-pointer rounded-lg border border-rose-200 bg-white px-2 py-1 text-[11px] font-semibold text-rose-700"
+                          >
+                            {t("chooseFiles")}
+                          </label>
+                          <span className="text-[11px] text-slate-600">
+                            {(customRequestImageDraftById[request.id] || []).length > 0
+                              ? `${(customRequestImageDraftById[request.id] || []).length} ${t("filesSelected")}`
+                              : t("noFileChosen")}
+                          </span>
                           {(customRequestImageDraftById[request.id] || []).length > 0 ? (
                             <button
                               type="button"
                               onClick={() => setCustomRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }))}
                               className="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700"
                             >
-                              Clear images
+                              {t("clearImages")}
                             </button>
                           ) : null}
                         </div>
@@ -1932,7 +2378,7 @@ export function SellerDashboardPage({
                           <div className="mt-2 grid grid-cols-2 gap-2">
                             {(customRequestImageDraftById[request.id] || []).map((image) => (
                               <div key={image.id} className="overflow-hidden rounded-lg ring-1 ring-rose-200/60">
-                                <ProductImage src={image.image} label={image.imageName || "Draft attachment"} />
+                                <ProductImage src={image.image} label={image.imageName || t("draftAttachment")} />
                               </div>
                             ))}
                           </div>
@@ -1953,20 +2399,32 @@ export function SellerDashboardPage({
                     maxLength={500}
                     placeholder={t("captionPlaceholder")}
                   />
-                  <input type="file" accept="image/*" onChange={handleSellerPostImageUpload} className="rounded-2xl border border-dashed border-rose-300 px-4 py-3" />
+                  <input
+                    id="seller-post-image-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleSellerPostImageUpload}
+                    className="sr-only"
+                  />
+                  <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
+                    <label htmlFor="seller-post-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
+                      {t("chooseFile")}
+                    </label>
+                    <span className="text-xs text-slate-600">{sellerPostDraft.imageName || t("noFileChosen")}</span>
+                  </div>
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Schedule (optional)</span>
+                    <span className="font-medium">{t("scheduleOptional")}</span>
                     <input
                       type="datetime-local"
                       value={sellerPostDraft.scheduledFor || ""}
                       onChange={(event) => setSellerPostDraft((prev) => ({ ...prev, scheduledFor: event.target.value }))}
                       className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                     />
-                    <span className="text-[11px] text-slate-500">Future time only. Leave blank to publish now.</span>
+                    <span className="text-[11px] text-slate-500">{t("futureTimeOnly")}</span>
                   </label>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <label className="grid gap-1 text-sm text-slate-600">
-                      <span className="font-medium">Post visibility</span>
+                      <span className="font-medium">{t("postVisibility")}</span>
                       {feedVisibilityMode === "per-post" ? (
                         <select
                           value={draftPostVisibility}
@@ -1978,13 +2436,13 @@ export function SellerDashboardPage({
                         </select>
                       ) : (
                         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                          Controlled by feed mode: {feedVisibilityMode === "private" ? "Private all posts" : "Public all posts"}
+                          {t("controlledByFeedMode")}: {feedVisibilityMode === "private" ? t("privateAllPosts") : t("publicAllPosts")}
                         </div>
                       )}
                     </label>
                     {effectiveDraftVisibility === "private" ? (
                       <label className="grid gap-1 text-sm text-slate-600">
-                        <span className="font-medium">Private unlock price (THB)</span>
+                        <span className="font-medium">{t("privateUnlockPrice")}</span>
                         <input
                           type="number"
                           min={MIN_SELLER_PRICE_THB}
@@ -2025,47 +2483,58 @@ export function SellerDashboardPage({
                   <div className="text-sm text-slate-500">{sellerDashboardPosts.length} post(s)</div>
                 </div>
                 <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Locked posts</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.lockedPostCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Paid unlocks</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.unlockCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Unlock revenue</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(sellerPostAnalytics.unlockRevenue)}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Top post</div><div className="mt-1 text-xs text-slate-600">{sellerPostAnalytics.topPostTitle} ({sellerPostAnalytics.topPostUnlocks})</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("lockedPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.lockedPostCount}</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("paidUnlocks")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.unlockCount}</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("unlockRevenue")}</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(sellerPostAnalytics.unlockRevenue)}</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("topPost")}</div><div className="mt-1 text-xs text-slate-600">{sellerPostAnalytics.topPostTitle} ({sellerPostAnalytics.topPostUnlocks})</div></div>
                 </div>
-                <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-2">
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Message earnings</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(Number(sellerPostAnalytics.messageRevenue || 0))}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Total direct earnings</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(Number(sellerPostAnalytics.totalRevenue || 0))}</div></div>
+                <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-rose-100">
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <div className="rounded-xl border border-slate-200 bg-white p-3">
+                      <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("grossEarnings")}</div>
+                      <div className="mt-1 text-2xl font-semibold text-slate-900">{formatPriceTHB(grossEarnings)}</div>
+                      <div className="mt-1 text-xs text-slate-500">{t("grossEarningsHelp")}</div>
+                    </div>
+                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+                      <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("netEarnings")}</div>
+                      <div className="mt-1 text-2xl font-semibold text-emerald-800">{formatPriceTHB(netEarnings)}</div>
+                      <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
+                    </div>
+                  </div>
                 </div>
                 <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Scheduled posts</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.scheduledPostCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Likes</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.likeCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Comments</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.commentCount}</div></div>
-                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Followers</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.followerCount}</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("scheduledPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.scheduledPostCount}</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("likes")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.likeCount}</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("comments")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.commentCount}</div></div>
+                  <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("followers")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.followerCount}</div></div>
                 </div>
                 <div className="mt-3 rounded-2xl bg-white p-3 text-xs text-slate-600 ring-1 ring-rose-100">
-                  7-day engagement: <span className="font-semibold text-slate-900">{sellerPostAnalytics.recentEngagement}</span>
+                  {t("engagement7Day")}: <span className="font-semibold text-slate-900">{sellerPostAnalytics.recentEngagement}</span>
                   {" · "}
-                  Trend vs previous 7 days: <span className={`font-semibold ${sellerPostAnalytics.engagementTrendPct >= 0 ? "text-emerald-700" : "text-rose-700"}`}>{sellerPostAnalytics.engagementTrendPct >= 0 ? "+" : ""}{sellerPostAnalytics.engagementTrendPct}%</span>
+                  {t("trendVsPrevious7Day")}: <span className={`font-semibold ${sellerPostAnalytics.engagementTrendPct >= 0 ? "text-emerald-700" : "text-rose-700"}`}>{sellerPostAnalytics.engagementTrendPct >= 0 ? "+" : ""}{sellerPostAnalytics.engagementTrendPct}%</span>
                 </div>
                 <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Private post pricing mode</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("privatePostPricingMode")}</div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setPrivatePostPricingMode("all")}
                       className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
                     >
-                      Same price for all private posts
+                      {t("samePriceForAllPrivate")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setPrivatePostPricingMode("individual")}
                       className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "individual" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
                     >
-                      Individual price per post
+                      {t("individualPricePerPost")}
                     </button>
                   </div>
                   {privatePostPricingMode === "all" ? (
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="w-full text-xs text-slate-500 sm:w-auto">Bulk price for all private posts</span>
+                      <span className="w-full text-xs text-slate-500 sm:w-auto">{t("bulkPriceForAllPrivate")}</span>
                       <input
                         type="number"
                         min={MIN_SELLER_PRICE_THB}
@@ -2078,12 +2547,12 @@ export function SellerDashboardPage({
                         onClick={() => updateAllPrivatePostPrices(bulkPrivatePostPrice)}
                         className="w-full rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 sm:w-auto sm:py-1"
                       >
-                        Apply to all private
+                        {t("applyToAllPrivate")}
                       </button>
                     </div>
                   ) : (
                     <div className="mt-3 text-xs text-slate-500">
-                      Individual mode is active. Set each private post price in the post list below (for example, one post at {formatPriceTHB(MIN_SELLER_PRICE_THB)} and another at {formatPriceTHB(MIN_SELLER_PRICE_THB + 500)}).
+                      {t("individualModeHelp")} ({formatPriceTHB(MIN_SELLER_PRICE_THB)} / {formatPriceTHB(MIN_SELLER_PRICE_THB + 500)}).
                     </div>
                   )}
                 </div>
@@ -2096,7 +2565,7 @@ export function SellerDashboardPage({
                         <div className="flex items-center gap-2">
                           <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
                           <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${isSellerOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
-                            {isSellerOnline ? "Online" : "Offline"}
+                            {isSellerOnline ? t("online") : t("offline")}
                           </span>
                         </div>
                         <button
@@ -2110,22 +2579,22 @@ export function SellerDashboardPage({
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         {post.scheduledFor && new Date(post.scheduledFor).getTime() > Date.now() ? (
                           <>
-                            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Scheduled: {formatDateTimeNoSeconds(post.scheduledFor)}</span>
+                            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">{t("scheduledLabel")}: {formatDateTimeNoSeconds(post.scheduledFor)}</span>
                             <button
                               onClick={() => unscheduleSellerPost(post.id)}
                               className="rounded-lg border border-amber-200 px-2 py-1 text-[10px] font-semibold text-amber-700"
                             >
-                              Unschedule
+                              {t("unschedule")}
                             </button>
                             <button
                               onClick={() => publishSellerPostNow(post.id)}
                               className="rounded-lg border border-emerald-200 px-2 py-1 text-[10px] font-semibold text-emerald-700"
                             >
-                              Publish now
+                              {t("publishNow")}
                             </button>
                           </>
                         ) : null}
-                        <span className="text-xs text-slate-500">Post visibility</span>
+                        <span className="text-xs text-slate-500">{t("postVisibility")}</span>
                         <select
                           value={post.visibility === "private" ? "private" : "public"}
                           onChange={(event) => updateSellerPostVisibility(post.id, event.target.value, post.accessPriceUsd || MIN_SELLER_PRICE_THB)}
@@ -2165,11 +2634,11 @@ export function SellerDashboardPage({
                         <div className="font-semibold">{product.title}</div>
                         {product.isBundle ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">Set</span> : null}
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${isSellerOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
-                          {isSellerOnline ? "Online" : "Offline"}
+                          {isSellerOnline ? t("online") : t("offline")}
                         </span>
                       </div>
                       <div className="mt-1 text-sm text-slate-500">
-                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {product.status} · {t("worn")}: {product.daysWorn || t("notSpecified")} · Condition: {product.condition || t("notSpecified")}
+                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {product.status} · {t("worn")}: {product.daysWorn || t("notSpecified")} · {t("condition")}: {product.condition || t("notSpecified")}
                         {product.isBundle ? ` · Includes ${(product.bundleItemIds || []).length} item(s)` : ""}
                       </div>
                     </div>
@@ -2441,7 +2910,7 @@ export function SellerFeedPage({
                 </span>
               </div>
               <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${sellerMap[post.sellerId]?.isOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
-                {sellerMap[post.sellerId]?.isOnline ? "Online" : "Offline"}
+                {sellerMap[post.sellerId]?.isOnline ? t("online") : t("offline")}
               </span>
             </div>
             <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
@@ -3391,6 +3860,15 @@ export function AdminPage({
       comment: 0,
     })
   ), [splitPayoutWalletRows]);
+  const splitSellerPct = splitPayoutSummary.total > 0
+    ? Math.round((splitPayoutSummary.seller / splitPayoutSummary.total) * 100)
+    : 0;
+  const splitBarPct = splitPayoutSummary.total > 0
+    ? Math.round((splitPayoutSummary.bar / splitPayoutSummary.total) * 100)
+    : 0;
+  const splitAdminPct = splitPayoutSummary.total > 0
+    ? Math.round((splitPayoutSummary.admin / splitPayoutSummary.total) * 100)
+    : 0;
   const filteredSplitPayoutWalletRows = useMemo(() => {
     const nowMs = Date.now();
     const minCreatedAtMs = payoutDateRangeFilter === "7d"
@@ -5112,20 +5590,48 @@ export function AdminPage({
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                  <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Seller share</div>
+                  <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Seller payout</div>
                   <div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(splitPayoutSummary.seller)}</div>
                 </div>
                 <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                  <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Bar commission</div>
+                  <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Bar fee</div>
                   <div className="mt-1 text-lg font-semibold text-violet-700">{formatPriceTHB(splitPayoutSummary.bar)}</div>
                 </div>
                 <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                  <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Admin commission</div>
+                  <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Platform fee</div>
                   <div className="mt-1 text-lg font-semibold text-rose-700">{formatPriceTHB(splitPayoutSummary.admin)}</div>
                 </div>
                 <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
                   <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Total distributed</div>
                   <div className="mt-1 text-lg font-semibold text-slate-900">{formatPriceTHB(splitPayoutSummary.total)}</div>
+                </div>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <h3 className="text-base font-semibold text-slate-900">Payout money flow</h3>
+                <p className="mt-1 text-sm text-slate-600">How incoming fee revenue is split and credited in wallet transactions.</p>
+                <div className="mt-4 grid gap-3 lg:grid-cols-5">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 lg:col-span-2">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Incoming buyer fees</div>
+                    <div className="mt-1 text-lg font-semibold text-slate-900">{formatPriceTHB(splitPayoutSummary.total)}</div>
+                    <div className="mt-1 text-xs text-slate-500">From direct messages, custom requests, and seller post comments.</div>
+                  </div>
+                  <div className="rounded-2xl border border-rose-100 bg-rose-50 p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-rose-700">Split engine</div>
+                    <div className="mt-1 text-sm font-semibold text-rose-800">Buyer fee to role allocation</div>
+                    <div className="mt-1 text-xs text-rose-700">Each event allocates a seller payout plus bar and platform fees.</div>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">Seller payout wallet</div>
+                    <div className="mt-1 text-sm font-semibold text-emerald-800">{formatPriceTHB(splitPayoutSummary.seller)} ({splitSellerPct}%)</div>
+                  </div>
+                  <div className="rounded-2xl border border-violet-100 bg-violet-50 p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-violet-700">Bar fee wallet</div>
+                    <div className="mt-1 text-sm font-semibold text-violet-800">{formatPriceTHB(splitPayoutSummary.bar)} ({splitBarPct}%)</div>
+                  </div>
+                  <div className="rounded-2xl border border-rose-100 bg-rose-50 p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-rose-700">Platform fee wallet</div>
+                    <div className="mt-1 text-sm font-semibold text-rose-800">{formatPriceTHB(splitPayoutSummary.admin)} ({splitAdminPct}%)</div>
+                  </div>
                 </div>
               </div>
 
@@ -5172,7 +5678,7 @@ export function AdminPage({
                       <option value="all">All recipients</option>
                       <option value="seller">Seller</option>
                       <option value="bar">Bar</option>
-                      <option value="admin">Admin</option>
+                      <option value="admin">Platform</option>
                     </select>
                     <select
                       value={payoutDateRangeFilter}
@@ -5195,7 +5701,7 @@ export function AdminPage({
                           <div className="text-sm font-semibold text-emerald-700">{formatPriceTHB(Number(entry.amount || 0))}</div>
                         </div>
                         <div className="mt-1 text-xs text-slate-500">
-                          {formatDateTimeNoSeconds(entry.createdAt || Date.now())} · {entry.recipientRole.toUpperCase()} · {entry.userName}
+                          {formatDateTimeNoSeconds(entry.createdAt || Date.now())} · {(entry.recipientRole === "admin" ? "PLATFORM" : entry.recipientRole.toUpperCase())} · {entry.userName}
                         </div>
                         <div className="mt-1 text-xs text-slate-600">{entry.description || entry.type}</div>
                       </div>

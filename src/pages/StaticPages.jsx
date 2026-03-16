@@ -1185,9 +1185,12 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
     const normalized = (value, fallback = "Not specified") => (value || "").trim() || fallback;
     const specialtyCategory = (value) => {
       const normalizedValue = (value || "").trim().toLowerCase();
-      if (["premium", "พรีเมียม", "премиум"].some((term) => normalizedValue.includes(term))) return "Premium";
-      if (["luxury", "ลักชัวรี", "люкс"].some((term) => normalizedValue.includes(term))) return "Luxury";
-      if (["everyday", "ทุกวัน", "повседневный"].some((term) => normalizedValue.includes(term))) return "Everyday";
+      if (["every day", "everyday", "ทุกวัน", "နေ့စဉ်", "каждый день"].some((term) => normalizedValue.includes(term))) return "every day";
+      if (["sport", "sports", "สปอร์ต", "အားကစား", "спорт"].some((term) => normalizedValue.includes(term))) return "sport";
+      if (["lace", "ลูกไม้", "လေ့စ်", "кружево"].some((term) => normalizedValue.includes(term))) return "lace";
+      if (["risqué", "risque", "ยั่วยวน", "စွဲဆောင်", "провокац"].some((term) => normalizedValue.includes(term))) return "risqué";
+      if (["satin", "ซาติน", "ဆာတင်", "сатин"].some((term) => normalizedValue.includes(term))) return "satin";
+      if (["silk", "ไหม", "ပိုး", "шелк"].some((term) => normalizedValue.includes(term))) return "silk";
       return "";
     };
     const sellerProductTypesById = (products || []).reduce((acc, product) => {

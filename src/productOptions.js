@@ -26,7 +26,7 @@ export const STYLE_FILTER_OPTIONS = ["All", ...STYLE_OPTIONS];
 export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "XXL+"];
 const EXCLUDED_FILTER_SIZES = new Set(["34b", "34c", "36c", "38c", "one size"]);
 export const SHARED_SIZE_OPTIONS = SIZE_OPTIONS.filter((size) => !EXCLUDED_FILTER_SIZES.has((size || "").trim().toLowerCase()));
-export const SELLER_SPECIALTY_OPTIONS = ["Premium", "Luxury", "Everyday"];
+export const SELLER_SPECIALTY_OPTIONS = ["every day", "sport", "lace", "risqué", "satin", "silk"];
 export const SELLER_LANGUAGE_OPTIONS = ["English", "Thai", "Burmese", "Russian"];
 export const PRIMARY_CURRENCY_CODE = "THB";
 export const PRIMARY_CURRENCY_SYMBOL = "฿";
@@ -77,7 +77,7 @@ export const DAYS_WORN_OPTIONS = [
 ];
 export const WAIST_RISE_OPTIONS = ["Low-rise", "Mid-rise", "High-rise"];
 export const COVERAGE_OPTIONS = ["Minimal", "Moderate", "Full"];
-export const CONDITION_OPTIONS = ["Excellent", "Very Good", "Good"];
+export const CONDITION_OPTIONS = ["almost new", "worn several times", "old"];
 export const SCENT_LEVEL_OPTIONS = ["Light", "Medium", "Strong"];
 
 export const OPTION_LABEL_I18N = {
@@ -109,9 +109,12 @@ export const OPTION_LABEL_I18N = {
   Thai: { th: "ไทย", my: "ထိုင်း", ru: "Тайский" },
   Burmese: { th: "พม่า", my: "မြန်မာ", ru: "Бирманский" },
   Russian: { th: "รัสเซีย", my: "ရုရှား", ru: "Русский" },
-  Premium: { th: "พรีเมียม", my: "ပရီမီယမ်", ru: "Премиум" },
-  Luxury: { th: "หรูหรา", my: "ဇိမ်ခံ", ru: "Люкс" },
-  Everyday: { th: "ทุกวัน", my: "နေ့စဉ်", ru: "Повседневный" },
+  "every day": { th: "ทุกวัน", my: "နေ့စဉ်", ru: "На каждый день" },
+  sport: { th: "สปอร์ต", my: "အားကစား", ru: "Спорт" },
+  lace: { th: "ลูกไม้", my: "လေ့စ်", ru: "Кружево" },
+  "risqué": { th: "ยั่วยวน", my: "စွဲဆောင်မှုရှိ", ru: "Провокационный" },
+  satin: { th: "ซาติน", my: "ဆာတင်", ru: "Сатин" },
+  silk: { th: "ไหม", my: "ပိုး", ru: "Шелк" },
   Red: { th: "แดง", my: "အနီ", ru: "Красный" },
   Pink: { th: "ชมพู", my: "ပန်းရောင်", ru: "Розовый" },
   Orange: { th: "ส้ม", my: "လိမ္မော်", ru: "Оранжевый" },
@@ -128,9 +131,9 @@ export const OPTION_LABEL_I18N = {
   Satin: { th: "ซาติน", my: "ဆာတင်", ru: "Сатин" },
   Silk: { th: "ไหม", my: "ပိုး", ru: "Шелк" },
   Mesh: { th: "ตาข่าย", my: "ကွန်ယက်", ru: "Сетка" },
-  Excellent: { th: "ยอดเยี่ยม", my: "အလွန်ကောင်း", ru: "Отлично" },
-  "Very Good": { th: "ดีมาก", my: "အရမ်းကောင်း", ru: "Очень хорошо" },
-  Good: { th: "ดี", my: "ကောင်း", ru: "Хорошо" },
+  "almost new": { th: "สภาพเกือบใหม่", my: "အသစ်နီးပါး", ru: "Почти новое" },
+  "worn several times": { th: "สวมใส่มาหลายครั้ง", my: "ဝတ်ထားပြီး အကြိမ်များ", ru: "Ношено несколько раз" },
+  old: { th: "เก่า", my: "ဟောင်း", ru: "Старое" },
   Light: { th: "เบา", my: "ပေါ့", ru: "Легкий" },
   Medium: { th: "กลาง", my: "အလယ်အလတ်", ru: "Средний" },
   Strong: { th: "แรง", my: "ပြင်း", ru: "Сильный" },
