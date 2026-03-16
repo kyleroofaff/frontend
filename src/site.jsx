@@ -4159,6 +4159,12 @@ export default function ThailandPantiesMarketSite() {
   const barMessageEligibleContacts = useMemo(() => {
     if (!currentUser || currentUser.role !== 'bar') return [];
     const currentBarId = String(currentUser.barId || '').trim();
+    const sourceRankByType = {
+      affiliate_seller: 0,
+      affiliate_message: 1,
+      affiliate_sale: 2,
+      direct_bar: 3,
+    };
     return Object.values(barOutreachEligibilityByParticipantKey || [])
       .map((entry) => {
         const participantUser = users.find((user) => user.id === entry.participantUserId);
@@ -4175,10 +4181,16 @@ export default function ThailandPantiesMarketSite() {
           participantName: participantUser?.name || entry.participantUserId,
           conversationId: buildBarConversationId(currentBarId, entry.participantRole, entry.participantUserId),
           sourceLabels,
+          sourceRank: Object.keys(sourceTypes).reduce((bestRank, sourceType) => {
+            const nextRank = Number.isFinite(sourceRankByType[sourceType]) ? sourceRankByType[sourceType] : 99;
+            return Math.min(bestRank, nextRank);
+          }, 99),
           lastActivityAt: entry.lastActivityAt || '',
         };
       })
       .sort((a, b) => {
+        const bySourceRank = Number(a.sourceRank || 99) - Number(b.sourceRank || 99);
+        if (bySourceRank !== 0) return bySourceRank;
         const byTime = new Date(b.lastActivityAt || 0).getTime() - new Date(a.lastActivityAt || 0).getTime();
         if (byTime !== 0) return byTime;
         return String(a.participantName || '').localeCompare(String(b.participantName || ''));
