@@ -51,7 +51,7 @@ const HELP_I18N = {
     faqTitle: "Frequently Asked Questions",
     faqSubtitle: "Answers for buyers and sellers using Thailand Panties.",
     faqs: [
-      { q: "How quickly are orders shipped?", a: "Orders are dispatched in 1-3 business days after payment confirmation." },
+      { q: "How quickly are orders shipped?", a: "Orders typically ship in 1-3 business days after payment confirmation." },
       { q: "Who pays shipping costs?", a: "Buyers pay the exact shipping cost charged for their destination at checkout." },
       { q: "Which carrier do you use?", a: "We ship with international carriers for worldwide delivery and tracking." },
       { q: "Is packaging discreet?", a: "Yes. All orders are packed and shipped discreetly in plain external packaging." },
@@ -357,6 +357,8 @@ const MARKETPLACE_I18N = {
     types: "types",
     onlineNow: "Online now",
     viewProfile: "View profile",
+    shippingCoverage: "Shipping",
+    typicalShipTime: "Typical ship time",
     noSellersMatch: "No sellers match the selected filters yet.",
     findTitle: "Find",
     findSubtitle: "Discover recent uploads fast with focused filters.",
@@ -394,6 +396,8 @@ const MARKETPLACE_I18N = {
     types: "ประเภท",
     onlineNow: "ออนไลน์ตอนนี้",
     viewProfile: "ดูโปรไฟล์",
+    shippingCoverage: "การจัดส่ง",
+    typicalShipTime: "เวลาจัดส่งโดยทั่วไป",
     noSellersMatch: "ยังไม่มีผู้ขายที่ตรงกับตัวกรองที่เลือก",
     findTitle: "ค้นหา",
     findSubtitle: "ค้นหาอัปโหลดล่าสุดได้รวดเร็วด้วยตัวกรองที่เจาะจง",
@@ -431,6 +435,8 @@ const MARKETPLACE_I18N = {
     types: "အမျိုးအစားများ",
     onlineNow: "ယခု အွန်လိုင်း",
     viewProfile: "ပရိုဖိုင်ကြည့်ရန်",
+    shippingCoverage: "ပို့ဆောင်မှု",
+    typicalShipTime: "ပုံမှန်ပို့ဆောင်ချိန်",
     noSellersMatch: "ရွေးထားသော filters နှင့် ကိုက်ညီသော seller မရှိသေးပါ။",
     findTitle: "Find",
     findSubtitle: "တိကျသော filters ဖြင့် recent uploads ကို မြန်မြန်ရှာဖွေပါ။",
@@ -468,6 +474,8 @@ const MARKETPLACE_I18N = {
     types: "типов",
     onlineNow: "Сейчас онлайн",
     viewProfile: "Открыть профиль",
+    shippingCoverage: "Доставка",
+    typicalShipTime: "Обычное время отправки",
     noSellersMatch: "Нет продавцов, подходящих под выбранные фильтры.",
     findTitle: "Поиск",
     findSubtitle: "Быстро находите свежие загрузки с точечными фильтрами.",
@@ -1297,6 +1305,12 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
     });
     return byId;
   }, [products]);
+  const formatSellerSpecialtyLabel = (seller) => {
+    const raw = (Array.isArray(seller?.specialties) && seller.specialties.length > 0)
+      ? String(seller.specialties[0] || "")
+      : String(seller?.specialty || "");
+    return raw.replace(/\s*·\s*/g, ", ").trim();
+  };
 
   return (
     <PageShell eyebrow={text.marketplace} title={text.sellerPortfoliosTitle} subtitle={text.sellerPortfoliosSubtitle}>
@@ -1398,8 +1412,8 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
                   {seller.affiliatedBarName ? `${text.barPrefix} ${seller.affiliatedBarName}` : localizeOptionLabel("Independent", uiLanguage)}
                 </p>
               </div>
-              <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
-                {(Array.isArray(seller.specialties) && seller.specialties.length > 0) ? seller.specialties[0] : (seller.specialty || text.sellerFallback)}
+              <div className="max-w-full rounded-2xl bg-slate-100 px-3 py-2 text-sm font-semibold leading-5 text-slate-700">
+                {formatSellerSpecialtyLabel(seller) || text.sellerFallback}
               </div>
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-600">{(Array.isArray(seller.specialties) && seller.specialties.length > 0) ? seller.specialties.join(" · ") : seller.specialty}</p>
@@ -1423,15 +1437,10 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
                 ))}
               </div>
             ) : null}
-            {Array.isArray(seller.highlights) && seller.highlights.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {seller.highlights.slice(0, 2).map((item) => (
-                  <span key={`${seller.id}-highlight-${item}`} className="rounded-full bg-rose-50 px-3 py-1 text-xs text-rose-700">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            ) : null}
+            <div className="mt-3 space-y-1 text-xs text-slate-600">
+              <div><span className="font-semibold text-slate-700">{text.shippingCoverage}:</span> {seller.shipping || localizeOptionLabel("Not specified", uiLanguage)}</div>
+              <div><span className="font-semibold text-slate-700">{text.typicalShipTime}:</span> {seller.turnaround || localizeOptionLabel("Not specified", uiLanguage)}</div>
+            </div>
             <button onClick={() => navigate(`/seller/${seller.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">
               {text.viewProfile}
             </button>

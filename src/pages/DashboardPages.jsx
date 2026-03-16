@@ -1458,9 +1458,18 @@ export function SellerDashboardPage({
   });
   const [editingBundleId, setEditingBundleId] = useState("");
   const [bundleMessage, setBundleMessage] = useState("");
+  const [customSpecialtyDraft, setCustomSpecialtyDraft] = useState("");
   const locationOptions = useMemo(
     () => buildSellerSelectOptions(sellerProfileSelectText.locations, sellerProfileDraft.location),
     [sellerProfileSelectText, sellerProfileDraft.location],
+  );
+  const shippingOptions = useMemo(
+    () => buildSellerSelectOptions(sellerProfileSelectText.shipping, sellerProfileDraft.shipping),
+    [sellerProfileSelectText, sellerProfileDraft.shipping],
+  );
+  const turnaroundOptions = useMemo(
+    () => buildSellerSelectOptions(sellerProfileSelectText.turnaround, sellerProfileDraft.turnaround),
+    [sellerProfileSelectText, sellerProfileDraft.turnaround],
   );
   const barOptions = useMemo(
     () => [...(bars || [])].sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''))),
@@ -1470,6 +1479,13 @@ export function SellerDashboardPage({
     ? (barMap?.[currentSellerProfile.affiliatedBarId] || null)
     : null;
   const sellerSpecialties = Array.isArray(sellerProfileDraft.specialties) ? sellerProfileDraft.specialties : [];
+  const specialtyChipOptions = useMemo(
+    () => [
+      ...SELLER_SPECIALTY_OPTIONS,
+      ...sellerSpecialties.filter((value) => !SELLER_SPECIALTY_OPTIONS.includes(value)),
+    ],
+    [sellerSpecialties],
+  );
   const sellerLanguages = Array.isArray(sellerProfileDraft.languages) ? sellerProfileDraft.languages : [];
   const bundleSourceProducts = useMemo(
     () => (sellerDashboardProducts || []).filter((product) => !product?.isBundle),
@@ -1610,6 +1626,15 @@ export function SellerDashboardPage({
       })),
     );
     setCustomRequestImageDraftById((prev) => ({ ...prev, [requestId]: nextImages.filter((item) => item?.image) }));
+  };
+  const addCustomSpecialty = () => {
+    const value = String(customSpecialtyDraft || "").trim();
+    if (!value) return;
+    const exists = sellerSpecialties.some((entry) => String(entry || "").trim().toLowerCase() === value.toLowerCase());
+    if (!exists) {
+      updateSellerProfileField("specialties", [...sellerSpecialties, value]);
+    }
+    setCustomSpecialtyDraft("");
   };
   return (
     <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
@@ -1863,7 +1888,7 @@ export function SellerDashboardPage({
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("specialty")}</span>
                     <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 px-3 py-3">
-                      {SELLER_SPECIALTY_OPTIONS.map((value) => {
+                      {specialtyChipOptions.map((value) => {
                         const selected = sellerSpecialties.includes(value);
                         return (
                           <button
@@ -1876,6 +1901,28 @@ export function SellerDashboardPage({
                           </button>
                         );
                       })}
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        value={customSpecialtyDraft}
+                        onChange={(event) => setCustomSpecialtyDraft(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            addCustomSpecialty();
+                          }
+                        }}
+                        className="flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        placeholder={sellerProfileSelectText.specialtyPlaceholder}
+                      />
+                      <button
+                        type="button"
+                        onClick={addCustomSpecialty}
+                        className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
+                        aria-label="Add specialty"
+                      >
+                        +
+                      </button>
                     </div>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
@@ -1964,6 +2011,42 @@ export function SellerDashboardPage({
                         ))}
                       </div>
                     ) : null}
+                  </label>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">{t("shipping")}</span>
+                    <select
+                      value={shippingOptions.includes(sellerProfileDraft.shipping || "") ? (sellerProfileDraft.shipping || "") : ""}
+                      onChange={(event) => updateSellerProfileField("shipping", event.target.value)}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    >
+                      <option value="">{sellerProfileSelectText.shippingPlaceholder}</option>
+                      {shippingOptions.map((value) => <option key={value} value={value}>{value}</option>)}
+                    </select>
+                    <input
+                      value={sellerProfileDraft.shipping || ""}
+                      onChange={(event) => updateSellerProfileField("shipping", event.target.value)}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder={sellerProfileSelectText.shippingPlaceholder}
+                    />
+                  </label>
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">{t("turnaround")}</span>
+                    <select
+                      value={turnaroundOptions.includes(sellerProfileDraft.turnaround || "") ? (sellerProfileDraft.turnaround || "") : ""}
+                      onChange={(event) => updateSellerProfileField("turnaround", event.target.value)}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    >
+                      <option value="">{sellerProfileSelectText.turnaroundPlaceholder}</option>
+                      {turnaroundOptions.map((value) => <option key={value} value={value}>{value}</option>)}
+                    </select>
+                    <input
+                      value={sellerProfileDraft.turnaround || ""}
+                      onChange={(event) => updateSellerProfileField("turnaround", event.target.value)}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder={sellerProfileSelectText.turnaroundPlaceholder}
+                    />
                   </label>
                 </div>
                 <textarea value={sellerProfileDraft.bio} onChange={(e) => updateSellerProfileField("bio", e.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("bio")} />

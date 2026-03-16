@@ -2773,7 +2773,10 @@ function normalizeDbState(nextDb) {
           isOnline: Boolean(seller?.isOnline),
           feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
           affiliatedBarId: String(seller?.affiliatedBarId || ''),
+          locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
           specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
+          shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
+          turnaroundI18n: normalizeLocalizedMap(seller?.turnaroundI18n, seller?.turnaround),
           bioI18n: normalizeLocalizedMap(seller?.bioI18n, seller?.bio),
         }))
       : structuredClone(SEED_DB.sellers),
@@ -3269,6 +3272,8 @@ export default function ThailandPantiesMarketSite() {
     specialties: [],
     languages: [],
     bio: '',
+    shipping: '',
+    turnaround: '',
     affiliatedBarId: '',
     profileImage: '',
     profileImageName: '',
@@ -3724,7 +3729,10 @@ export default function ThailandPantiesMarketSite() {
           seller.id,
           {
             ...seller,
+            location: resolveLocalizedText(seller?.location, seller?.locationI18n, uiLanguage),
             specialty: resolveLocalizedText(seller?.specialty, seller?.specialtyI18n, uiLanguage),
+            shipping: resolveLocalizedText(seller?.shipping, seller?.shippingI18n, uiLanguage),
+            turnaround: resolveLocalizedText(seller?.turnaround, seller?.turnaroundI18n, uiLanguage),
             bio: resolveLocalizedText(seller?.bio, seller?.bioI18n, uiLanguage),
           },
         ]),
@@ -4135,6 +4143,8 @@ export default function ThailandPantiesMarketSite() {
         ? currentSellerProfile.languages.filter(Boolean)
         : [],
       bio: currentSellerProfile.bio || '',
+      shipping: currentSellerProfile.shipping || '',
+      turnaround: currentSellerProfile.turnaround || '',
       affiliatedBarId: currentSellerProfile.affiliatedBarId || '',
       profileImage: currentSellerProfile.profileImage || '',
       profileImageName: currentSellerProfile.profileImageName || '',
@@ -5589,7 +5599,9 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
     const specialties = (sellerProfileDraft.specialties || [])
       .map((value) => (value || '').trim())
-      .filter((value) => SELLER_SPECIALTY_OPTIONS.includes(value));
+      .filter(Boolean)
+      .filter((value, index, arr) => arr.findIndex((entry) => entry.toLowerCase() === value.toLowerCase()) === index)
+      .slice(0, 8);
     const languages = (sellerProfileDraft.languages || [])
       .map((value) => (value || '').trim())
       .filter((value) => SELLER_LANGUAGE_OPTIONS.includes(value));
@@ -5600,11 +5612,17 @@ export default function ThailandPantiesMarketSite() {
     const isJoinRequest = Boolean(normalizedAffiliatedBarId && isAffiliationChange);
     const isLeavingBar = Boolean(!normalizedAffiliatedBarId && previousAffiliatedBarId);
     const now = new Date().toISOString();
+    const locationText = String(sellerProfileDraft.location || '').trim();
     const specialtyText = specialties.join(' · ') || 'Pending profile details';
     const bioText = sellerProfileDraft.bio.trim();
-    const [specialtyI18n, bioI18n] = await Promise.all([
+    const shippingText = String(sellerProfileDraft.shipping || '').trim() || 'Worldwide via international carriers';
+    const turnaroundText = String(sellerProfileDraft.turnaround || '').trim() || 'Ships in 1-3 days';
+    const [locationI18n, specialtyI18n, bioI18n, shippingI18n, turnaroundI18n] = await Promise.all([
+      buildTextTranslations(locationText),
       buildTextTranslations(specialtyText),
       buildTextTranslations(bioText),
+      buildTextTranslations(shippingText),
+      buildTextTranslations(turnaroundText),
     ]);
     setDb((prev) => {
       const nextNotifications = [...(prev.notifications || [])];
@@ -5690,7 +5708,8 @@ export default function ThailandPantiesMarketSite() {
           seller.id === currentSellerId
             ? {
                 ...seller,
-                location: sellerProfileDraft.location.trim(),
+                location: locationText,
+                locationI18n: locationI18n && Object.keys(locationI18n).length > 0 ? locationI18n : normalizeLocalizedMap(seller?.locationI18n, locationText),
                 specialties,
                 specialty: specialtyText,
                 specialtyI18n: specialtyI18n && Object.keys(specialtyI18n).length > 0 ? specialtyI18n : normalizeLocalizedMap(seller?.specialtyI18n, specialtyText),
@@ -5698,8 +5717,10 @@ export default function ThailandPantiesMarketSite() {
                 bio: bioText,
                 bioI18n: bioI18n && Object.keys(bioI18n).length > 0 ? bioI18n : normalizeLocalizedMap(seller?.bioI18n, bioText),
                 affiliatedBarId: isJoinRequest ? previousAffiliatedBarId : normalizedAffiliatedBarId,
-                shipping: 'Worldwide via international carriers',
-                turnaround: 'Ships in 1-3 days',
+                shipping: shippingText,
+                shippingI18n: shippingI18n && Object.keys(shippingI18n).length > 0 ? shippingI18n : normalizeLocalizedMap(seller?.shippingI18n, shippingText),
+                turnaround: turnaroundText,
+                turnaroundI18n: turnaroundI18n && Object.keys(turnaroundI18n).length > 0 ? turnaroundI18n : normalizeLocalizedMap(seller?.turnaroundI18n, turnaroundText),
                 portfolioUrl: '',
                 profileImage: sellerProfileDraft.profileImage || '',
                 profileImageName: sellerProfileDraft.profileImageName || '',
@@ -10695,7 +10716,6 @@ export default function ThailandPantiesMarketSite() {
                   {publicText.followersLabel}: {sellerFollowerCountById[selectedSeller.id] || 0}
                 </div>
                 <p className="mt-5 leading-7 text-slate-600">{selectedSeller.bio}</p>
-                <div className="mt-5 flex flex-wrap gap-2">{selectedSeller.highlights.map((item) => <span key={item} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">{item}</span>)}</div>
                 <h3 className="mt-8 text-xl font-semibold">{publicText.listingsByPrefix} {selectedSeller.name}</h3>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                   {selectedSellerAllProducts.length > 0 && selectedSellerAvailableProducts.length === 0 ? (
