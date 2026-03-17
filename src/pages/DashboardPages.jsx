@@ -833,7 +833,7 @@ const ADMIN_TAB_CONFIG = [
   { key: "products", label: "Product Catalog", description: "Browse seller listings and status", icon: Package },
   { key: "sales", label: "Sales Performance", description: "Revenue and seller leaderboard", icon: ShoppingBag },
   { key: "email", label: "Email Templates", description: "Notification copy, variants, and tests", icon: MessageSquare },
-  { key: "payments", label: "Payments", description: "Stripe/webhook monitoring", icon: CreditCard },
+  { key: "payments", label: "Payments", description: "Payouts and ledger operations", icon: CreditCard },
   { key: "cms", label: "CMS and Routes", description: "Content model and route map", icon: Database },
   { key: "deployment", label: "Site Settings", description: "Manage SEO, routes, and technical settings.", icon: Upload },
 ];
@@ -4280,7 +4280,13 @@ export function AdminPage({
   NEXTJS_EXPORT_BLUEPRINT,
   SEO_CONFIG,
   promptPayReceiverMobile,
-  updatePromptPayReceiverMobile
+  updatePromptPayReceiverMobile,
+  payoutRuns,
+  payoutItems,
+  payoutEvents,
+  createMonthlyPayoutRun,
+  markPayoutItemSent,
+  markPayoutItemFailed
 }) {
   const [socialSearch, setSocialSearch] = useState("");
   const [socialFilter, setSocialFilter] = useState("all");
@@ -4313,6 +4319,495 @@ export function AdminPage({
   useEffect(() => {
     setPromptPayReceiverDraft(String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE));
   }, [promptPayReceiverMobile]);
+  const [payoutMonthDraft, setPayoutMonthDraft] = useState(() => {
+    const now = new Date();
+    return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  });
+  const [payoutRunNotesDraft, setPayoutRunNotesDraft] = useState("");
+  const [payoutRunActionMessage, setPayoutRunActionMessage] = useState("");
+  const [selectedPayoutRunId, setSelectedPayoutRunId] = useState("");
+  const [payoutMethodByItemId, setPayoutMethodByItemId] = useState({});
+  const [payoutReferenceByItemId, setPayoutReferenceByItemId] = useState({});
+  const [payoutNoteByItemId, setPayoutNoteByItemId] = useState({});
+  const [payoutHistoryRecipientFilter, setPayoutHistoryRecipientFilter] = useState("all");
+  const [payoutHistoryStatusFilter, setPayoutHistoryStatusFilter] = useState("all");
+  const [payoutHistoryMonthFilter, setPayoutHistoryMonthFilter] = useState("all");
+  const [paymentsWindowPreset, setPaymentsWindowPreset] = useState("all_time");
+  const [paymentsCustomStartDate, setPaymentsCustomStartDate] = useState("");
+  const [paymentsCustomEndDate, setPaymentsCustomEndDate] = useState("");
+  const [paymentsEntityRoleFilter, setPaymentsEntityRoleFilter] = useState("all");
+  const [paymentsSellerTypeFilter, setPaymentsSellerTypeFilter] = useState("all");
+  const [paymentsEntitySearch, setPaymentsEntitySearch] = useState("");
+  const [payoutAnalyticsPreset, setPayoutAnalyticsPreset] = useState("all_time");
+  const [payoutAnalyticsStartDate, setPayoutAnalyticsStartDate] = useState("");
+  const [payoutAnalyticsEndDate, setPayoutAnalyticsEndDate] = useState("");
+  const [payoutAnalyticsRecipientFilter, setPayoutAnalyticsRecipientFilter] = useState("all");
+  const [payoutAnalyticsSellerTypeFilter, setPayoutAnalyticsSellerTypeFilter] = useState("all");
+  const sortedPayoutRuns = useMemo(
+    () => [...(payoutRuns || [])].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()),
+    [payoutRuns]
+  );
+  useEffect(() => {
+    if (!sortedPayoutRuns.length) {
+      setSelectedPayoutRunId("");
+      return;
+    }
+    setSelectedPayoutRunId((prev) => (
+      prev && sortedPayoutRuns.some((run) => run.id === prev)
+        ? prev
+        : sortedPayoutRuns[0].id
+    ));
+  }, [sortedPayoutRuns]);
+  const activePayoutRun = useMemo(
+    () => sortedPayoutRuns.find((run) => run.id === selectedPayoutRunId) || null,
+    [sortedPayoutRuns, selectedPayoutRunId]
+  );
+  const activePayoutItems = useMemo(
+    () =>
+      [...((payoutItems || []).filter((item) => item.runId === activePayoutRun?.id))]
+        .sort((a, b) => Number(b.netPayable || 0) - Number(a.netPayable || 0)),
+    [payoutItems, activePayoutRun]
+  );
+  const pendingPayoutItems = useMemo(
+    () => activePayoutItems.filter((item) => item.status === "ready"),
+    [activePayoutItems]
+  );
+  const sentPayoutItems = useMemo(
+    () => activePayoutItems.filter((item) => item.status === "sent"),
+    [activePayoutItems]
+  );
+  const failedPayoutItems = useMemo(
+    () => activePayoutItems.filter((item) => item.status === "failed"),
+    [activePayoutItems]
+  );
+  const belowThresholdPayoutItems = useMemo(
+    () => activePayoutItems.filter((item) => item.status === "skipped_below_threshold"),
+    [activePayoutItems]
+  );
+  const payoutSummary = useMemo(() => (
+    activePayoutItems.reduce((summary, item) => {
+      const amount = Number(item?.netPayable || 0);
+      summary.total += amount;
+      if (item.status === "ready") summary.pending += amount;
+      if (item.status === "sent") summary.sent += amount;
+      if (item.status === "failed") summary.failed += amount;
+      if (item.status === "skipped_below_threshold") summary.belowThreshold += amount;
+      return summary;
+    }, {
+      total: 0,
+      pending: 0,
+      sent: 0,
+      failed: 0,
+      belowThreshold: 0,
+    })
+  ), [activePayoutItems]);
+  const recentPayoutEvents = useMemo(
+    () =>
+      [...(payoutEvents || [])]
+        .filter((event) => {
+          if (!activePayoutRun) return false;
+          const item = (payoutItems || []).find((row) => row.id === event.payoutItemId);
+          return item?.runId === activePayoutRun.id;
+        })
+        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+        .slice(0, 20),
+    [payoutEvents, payoutItems, activePayoutRun]
+  );
+  const currentPayoutCycleRun = useMemo(
+    () => sortedPayoutRuns.find((run) => run.status === "processing") || sortedPayoutRuns[0] || null,
+    [sortedPayoutRuns]
+  );
+  const paymentWindowMeta = useMemo(() => {
+    if (paymentsWindowPreset === "all_time") {
+      return { startMs: null, endMs: null, label: "All time" };
+    }
+    if (paymentsWindowPreset === "current_month") {
+      const now = new Date();
+      const startMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0);
+      const endMs = Date.now();
+      return {
+        startMs,
+        endMs,
+        label: now.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }),
+      };
+    }
+    if (paymentsWindowPreset === "current_payout_cycle") {
+      if (!currentPayoutCycleRun) {
+        return { startMs: null, endMs: null, label: "Current payout cycle (not available)" };
+      }
+      return {
+        startMs: new Date(currentPayoutCycleRun.periodStart || 0).getTime(),
+        endMs: new Date(currentPayoutCycleRun.periodEnd || Date.now()).getTime(),
+        label: currentPayoutCycleRun.periodLabel || "Current payout cycle",
+      };
+    }
+    const customStartMs = paymentsCustomStartDate ? new Date(`${paymentsCustomStartDate}T00:00:00.000Z`).getTime() : null;
+    const customEndMs = paymentsCustomEndDate ? new Date(`${paymentsCustomEndDate}T23:59:59.999Z`).getTime() : null;
+    return {
+      startMs: Number.isFinite(customStartMs) ? customStartMs : null,
+      endMs: Number.isFinite(customEndMs) ? customEndMs : null,
+      label: "Custom date range",
+    };
+  }, [paymentsWindowPreset, paymentsCustomStartDate, paymentsCustomEndDate, currentPayoutCycleRun]);
+  const isWithinPaymentWindow = (dateValue) => {
+    const createdAtMs = new Date(dateValue || 0).getTime();
+    if (!Number.isFinite(createdAtMs) || createdAtMs <= 0) return false;
+    if (paymentWindowMeta.startMs !== null && createdAtMs < paymentWindowMeta.startMs) return false;
+    if (paymentWindowMeta.endMs !== null && createdAtMs > paymentWindowMeta.endMs) return false;
+    return true;
+  };
+  const payoutPaidSourceTxIds = useMemo(() => {
+    const ids = new Set();
+    (payoutItems || []).forEach((item) => {
+      if (item.status !== "sent") return;
+      (item.sourceTxIds || []).forEach((txId) => {
+        if (txId) ids.add(String(txId));
+      });
+    });
+    return ids;
+  }, [payoutItems]);
+  const payoutIntelligenceRows = useMemo(() => {
+    const eligibleByUserId = {};
+    (walletTransactions || []).forEach((entry) => {
+      const amount = Number(entry?.amount || 0);
+      if (!Number.isFinite(amount) || amount <= 0) return;
+      const user = (users || []).find((candidate) => candidate.id === entry.userId);
+      if (!user || !["seller", "bar"].includes(user.role)) return;
+      const type = String(entry.type || "");
+      if (!["message_fee", "order_sale_earning", "order_bar_commission"].includes(type)) return;
+      if (!eligibleByUserId[user.id]) eligibleByUserId[user.id] = [];
+      eligibleByUserId[user.id].push(entry);
+    });
+    const nowMinusHoldMs = Date.now() - (14 * 24 * 60 * 60 * 1000);
+    const sellerByIdMap = Object.fromEntries((sellers || []).map((seller) => [seller.id, seller]));
+    const barLinkedSellerCount = {};
+    (sellers || []).forEach((seller) => {
+      const barId = String(seller?.affiliatedBarId || "").trim();
+      if (!barId) return;
+      barLinkedSellerCount[barId] = (barLinkedSellerCount[barId] || 0) + 1;
+    });
+    return (users || [])
+      .filter((user) => ["seller", "bar"].includes(user.role))
+      .map((user) => {
+        const source = eligibleByUserId[user.id] || [];
+        const revenueAllTime = source.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+        const revenueInWindow = source
+          .filter((entry) => isWithinPaymentWindow(entry.createdAt))
+          .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+        const paidRows = (payoutItems || []).filter((item) => item.recipientUserId === user.id && item.status === "sent");
+        const paidAllTime = paidRows.reduce((sum, row) => sum + Number(row.netPayable || 0), 0);
+        const paidInWindow = paidRows
+          .filter((row) => isWithinPaymentWindow(row.paidAt || row.createdAt))
+          .reduce((sum, row) => sum + Number(row.netPayable || 0), 0);
+        const totalMoneyOwed = source
+          .filter((entry) => !payoutPaidSourceTxIds.has(String(entry.id)))
+          .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+        const maturedUnpaid = source
+          .filter((entry) => !payoutPaidSourceTxIds.has(String(entry.id)))
+          .filter((entry) => new Date(entry.createdAt || 0).getTime() <= nowMinusHoldMs)
+          .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+        const owedNow = Number(totalMoneyOwed.toFixed(2));
+        const payableCandidate = Number(maturedUnpaid.toFixed(2));
+        const payableNow = payableCandidate >= 100 ? payableCandidate : 0;
+        const isBelowThreshold = payableCandidate > 0 && payableCandidate < 100;
+        const sellerProfile = user.role === "seller" ? sellerByIdMap[user.sellerId] : null;
+        const affiliatedBarId = String(sellerProfile?.affiliatedBarId || "").trim();
+        const sellerType = user.role === "seller"
+          ? (affiliatedBarId ? "affiliated" : "independent")
+          : "";
+        return {
+          id: user.id,
+          role: user.role,
+          name: user.name || user.id,
+          email: user.email || "",
+          sellerType,
+          affiliatedBarId,
+          linkedSellerCount: user.role === "bar" ? (barLinkedSellerCount[user.barId] || 0) : 0,
+          revenueAllTime: Number(revenueAllTime.toFixed(2)),
+          revenueInWindow: Number(revenueInWindow.toFixed(2)),
+          paidAllTime: Number(paidAllTime.toFixed(2)),
+          paidInWindow: Number(paidInWindow.toFixed(2)),
+          owedNow,
+          payableNow,
+          isBelowThreshold,
+        };
+      })
+      .filter((row) => {
+        if (paymentsEntityRoleFilter !== "all" && row.role !== paymentsEntityRoleFilter) return false;
+        if (paymentsSellerTypeFilter !== "all") {
+          if (row.role !== "seller") return false;
+          if (row.sellerType !== paymentsSellerTypeFilter) return false;
+        }
+        const query = paymentsEntitySearch.trim().toLowerCase();
+        if (!query) return true;
+        return `${row.name} ${row.email} ${row.id}`.toLowerCase().includes(query);
+      })
+      .sort((a, b) => b.payableNow - a.payableNow || b.owedNow - a.owedNow || b.revenueInWindow - a.revenueInWindow);
+  }, [
+    walletTransactions,
+    users,
+    sellers,
+    payoutItems,
+    payoutPaidSourceTxIds,
+    paymentsEntityRoleFilter,
+    paymentsSellerTypeFilter,
+    paymentsEntitySearch,
+    paymentWindowMeta,
+  ]);
+  const payoutIntelligenceSummary = useMemo(
+    () =>
+      payoutIntelligenceRows.reduce((summary, row) => {
+        summary.revenueInWindow += row.revenueInWindow;
+        summary.paidInWindow += row.paidInWindow;
+        summary.owedNow += row.owedNow;
+        summary.payableNow += row.payableNow;
+        if (row.isBelowThreshold) summary.belowThresholdCount += 1;
+        return summary;
+      }, {
+        revenueInWindow: 0,
+        paidInWindow: 0,
+        owedNow: 0,
+        payableNow: 0,
+        belowThresholdCount: 0,
+      }),
+    [payoutIntelligenceRows]
+  );
+  const payoutHistoryRows = useMemo(
+    () =>
+      [...(payoutItems || [])]
+        .map((item) => {
+          const recipient = (users || []).find((user) => user.id === item.recipientUserId);
+          const run = (payoutRuns || []).find((row) => row.id === item.runId);
+          return {
+            ...item,
+            recipientName: recipient?.name || item.recipientUserId,
+            periodLabel: run?.periodLabel || "Unknown period",
+            periodStart: run?.periodStart || "",
+            periodEnd: run?.periodEnd || "",
+            runStatus: run?.status || "processing",
+          };
+        })
+        .sort((a, b) => {
+          const aTime = new Date(a.paidAt || a.createdAt || 0).getTime();
+          const bTime = new Date(b.paidAt || b.createdAt || 0).getTime();
+          return bTime - aTime;
+        }),
+    [payoutItems, payoutRuns, users]
+  );
+  const filteredPayoutHistoryRows = useMemo(
+    () =>
+      payoutHistoryRows.filter((row) => {
+        if (payoutHistoryRecipientFilter !== "all" && row.recipientRole !== payoutHistoryRecipientFilter) return false;
+        if (payoutHistoryStatusFilter !== "all" && row.status !== payoutHistoryStatusFilter) return false;
+        if (payoutHistoryMonthFilter !== "all") {
+          const rowMonth = String(row.periodStart || "").slice(0, 7);
+          if (rowMonth !== payoutHistoryMonthFilter) return false;
+        }
+        return true;
+      }),
+    [payoutHistoryRows, payoutHistoryRecipientFilter, payoutHistoryStatusFilter, payoutHistoryMonthFilter]
+  );
+  const payoutHistoryMonthOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          payoutHistoryRows
+            .map((row) => String(row.periodStart || "").slice(0, 7))
+            .filter(Boolean)
+        )
+      ).sort((a, b) => b.localeCompare(a)),
+    [payoutHistoryRows]
+  );
+  const buildPayoutHistoryCsv = (rows) => {
+    const header = [
+      "period",
+      "recipient_name",
+      "recipient_role",
+      "amount_thb",
+      "status",
+      "method",
+      "reference",
+      "paid_at",
+      "notes",
+      "run_status",
+    ];
+    const escapeCsv = (value) => {
+      const normalized = String(value ?? "");
+      if (/[",\n]/.test(normalized)) return `"${normalized.replace(/"/g, "\"\"")}"`;
+      return normalized;
+    };
+    const csvRows = rows.map((row) => ([
+      row.periodLabel || "",
+      row.recipientName || "",
+      row.recipientRole || "",
+      Number(row.netPayable || 0).toFixed(2),
+      row.status || "",
+      row.method || "",
+      row.externalReference || "",
+      row.paidAt || "",
+      row.notes || "",
+      row.runStatus || "",
+    ]));
+    return [header, ...csvRows].map((cols) => cols.map(escapeCsv).join(",")).join("\n");
+  };
+  const downloadPayoutHistoryCsv = (rows, filenameSuffix = "filtered") => {
+    const csv = buildPayoutHistoryCsv(rows);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `payout-history-${filenameSuffix}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    window.URL.revokeObjectURL(url);
+  };
+  const payoutAnalyticsDateWindow = useMemo(() => {
+    const now = new Date();
+    if (payoutAnalyticsPreset === "current_month") {
+      const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+      const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+      return { startMs: start.getTime(), endMs: end.getTime(), label: "Current month" };
+    }
+    if (payoutAnalyticsPreset === "current_cycle") {
+      const cycleRun = activePayoutRun || sortedPayoutRuns[0] || null;
+      if (cycleRun?.periodStart && cycleRun?.periodEnd) {
+        return {
+          startMs: new Date(cycleRun.periodStart).getTime(),
+          endMs: new Date(cycleRun.periodEnd).getTime(),
+          label: cycleRun.periodLabel || "Current payout cycle",
+        };
+      }
+      const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+      const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+      return { startMs: start.getTime(), endMs: end.getTime(), label: "Current payout cycle" };
+    }
+    if (payoutAnalyticsPreset === "custom") {
+      const startMs = payoutAnalyticsStartDate
+        ? new Date(`${payoutAnalyticsStartDate}T00:00:00.000Z`).getTime()
+        : null;
+      const endMs = payoutAnalyticsEndDate
+        ? new Date(`${payoutAnalyticsEndDate}T23:59:59.999Z`).getTime()
+        : null;
+      return {
+        startMs: Number.isFinite(startMs) ? startMs : null,
+        endMs: Number.isFinite(endMs) ? endMs : null,
+        label: "Custom range",
+      };
+    }
+    return { startMs: null, endMs: null, label: "All time" };
+  }, [
+    payoutAnalyticsPreset,
+    payoutAnalyticsStartDate,
+    payoutAnalyticsEndDate,
+    activePayoutRun,
+    sortedPayoutRuns,
+  ]);
+  const payoutRecipientRows = useMemo(() => {
+    const usersById = Object.fromEntries((users || []).map((user) => [user.id, user]));
+    const sellersById = Object.fromEntries((sellers || []).map((seller) => [seller.id, seller]));
+    const holdCutoffMs = Date.now() - (14 * 24 * 60 * 60 * 1000);
+    const eligibleTypes = new Set(["message_fee", "order_sale_earning", "order_bar_commission"]);
+    const isRecipientIncluded = (user) => {
+      if (!user || !["seller", "bar"].includes(user.role)) return false;
+      if (payoutAnalyticsRecipientFilter !== "all" && user.role !== payoutAnalyticsRecipientFilter) return false;
+      if (user.role !== "seller" || payoutAnalyticsSellerTypeFilter === "all") return true;
+      const sellerProfile = sellersById[user.sellerId];
+      const isIndependent = !String(sellerProfile?.affiliatedBarId || "").trim();
+      if (payoutAnalyticsSellerTypeFilter === "independent") return isIndependent;
+      if (payoutAnalyticsSellerTypeFilter === "affiliated") return !isIndependent;
+      return true;
+    };
+    const startMs = payoutAnalyticsDateWindow.startMs;
+    const endMs = payoutAnalyticsDateWindow.endMs;
+    const inWindow = (createdAtMs) => {
+      if (!Number.isFinite(createdAtMs)) return false;
+      if (startMs !== null && createdAtMs < startMs) return false;
+      if (endMs !== null && createdAtMs > endMs) return false;
+      return true;
+    };
+    const paidSourceTxIds = new Set();
+    (payoutItems || []).forEach((item) => {
+      if (item?.status !== "sent") return;
+      (item.sourceTxIds || []).forEach((txId) => paidSourceTxIds.add(String(txId)));
+    });
+    const byRecipient = {};
+    const ensureRecipient = (userId) => {
+      const user = usersById[userId];
+      if (!isRecipientIncluded(user)) return null;
+      if (!byRecipient[userId]) {
+        const sellerProfile = user?.role === "seller" ? sellersById[user?.sellerId] : null;
+        const independentLabel = user?.role === "seller"
+          ? (!String(sellerProfile?.affiliatedBarId || "").trim() ? "Independent" : "Affiliated")
+          : "";
+        byRecipient[userId] = {
+          userId,
+          name: user?.name || userId,
+          role: user?.role || "seller",
+          sellerType: independentLabel,
+          totalRevenueInView: 0,
+          totalPayoutSentInView: 0,
+          owedNow: 0,
+          owedInView: 0,
+          earningTxCountInView: 0,
+        };
+      }
+      return byRecipient[userId];
+    };
+    (walletTransactions || []).forEach((entry) => {
+      const user = usersById[entry.userId];
+      if (!isRecipientIncluded(user)) return;
+      if (!eligibleTypes.has(String(entry.type || ""))) return;
+      const amount = Number(entry.amount || 0);
+      if (!Number.isFinite(amount) || amount <= 0) return;
+      const createdAtMs = new Date(entry.createdAt || 0).getTime();
+      const row = ensureRecipient(entry.userId);
+      if (!row) return;
+      if (inWindow(createdAtMs)) {
+        row.totalRevenueInView += amount;
+        row.earningTxCountInView += 1;
+      }
+      if (createdAtMs <= holdCutoffMs && !paidSourceTxIds.has(String(entry.id))) {
+        row.owedNow += amount;
+        if (inWindow(createdAtMs)) row.owedInView += amount;
+      }
+    });
+    (payoutItems || []).forEach((item) => {
+      if (item?.status !== "sent") return;
+      const row = ensureRecipient(item.recipientUserId);
+      if (!row) return;
+      const paidAtMs = new Date(item.paidAt || item.createdAt || 0).getTime();
+      if (inWindow(paidAtMs)) {
+        row.totalPayoutSentInView += Number(item.netPayable || 0);
+      }
+    });
+    return Object.values(byRecipient)
+      .map((row) => ({
+        ...row,
+        totalRevenueInView: Number(row.totalRevenueInView.toFixed(2)),
+        totalPayoutSentInView: Number(row.totalPayoutSentInView.toFixed(2)),
+        owedNow: Number(row.owedNow.toFixed(2)),
+        owedInView: Number(row.owedInView.toFixed(2)),
+      }))
+      .sort((a, b) => b.owedNow - a.owedNow);
+  }, [
+    users,
+    sellers,
+    walletTransactions,
+    payoutItems,
+    payoutAnalyticsRecipientFilter,
+    payoutAnalyticsSellerTypeFilter,
+    payoutAnalyticsDateWindow,
+  ]);
+  const payoutRecipientSummary = useMemo(() => (
+    payoutRecipientRows.reduce((summary, row) => {
+      summary.revenue += row.totalRevenueInView;
+      summary.payouts += row.totalPayoutSentInView;
+      summary.owedNow += row.owedNow;
+      summary.owedInView += row.owedInView;
+      return summary;
+    }, { revenue: 0, payouts: 0, owedNow: 0, owedInView: 0 })
+  ), [payoutRecipientRows]);
   const adminLocale = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
     ? currentUser.preferredLanguage
     : "en";
@@ -4326,6 +4821,7 @@ export function AdminPage({
     { value: "wallet_top_up", label: "Wallet top-up confirmation" },
     { value: "wallet_low", label: "Low wallet balance warning" },
     { value: "order_shipped", label: "Order shipped with tracking" },
+    { value: "payout_sent", label: "Payout sent notification" },
   ];
   const recommendedScenarioByTemplateKey = {
     buyer_message_received: "buyer_message",
@@ -4335,6 +4831,7 @@ export function AdminPage({
     wallet_top_up_completed: "wallet_top_up",
     wallet_low_balance: "wallet_low",
     order_shipped: "order_shipped",
+    payout_sent: "payout_sent",
   };
   const emailTemplatesList = emailTemplates || [];
   const effectiveSelectedEmailTemplateKey =
@@ -4423,6 +4920,13 @@ export function AdminPage({
       trackingCarrier: "Thailand Post / EMS",
       trackingNumber: "TH1234567890",
       trackingUrl: "https://www.17track.net/en/track?nums=TH1234567890",
+    },
+    payout_sent: {
+      recipientName: "Dao P.",
+      amount: formatPriceTHB(3400),
+      periodLabel: "March 2026",
+      method: "Bank transfer",
+      referenceId: "PAYOUT-MAR-2026-001",
     },
   };
   const renderTemplateWithVars = (text, vars) =>
@@ -6943,6 +7447,395 @@ export function AdminPage({
               <div className="rounded-3xl border border-rose-100 bg-white p-5">
                 <h3 className="text-lg font-semibold text-slate-900">Payments operations</h3>
                 <p className="mt-1 text-sm text-slate-700">Monitor split payouts across messages, comments, and custom request purchases.</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900">Manual monthly payout run</h3>
+                    <p className="mt-1 text-sm text-slate-600">Schedule: monthly · Minimum threshold: ฿100 · Hold window: 14 days · Approval: admin only</p>
+                  </div>
+                  <div className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">
+                    {sortedPayoutRuns.length} run(s)
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-[200px_1fr_auto] md:items-end">
+                  <label className="text-sm text-slate-700">
+                    Month
+                    <input
+                      type="month"
+                      value={payoutMonthDraft}
+                      onChange={(event) => setPayoutMonthDraft(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-sm text-slate-700">
+                    Run notes (optional)
+                    <input
+                      value={payoutRunNotesDraft}
+                      onChange={(event) => setPayoutRunNotesDraft(event.target.value)}
+                      placeholder="for example: monthly payout batch"
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const result = createMonthlyPayoutRun?.(payoutMonthDraft, payoutRunNotesDraft);
+                      setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
+                      if (result?.ok) setPayoutRunNotesDraft("");
+                    }}
+                    className="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+                  >
+                    Generate run
+                  </button>
+                </div>
+                {payoutRunActionMessage ? (
+                  <div className="mt-3 text-sm font-medium text-emerald-700">{payoutRunActionMessage}</div>
+                ) : null}
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <label className="text-sm text-slate-700">
+                    Active payout run
+                    <select
+                      value={selectedPayoutRunId}
+                      onChange={(event) => setSelectedPayoutRunId(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    >
+                      {sortedPayoutRuns.length === 0 ? (
+                        <option value="">No payout runs yet</option>
+                      ) : sortedPayoutRuns.map((run) => (
+                        <option key={run.id} value={run.id}>
+                          {run.periodLabel || run.id} · {run.status}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">
+                    {activePayoutRun ? (
+                      <>
+                        <div><span className="font-semibold">Hold until:</span> {formatDateTimeNoSeconds(activePayoutRun.holdUntil || Date.now())}</div>
+                        <div className="mt-1"><span className="font-semibold">Created:</span> {formatDateTimeNoSeconds(activePayoutRun.createdAt || Date.now())}</div>
+                      </>
+                    ) : "Choose or create a payout run to begin."}
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-4">
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">
+                    <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Pending</div>
+                    <div className="mt-1 text-lg font-semibold text-amber-700">{formatPriceTHB(payoutSummary.pending)}</div>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">
+                    <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Sent</div>
+                    <div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(payoutSummary.sent)}</div>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">
+                    <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Failed</div>
+                    <div className="mt-1 text-lg font-semibold text-rose-700">{formatPriceTHB(payoutSummary.failed)}</div>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">
+                    <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Below threshold</div>
+                    <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(payoutSummary.belowThreshold)}</div>
+                  </div>
+                </div>
+                <div className="mt-5 space-y-3">
+                  <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">Pending payout approvals</h4>
+                  {pendingPayoutItems.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No pending payout items in this run.</div>
+                  ) : pendingPayoutItems.map((item) => {
+                    const recipient = userById[item.recipientUserId];
+                    const methodDraft = payoutMethodByItemId[item.id] || item.method || "bank_transfer";
+                    const referenceDraft = payoutReferenceByItemId[item.id] || item.externalReference || "";
+                    const noteDraft = payoutNoteByItemId[item.id] || item.notes || "";
+                    return (
+                      <div key={item.id} className="rounded-2xl border border-slate-200 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="font-semibold text-slate-900">{recipient?.name || item.recipientUserId} ({item.recipientRole})</div>
+                          <div className="text-sm font-semibold text-emerald-700">{formatPriceTHB(item.netPayable)}</div>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{(item.sourceTxIds || []).length} earning transaction(s)</div>
+                        <div className="mt-3 grid gap-2 md:grid-cols-3">
+                          <select
+                            value={methodDraft}
+                            onChange={(event) => setPayoutMethodByItemId((prev) => ({ ...prev, [item.id]: event.target.value }))}
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          >
+                            <option value="bank_transfer">Bank transfer</option>
+                            <option value="promptpay">PromptPay</option>
+                            <option value="other">Other</option>
+                          </select>
+                          <input
+                            value={referenceDraft}
+                            onChange={(event) => setPayoutReferenceByItemId((prev) => ({ ...prev, [item.id]: event.target.value }))}
+                            placeholder="Transfer reference (required)"
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          />
+                          <input
+                            value={noteDraft}
+                            onChange={(event) => setPayoutNoteByItemId((prev) => ({ ...prev, [item.id]: event.target.value }))}
+                            placeholder="Notes (optional)"
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          />
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (typeof window !== "undefined" && !window.confirm(`Mark payout sent to ${recipient?.name || item.recipientUserId}?`)) return;
+                              const result = markPayoutItemSent?.(item.id, {
+                                method: methodDraft,
+                                externalReference: referenceDraft,
+                                notes: noteDraft,
+                              });
+                              setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
+                            }}
+                            className="rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700"
+                          >
+                            Mark sent
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const result = markPayoutItemFailed?.(item.id, noteDraft || "Manual payout failed");
+                              setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
+                            }}
+                            className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
+                          >
+                            Mark failed
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-slate-200 p-4">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">Sent in active run</h4>
+                    <div className="mt-3 space-y-2 text-sm">
+                      {sentPayoutItems.length === 0 ? (
+                        <div className="rounded-xl bg-slate-50 p-3 text-slate-600">No sent payouts yet.</div>
+                      ) : sentPayoutItems.map((item) => {
+                        const recipient = userById[item.recipientUserId];
+                        return (
+                          <div key={item.id} className="rounded-xl bg-slate-50 p-3 text-slate-700">
+                            <div className="font-semibold">{recipient?.name || item.recipientUserId} · {formatPriceTHB(item.netPayable)}</div>
+                            <div className="mt-1 text-xs text-slate-500">{item.method} · Ref {item.externalReference || "N/A"} · {formatDateTimeNoSeconds(item.paidAt || Date.now())}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 p-4">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">Run events</h4>
+                    <div className="mt-3 space-y-2 text-sm">
+                      {recentPayoutEvents.length === 0 ? (
+                        <div className="rounded-xl bg-slate-50 p-3 text-slate-600">No payout events yet.</div>
+                      ) : recentPayoutEvents.map((event) => (
+                        <div key={event.id} className="rounded-xl bg-slate-50 p-3 text-slate-700">
+                          <div className="font-semibold">{event.eventType}</div>
+                          <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(event.createdAt || Date.now())} · {event.payoutItemId}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {failedPayoutItems.length > 0 || belowThresholdPayoutItems.length > 0 ? (
+                  <div className="mt-4 text-xs text-slate-500">
+                    Failed items: {failedPayoutItems.length} · Below threshold items: {belowThresholdPayoutItems.length}
+                  </div>
+                ) : null}
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900">Who is owed now</h3>
+                    <p className="mt-1 text-sm text-slate-600">Fast payout intelligence by all-time, month, current payout cycle, or custom range.</p>
+                  </div>
+                  <div className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">
+                    Window: {paymentWindowMeta.label}
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+                  <select
+                    value={paymentsWindowPreset}
+                    onChange={(event) => setPaymentsWindowPreset(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  >
+                    <option value="all_time">All time</option>
+                    <option value="current_month">Current month</option>
+                    <option value="current_payout_cycle">Current payout cycle</option>
+                    <option value="custom">Custom range</option>
+                  </select>
+                  <input
+                    type="date"
+                    value={paymentsCustomStartDate}
+                    onChange={(event) => setPaymentsCustomStartDate(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                    disabled={paymentsWindowPreset !== "custom"}
+                  />
+                  <input
+                    type="date"
+                    value={paymentsCustomEndDate}
+                    onChange={(event) => setPaymentsCustomEndDate(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                    disabled={paymentsWindowPreset !== "custom"}
+                  />
+                  <select
+                    value={paymentsEntityRoleFilter}
+                    onChange={(event) => setPaymentsEntityRoleFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  >
+                    <option value="all">Bars + Sellers</option>
+                    <option value="seller">Sellers only</option>
+                    <option value="bar">Bars only</option>
+                  </select>
+                  <select
+                    value={paymentsSellerTypeFilter}
+                    onChange={(event) => setPaymentsSellerTypeFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  >
+                    <option value="all">All seller types</option>
+                    <option value="independent">Independent sellers</option>
+                    <option value="affiliated">Affiliated sellers</option>
+                  </select>
+                  <input
+                    value={paymentsEntitySearch}
+                    onChange={(event) => setPaymentsEntitySearch(event.target.value)}
+                    placeholder="Search seller/bar"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  />
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-4">
+                  <div className="rounded-2xl bg-slate-50 p-3">
+                    <div className="text-xs uppercase tracking-[0.12em] text-slate-500">{`Revenue (${paymentWindowMeta.label})`}</div>
+                    <div className="mt-1 text-lg font-semibold text-slate-900">{formatPriceTHB(payoutIntelligenceSummary.revenueInWindow)}</div>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-3">
+                    <div className="text-xs uppercase tracking-[0.12em] text-slate-500">{`Payouts sent (${paymentWindowMeta.label})`}</div>
+                    <div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(payoutIntelligenceSummary.paidInWindow)}</div>
+                  </div>
+                  <div className="rounded-2xl bg-amber-50 p-3">
+                    <div className="text-xs uppercase tracking-[0.12em] text-amber-700">Total money owed</div>
+                    <div className="mt-1 text-lg font-semibold text-amber-800">{formatPriceTHB(payoutIntelligenceSummary.owedNow)}</div>
+                  </div>
+                  <div className="rounded-2xl bg-emerald-50 p-3">
+                    <div className="text-xs uppercase tracking-[0.12em] text-emerald-700">Payable now (&gt;= ฿100)</div>
+                    <div className="mt-1 text-lg font-semibold text-emerald-800">{formatPriceTHB(payoutIntelligenceSummary.payableNow)}</div>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {payoutIntelligenceRows.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No seller/bar records match current filters.</div>
+                  ) : payoutIntelligenceRows.map((row) => (
+                    <div key={row.id} className="rounded-2xl border border-slate-200 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <div className="font-semibold text-slate-900">{row.name}</div>
+                          <div className="mt-1 text-xs text-slate-500">
+                            {row.role === "seller"
+                              ? `Seller · ${row.sellerType === "affiliated" ? `Affiliated (${row.affiliatedBarId || "bar"})` : "Independent"}`
+                              : `Bar · Linked sellers ${row.linkedSellerCount}`}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Total money owed</div>
+                          <div className="text-lg font-semibold text-amber-700">{formatPriceTHB(row.owedNow)}</div>
+                          {row.isBelowThreshold ? (
+                            <div className="text-[11px] font-medium text-slate-500">Below ฿100 threshold</div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">Revenue (all-time): <span className="font-semibold">{formatPriceTHB(row.revenueAllTime)}</span></div>
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">{`Revenue (${paymentWindowMeta.label}): `}<span className="font-semibold">{formatPriceTHB(row.revenueInWindow)}</span></div>
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">Payouts (all-time): <span className="font-semibold">{formatPriceTHB(row.paidAllTime)}</span></div>
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">{`Payouts (${paymentWindowMeta.label}): `}<span className="font-semibold">{formatPriceTHB(row.paidInWindow)}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {payoutIntelligenceSummary.belowThresholdCount > 0 ? (
+                  <div className="mt-3 text-xs text-slate-500">
+                    {payoutIntelligenceSummary.belowThresholdCount} recipient(s) have matured unpaid balances below ฿100 threshold (not yet payable).
+                  </div>
+                ) : null}
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900">Payout history</h3>
+                    <p className="mt-1 text-sm text-slate-600">Filter payout records and export the current view to CSV.</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => downloadPayoutHistoryCsv(filteredPayoutHistoryRows, "filtered")}
+                      className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
+                    >
+                      Export filtered CSV
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadPayoutHistoryCsv(payoutHistoryRows, "all")}
+                      className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
+                    >
+                      Export all CSV
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <select
+                    value={payoutHistoryRecipientFilter}
+                    onChange={(event) => setPayoutHistoryRecipientFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  >
+                    <option value="all">All recipients</option>
+                    <option value="seller">Seller</option>
+                    <option value="bar">Bar</option>
+                  </select>
+                  <select
+                    value={payoutHistoryStatusFilter}
+                    onChange={(event) => setPayoutHistoryStatusFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  >
+                    <option value="all">All statuses</option>
+                    <option value="ready">Ready</option>
+                    <option value="sent">Sent</option>
+                    <option value="failed">Failed</option>
+                    <option value="skipped_below_threshold">Skipped below threshold</option>
+                  </select>
+                  <select
+                    value={payoutHistoryMonthFilter}
+                    onChange={(event) => setPayoutHistoryMonthFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  >
+                    <option value="all">All months</option>
+                    {payoutHistoryMonthOptions.map((month) => (
+                      <option key={month} value={month}>{month}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-4 space-y-3 text-sm text-slate-700">
+                  {filteredPayoutHistoryRows.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 p-4 text-slate-600">No payout history matches the selected filters.</div>
+                  ) : filteredPayoutHistoryRows.slice(0, 40).map((row) => (
+                    <div key={row.id} className="rounded-2xl border border-slate-200 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="font-semibold text-slate-900">{row.recipientName} ({row.recipientRole})</div>
+                        <div className="text-sm font-semibold text-emerald-700">{formatPriceTHB(Number(row.netPayable || 0))}</div>
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {row.periodLabel} · {row.status} · {row.method || "N/A"} · Ref {row.externalReference || "N/A"}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-600">
+                        Paid: {row.paidAt ? formatDateTimeNoSeconds(row.paidAt) : "Not paid"} · Run status: {row.runStatus}
+                      </div>
+                    </div>
+                  ))}
+                  {filteredPayoutHistoryRows.length > 40 ? (
+                    <div className="text-xs text-slate-500">
+                      Showing 40 of {filteredPayoutHistoryRows.length} row(s). Export CSV for the full filtered set.
+                    </div>
+                  ) : null}
+                </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

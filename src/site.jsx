@@ -977,6 +977,9 @@ const SALE_SPLIT = {
   bar: 0.1,
   admin: 0.2,
 };
+const PAYOUT_SCHEDULE = 'monthly';
+const PAYOUT_MIN_THRESHOLD_THB = 100;
+const PAYOUT_HOLD_DAYS = 14;
 
 const DEFAULT_EMAIL_TEMPLATES = [
   {
@@ -1038,6 +1041,16 @@ const DEFAULT_EMAIL_TEMPLATES = [
     ctaPath: '/account',
     subject: 'Heads up: wallet balance is low ({{walletBalance}})',
     body: 'Hi {{recipientName}},\n\nFriendly reminder: your wallet balance is currently {{walletBalance}}.\n\nTo keep messaging, requests, and unlocks running smoothly, top up here:\n{{actionUrl}}\n\nA quick top-up now can prevent interruptions later.\n\n- ThP',
+  },
+  {
+    key: 'payout_sent',
+    name: 'Payout sent to seller or bar',
+    audience: 'seller_or_bar',
+    enabled: true,
+    ctaLabel: 'Open account ledger',
+    ctaPath: '/account',
+    subject: 'Payout sent: {{amount}} for {{periodLabel}}',
+    body: 'Hi {{recipientName}},\n\nYour payout has been sent.\n\nAmount: {{amount}}\nPeriod: {{periodLabel}}\nMethod: {{method}}\nReference: {{referenceId}}\n\nYou can review payout activity in your account:\n{{actionUrl}}\n\n- ThP',
   },
   {
     key: 'moderation_strike_added',
@@ -2357,6 +2370,9 @@ const SEED_DB = {
       createdAt: '2026-03-01T08:00:00.000Z',
     },
   ],
+  payoutRuns: [],
+  payoutItems: [],
+  payoutEvents: [],
   messages: [
     {
       id: 'msg_1',
@@ -2643,10 +2659,49 @@ const CMS_SCHEMA = {
   WalletTransaction: {
     id: 'string',
     userId: 'relation<User>',
-    type: 'enum<top_up|order_payment|message_fee|post_unlock>',
+    type: 'enum<top_up|order_payment|message_fee|post_unlock|order_sale_earning|order_bar_commission|order_platform_commission|custom_request_refund|custom_request_reversal>',
     amount: 'number',
     description: 'string',
     createdAt: 'datetime',
+  },
+  PayoutRun: {
+    id: 'string',
+    schedule: 'enum<monthly>',
+    periodLabel: 'string',
+    periodStart: 'datetime',
+    periodEnd: 'datetime',
+    holdUntil: 'datetime',
+    status: 'enum<draft|processing|completed|cancelled>',
+    createdByUserId: 'relation<User>',
+    createdAt: 'datetime',
+    completedAt: 'datetime',
+    notes: 'text',
+  },
+  PayoutItem: {
+    id: 'string',
+    runId: 'relation<PayoutRun>',
+    recipientUserId: 'relation<User>',
+    recipientRole: 'enum<seller|bar>',
+    currency: 'enum<THB>',
+    grossEligible: 'number',
+    threshold: 'number',
+    netPayable: 'number',
+    status: 'enum<ready|sent|failed|skipped_below_threshold>',
+    method: 'enum<bank_transfer|promptpay|other>',
+    externalReference: 'string',
+    paidAt: 'datetime',
+    paidByUserId: 'relation<User>',
+    notes: 'text',
+    sourceTxIds: 'string[]',
+    createdAt: 'datetime',
+  },
+  PayoutEvent: {
+    id: 'string',
+    payoutItemId: 'relation<PayoutItem>',
+    eventType: 'enum<created|marked_sent|marked_failed|note_added>',
+    actorUserId: 'relation<User>',
+    createdAt: 'datetime',
+    payload: 'json',
   },
   OrderHelpRequest: {
     id: 'string',
@@ -2986,6 +3041,9 @@ function normalizeDbState(nextDb) {
     inactivityNudges: Array.isArray(nextDb.inactivityNudges) ? nextDb.inactivityNudges : [],
     orders: Array.isArray(nextDb.orders) ? nextDb.orders : [],
     walletTransactions: Array.isArray(nextDb.walletTransactions) ? nextDb.walletTransactions : [],
+    payoutRuns: Array.isArray(nextDb.payoutRuns) ? nextDb.payoutRuns : [],
+    payoutItems: Array.isArray(nextDb.payoutItems) ? nextDb.payoutItems : [],
+    payoutEvents: Array.isArray(nextDb.payoutEvents) ? nextDb.payoutEvents : [],
     messages: Array.isArray(nextDb.messages)
       ? nextDb.messages.map((message) => {
           const body = String(message?.body || '');
@@ -3084,6 +3142,41 @@ function appendLowBalanceEmailIfNeeded(prev, { userId, beforeBalance, afterBalan
     },
     fallbackPath: '/account',
   });
+}
+
+function getMonthRangeFromValue(monthValue) {
+  const normalized = String(monthValue || '').trim();
+  const match = normalized.match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) return null;
+  const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+  const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+  return {
+    periodStartIso: startDate.toISOString(),
+    periodEndIso: endDate.toISOString(),
+    periodLabel: startDate.toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
+  };
+}
+
+function normalizePayoutMethod(method) {
+  const normalized = String(method || '').trim().toLowerCase();
+  if (normalized === 'promptpay') return 'promptpay';
+  if (normalized === 'other') return 'other';
+  return 'bank_transfer';
+}
+
+function isEligiblePayoutWalletTransaction(entry, recipient) {
+  if (!entry?.id || !recipient?.id) return false;
+  if (!['seller', 'bar'].includes(recipient.role)) return false;
+  const amount = Number(entry.amount || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return false;
+  const eligibleTypes = new Set(['message_fee', 'order_sale_earning', 'order_bar_commission']);
+  if (!eligibleTypes.has(String(entry.type || ''))) return false;
+  const createdAtMs = new Date(entry.createdAt || 0).getTime();
+  if (!Number.isFinite(createdAtMs) || createdAtMs <= 0) return false;
+  return true;
 }
 
 function calculateSellerRevenueSplit(prev, { sellerId, grossAmount }) {
@@ -3668,6 +3761,9 @@ export default function ThailandPantiesMarketSite() {
   const inactivityNudges = db.inactivityNudges || [];
   const orders = db.orders;
   const walletTransactions = db.walletTransactions || [];
+  const payoutRuns = db.payoutRuns || [];
+  const payoutItems = db.payoutItems || [];
+  const payoutEvents = db.payoutEvents || [];
   const messages = db.messages || [];
   const notifications = db.notifications || [];
   const blocks = db.blocks || [];
@@ -9391,6 +9487,288 @@ export default function ThailandPantiesMarketSite() {
     }));
   }
 
+  function createMonthlyPayoutRun(monthValue, notes = '') {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (PAYOUT_SCHEDULE !== 'monthly') {
+      return { ok: false, error: 'Unsupported payout schedule.' };
+    }
+    const monthRange = getMonthRangeFromValue(monthValue);
+    if (!monthRange) {
+      return { ok: false, error: 'Select a valid month (YYYY-MM).' };
+    }
+    let actionResult = { ok: false, error: 'Could not create payout run.' };
+    setDb((prev) => {
+      const existingRun = (prev.payoutRuns || []).find((run) => (
+        run?.periodStart === monthRange.periodStartIso
+        && run?.periodEnd === monthRange.periodEndIso
+        && run?.status !== 'cancelled'
+      ));
+      if (existingRun) {
+        actionResult = { ok: false, error: `A payout run already exists for ${monthRange.periodLabel}.` };
+        return prev;
+      }
+      const now = new Date().toISOString();
+      const holdCutoffMs = Date.now() - (PAYOUT_HOLD_DAYS * 24 * 60 * 60 * 1000);
+      const periodStartMs = new Date(monthRange.periodStartIso).getTime();
+      const periodEndMs = new Date(monthRange.periodEndIso).getTime();
+      const userByIdMap = Object.fromEntries((prev.users || []).map((user) => [user.id, user]));
+      const paidSourceTxIds = new Set();
+      (prev.payoutItems || []).forEach((item) => {
+        if (item?.status !== 'sent') return;
+        (item?.sourceTxIds || []).forEach((txId) => {
+          if (txId) paidSourceTxIds.add(String(txId));
+        });
+      });
+      const groupedByRecipient = {};
+      (prev.walletTransactions || []).forEach((entry) => {
+        const recipient = userByIdMap[entry.userId];
+        if (!isEligiblePayoutWalletTransaction(entry, recipient)) return;
+        if (paidSourceTxIds.has(String(entry.id))) return;
+        const createdAtMs = new Date(entry.createdAt || 0).getTime();
+        if (!Number.isFinite(createdAtMs) || createdAtMs < periodStartMs || createdAtMs > periodEndMs) return;
+        if (createdAtMs > holdCutoffMs) return;
+        if (!groupedByRecipient[entry.userId]) {
+          groupedByRecipient[entry.userId] = {
+            recipientUserId: entry.userId,
+            recipientRole: recipient.role,
+            sourceTxIds: [],
+            grossEligible: 0,
+          };
+        }
+        groupedByRecipient[entry.userId].sourceTxIds.push(String(entry.id));
+        groupedByRecipient[entry.userId].grossEligible = Number(
+          (groupedByRecipient[entry.userId].grossEligible + Number(entry.amount || 0)).toFixed(2)
+        );
+      });
+      const runId = `payout_run_${Date.now()}`;
+      const holdUntilMs = new Date(monthRange.periodEndIso).getTime() + (PAYOUT_HOLD_DAYS * 24 * 60 * 60 * 1000);
+      const payoutItemsForRun = Object.values(groupedByRecipient).map((entry, index) => {
+        const netPayable = Number((entry.grossEligible || 0).toFixed(2));
+        const status = netPayable >= PAYOUT_MIN_THRESHOLD_THB ? 'ready' : 'skipped_below_threshold';
+        return {
+          id: `payout_item_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 6)}`,
+          runId,
+          recipientUserId: entry.recipientUserId,
+          recipientRole: entry.recipientRole,
+          currency: 'THB',
+          grossEligible: netPayable,
+          threshold: PAYOUT_MIN_THRESHOLD_THB,
+          netPayable,
+          status,
+          method: 'bank_transfer',
+          externalReference: '',
+          paidAt: '',
+          paidByUserId: '',
+          notes: '',
+          sourceTxIds: entry.sourceTxIds,
+          createdAt: now,
+        };
+      });
+      const payoutRun = {
+        id: runId,
+        schedule: PAYOUT_SCHEDULE,
+        periodLabel: monthRange.periodLabel,
+        periodStart: monthRange.periodStartIso,
+        periodEnd: monthRange.periodEndIso,
+        holdUntil: new Date(holdUntilMs).toISOString(),
+        status: 'processing',
+        createdByUserId: currentUser.id,
+        createdAt: now,
+        completedAt: '',
+        notes: String(notes || '').trim(),
+      };
+      const payoutEventsForRun = payoutItemsForRun.map((item) => ({
+        id: `payout_evt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        payoutItemId: item.id,
+        eventType: 'created',
+        actorUserId: currentUser.id,
+        createdAt: now,
+        payload: {
+          runId,
+          amount: item.netPayable,
+          status: item.status,
+          sourceTxCount: (item.sourceTxIds || []).length,
+        },
+      }));
+      actionResult = {
+        ok: true,
+        runId,
+        message: `Created ${monthRange.periodLabel} payout run with ${payoutItemsForRun.length} item(s).`,
+      };
+      return {
+        ...prev,
+        payoutRuns: [payoutRun, ...(prev.payoutRuns || [])],
+        payoutItems: [...payoutItemsForRun, ...(prev.payoutItems || [])],
+        payoutEvents: [...payoutEventsForRun, ...(prev.payoutEvents || [])],
+      };
+    });
+    return actionResult;
+  }
+
+  function markPayoutItemSent(payoutItemId, { method = 'bank_transfer', externalReference = '', notes = '' } = {}) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    const normalizedReference = String(externalReference || '').trim();
+    if (!normalizedReference) {
+      return { ok: false, error: 'Transfer reference is required before marking sent.' };
+    }
+    let actionResult = { ok: false, error: 'Could not mark payout item as sent.' };
+    setDb((prev) => {
+      const idx = (prev.payoutItems || []).findIndex((item) => item.id === payoutItemId);
+      if (idx < 0) {
+        actionResult = { ok: false, error: 'Payout item not found.' };
+        return prev;
+      }
+      const item = prev.payoutItems[idx];
+      if (item?.status === 'sent') {
+        actionResult = { ok: false, error: 'This payout item is already marked as sent.' };
+        return prev;
+      }
+      const recipient = (prev.users || []).find((user) => user.id === item.recipientUserId);
+      if (!recipient || !['seller', 'bar'].includes(recipient.role)) {
+        actionResult = { ok: false, error: 'Recipient is invalid for payout.' };
+        return prev;
+      }
+      const payoutRun = (prev.payoutRuns || []).find((run) => run.id === item.runId);
+      const periodDate = new Date(payoutRun?.periodStart || item?.createdAt || Date.now());
+      const periodLabel = payoutRun?.periodLabel
+        || periodDate.toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+      const now = new Date().toISOString();
+      const normalizedMethod = normalizePayoutMethod(method);
+      const methodLabel = normalizedMethod === 'promptpay'
+        ? 'PromptPay'
+        : normalizedMethod === 'other'
+          ? 'Manual transfer'
+          : 'Bank transfer';
+      const updatedItem = {
+        ...item,
+        status: 'sent',
+        method: normalizedMethod,
+        externalReference: normalizedReference,
+        notes: String(notes || '').trim(),
+        paidAt: now,
+        paidByUserId: currentUser.id,
+      };
+      const nextPayoutItems = [...(prev.payoutItems || [])];
+      nextPayoutItems[idx] = updatedItem;
+      const runHasPendingReady = nextPayoutItems.some((row) => row.runId === item.runId && row.status === 'ready');
+      const nextPayoutRuns = (prev.payoutRuns || []).map((run) => (
+        run.id !== item.runId
+          ? run
+          : {
+              ...run,
+              status: runHasPendingReady ? 'processing' : 'completed',
+              completedAt: runHasPendingReady ? (run.completedAt || '') : now,
+            }
+      ));
+      const eventRow = {
+        id: `payout_evt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        payoutItemId: updatedItem.id,
+        eventType: 'marked_sent',
+        actorUserId: currentUser.id,
+        createdAt: now,
+        payload: {
+          method: normalizedMethod,
+          reference: normalizedReference,
+          notes: updatedItem.notes,
+          amount: updatedItem.netPayable,
+        },
+      };
+      const notificationText = `Payout sent: ${formatPriceTHB(updatedItem.netPayable)} for ${periodLabel}. Ref ${normalizedReference}.`;
+      const withNotification = {
+        ...prev,
+        payoutRuns: nextPayoutRuns,
+        payoutItems: nextPayoutItems,
+        payoutEvents: [eventRow, ...(prev.payoutEvents || [])],
+        notifications: [
+          {
+            id: `notif_payout_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            userId: updatedItem.recipientUserId,
+            type: 'engagement',
+            text: notificationText,
+            read: false,
+            createdAt: now,
+          },
+          ...(prev.notifications || []),
+        ],
+      };
+      const withEmail = appendTemplatedEmail(withNotification, {
+        templateKey: 'payout_sent',
+        userId: updatedItem.recipientUserId,
+        vars: {
+          amount: formatPriceTHB(updatedItem.netPayable),
+          periodLabel,
+          method: methodLabel,
+          referenceId: normalizedReference,
+          actionPath: '/account',
+        },
+        fallbackPath: '/account',
+      });
+      actionResult = { ok: true, message: `Marked payout sent to ${recipient.name || recipient.id}.` };
+      return withEmail;
+    });
+    return actionResult;
+  }
+
+  function markPayoutItemFailed(payoutItemId, reason = '') {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    let actionResult = { ok: false, error: 'Could not mark payout item as failed.' };
+    setDb((prev) => {
+      const idx = (prev.payoutItems || []).findIndex((item) => item.id === payoutItemId);
+      if (idx < 0) {
+        actionResult = { ok: false, error: 'Payout item not found.' };
+        return prev;
+      }
+      const item = prev.payoutItems[idx];
+      if (item?.status === 'sent') {
+        actionResult = { ok: false, error: 'Sent payout items cannot be marked failed.' };
+        return prev;
+      }
+      const now = new Date().toISOString();
+      const updatedItem = {
+        ...item,
+        status: 'failed',
+        notes: String(reason || '').trim(),
+      };
+      const nextPayoutItems = [...(prev.payoutItems || [])];
+      nextPayoutItems[idx] = updatedItem;
+      const runHasPendingReady = nextPayoutItems.some((row) => row.runId === item.runId && row.status === 'ready');
+      const nextPayoutRuns = (prev.payoutRuns || []).map((run) => (
+        run.id !== item.runId
+          ? run
+          : {
+              ...run,
+              status: runHasPendingReady ? 'processing' : 'completed',
+              completedAt: runHasPendingReady ? (run.completedAt || '') : now,
+            }
+      ));
+      const eventRow = {
+        id: `payout_evt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        payoutItemId: updatedItem.id,
+        eventType: 'marked_failed',
+        actorUserId: currentUser.id,
+        createdAt: now,
+        payload: {
+          reason: updatedItem.notes,
+          amount: updatedItem.netPayable,
+        },
+      };
+      actionResult = { ok: true, message: 'Payout item marked as failed.' };
+      return {
+        ...prev,
+        payoutRuns: nextPayoutRuns,
+        payoutItems: nextPayoutItems,
+        payoutEvents: [eventRow, ...(prev.payoutEvents || [])],
+      };
+    });
+    return actionResult;
+  }
+
   async function sendTestEmailTemplate(templateKey, templateDraft, scenarioKey = 'default') {
     if (!currentUser || currentUser.role !== 'admin' || !EMAIL_TEMPLATE_KEYS.has(templateKey)) {
       return { ok: false, error: 'Admin access required.' };
@@ -9482,6 +9860,13 @@ export default function ThailandPantiesMarketSite() {
         trackingCarrier: 'Thailand Post / EMS',
         trackingNumber: 'TH1234567890',
         trackingUrl: 'https://www.17track.net/en/track?nums=TH1234567890',
+        actionPath: '/account',
+      },
+      payout_sent: {
+        amount: formatPriceTHB(3400),
+        periodLabel: 'March 2026',
+        method: 'Bank transfer',
+        referenceId: 'PAYOUT-MAR-2026-001',
         actionPath: '/account',
       },
     };
@@ -13138,6 +13523,12 @@ export default function ThailandPantiesMarketSite() {
             SEO_CONFIG={SEO_CONFIG}
             promptPayReceiverMobile={promptPayReceiverMobile}
             updatePromptPayReceiverMobile={updatePromptPayReceiverMobile}
+            payoutRuns={payoutRuns}
+            payoutItems={payoutItems}
+            payoutEvents={payoutEvents}
+            createMonthlyPayoutRun={createMonthlyPayoutRun}
+            markPayoutItemSent={markPayoutItemSent}
+            markPayoutItemFailed={markPayoutItemFailed}
           />
         ) : null}
 
