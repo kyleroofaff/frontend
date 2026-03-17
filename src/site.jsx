@@ -4844,7 +4844,10 @@ export default function ThailandPantiesMarketSite() {
     const loadBootstrap = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/bootstrap`);
-        if (!response.ok) return;
+        if (!response.ok) {
+          setBackendStatus('offline');
+          return;
+        }
         const payload = await response.json();
         const hasLocalDb = !!window.localStorage.getItem('tlm-db');
         if (!hasLocalDb && payload?.db) {
@@ -5789,7 +5792,8 @@ export default function ThailandPantiesMarketSite() {
       navigate('/account');
     };
 
-    if (backendStatus === 'connected') {
+    const shouldTryApiLogin = backendStatus === 'connected' || REQUIRE_BACKEND_AUTH;
+    if (shouldTryApiLogin) {
       try {
         const authResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
@@ -5817,6 +5821,7 @@ export default function ThailandPantiesMarketSite() {
           setAuthSuccess('');
           return;
         }
+        setBackendStatus('connected');
         setApiAuthToken(token);
         setDb((prev) => {
           const existingUsers = Array.isArray(prev.users) ? prev.users : [];

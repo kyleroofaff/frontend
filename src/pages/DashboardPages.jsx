@@ -832,7 +832,7 @@ const ADMIN_TAB_CONFIG = [
   { key: "social", label: "Social Moderation", description: "Reports, comments, and feed safety", icon: Shield },
   { key: "products", label: "Product Catalog", description: "Browse seller listings and status", icon: Package },
   { key: "sales", label: "Sales Performance", description: "Revenue and seller leaderboard", icon: ShoppingBag },
-  { key: "email", label: "Email Templates", description: "Notification copy, variants, and tests", icon: MessageSquare },
+  { key: "email", label: "Email & Inbox", description: "Shared inbox, notification copy, variants, and tests", icon: MessageSquare },
   { key: "payments", label: "Payments", description: "Payouts and ledger operations", icon: CreditCard },
   { key: "cms", label: "CMS and Routes", description: "Content model and route map", icon: Database },
   { key: "deployment", label: "Site Settings", description: "Manage SEO, routes, and technical settings.", icon: Upload },
