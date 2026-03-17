@@ -2489,6 +2489,8 @@ const SEED_DB = {
   stripeEvents: [],
   emailTemplates: structuredClone(DEFAULT_EMAIL_TEMPLATES),
   emailDeliveryLog: [],
+  adminEmailThreads: [],
+  adminEmailMessages: [],
 };
 
 const SEO_CONFIG = {
@@ -3121,6 +3123,8 @@ function normalizeDbState(nextDb) {
     stripeEvents: Array.isArray(nextDb.stripeEvents) ? nextDb.stripeEvents : [],
     emailTemplates: normalizeEmailTemplates(nextDb.emailTemplates),
     emailDeliveryLog: Array.isArray(nextDb.emailDeliveryLog) ? nextDb.emailDeliveryLog : [],
+    adminEmailThreads: Array.isArray(nextDb.adminEmailThreads) ? nextDb.adminEmailThreads : [],
+    adminEmailMessages: Array.isArray(nextDb.adminEmailMessages) ? nextDb.adminEmailMessages : [],
     siteSettings: normalizeSiteSettings(nextDb.siteSettings),
   };
 }
@@ -3828,6 +3832,8 @@ export default function ThailandPantiesMarketSite() {
   const stripeEvents = db.stripeEvents;
   const emailTemplates = db.emailTemplates || [];
   const emailDeliveryLog = db.emailDeliveryLog || [];
+  const adminEmailThreads = db.adminEmailThreads || [];
+  const adminEmailMessages = db.adminEmailMessages || [];
   const siteSettings = normalizeSiteSettings(db.siteSettings);
   const promptPayReceiverMobile = siteSettings.promptPayReceiverMobile;
 
@@ -9596,6 +9602,134 @@ export default function ThailandPantiesMarketSite() {
     }));
   }
 
+  async function refreshAdminEmailInbox({ mailbox = 'all', status = 'all', search = '' } = {}) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const query = new URLSearchParams();
+    if (mailbox && mailbox !== 'all') query.set('mailbox', mailbox);
+    if (status && status !== 'all') query.set('status', status);
+    if (String(search || '').trim()) query.set('search', String(search || '').trim());
+    const endpoint = `/api/admin/email-inbox/threads${query.toString() ? `?${query.toString()}` : ''}`;
+    const { ok, payload } = await apiRequestJson(endpoint);
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not load admin email inbox.') };
+    }
+    setDb((prev) => ({
+      ...prev,
+      adminEmailThreads: Array.isArray(payload?.threads) ? payload.threads : [],
+    }));
+    return { ok: true, count: Array.isArray(payload?.threads) ? payload.threads.length : 0 };
+  }
+
+  async function fetchAdminEmailThreadMessages(threadId) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    const safeThreadId = String(threadId || '').trim();
+    if (!safeThreadId) return { ok: false, error: 'Thread id is required.' };
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const { ok, payload } = await apiRequestJson(`/api/admin/email-inbox/threads/${encodeURIComponent(safeThreadId)}/messages`);
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not load thread messages.') };
+    }
+    setDb((prev) => {
+      const incomingThread = payload?.thread || null;
+      const incomingMessages = Array.isArray(payload?.messages) ? payload.messages : [];
+      const remainingMessages = (prev.adminEmailMessages || []).filter((entry) => entry.threadId !== safeThreadId);
+      return {
+        ...prev,
+        adminEmailThreads: incomingThread
+          ? [incomingThread, ...(prev.adminEmailThreads || []).filter((entry) => entry.id !== incomingThread.id)]
+          : (prev.adminEmailThreads || []),
+        adminEmailMessages: [...remainingMessages, ...incomingMessages],
+      };
+    });
+    return { ok: true, thread: payload?.thread || null, messages: Array.isArray(payload?.messages) ? payload.messages : [] };
+  }
+
+  async function sendAdminEmailThreadReply(threadId, { mailbox = 'admin', toEmail = '', toName = '', subject = '', body = '' } = {}) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    const safeThreadId = String(threadId || '').trim();
+    const nextBody = String(body || '').trim();
+    if (!safeThreadId || !nextBody) {
+      return { ok: false, error: 'Thread id and reply body are required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const { ok, payload } = await apiRequestJson(
+      `/api/admin/email-inbox/threads/${encodeURIComponent(safeThreadId)}/reply`,
+      {
+        method: 'POST',
+        idempotencyScope: `admin_email_reply_${safeThreadId}`,
+        body: {
+          mailbox: String(mailbox || 'admin').toLowerCase(),
+          toEmail: String(toEmail || '').trim().toLowerCase(),
+          toName: String(toName || '').trim(),
+          subject: String(subject || '').trim(),
+          body: nextBody,
+        },
+      }
+    );
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not send admin reply.') };
+    }
+    setDb((prev) => ({
+      ...prev,
+      adminEmailThreads: payload?.thread
+        ? [payload.thread, ...(prev.adminEmailThreads || []).filter((entry) => entry.id !== payload.thread.id)]
+        : (prev.adminEmailThreads || []),
+      adminEmailMessages: payload?.message
+        ? [...(prev.adminEmailMessages || []), payload.message]
+        : (prev.adminEmailMessages || []),
+    }));
+    return {
+      ok: true,
+      message: payload?.email?.delivered
+        ? `Reply delivered to ${(payload?.email?.recipients || [toEmail]).join(', ')}.`
+        : 'Reply sent.',
+    };
+  }
+
+  async function updateAdminEmailThreadStatus(threadId, status) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    const safeThreadId = String(threadId || '').trim();
+    const nextStatus = String(status || '').trim();
+    if (!safeThreadId || !nextStatus) {
+      return { ok: false, error: 'Thread id and status are required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const { ok, payload } = await apiRequestJson(
+      `/api/admin/email-inbox/threads/${encodeURIComponent(safeThreadId)}/status`,
+      {
+        method: 'POST',
+        body: { status: nextStatus },
+      }
+    );
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not update thread status.') };
+    }
+    setDb((prev) => ({
+      ...prev,
+      adminEmailThreads: payload?.thread
+        ? [payload.thread, ...(prev.adminEmailThreads || []).filter((entry) => entry.id !== payload.thread.id)]
+        : (prev.adminEmailThreads || []),
+    }));
+    return { ok: true, thread: payload?.thread || null };
+  }
+
   async function updatePromptPayReceiverMobile(nextMobileValue) {
     if (!currentUser || currentUser.role !== 'admin') return;
     const sanitized = String(nextMobileValue || '').replace(/[^\d+]/g, '').trim();
@@ -13701,6 +13835,12 @@ export default function ThailandPantiesMarketSite() {
             resetEmailTemplate={resetEmailTemplate}
             sendTestEmailTemplate={sendTestEmailTemplate}
             emailDeliveryLog={emailDeliveryLog}
+            adminEmailThreads={adminEmailThreads}
+            adminEmailMessages={adminEmailMessages}
+            refreshAdminEmailInbox={refreshAdminEmailInbox}
+            fetchAdminEmailThreadMessages={fetchAdminEmailThreadMessages}
+            sendAdminEmailThreadReply={sendAdminEmailThreadReply}
+            updateAdminEmailThreadStatus={updateAdminEmailThreadStatus}
             sellerMap={sellerMap}
             currentUser={currentUser}
             navigate={navigate}

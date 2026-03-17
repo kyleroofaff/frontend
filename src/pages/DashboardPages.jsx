@@ -4273,6 +4273,12 @@ export function AdminPage({
   resetEmailTemplate,
   sendTestEmailTemplate,
   emailDeliveryLog,
+  adminEmailThreads,
+  adminEmailMessages,
+  refreshAdminEmailInbox,
+  fetchAdminEmailThreadMessages,
+  sendAdminEmailThreadReply,
+  updateAdminEmailThreadStatus,
   sellerMap,
   currentUser,
   navigate,
@@ -4298,6 +4304,14 @@ export function AdminPage({
   const [emailTemplateScenarioByKey, setEmailTemplateScenarioByKey] = useState({});
   const [sendingTestTemplateKey, setSendingTestTemplateKey] = useState(null);
   const [emailTemplateActionMessage, setEmailTemplateActionMessage] = useState("");
+  const [adminEmailMailboxFilter, setAdminEmailMailboxFilter] = useState("all");
+  const [adminEmailStatusFilter, setAdminEmailStatusFilter] = useState("all");
+  const [adminEmailSearch, setAdminEmailSearch] = useState("");
+  const [adminEmailLoading, setAdminEmailLoading] = useState(false);
+  const [adminEmailSelectedThreadId, setAdminEmailSelectedThreadId] = useState("");
+  const [adminEmailReplySubject, setAdminEmailReplySubject] = useState("");
+  const [adminEmailReplyBody, setAdminEmailReplyBody] = useState("");
+  const [adminEmailActionMessage, setAdminEmailActionMessage] = useState("");
   const [inboxSearch, setInboxSearch] = useState("");
   const [inboxTypeFilter, setInboxTypeFilter] = useState("all");
   const [inboxPriorityFilter, setInboxPriorityFilter] = useState("all");
@@ -5976,6 +5990,68 @@ export function AdminPage({
       lastEditedAt: lastEditedAtMs > 0 ? lastEditedAtMs : null,
     };
   }, [emailTemplatesList, emailDeliveryLog]);
+  const filteredAdminEmailThreads = useMemo(() => {
+    const normalizedSearch = String(adminEmailSearch || "").trim().toLowerCase();
+    return [...(adminEmailThreads || [])]
+      .filter((thread) => {
+        if (adminEmailMailboxFilter !== "all" && String(thread?.mailbox || "admin") !== adminEmailMailboxFilter) return false;
+        if (adminEmailStatusFilter !== "all" && String(thread?.status || "open") !== adminEmailStatusFilter) return false;
+        if (!normalizedSearch) return true;
+        const haystack = [
+          thread?.participantName,
+          thread?.participantEmail,
+          thread?.lastSubject,
+          thread?.lastSnippet
+        ].map((value) => String(value || "").toLowerCase()).join(" ");
+        return haystack.includes(normalizedSearch);
+      })
+      .sort((a, b) => new Date(b.lastMessageAt || b.createdAt || 0).getTime() - new Date(a.lastMessageAt || a.createdAt || 0).getTime());
+  }, [adminEmailThreads, adminEmailMailboxFilter, adminEmailStatusFilter, adminEmailSearch]);
+  const selectedAdminEmailThread = useMemo(() => {
+    if (adminEmailSelectedThreadId) {
+      return filteredAdminEmailThreads.find((entry) => entry.id === adminEmailSelectedThreadId)
+        || (adminEmailThreads || []).find((entry) => entry.id === adminEmailSelectedThreadId)
+        || null;
+    }
+    return filteredAdminEmailThreads[0] || null;
+  }, [adminEmailSelectedThreadId, filteredAdminEmailThreads, adminEmailThreads]);
+  const selectedAdminEmailThreadMessages = useMemo(() => (
+    (adminEmailMessages || [])
+      .filter((entry) => entry.threadId === selectedAdminEmailThread?.id)
+      .sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime())
+  ), [adminEmailMessages, selectedAdminEmailThread?.id]);
+  useEffect(() => {
+    if (adminTab !== "email" || !refreshAdminEmailInbox) return;
+    setAdminEmailLoading(true);
+    setAdminEmailActionMessage("");
+    Promise.resolve(refreshAdminEmailInbox({
+      mailbox: adminEmailMailboxFilter,
+      status: adminEmailStatusFilter,
+      search: adminEmailSearch
+    }))
+      .then((result) => {
+        if (!result?.ok) {
+          setAdminEmailActionMessage(result?.error || "Could not load shared inbox.");
+        }
+      })
+      .catch(() => {
+        setAdminEmailActionMessage("Could not load shared inbox.");
+      })
+      .finally(() => {
+        setAdminEmailLoading(false);
+      });
+  }, [adminTab, adminEmailMailboxFilter, adminEmailStatusFilter, adminEmailSearch, refreshAdminEmailInbox]);
+  useEffect(() => {
+    if (!selectedAdminEmailThread?.id) return;
+    setAdminEmailSelectedThreadId(selectedAdminEmailThread.id);
+    if (!adminEmailReplySubject) {
+      setAdminEmailReplySubject(String(selectedAdminEmailThread.lastSubject || "Re: Message").trim() || "Re: Message");
+    }
+  }, [selectedAdminEmailThread?.id]);
+  useEffect(() => {
+    if (!selectedAdminEmailThread?.id || !fetchAdminEmailThreadMessages) return;
+    Promise.resolve(fetchAdminEmailThreadMessages(selectedAdminEmailThread.id)).catch(() => {});
+  }, [selectedAdminEmailThread?.id, fetchAdminEmailThreadMessages]);
   const activeAdminTabConfig = useMemo(
     () => ADMIN_TAB_CONFIG.find((entry) => entry.key === adminTab) || ADMIN_TAB_CONFIG[0],
     [adminTab]
@@ -8085,6 +8161,175 @@ export function AdminPage({
 
           {adminTab === "email" ? (
             <div className="space-y-6">
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-xl font-semibold">Shared email inbox</h3>
+                    <p className="mt-1 text-sm text-slate-600">Manage inbound and outbound conversations for support and admin mailboxes.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setAdminEmailLoading(true);
+                      setAdminEmailActionMessage("");
+                      const result = await Promise.resolve(refreshAdminEmailInbox?.({
+                        mailbox: adminEmailMailboxFilter,
+                        status: adminEmailStatusFilter,
+                        search: adminEmailSearch
+                      }));
+                      setAdminEmailActionMessage(result?.ok ? `Inbox refreshed (${result?.count || 0} thread(s)).` : (result?.error || "Could not refresh inbox."));
+                      setAdminEmailLoading(false);
+                    }}
+                    className={`rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 ${adminEmailLoading ? "cursor-not-allowed opacity-60" : ""}`}
+                    disabled={adminEmailLoading}
+                  >
+                    {adminEmailLoading ? "Refreshing..." : "Refresh inbox"}
+                  </button>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-4">
+                  <input
+                    value={adminEmailSearch}
+                    onChange={(event) => setAdminEmailSearch(event.target.value)}
+                    placeholder="Search sender, subject, body"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm sm:col-span-2"
+                  />
+                  <select
+                    value={adminEmailMailboxFilter}
+                    onChange={(event) => setAdminEmailMailboxFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  >
+                    <option value="all">All mailboxes</option>
+                    <option value="support">support@ mailbox</option>
+                    <option value="admin">admin@ mailbox</option>
+                  </select>
+                  <select
+                    value={adminEmailStatusFilter}
+                    onChange={(event) => setAdminEmailStatusFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  >
+                    <option value="all">All statuses</option>
+                    <option value="open">Open</option>
+                    <option value="pending_customer">Waiting for customer</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+                {adminEmailActionMessage ? <div className="mt-2 text-xs font-medium text-emerald-700">{adminEmailActionMessage}</div> : null}
+                <div className="mt-4 grid gap-4 lg:grid-cols-[320px_1fr]">
+                  <div className="max-h-[420px] overflow-auto rounded-2xl border border-rose-100">
+                    {(filteredAdminEmailThreads || []).length === 0 ? (
+                      <div className="p-4 text-sm text-slate-600">No inbox threads match current filters.</div>
+                    ) : (filteredAdminEmailThreads || []).map((thread) => (
+                      <button
+                        key={thread.id}
+                        type="button"
+                        onClick={() => {
+                          setAdminEmailSelectedThreadId(thread.id);
+                          setAdminEmailReplySubject(String(thread.lastSubject || "Re: Message").trim() || "Re: Message");
+                          setAdminEmailReplyBody("");
+                          setAdminEmailActionMessage("");
+                        }}
+                        className={`w-full border-b border-rose-50 px-3 py-3 text-left text-sm ${selectedAdminEmailThread?.id === thread.id ? "bg-rose-50" : "bg-white hover:bg-slate-50"}`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-semibold text-slate-800">{thread.participantName || thread.participantEmail || "Unknown sender"}</div>
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${thread.mailbox === "support" ? "bg-sky-100 text-sky-700" : "bg-indigo-100 text-indigo-700"}`}>
+                            {thread.mailbox === "support" ? "support@" : "admin@"}
+                          </span>
+                        </div>
+                        <div className="mt-0.5 text-xs text-slate-500">{thread.participantEmail || "No sender email"}</div>
+                        <div className="mt-1 text-xs font-medium text-slate-700">{thread.lastSubject || "(No subject)"}</div>
+                        <div className="mt-1 line-clamp-2 text-xs text-slate-600">{thread.lastSnippet || "No body preview"}</div>
+                        <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
+                          <span>{thread.status || "open"}</span>
+                          <span>{formatDateTimeNoSeconds(thread.lastMessageAt || thread.createdAt || Date.now())}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="rounded-2xl border border-rose-100 p-4">
+                    {!selectedAdminEmailThread ? (
+                      <div className="text-sm text-slate-600">Select a thread to read and reply.</div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <div className="text-base font-semibold text-slate-900">{selectedAdminEmailThread.lastSubject || "(No subject)"}</div>
+                            <div className="mt-1 text-sm text-slate-600">{selectedAdminEmailThread.participantName || selectedAdminEmailThread.participantEmail} · {selectedAdminEmailThread.participantEmail}</div>
+                          </div>
+                          <select
+                            value={String(selectedAdminEmailThread.status || "open")}
+                            onChange={async (event) => {
+                              const result = await Promise.resolve(updateAdminEmailThreadStatus?.(selectedAdminEmailThread.id, event.target.value));
+                              setAdminEmailActionMessage(result?.ok ? "Thread status updated." : (result?.error || "Could not update status."));
+                            }}
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          >
+                            <option value="open">Open</option>
+                            <option value="pending_customer">Waiting for customer</option>
+                            <option value="closed">Closed</option>
+                          </select>
+                        </div>
+                        <div className="max-h-[260px] space-y-2 overflow-auto rounded-xl bg-slate-50 p-3">
+                          {(selectedAdminEmailThreadMessages || []).length === 0 ? (
+                            <div className="text-sm text-slate-500">No messages loaded yet.</div>
+                          ) : (selectedAdminEmailThreadMessages || []).map((message) => (
+                            <div key={message.id} className={`rounded-xl px-3 py-2 text-sm ${message.direction === "outbound" ? "bg-rose-100 text-rose-900" : "bg-white text-slate-800"}`}>
+                              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                                {message.direction === "outbound" ? "You" : "Customer"} · {formatDateTimeNoSeconds(message.createdAt || Date.now())}
+                              </div>
+                              <div className="mt-1 whitespace-pre-wrap">{message.text || "(No plain-text body)"}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="space-y-2 rounded-xl border border-slate-200 p-3">
+                          <div className="text-sm font-semibold text-slate-800">Reply</div>
+                          <input
+                            value={adminEmailReplySubject}
+                            onChange={(event) => setAdminEmailReplySubject(event.target.value)}
+                            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                            placeholder="Reply subject"
+                          />
+                          <textarea
+                            value={adminEmailReplyBody}
+                            onChange={(event) => setAdminEmailReplyBody(event.target.value)}
+                            className="min-h-[120px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                            placeholder="Write your reply..."
+                          />
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const result = await Promise.resolve(sendAdminEmailThreadReply?.(selectedAdminEmailThread.id, {
+                                  mailbox: selectedAdminEmailThread.mailbox || "admin",
+                                  toEmail: selectedAdminEmailThread.participantEmail || "",
+                                  toName: selectedAdminEmailThread.participantName || "",
+                                  subject: adminEmailReplySubject,
+                                  body: adminEmailReplyBody
+                                }));
+                                setAdminEmailActionMessage(result?.ok ? (result?.message || "Reply sent.") : (result?.error || "Could not send reply."));
+                                if (result?.ok) {
+                                  setAdminEmailReplyBody("");
+                                  await Promise.resolve(fetchAdminEmailThreadMessages?.(selectedAdminEmailThread.id));
+                                }
+                              }}
+                              className="rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700"
+                            >
+                              Send reply
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAdminEmailReplyBody("")}
+                              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <h3 className="text-xl font-semibold">Email notification templates</h3>
                 <p className="mt-2 text-sm text-slate-600">Edit subjects, body copy, and target links for system emails sent to buyers and sellers.</p>
