@@ -4332,6 +4332,7 @@ export function AdminPage({
   const [payoutHistoryRecipientFilter, setPayoutHistoryRecipientFilter] = useState("all");
   const [payoutHistoryStatusFilter, setPayoutHistoryStatusFilter] = useState("all");
   const [payoutHistoryMonthFilter, setPayoutHistoryMonthFilter] = useState("all");
+  const [salesDatePreset, setSalesDatePreset] = useState("all_time");
   const [paymentsWindowPreset, setPaymentsWindowPreset] = useState("all_time");
   const [paymentsCustomStartDate, setPaymentsCustomStartDate] = useState("");
   const [paymentsCustomEndDate, setPaymentsCustomEndDate] = useState("");
@@ -4347,6 +4348,103 @@ export function AdminPage({
     () => [...(payoutRuns || [])].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()),
     [payoutRuns]
   );
+  const salesDateWindow = useMemo(() => {
+    if (salesDatePreset === "all_time") {
+      return { startMs: null, endMs: null, label: "All time" };
+    }
+    if (salesDatePreset === "this_month") {
+      const now = new Date();
+      const startMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0);
+      const endMs = Date.now();
+      return { startMs, endMs, label: "This month" };
+    }
+    const activeCycle = sortedPayoutRuns.find((run) => run.status === "processing") || sortedPayoutRuns[0] || null;
+    if (activeCycle?.periodStart && activeCycle?.periodEnd) {
+      return {
+        startMs: new Date(activeCycle.periodStart).getTime(),
+        endMs: new Date(activeCycle.periodEnd).getTime(),
+        label: activeCycle.periodLabel || "This pay cycle",
+      };
+    }
+    return { startMs: null, endMs: null, label: "This pay cycle" };
+  }, [salesDatePreset, sortedPayoutRuns]);
+  const isWithinSalesWindow = (dateValue) => {
+    const createdAtMs = new Date(dateValue || 0).getTime();
+    if (!Number.isFinite(createdAtMs) || createdAtMs <= 0) return false;
+    if (salesDateWindow.startMs !== null && createdAtMs < salesDateWindow.startMs) return false;
+    if (salesDateWindow.endMs !== null && createdAtMs > salesDateWindow.endMs) return false;
+    return true;
+  };
+  const filteredSalesOrders = useMemo(
+    () => (orders || []).filter((order) => isWithinSalesWindow(order.createdAt)),
+    [orders, salesDateWindow]
+  );
+  const filteredAcceptedCustomRequests = useMemo(
+    () =>
+      (customRequests || [])
+        .filter((request) => (request?.quoteStatus || "") === "accepted" && (request?.status || "") !== "cancelled")
+        .filter((request) => isWithinSalesWindow(request?.quoteAcceptedAt || request?.updatedAt || request?.createdAt)),
+    [customRequests, salesDateWindow]
+  );
+  const filteredAdminSalesSummary = useMemo(() => {
+    const productSales = filteredSalesOrders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const customRequestSales = filteredAcceptedCustomRequests.reduce(
+      (sum, request) => sum + Number(request?.quotedPriceThb || 0),
+      0
+    );
+    const buyersInWindow = new Set(filteredSalesOrders.map((order) => order.buyerUserId).filter(Boolean));
+    const sellersInWindow = new Set();
+    const productById = Object.fromEntries((products || []).map((product) => [product.id, product]));
+    filteredSalesOrders.forEach((order) => {
+      (order.items || []).forEach((itemId) => {
+        const sellerId = productById[itemId]?.sellerId;
+        if (sellerId) sellersInWindow.add(sellerId);
+      });
+    });
+    filteredAcceptedCustomRequests.forEach((request) => {
+      if (request?.sellerId) sellersInWindow.add(request.sellerId);
+    });
+    return {
+      totalSales: Number((productSales + customRequestSales).toFixed(2)),
+      productSales: Number(productSales.toFixed(2)),
+      customRequestSales: Number(customRequestSales.toFixed(2)),
+      totalOrders: filteredSalesOrders.length,
+      customRequestOrders: filteredAcceptedCustomRequests.length,
+      totalBuyers: buyersInWindow.size,
+      totalSellers: sellersInWindow.size,
+    };
+  }, [filteredSalesOrders, filteredAcceptedCustomRequests, products]);
+  const filteredSellerSalesRows = useMemo(() => {
+    const productPriceById = Object.fromEntries((products || []).map((product) => [product.id, Number(product.price || 0)]));
+    return (users || [])
+      .filter((user) => user.role === "seller" && user.sellerId)
+      .map((sellerUser) => {
+        const sellerProductIds = (products || []).filter((product) => product.sellerId === sellerUser.sellerId).map((product) => product.id);
+        const sellerOrders = filteredSalesOrders.filter((order) => (order.items || []).some((itemId) => sellerProductIds.includes(itemId)));
+        const productSalesValue = sellerOrders.reduce((sum, order) => {
+          const sellerItemTotal = (order.items || [])
+            .filter((itemId) => sellerProductIds.includes(itemId))
+            .reduce((itemSum, itemId) => itemSum + (productPriceById[itemId] || 0), 0);
+          return sum + sellerItemTotal;
+        }, 0);
+        const sellerAcceptedRequests = filteredAcceptedCustomRequests.filter((request) => request?.sellerId === sellerUser.sellerId);
+        const customRequestSalesValue = sellerAcceptedRequests.reduce((sum, request) => sum + Number(request?.quotedPriceThb || 0), 0);
+        const salesValue = Number((productSalesValue + customRequestSalesValue).toFixed(2));
+        return {
+          userId: sellerUser.id,
+          sellerId: sellerUser.sellerId,
+          name: sellerUser.name,
+          email: sellerUser.email,
+          orderCount: sellerOrders.length,
+          customRequestOrderCount: sellerAcceptedRequests.length,
+          productSalesValue: Number(productSalesValue.toFixed(2)),
+          customRequestSalesValue: Number(customRequestSalesValue.toFixed(2)),
+          salesValue,
+        };
+      })
+      .filter((row) => row.salesValue > 0)
+      .sort((a, b) => b.salesValue - a.salesValue);
+  }, [users, products, filteredSalesOrders, filteredAcceptedCustomRequests]);
   useEffect(() => {
     if (!sortedPayoutRuns.length) {
       setSelectedPayoutRunId("");
@@ -6103,16 +6201,30 @@ export function AdminPage({
               <div className="rounded-3xl border border-rose-100 bg-white p-5">
                 <h3 className="text-lg font-semibold text-slate-900">Sales dashboard</h3>
                 <p className="mt-1 text-sm text-slate-700">Track product + custom request revenue, order volume, and top-performing sellers.</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <select
+                    value={salesDatePreset}
+                    onChange={(event) => setSalesDatePreset(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs"
+                  >
+                    <option value="all_time">All time</option>
+                    <option value="this_month">This month</option>
+                    <option value="this_pay_cycle">This pay cycle</option>
+                  </select>
+                  <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">
+                    {salesDateWindow.label}
+                  </span>
+                </div>
               </div>
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-6">
                 {[
-                  { label: "Total sales", value: formatPriceTHB(adminSalesSummary.totalSales) },
-                  { label: "Product sales", value: formatPriceTHB(adminSalesSummary.productSales || 0) },
-                  { label: "Custom request sales", value: formatPriceTHB(adminSalesSummary.customRequestSales || 0) },
-                  { label: "Total orders", value: adminSalesSummary.totalOrders },
-                  { label: "Custom request purchases", value: adminSalesSummary.customRequestOrders || 0 },
-                  { label: "Buyers", value: adminSalesSummary.totalBuyers },
-                  { label: "Sellers", value: adminSalesSummary.totalSellers }
+                  { label: "Total sales", value: formatPriceTHB(filteredAdminSalesSummary.totalSales) },
+                  { label: "Product sales", value: formatPriceTHB(filteredAdminSalesSummary.productSales || 0) },
+                  { label: "Custom request sales", value: formatPriceTHB(filteredAdminSalesSummary.customRequestSales || 0) },
+                  { label: "Total orders", value: filteredAdminSalesSummary.totalOrders },
+                  { label: "Custom request purchases", value: filteredAdminSalesSummary.customRequestOrders || 0 },
+                  { label: "Buyers", value: filteredAdminSalesSummary.totalBuyers },
+                  { label: "Sellers", value: filteredAdminSalesSummary.totalSellers }
                 ].map((card) => (
                   <div key={card.label} className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                     <div className="text-sm text-slate-700">{card.label}</div>
@@ -6123,9 +6235,9 @@ export function AdminPage({
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <h3 className="text-xl font-semibold">Seller sales leaderboard</h3>
                 <div className="mt-4 space-y-3">
-                  {sellerSalesRows.length === 0 ? (
+                  {filteredSellerSalesRows.length === 0 ? (
                     <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No seller sales yet.</div>
-                  ) : sellerSalesRows.map((row) => (
+                  ) : filteredSellerSalesRows.map((row) => (
                     <div key={row.userId} className="grid gap-2 rounded-2xl border border-rose-100 p-4 md:grid-cols-[1.1fr_1.2fr_0.8fr]">
                       <div>
                         <div className="font-semibold">{row.name}</div>
