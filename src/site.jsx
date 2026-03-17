@@ -2501,12 +2501,37 @@ const SEO_CONFIG = {
   ogImage: '/og-thailand-panties.jpg',
 };
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+const API_BASE_URL_FROM_ENV = String(import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
 const APP_BASE_URL_FALLBACK = String(import.meta.env.VITE_APP_BASE_URL || 'https://thailandpanties.com').replace(/\/+$/, '');
 const IS_PRODUCTION_BUILD = Boolean(import.meta.env.PROD);
 const REQUIRE_BACKEND_AUTH = IS_PRODUCTION_BUILD || String(import.meta.env.VITE_REQUIRE_BACKEND_AUTH || 'false') === 'true';
 const ENABLE_PROD_DATA_MIGRATION_RESET = String(import.meta.env.VITE_ENABLE_PROD_DATA_MIGRATION_RESET || 'false') === 'true';
 const ENABLE_LOGIN_ALIASES = !IS_PRODUCTION_BUILD || String(import.meta.env.VITE_ENABLE_LOGIN_ALIASES || 'false') === 'true';
+function resolveApiBaseUrl() {
+  const envValue = API_BASE_URL_FROM_ENV;
+  if (!IS_PRODUCTION_BUILD) return envValue;
+
+  // Production safety net: if env is missing (or points to localhost), derive the live API host.
+  const hasLocalhostEnv = (() => {
+    if (!envValue) return false;
+    try {
+      const parsed = new URL(envValue);
+      return ['localhost', '127.0.0.1'].includes(parsed.hostname);
+    } catch {
+      return /localhost|127\.0\.0\.1/i.test(envValue);
+    }
+  })();
+
+  if (!envValue || hasLocalhostEnv) {
+    const host = typeof window !== 'undefined' ? String(window.location.hostname || '').toLowerCase() : '';
+    if (host === 'thailandpanties.com' || host === 'www.thailandpanties.com') {
+      return 'https://api.thailandpanties.com';
+    }
+  }
+
+  return envValue;
+}
+const API_BASE_URL = resolveApiBaseUrl();
 const STYLE_SCHEMA = `enum<${STYLE_OPTIONS.join('|')}>`;
 const DB_STORAGE_VERSION = '2026-03-11-seller-feed-v1';
 const SHIPPING_COUNTRY_RATES = {
