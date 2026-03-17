@@ -9729,6 +9729,83 @@ export default function ThailandPantiesMarketSite() {
     };
   }
 
+  async function sendAdminEmailInboxMessage({ mailbox = 'admin', toEmail = '', toName = '', subject = '', body = '' } = {}) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    const nextToEmail = String(toEmail || '').trim().toLowerCase();
+    const nextSubject = String(subject || '').trim();
+    const nextBody = String(body || '').trim();
+    if (!nextToEmail || !nextSubject || !nextBody) {
+      return { ok: false, error: 'Recipient email, subject, and body are required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const selectedMailbox = String(mailbox || 'admin').toLowerCase() === 'support' ? 'support' : 'admin';
+    const mailboxAddress = selectedMailbox === 'support' ? 'support@thailandpanties.com' : 'admin@thailandpanties.com';
+    const { ok, payload } = await apiRequestJson(
+      '/api/notifications/platform-email',
+      {
+        method: 'POST',
+        idempotencyScope: `admin_email_send_${nextToEmail}`,
+        body: {
+          toEmail: nextToEmail,
+          toName: String(toName || '').trim(),
+          subject: nextSubject,
+          text: nextBody,
+        },
+      }
+    );
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not send email.') };
+    }
+    const now = new Date().toISOString();
+    const nextThreadId = `email_thread_local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const nextThread = {
+      id: nextThreadId,
+      mailbox: selectedMailbox,
+      participantEmail: nextToEmail,
+      participantName: String(toName || '').trim() || nextToEmail,
+      status: 'pending_customer',
+      unreadCount: 0,
+      createdAt: now,
+      updatedAt: now,
+      lastMessageAt: now,
+      lastMessageDirection: 'outbound',
+      lastSubject: nextSubject,
+      lastSnippet: nextBody.replace(/\s+/g, ' ').trim().slice(0, 240),
+    };
+    const nextMessage = {
+      id: `email_msg_local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      threadId: nextThreadId,
+      mailbox: selectedMailbox,
+      direction: 'outbound',
+      fromEmail: mailboxAddress,
+      fromName: 'Admin Team',
+      toEmail: nextToEmail,
+      toName: String(toName || '').trim(),
+      subject: nextSubject,
+      text: nextBody,
+      html: '',
+      externalMessageId: '',
+      externalInReplyTo: '',
+      createdAt: now,
+    };
+    setDb((prev) => ({
+      ...prev,
+      adminEmailThreads: [nextThread, ...(prev.adminEmailThreads || []).filter((entry) => entry.id !== nextThread.id)],
+      adminEmailMessages: [...(prev.adminEmailMessages || []), nextMessage],
+    }));
+    return {
+      ok: true,
+      thread: nextThread,
+      message: payload?.email?.delivered
+        ? `Email delivered to ${(payload?.email?.recipients || [nextToEmail]).join(', ')}.`
+        : 'Email sent.',
+    };
+  }
+
   async function updateAdminEmailThreadStatus(threadId, status) {
     if (!currentUser || currentUser.role !== 'admin') {
       return { ok: false, error: 'Admin access required.' };
@@ -13870,6 +13947,7 @@ export default function ThailandPantiesMarketSite() {
             refreshAdminEmailInbox={refreshAdminEmailInbox}
             fetchAdminEmailThreadMessages={fetchAdminEmailThreadMessages}
             sendAdminEmailThreadReply={sendAdminEmailThreadReply}
+            sendAdminEmailInboxMessage={sendAdminEmailInboxMessage}
             updateAdminEmailThreadStatus={updateAdminEmailThreadStatus}
             sellerMap={sellerMap}
             currentUser={currentUser}

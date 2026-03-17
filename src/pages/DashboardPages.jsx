@@ -4279,6 +4279,7 @@ export function AdminPage({
   refreshAdminEmailInbox,
   fetchAdminEmailThreadMessages,
   sendAdminEmailThreadReply,
+  sendAdminEmailInboxMessage,
   updateAdminEmailThreadStatus,
   sellerMap,
   currentUser,
@@ -4313,6 +4314,12 @@ export function AdminPage({
   const [adminEmailReplySubject, setAdminEmailReplySubject] = useState("");
   const [adminEmailReplyBody, setAdminEmailReplyBody] = useState("");
   const [adminEmailActionMessage, setAdminEmailActionMessage] = useState("");
+  const [adminEmailComposeMailbox, setAdminEmailComposeMailbox] = useState("admin");
+  const [adminEmailComposeToName, setAdminEmailComposeToName] = useState("");
+  const [adminEmailComposeToEmail, setAdminEmailComposeToEmail] = useState("");
+  const [adminEmailComposeSubject, setAdminEmailComposeSubject] = useState("");
+  const [adminEmailComposeBody, setAdminEmailComposeBody] = useState("");
+  const [adminEmailComposeSending, setAdminEmailComposeSending] = useState(false);
   const refreshAdminEmailInboxRef = useRef(refreshAdminEmailInbox);
   const fetchAdminEmailThreadMessagesRef = useRef(fetchAdminEmailThreadMessages);
   const [inboxSearch, setInboxSearch] = useState("");
@@ -8170,6 +8177,86 @@ export function AdminPage({
 
           {adminTab === "email_inbox" || adminTab === "email_templates" ? (
             <div className="space-y-6">
+              {adminTab === "email_inbox" ? (
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <h3 className="text-xl font-semibold">Compose outbound email</h3>
+                <p className="mt-1 text-sm text-slate-600">Send a new support or admin email directly from the dashboard via Postmark.</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <select
+                    value={adminEmailComposeMailbox}
+                    onChange={(event) => setAdminEmailComposeMailbox(event.target.value)}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  >
+                    <option value="admin">Send from admin@ mailbox</option>
+                    <option value="support">Send from support@ mailbox</option>
+                  </select>
+                  <input
+                    value={adminEmailComposeToEmail}
+                    onChange={(event) => setAdminEmailComposeToEmail(event.target.value)}
+                    placeholder="Recipient email"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  />
+                  <input
+                    value={adminEmailComposeToName}
+                    onChange={(event) => setAdminEmailComposeToName(event.target.value)}
+                    placeholder="Recipient name (optional)"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  />
+                  <input
+                    value={adminEmailComposeSubject}
+                    onChange={(event) => setAdminEmailComposeSubject(event.target.value)}
+                    placeholder="Subject"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  />
+                </div>
+                <textarea
+                  value={adminEmailComposeBody}
+                  onChange={(event) => setAdminEmailComposeBody(event.target.value)}
+                  placeholder="Write your email..."
+                  className="mt-3 min-h-[120px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={adminEmailComposeSending}
+                    onClick={async () => {
+                      setAdminEmailComposeSending(true);
+                      const result = await Promise.resolve(sendAdminEmailInboxMessage?.({
+                        mailbox: adminEmailComposeMailbox,
+                        toEmail: adminEmailComposeToEmail,
+                        toName: adminEmailComposeToName,
+                        subject: adminEmailComposeSubject,
+                        body: adminEmailComposeBody
+                      }));
+                      setAdminEmailActionMessage(result?.ok ? (result?.message || "Email sent.") : (result?.error || "Could not send email."));
+                      if (result?.ok) {
+                        if (result?.thread?.id) setAdminEmailSelectedThreadId(result.thread.id);
+                        setAdminEmailComposeToName("");
+                        setAdminEmailComposeToEmail("");
+                        setAdminEmailComposeSubject("");
+                        setAdminEmailComposeBody("");
+                      }
+                      setAdminEmailComposeSending(false);
+                    }}
+                    className={`rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 ${adminEmailComposeSending ? "cursor-not-allowed opacity-60" : ""}`}
+                  >
+                    {adminEmailComposeSending ? "Sending..." : "Send email"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAdminEmailComposeToName("");
+                      setAdminEmailComposeToEmail("");
+                      setAdminEmailComposeSubject("");
+                      setAdminEmailComposeBody("");
+                    }}
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+              ) : null}
               {adminTab === "email_inbox" ? (
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <div className="flex flex-wrap items-center justify-between gap-3">
