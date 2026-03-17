@@ -7591,8 +7591,8 @@ export function AdminPage({
                   </label>
                   <button
                     type="button"
-                    onClick={() => {
-                      const result = createMonthlyPayoutRun?.(payoutMonthDraft, payoutRunNotesDraft);
+                    onClick={async () => {
+                      const result = await Promise.resolve(createMonthlyPayoutRun?.(payoutMonthDraft, payoutRunNotesDraft));
                       setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
                       if (result?.ok) setPayoutRunNotesDraft("");
                     }}
@@ -7690,13 +7690,13 @@ export function AdminPage({
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={async () => {
                               if (typeof window !== "undefined" && !window.confirm(`Mark payout sent to ${recipient?.name || item.recipientUserId}?`)) return;
-                              const result = markPayoutItemSent?.(item.id, {
+                              const result = await Promise.resolve(markPayoutItemSent?.(item.id, {
                                 method: methodDraft,
                                 externalReference: referenceDraft,
                                 notes: noteDraft,
-                              });
+                              }));
                               setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
                             }}
                             className="rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700"
@@ -7705,8 +7705,8 @@ export function AdminPage({
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              const result = markPayoutItemFailed?.(item.id, noteDraft || "Manual payout failed");
+                            onClick={async () => {
+                              const result = await Promise.resolve(markPayoutItemFailed?.(item.id, noteDraft || "Manual payout failed"));
                               setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
                             }}
                             className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
@@ -8484,14 +8484,14 @@ export function AdminPage({
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       const sanitized = String(promptPayReceiverDraft || "").replace(/[^\d+]/g, "").trim();
                       if (!sanitized) {
                         setPromptPayReceiverMessage("Enter a PromptPay mobile number.");
                         return;
                       }
-                      updatePromptPayReceiverMobile?.(sanitized);
-                      setPromptPayReceiverMessage("PromptPay receiver saved.");
+                      const result = await Promise.resolve(updatePromptPayReceiverMobile?.(sanitized));
+                      setPromptPayReceiverMessage(result?.message || result?.error || "PromptPay receiver saved.");
                     }}
                     className="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
                   >

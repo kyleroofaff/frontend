@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Armchair,
   Beer,
@@ -45,7 +45,6 @@ import {
   TermsPage,
   WorldwideShippingPage,
 } from './pages/StaticPages.jsx';
-import { AccountPage, AdminPage, AppealsPage, BarMessagesPage, BuyerMessagesPage, CheckoutPage, SellerDashboardPage, SellerFeedPage, SellerFeedWorkspacePage, SellerMessagesPage } from './pages/DashboardPages.jsx';
 import {
   COLOR_OPTIONS,
   CONDITION_OPTIONS,
@@ -68,6 +67,17 @@ import {
 } from './productOptions.js';
 import { formatDateTimeNoSeconds, normalizeTimeFormat, setStoredTimeFormat } from './utils/timeFormat.js';
 import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from './utils/walletTopUp.js';
+
+const SellerFeedPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerFeedPage })));
+const SellerDashboardPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerDashboardPage })));
+const SellerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerMessagesPage })));
+const BuyerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BuyerMessagesPage })));
+const BarMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BarMessagesPage })));
+const SellerFeedWorkspacePage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerFeedWorkspacePage })));
+const AdminPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AdminPage })));
+const CheckoutPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.CheckoutPage })));
+const AccountPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AccountPage })));
+const AppealsPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AppealsPage })));
 
 const SHARED_NAV_I18N = {
   en: { home: 'Home', sellers: 'Sellers', bars: 'Bars', find: 'Find', sellerFeed: 'Seller Feed', customRequests: 'Custom Requests', faq: 'FAQ', contact: 'Contact', account: 'Account', messages: 'Messages', login: 'Login', register: 'Register', logout: 'Logout' },
@@ -1500,6 +1510,8 @@ const SELLER_STATUS_I18N = {
   },
 };
 
+const SEED_DEMO_PASSWORD = String(import.meta.env.VITE_SEED_DEMO_PASSWORD || 'demo123').trim();
+
 const SEED_DB = {
   siteSettings: {
     promptPayReceiverMobile: '0812345678',
@@ -1508,14 +1520,14 @@ const SEED_DB = {
     {
       id: 'admin-2',
       name: 'Kyle Roof',
-      email: 'kyleroofaff@gmail.com',
+      email: String(import.meta.env.VITE_SEED_ADMIN_EMAIL || 'admin@localhost.invalid').trim(),
       phone: '',
       country: '',
       city: '',
       address: '',
       walletBalance: 0,
       role: 'admin',
-      password: '12345',
+      password: String(import.meta.env.VITE_SEED_ADMIN_PASSWORD || '__set_vite_seed_admin_password__').trim(),
       accountStatus: 'active',
     },
     {
@@ -1529,7 +1541,7 @@ const SEED_DB = {
       walletBalance: 0,
       role: 'seller',
       sellerId: 'dao-p',
-      password: 'demo123',
+      password: SEED_DEMO_PASSWORD,
       accountStatus: 'active',
     },
     {
@@ -1542,7 +1554,7 @@ const SEED_DB = {
       address: '77 NW Market Street',
       walletBalance: 20,
       role: 'buyer',
-      password: 'demo123',
+      password: SEED_DEMO_PASSWORD,
       accountStatus: 'active',
     },
     {
@@ -1556,7 +1568,7 @@ const SEED_DB = {
       walletBalance: 0,
       role: 'bar',
       barId: 'small-world-chiang-mai',
-      password: 'demo123',
+      password: SEED_DEMO_PASSWORD,
       accountStatus: 'active',
       preferredLanguage: 'en',
     },
@@ -2448,6 +2460,11 @@ const SEO_CONFIG = {
 };
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+const APP_BASE_URL_FALLBACK = String(import.meta.env.VITE_APP_BASE_URL || 'https://thailandpanties.com').replace(/\/+$/, '');
+const IS_PRODUCTION_BUILD = Boolean(import.meta.env.PROD);
+const REQUIRE_BACKEND_AUTH = IS_PRODUCTION_BUILD || String(import.meta.env.VITE_REQUIRE_BACKEND_AUTH || 'false') === 'true';
+const ENABLE_PROD_DATA_MIGRATION_RESET = String(import.meta.env.VITE_ENABLE_PROD_DATA_MIGRATION_RESET || 'false') === 'true';
+const ENABLE_LOGIN_ALIASES = !IS_PRODUCTION_BUILD || String(import.meta.env.VITE_ENABLE_LOGIN_ALIASES || 'false') === 'true';
 const STYLE_SCHEMA = `enum<${STYLE_OPTIONS.join('|')}>`;
 const DB_STORAGE_VERSION = '2026-03-11-seller-feed-v1';
 const SHIPPING_COUNTRY_RATES = {
@@ -3080,7 +3097,7 @@ function buildAbsoluteActionUrl(path) {
   if (typeof window !== 'undefined' && window.location?.origin) {
     return `${window.location.origin}${safePath}`;
   }
-  return `https://thailandpanties.local${safePath}`;
+  return `${APP_BASE_URL_FALLBACK}${safePath}`;
 }
 
 function fillEmailTemplate(templateText, vars) {
@@ -4752,6 +4769,11 @@ export default function ThailandPantiesMarketSite() {
     if (typeof window === 'undefined') return;
     const storedVersion = window.localStorage.getItem('tlm-db-version');
     if (storedVersion === DB_STORAGE_VERSION) return;
+    if (IS_PRODUCTION_BUILD && !ENABLE_PROD_DATA_MIGRATION_RESET) {
+      // In production we avoid automatic local data wipes unless explicitly enabled.
+      window.localStorage.setItem('tlm-db-version', DB_STORAGE_VERSION);
+      return;
+    }
 
     // One-time migration: clear stale local data so refreshed seed/options are applied.
     window.localStorage.setItem('tlm-db-version', DB_STORAGE_VERSION);
@@ -5681,22 +5703,120 @@ export default function ThailandPantiesMarketSite() {
     event.preventDefault();
     setAuthErrorRefreshKey((prev) => prev + 1);
     const email = loginForm.email.trim().toLowerCase();
+    if (!email || !loginForm.password) {
+      setAuthError(loginText.invalidCredentials);
+      setAuthSuccess('');
+      return;
+    }
     const normalizeLoginAlias = (value) => String(value || "")
       .trim()
       .toLowerCase()
       .replace(/[\s._-]+/g, "");
     const compactLoginInput = normalizeLoginAlias(email);
     const password = loginForm.password;
+
+    const finalizeLogin = (user) => {
+      if (!user) return;
+      setSession({ userId: user.id });
+      setAuthError('');
+      setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
+      setCheckoutAuthModalOpen(false);
+      const normalizedPostLoginRedirectPath = String(postLoginRedirectPath || '').trim();
+      const canUsePostLoginRedirect = normalizedPostLoginRedirectPath.startsWith('/') && !normalizedPostLoginRedirectPath.startsWith('//');
+      if (canUsePostLoginRedirect) {
+        setPostLoginRedirectPath('');
+        navigate(normalizedPostLoginRedirectPath);
+        return;
+      }
+      if (user.role === 'admin') {
+        navigate('/admin');
+        return;
+      }
+      if (user.role === 'seller') {
+        navigate('/account');
+        return;
+      }
+      if (user.role === 'bar') {
+        navigate('/bar-dashboard');
+        return;
+      }
+      navigate('/account');
+    };
+
+    if (backendStatus === 'connected') {
+      try {
+        const authResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        let authPayload = null;
+        try {
+          authPayload = await authResponse.json();
+        } catch {
+          authPayload = null;
+        }
+        if (!authResponse.ok) {
+          setApiAuthToken('');
+          const serverError = String(authPayload?.error || '').trim();
+          setAuthError(serverError || loginText.invalidCredentials);
+          setAuthSuccess('');
+          return;
+        }
+        const token = String(authPayload?.token || '').trim();
+        const authUser = authPayload?.user || null;
+        if (!token || !authUser?.id) {
+          setApiAuthToken('');
+          setAuthError('Login response is invalid. Please try again.');
+          setAuthSuccess('');
+          return;
+        }
+        setApiAuthToken(token);
+        setDb((prev) => {
+          const existingUsers = Array.isArray(prev.users) ? prev.users : [];
+          const hasExisting = existingUsers.some((entry) => entry.id === authUser.id);
+          const mergedUser = {
+            ...(hasExisting ? existingUsers.find((entry) => entry.id === authUser.id) : {}),
+            ...authUser,
+            // Never persist password from auth responses.
+            password: hasExisting ? String(existingUsers.find((entry) => entry.id === authUser.id)?.password || '') : '',
+          };
+          return {
+            ...prev,
+            users: hasExisting
+              ? existingUsers.map((entry) => (entry.id === authUser.id ? mergedUser : entry))
+              : [mergedUser, ...existingUsers],
+          };
+        });
+        finalizeLogin(authUser);
+        return;
+      } catch {
+        if (REQUIRE_BACKEND_AUTH) {
+          setApiAuthToken('');
+          setAuthError('Login is unavailable while API is offline. Please try again in a moment.');
+          setAuthSuccess('');
+          return;
+        }
+      }
+    } else if (REQUIRE_BACKEND_AUTH) {
+      setApiAuthToken('');
+      setAuthError('Login is unavailable while API is offline. Please try again in a moment.');
+      setAuthSuccess('');
+      return;
+    }
+
+    // Non-production fallback only: allow local seeded auth when API is unavailable.
     const user = users.find((candidate) => {
       const candidateEmail = String(candidate?.email || "").trim().toLowerCase();
+      if (candidateEmail === email) return true;
+      if (!ENABLE_LOGIN_ALIASES) return false;
       const candidateEmailLocal = candidateEmail.split("@")[0] || "";
       const candidateId = String(candidate?.id || "").trim().toLowerCase();
       const candidateSellerId = String(candidate?.sellerId || "").trim().toLowerCase();
       const candidateBarId = String(candidate?.barId || "").trim().toLowerCase();
       const candidateName = String(candidate?.name || "").trim().toLowerCase();
       return (
-        candidateEmail === email
-        || candidateEmailLocal === email
+        candidateEmailLocal === email
         || candidateId === email
         || candidateSellerId === email
         || candidateBarId === email
@@ -5726,47 +5846,8 @@ export default function ThailandPantiesMarketSite() {
       setAuthSuccess('');
       return;
     }
-    setSession({ userId: user.id });
-    const authLoginEmail = String(user?.email || email).toLowerCase();
-    try {
-      const authResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authLoginEmail, password }),
-      });
-      if (authResponse.ok) {
-        const authPayload = await authResponse.json();
-        const token = String(authPayload?.token || '');
-        setApiAuthToken(token);
-      } else {
-        setApiAuthToken('');
-      }
-    } catch {
-      setApiAuthToken('');
-    }
-    setAuthError('');
-    setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
-    setCheckoutAuthModalOpen(false);
-    const normalizedPostLoginRedirectPath = String(postLoginRedirectPath || '').trim();
-    const canUsePostLoginRedirect = normalizedPostLoginRedirectPath.startsWith('/') && !normalizedPostLoginRedirectPath.startsWith('//');
-    if (canUsePostLoginRedirect) {
-      setPostLoginRedirectPath('');
-      navigate(normalizedPostLoginRedirectPath);
-      return;
-    }
-    if (user.role === 'admin') {
-      navigate('/admin');
-      return;
-    }
-    if (user.role === 'seller') {
-      navigate('/account');
-      return;
-    }
-    if (user.role === 'bar') {
-      navigate('/bar-dashboard');
-      return;
-    }
-    navigate('/account');
+    setApiAuthToken('');
+    finalizeLogin(user);
   }
 
   async function registerAccount(event) {
@@ -9475,9 +9556,20 @@ export default function ThailandPantiesMarketSite() {
     }));
   }
 
-  function updatePromptPayReceiverMobile(nextMobileValue) {
+  async function updatePromptPayReceiverMobile(nextMobileValue) {
     if (!currentUser || currentUser.role !== 'admin') return;
     const sanitized = String(nextMobileValue || '').replace(/[^\d+]/g, '').trim();
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const { ok, payload } = await apiRequestJson('/api/admin/site-settings/promptpay', {
+        method: 'POST',
+        body: { promptPayReceiverMobile: sanitized },
+      });
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Could not save PromptPay receiver.') };
+      }
+      if (payload?.db) setDb(normalizeDbState(payload.db));
+      return { ok: true, message: String(payload?.message || 'PromptPay receiver saved.') };
+    }
     setDb((prev) => ({
       ...prev,
       siteSettings: normalizeSiteSettings({
@@ -9485,11 +9577,28 @@ export default function ThailandPantiesMarketSite() {
         promptPayReceiverMobile: sanitized,
       }),
     }));
+    return { ok: true, message: 'PromptPay receiver saved.' };
   }
 
-  function createMonthlyPayoutRun(monthValue, notes = '') {
+  async function createMonthlyPayoutRun(monthValue, notes = '') {
     if (!currentUser || currentUser.role !== 'admin') {
       return { ok: false, error: 'Admin access required.' };
+    }
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const { ok, payload } = await apiRequestJson('/api/admin/payout-runs/monthly', {
+        method: 'POST',
+        idempotencyScope: `payout_run_${monthValue || 'month'}`,
+        body: { monthValue, notes: String(notes || '').trim() },
+      });
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Could not create payout run.') };
+      }
+      if (payload?.db) setDb(normalizeDbState(payload.db));
+      return {
+        ok: true,
+        runId: payload?.runId || '',
+        message: String(payload?.message || 'Payout run created.'),
+      };
     }
     if (PAYOUT_SCHEDULE !== 'monthly') {
       return { ok: false, error: 'Unsupported payout schedule.' };
@@ -9607,13 +9716,29 @@ export default function ThailandPantiesMarketSite() {
     return actionResult;
   }
 
-  function markPayoutItemSent(payoutItemId, { method = 'bank_transfer', externalReference = '', notes = '' } = {}) {
+  async function markPayoutItemSent(payoutItemId, { method = 'bank_transfer', externalReference = '', notes = '' } = {}) {
     if (!currentUser || currentUser.role !== 'admin') {
       return { ok: false, error: 'Admin access required.' };
     }
     const normalizedReference = String(externalReference || '').trim();
     if (!normalizedReference) {
       return { ok: false, error: 'Transfer reference is required before marking sent.' };
+    }
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const { ok, payload } = await apiRequestJson(`/api/admin/payout-items/${encodeURIComponent(String(payoutItemId || ''))}/sent`, {
+        method: 'POST',
+        idempotencyScope: `payout_sent_${String(payoutItemId || '')}_${normalizedReference}`,
+        body: {
+          method,
+          externalReference: normalizedReference,
+          notes: String(notes || '').trim(),
+        },
+      });
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Could not mark payout item as sent.') };
+      }
+      if (payload?.db) setDb(normalizeDbState(payload.db));
+      return { ok: true, message: String(payload?.message || 'Marked payout sent.') };
     }
     let actionResult = { ok: false, error: 'Could not mark payout item as sent.' };
     setDb((prev) => {
@@ -9713,9 +9838,21 @@ export default function ThailandPantiesMarketSite() {
     return actionResult;
   }
 
-  function markPayoutItemFailed(payoutItemId, reason = '') {
+  async function markPayoutItemFailed(payoutItemId, reason = '') {
     if (!currentUser || currentUser.role !== 'admin') {
       return { ok: false, error: 'Admin access required.' };
+    }
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const { ok, payload } = await apiRequestJson(`/api/admin/payout-items/${encodeURIComponent(String(payoutItemId || ''))}/failed`, {
+        method: 'POST',
+        idempotencyScope: `payout_failed_${String(payoutItemId || '')}_${Date.now()}`,
+        body: { reason: String(reason || '').trim() },
+      });
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Could not mark payout item as failed.') };
+      }
+      if (payload?.db) setDb(normalizeDbState(payload.db));
+      return { ok: true, message: String(payload?.message || 'Marked payout failed.') };
     }
     let actionResult = { ok: false, error: 'Could not mark payout item as failed.' };
     setDb((prev) => {
@@ -12023,6 +12160,15 @@ export default function ThailandPantiesMarketSite() {
       ) : null}
 
       <main>
+        <Suspense
+          fallback={(
+            <section className="mx-auto max-w-7xl px-6 py-16">
+              <div className="rounded-3xl bg-white p-6 text-sm text-slate-600 shadow-md ring-1 ring-rose-100">
+                Loading page...
+              </div>
+            </section>
+          )}
+        >
         {routeInfo.name === 'home' ? (
           <>
             <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.2fr_0.8fr] md:py-24">
@@ -13876,6 +14022,7 @@ export default function ThailandPantiesMarketSite() {
           />
         ) : null}
         {routeInfo.name === 'privacy-packaging' ? <PrivacyPackagingPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
+        </Suspense>
       </main>
 
       <footer className="border-t border-rose-100 bg-white">

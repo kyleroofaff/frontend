@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:all": "concurrently -n frontend,backend -c magenta,cyan \"npm run dev\" \"npm --prefix ../backend run dev\"",
+    "smoke": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke.ps1",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -16,6 +18,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^9.2.1",
     "vite": "^6.2.0"
   }
 }
