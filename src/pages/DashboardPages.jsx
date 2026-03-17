@@ -832,7 +832,8 @@ const ADMIN_TAB_CONFIG = [
   { key: "social", label: "Social Moderation", description: "Reports, comments, and feed safety", icon: Shield },
   { key: "products", label: "Product Catalog", description: "Browse seller listings and status", icon: Package },
   { key: "sales", label: "Sales Performance", description: "Revenue and seller leaderboard", icon: ShoppingBag },
-  { key: "email", label: "Email & Inbox", description: "Shared inbox, notification copy, variants, and tests", icon: MessageSquare },
+  { key: "email_inbox", label: "Email Inbox", description: "Manage shared support and admin mailbox threads", icon: MessageSquare },
+  { key: "email_templates", label: "Email Templates", description: "Notification copy, variants, and tests", icon: MessageSquare },
   { key: "payments", label: "Payments", description: "Payouts and ledger operations", icon: CreditCard },
   { key: "cms", label: "CMS and Routes", description: "Content model and route map", icon: Database },
   { key: "deployment", label: "Site Settings", description: "Manage SEO, routes, and technical settings.", icon: Upload },
@@ -5918,8 +5919,8 @@ export function AdminPage({
   const workspaceModeConfig = useMemo(() => ({
     all: { label: "All workspaces", tabs: null },
     moderation: { label: "Moderation", tabs: new Set(["overview", "inbox", "disputes", "social", "users"]) },
-    operations: { label: "Operations", tabs: new Set(["overview", "sales", "products", "payments", "email", "auth", "bars"]) },
-    support: { label: "Support", tabs: new Set(["overview", "inbox", "users", "disputes", "email"]) },
+    operations: { label: "Operations", tabs: new Set(["overview", "sales", "products", "payments", "email_inbox", "email_templates", "auth", "bars"]) },
+    support: { label: "Support", tabs: new Set(["overview", "inbox", "users", "disputes", "email_inbox", "email_templates"]) },
   }), []);
   const visibleAdminTabs = useMemo(() => {
     const mode = workspaceModeConfig[adminWorkspaceMode] || workspaceModeConfig.all;
@@ -6029,7 +6030,7 @@ export function AdminPage({
     fetchAdminEmailThreadMessagesRef.current = fetchAdminEmailThreadMessages;
   }, [fetchAdminEmailThreadMessages]);
   useEffect(() => {
-    if (adminTab !== "email" || !refreshAdminEmailInboxRef.current) return;
+    if (adminTab !== "email_inbox" || !refreshAdminEmailInboxRef.current) return;
     setAdminEmailLoading(true);
     setAdminEmailActionMessage("");
     Promise.resolve(refreshAdminEmailInboxRef.current({
@@ -6057,9 +6058,9 @@ export function AdminPage({
     }
   }, [selectedAdminEmailThread?.id]);
   useEffect(() => {
-    if (!selectedAdminEmailThread?.id || !fetchAdminEmailThreadMessagesRef.current) return;
+    if (adminTab !== "email_inbox" || !selectedAdminEmailThread?.id || !fetchAdminEmailThreadMessagesRef.current) return;
     Promise.resolve(fetchAdminEmailThreadMessagesRef.current(selectedAdminEmailThread.id)).catch(() => {});
-  }, [selectedAdminEmailThread?.id]);
+  }, [adminTab, selectedAdminEmailThread?.id]);
   const activeAdminTabConfig = useMemo(
     () => ADMIN_TAB_CONFIG.find((entry) => entry.key === adminTab) || ADMIN_TAB_CONFIG[0],
     [adminTab]
@@ -8167,8 +8168,9 @@ export function AdminPage({
             </div>
           ) : null}
 
-          {adminTab === "email" ? (
+          {adminTab === "email_inbox" || adminTab === "email_templates" ? (
             <div className="space-y-6">
+              {adminTab === "email_inbox" ? (
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -8340,6 +8342,9 @@ export function AdminPage({
                   </div>
                 </div>
               </div>
+              ) : null}
+              {adminTab === "email_templates" ? (
+              <>
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <h3 className="text-xl font-semibold">Email notification templates</h3>
                 <p className="mt-2 text-sm text-slate-600">Edit subjects, body copy, and target links for system emails sent to buyers and sellers.</p>
@@ -8584,6 +8589,8 @@ export function AdminPage({
                   ))}
                 </div>
               </div>
+              </>
+              ) : null}
             </div>
           ) : null}
 
