@@ -954,7 +954,7 @@ export function RefundEvidencePage({ currentUser, submitRefundEvidence, navigate
                 setForm((prev) => ({ ...prev, orderId: event.target.value }));
               }}
               className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-              placeholder="Order ID (example: order_123456)"
+              placeholder="Order ID (for example: order_123456)"
             />
             <input
               value={form.expectedItem}

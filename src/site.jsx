@@ -11582,11 +11582,11 @@ export default function ThailandPantiesMarketSite() {
                       <button onClick={() => navigate('/register')} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><Store className="h-4 w-4" /> {navText.register}</button>
                     </>
                   )}
-                  <div className="border-t border-rose-100 px-4 py-3 text-xs text-slate-500">
-                    {currentUser
-                      ? `Signed in as ${currentUser.name} (${currentUser.role})${currentUser.role === 'buyer' ? ` · Wallet: ${formatPriceTHB(currentWalletBalance)}` : ''}`
-                      : 'Guest mode'}
-                  </div>
+                  {currentUser ? (
+                    <div className="border-t border-rose-100 px-4 py-3 text-xs text-slate-500">
+                      {`Signed in as ${currentUser.name} (${currentUser.role})${currentUser.role === 'buyer' ? ` · Wallet: ${formatPriceTHB(currentWalletBalance)}` : ''}`}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -11649,9 +11649,6 @@ export default function ThailandPantiesMarketSite() {
           <>
             <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.2fr_0.8fr] md:py-24">
               <div className="flex flex-col justify-center">
-                <div className="mb-4 inline-flex w-fit items-center rounded-full bg-rose-100 px-4 py-1 text-sm font-medium text-rose-700">
-                  {publicText.heroBadge}
-                </div>
                 <h1 className="max-w-xl text-4xl font-bold tracking-tight text-slate-900 md:text-6xl">
                   {publicText.heroTitle}
                 </h1>

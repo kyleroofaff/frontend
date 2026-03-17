@@ -791,7 +791,7 @@ const ADMIN_TAB_CONFIG = [
   { key: "email", label: "Email Templates", description: "Notification copy, variants, and tests", icon: MessageSquare },
   { key: "payments", label: "Payments", description: "Stripe/webhook monitoring", icon: CreditCard },
   { key: "cms", label: "CMS and Routes", description: "Content model and route map", icon: Database },
-  { key: "deployment", label: "Deployment", description: "Architecture and SEO metadata", icon: Upload },
+  { key: "deployment", label: "Site Settings", description: "Manage SEO, routes, and technical settings.", icon: Upload },
 ];
 
 const TRACKING_CARRIER_OPTIONS = [
@@ -1136,7 +1136,7 @@ const SELLER_I18N = {
     bio: "Seller bio",
     saveProfile: "Save profile updates",
     mediaUpload: "Product upload",
-    mediaUploadHelp: "Choose an image file for your product listing. Uploaded images are saved to your current workspace session.",
+    mediaUploadHelp: "Choose an image file for your product listing. Uploaded images are saved for this session.",
     productTitle: "Product title",
     price: "Price",
     color: "Color",
@@ -2289,7 +2289,7 @@ export function SellerDashboardPage({
                     </label>
                     <span className="text-xs text-slate-600">{sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("noFileChosen")}</span>
                   </div>
-                  <div className="mt-2 text-xs text-slate-500">If no image is uploaded, buyers will see a default placeholder with your seller name.</div>
+                  <div className="mt-2 text-xs text-slate-500">If you skip this, buyers will see your seller name on a default image.</div>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
@@ -4267,7 +4267,7 @@ export function AdminPage({
     : "en";
   const adminMobileNavText = ADMIN_MOBILE_NAV_I18N[adminLocale] || ADMIN_MOBILE_NAV_I18N.en;
   const emailTestScenarioOptions = [
-    { value: "default", label: "Default sample" },
+    { value: "default", label: "Standard template" },
     { value: "buyer_message", label: "Buyer receives seller message" },
     { value: "seller_message", label: "Seller receives buyer message" },
     { value: "custom_request", label: "New custom request" },
