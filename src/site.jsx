@@ -9743,7 +9743,6 @@ export default function ThailandPantiesMarketSite() {
       return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
     }
     const selectedMailbox = String(mailbox || 'admin').toLowerCase() === 'support' ? 'support' : 'admin';
-    const mailboxAddress = selectedMailbox === 'support' ? 'support@thailandpanties.com' : 'admin@thailandpanties.com';
     const { ok, payload } = await apiRequestJson(
       '/api/notifications/platform-email',
       {
@@ -9754,7 +9753,6 @@ export default function ThailandPantiesMarketSite() {
           toName: String(toName || '').trim(),
           subject: nextSubject,
           text: nextBody,
-          replyToEmail: mailboxAddress,
         },
       }
     );
