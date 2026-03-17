@@ -6037,6 +6037,11 @@ export function AdminPage({
     fetchAdminEmailThreadMessagesRef.current = fetchAdminEmailThreadMessages;
   }, [fetchAdminEmailThreadMessages]);
   useEffect(() => {
+    if (!adminEmailActionMessage) return;
+    const timer = window.setTimeout(() => setAdminEmailActionMessage(""), 7000);
+    return () => window.clearTimeout(timer);
+  }, [adminEmailActionMessage]);
+  useEffect(() => {
     if (adminTab !== "email_inbox" || !refreshAdminEmailInboxRef.current) return;
     setAdminEmailLoading(true);
     setAdminEmailActionMessage("");

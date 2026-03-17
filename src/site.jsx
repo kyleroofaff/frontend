@@ -9754,7 +9754,7 @@ export default function ThailandPantiesMarketSite() {
           toName: String(toName || '').trim(),
           subject: nextSubject,
           text: nextBody,
-          fromEmail: mailboxAddress,
+          replyToEmail: mailboxAddress,
         },
       }
     );
