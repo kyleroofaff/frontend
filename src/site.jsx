@@ -12338,11 +12338,13 @@ export default function ThailandPantiesMarketSite() {
               <span>Thailand Panties</span>
             </button>
             <div className="hidden text-xs text-slate-500 lg:block">Premium used underwear from Thailand with discreet, professional fulfillment</div>
-            <div className="hidden text-xs lg:block">
-              <span className={`inline-flex rounded-full px-2 py-1 font-semibold ${backendStatus === 'connected' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                API: {backendStatus === 'connected' ? 'Connected' : 'Offline mode'}
-              </span>
-            </div>
+            {currentUser?.role === 'admin' ? (
+              <div className="hidden text-xs lg:block">
+                <span className={`inline-flex rounded-full px-2 py-1 font-semibold ${backendStatus === 'connected' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                  API: {backendStatus === 'connected' ? 'Connected' : 'Offline mode'}
+                </span>
+              </div>
+            ) : null}
           </div>
 
           <nav className="hidden flex-1 items-center justify-center gap-4 px-4 text-xs font-medium xl:flex 2xl:gap-5 2xl:text-sm">
