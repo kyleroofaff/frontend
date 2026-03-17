@@ -6038,6 +6038,17 @@ export function AdminPage({
     const body = String(adminEmailComposeBody || "").trim();
     return Boolean(toEmail && toEmail.includes("@") && subject && body);
   }, [adminEmailComposeToEmail, adminEmailComposeSubject, adminEmailComposeBody]);
+  const adminEmailComposeMissingFields = useMemo(() => {
+    const missing = [];
+    const toEmail = String(adminEmailComposeToEmail || "").trim();
+    const subject = String(adminEmailComposeSubject || "").trim();
+    const body = String(adminEmailComposeBody || "").trim();
+    if (!toEmail) missing.push("recipient email");
+    if (toEmail && !toEmail.includes("@")) missing.push("valid email format");
+    if (!subject) missing.push("subject");
+    if (!body) missing.push("message body");
+    return missing;
+  }, [adminEmailComposeToEmail, adminEmailComposeSubject, adminEmailComposeBody]);
   useEffect(() => {
     refreshAdminEmailInboxRef.current = refreshAdminEmailInbox;
   }, [refreshAdminEmailInbox]);
@@ -8244,7 +8255,7 @@ export function AdminPage({
                       const body = String(adminEmailComposeBody || "").trim();
                       if (!recipientEmail || !subject || !body) {
                         setAdminEmailComposeStatusTone("error");
-                        setAdminEmailComposeStatusMessage("Recipient email, subject, and message body are required.");
+                        setAdminEmailComposeStatusMessage(`Missing: ${adminEmailComposeMissingFields.join(", ")}.`);
                         return;
                       }
                       if (!recipientEmail.includes("@")) {
@@ -8303,6 +8314,9 @@ export function AdminPage({
                   <div className={`mt-3 text-xs font-medium ${adminEmailComposeStatusTone === "error" ? "text-rose-700" : adminEmailComposeStatusTone === "success" ? "text-emerald-700" : "text-slate-600"}`}>
                     {adminEmailComposeStatusMessage}
                   </div>
+                ) : null}
+                {!adminEmailComposeCanSend ? (
+                  <div className="mt-2 text-xs text-slate-500">To enable send: {adminEmailComposeMissingFields.join(", ")}.</div>
                 ) : null}
               </div>
               ) : null}
