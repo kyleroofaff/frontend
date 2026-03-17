@@ -1488,6 +1488,9 @@ const SELLER_STATUS_I18N = {
 };
 
 const SEED_DB = {
+  siteSettings: {
+    promptPayReceiverMobile: '0812345678',
+  },
   users: [
     {
       id: 'admin-2',
@@ -2735,6 +2738,7 @@ function normalizeCheckoutFormDraft(value) {
 }
 
 const SUPPORTED_AUTH_LANGUAGES = ['en', 'th', 'my', 'ru'];
+const DEFAULT_PROMPTPAY_RECEIVER_MOBILE = '0812345678';
 const DASHBOARD_LANGUAGE_OPTIONS = [
   { value: 'en', label: 'English' },
   { value: 'th', label: 'Thai' },
@@ -2839,6 +2843,13 @@ function normalizeNotificationPreferences(preferences, role = '') {
   return {
     ...base,
     push,
+  };
+}
+
+function normalizeSiteSettings(siteSettings) {
+  const nextMobile = String(siteSettings?.promptPayReceiverMobile || '').trim();
+  return {
+    promptPayReceiverMobile: nextMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE,
   };
 }
 
@@ -2995,6 +3006,7 @@ function normalizeDbState(nextDb) {
     stripeEvents: Array.isArray(nextDb.stripeEvents) ? nextDb.stripeEvents : [],
     emailTemplates: normalizeEmailTemplates(nextDb.emailTemplates),
     emailDeliveryLog: Array.isArray(nextDb.emailDeliveryLog) ? nextDb.emailDeliveryLog : [],
+    siteSettings: normalizeSiteSettings(nextDb.siteSettings),
   };
 }
 
@@ -3663,6 +3675,8 @@ export default function ThailandPantiesMarketSite() {
   const stripeEvents = db.stripeEvents;
   const emailTemplates = db.emailTemplates || [];
   const emailDeliveryLog = db.emailDeliveryLog || [];
+  const siteSettings = normalizeSiteSettings(db.siteSettings);
+  const promptPayReceiverMobile = siteSettings.promptPayReceiverMobile;
 
   const navText = SHARED_NAV_I18N[uiLanguage] || SHARED_NAV_I18N.en;
   const publicText = publicSiteText(uiLanguage);
@@ -4212,12 +4226,6 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser || currentUser.role !== 'bar') return {};
     const currentBarId = String(currentUser.barId || '').trim();
     if (!currentBarId) return {};
-    const affiliatedSellerIds = new Set(
-      (sellers || [])
-        .filter((seller) => String(seller?.affiliatedBarId || '').trim() === currentBarId)
-        .map((seller) => String(seller?.id || '').trim())
-        .filter(Boolean),
-    );
     const eligibilityMap = {};
     const upsert = (participantRole, participantUserId, createdAt, sourceType) => {
       const normalizedRole = participantRole === 'buyer' || participantRole === 'seller' ? participantRole : '';
@@ -4239,39 +4247,15 @@ export default function ThailandPantiesMarketSite() {
         sourceTypes: mergedSourceTypes,
       };
     };
-    (users || []).forEach((user) => {
-      if (user?.role !== 'seller') return;
-      if (!affiliatedSellerIds.has(String(user?.sellerId || '').trim())) return;
-      upsert('seller', user.id, user?.createdAt || '', 'affiliate_seller');
-    });
+    // Bars can only message participants that have already contacted this bar conversation.
     (messages || []).forEach((message) => {
       const parsedBarConversation = parseBarConversationId(message.conversationId);
       if (parsedBarConversation && parsedBarConversation.barId === currentBarId) {
         upsert(parsedBarConversation.participantRole, parsedBarConversation.participantUserId, message.createdAt, 'direct_bar');
-        return;
       }
-      const sellerId = String(message?.sellerId || '').trim();
-      if (!sellerId || !affiliatedSellerIds.has(sellerId)) return;
-      upsert('buyer', message?.buyerId, message?.createdAt, 'affiliate_message');
-      if (message?.senderRole === 'buyer') {
-        upsert('buyer', message?.senderId, message?.createdAt, 'affiliate_message');
-      }
-      if (message?.senderRole === 'seller') {
-        upsert('seller', message?.senderId, message?.createdAt, 'affiliate_message');
-      }
-    });
-    (orders || []).forEach((order) => {
-      const hasAffiliateSeller = (order?.payoutSummary?.bySeller || []).some((row) => affiliatedSellerIds.has(String(row?.sellerId || '').trim()));
-      if (!hasAffiliateSeller) return;
-      upsert('buyer', order?.buyerUserId, order?.createdAt, 'affiliate_sale');
-    });
-    (customRequests || []).forEach((request) => {
-      if (!affiliatedSellerIds.has(String(request?.sellerId || '').trim())) return;
-      if ((request?.quoteStatus || '') !== 'accepted' || (request?.status || '') === 'cancelled') return;
-      upsert('buyer', request?.buyerUserId, request?.updatedAt || request?.createdAt, 'affiliate_sale');
     });
     return eligibilityMap;
-  }, [messages, currentUser, sellers, users, orders, customRequests]);
+  }, [messages, currentUser]);
   const barMessageEligibleContacts = useMemo(() => {
     if (!currentUser || currentUser.role !== 'bar') return [];
     const currentBarId = String(currentUser.barId || '').trim();
@@ -4286,9 +4270,6 @@ export default function ThailandPantiesMarketSite() {
         const participantUser = users.find((user) => user.id === entry.participantUserId);
         const sourceTypes = entry?.sourceTypes || {};
         const sourceLabels = [
-          sourceTypes.affiliate_seller ? 'Affiliate seller' : '',
-          sourceTypes.affiliate_message ? 'Affiliate message contact' : '',
-          sourceTypes.affiliate_sale ? 'Affiliate buyer' : '',
           sourceTypes.direct_bar ? 'Direct bar contact' : '',
         ].filter(Boolean);
         return {
@@ -7963,7 +7944,7 @@ export default function ThailandPantiesMarketSite() {
       if (existingCount === 0) {
         const participantKey = `${participantRole}:${participantUserId}`;
         if (!barOutreachEligibilityByParticipantKey?.[participantKey]) {
-          setBarMessagesError('Bars can message users who contacted the bar or affiliated sellers.');
+          setBarMessagesError('Bars can only message buyers or sellers who contacted the bar first.');
           return;
         }
       }
@@ -9395,6 +9376,18 @@ export default function ThailandPantiesMarketSite() {
           ? template
           : { ...structuredClone(defaultTemplate), updatedAt, updatedByUserId: currentUser.id }
       ))),
+    }));
+  }
+
+  function updatePromptPayReceiverMobile(nextMobileValue) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    const sanitized = String(nextMobileValue || '').replace(/[^\d+]/g, '').trim();
+    setDb((prev) => ({
+      ...prev,
+      siteSettings: normalizeSiteSettings({
+        ...(prev.siteSettings || {}),
+        promptPayReceiverMobile: sanitized,
+      }),
     }));
   }
 
@@ -13143,6 +13136,8 @@ export default function ThailandPantiesMarketSite() {
             CMS_SCHEMA={CMS_SCHEMA}
             NEXTJS_EXPORT_BLUEPRINT={NEXTJS_EXPORT_BLUEPRINT}
             SEO_CONFIG={SEO_CONFIG}
+            promptPayReceiverMobile={promptPayReceiverMobile}
+            updatePromptPayReceiverMobile={updatePromptPayReceiverMobile}
           />
         ) : null}
 
@@ -13415,6 +13410,7 @@ export default function ThailandPantiesMarketSite() {
             updatePushNotificationPreference={updatePushNotificationPreference}
             pushPermission={pushPermission}
             pushSupported={pushSupport.serviceWorker && pushSupport.notification && pushSupport.pushManager}
+            promptPayReceiverMobile={promptPayReceiverMobile}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />

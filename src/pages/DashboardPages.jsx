@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import {
   Bell,
   Bookmark,
@@ -52,6 +53,49 @@ const CHECKOUT_SHAKE_KEYFRAMES = `
   80% { transform: translateX(3px); }
 }
 `;
+
+const DEFAULT_PROMPTPAY_RECEIVER_MOBILE = "0812345678";
+
+function onlyDigits(value) {
+  return String(value || "").replace(/\D+/g, "");
+}
+
+function toPromptPayMobileTarget(mobileNumber) {
+  const digits = onlyDigits(mobileNumber);
+  if (!digits) return "";
+  if (digits.startsWith("66")) return `00${digits}`;
+  if (digits.startsWith("0")) return `0066${digits.slice(1)}`;
+  return `0066${digits}`;
+}
+
+function formatPromptPayAmount(amount) {
+  const normalizedAmount = Number(amount || 0);
+  if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) return "";
+  return normalizedAmount.toFixed(2);
+}
+
+function computePromptPayCrc(payloadWithoutCrc) {
+  let crc = 0xFFFF;
+  const data = `${payloadWithoutCrc}6304`;
+  for (let i = 0; i < data.length; i += 1) {
+    crc ^= data.charCodeAt(i) << 8;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc & 0x8000) !== 0 ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function buildPromptPayPayload({ mobileNumber, amount }) {
+  const target = toPromptPayMobileTarget(mobileNumber);
+  const formattedAmount = formatPromptPayAmount(amount);
+  if (!target || !formattedAmount) return "";
+  const merchantAccount = `0016A0000006770101110113${target}`;
+  const payloadWithoutCrc = `00020101021229${String(merchantAccount.length).padStart(2, "0")}${merchantAccount}530376454${String(formattedAmount.length).padStart(2, "0")}${formattedAmount}5802TH`;
+  const crc = computePromptPayCrc(payloadWithoutCrc);
+  return `${payloadWithoutCrc}6304${crc}`;
+}
 
 function getAddressConventionMeta(countryValue) {
   const normalized = String(countryValue || "").trim().toLowerCase();
@@ -4234,7 +4278,9 @@ export function AdminPage({
   navigate,
   CMS_SCHEMA,
   NEXTJS_EXPORT_BLUEPRINT,
-  SEO_CONFIG
+  SEO_CONFIG,
+  promptPayReceiverMobile,
+  updatePromptPayReceiverMobile
 }) {
   const [socialSearch, setSocialSearch] = useState("");
   const [socialFilter, setSocialFilter] = useState("all");
@@ -4262,6 +4308,11 @@ export function AdminPage({
   const [payoutSourceFilter, setPayoutSourceFilter] = useState("all");
   const [payoutRoleFilter, setPayoutRoleFilter] = useState("all");
   const [payoutDateRangeFilter, setPayoutDateRangeFilter] = useState("all");
+  const [promptPayReceiverDraft, setPromptPayReceiverDraft] = useState(String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE));
+  const [promptPayReceiverMessage, setPromptPayReceiverMessage] = useState("");
+  useEffect(() => {
+    setPromptPayReceiverDraft(String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE));
+  }, [promptPayReceiverMobile]);
   const adminLocale = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
     ? currentUser.preferredLanguage
     : "en";
@@ -7409,6 +7460,43 @@ export function AdminPage({
                   <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">Production suggestion:</span> Move this metadata into Next.js route metadata exports in app/layout.tsx and key route files.</div>
                 </div>
               </div>
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <div className="flex items-center gap-3"><CreditCard className="h-5 w-5 text-rose-600" /><h3 className="text-xl font-semibold">PromptPay receiver</h3></div>
+                <p className="mt-3 text-sm leading-7 text-slate-600">Set the PromptPay mobile number used to generate buyer top-up QR codes.</p>
+                <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  PromptPay mobile (Thailand)
+                  <input
+                    type="text"
+                    value={promptPayReceiverDraft}
+                    onChange={(event) => {
+                      setPromptPayReceiverMessage("");
+                      setPromptPayReceiverDraft(event.target.value);
+                    }}
+                    placeholder="0812345678"
+                    className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm"
+                  />
+                </label>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sanitized = String(promptPayReceiverDraft || "").replace(/[^\d+]/g, "").trim();
+                      if (!sanitized) {
+                        setPromptPayReceiverMessage("Enter a PromptPay mobile number.");
+                        return;
+                      }
+                      updatePromptPayReceiverMobile?.(sanitized);
+                      setPromptPayReceiverMessage("PromptPay receiver saved.");
+                    }}
+                    className="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+                  >
+                    Save PromptPay receiver
+                  </button>
+                  {promptPayReceiverMessage ? (
+                    <div className="text-sm font-medium text-emerald-700">{promptPayReceiverMessage}</div>
+                  ) : null}
+                </div>
+              </div>
             </div>
           ) : null}
           <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
@@ -7995,11 +8083,13 @@ export function AccountPage({
   pushSupported,
   walletTopUpContext,
   clearWalletTopUpContext,
+  promptPayReceiverMobile,
   uiLanguage = "en",
   navigate
 }) {
   const accountText = ACCOUNT_PAGE_I18N[uiLanguage] || ACCOUNT_PAGE_I18N.en;
   const tx = (key) => accountText[key] || ACCOUNT_PAGE_I18N.en[key] || key;
+  const effectivePromptPayReceiverMobile = String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE).trim() || DEFAULT_PROMPTPAY_RECEIVER_MOBILE;
   const localizePaymentStatus = (status) => {
     switch (String(status || "").toLowerCase()) {
       case "paid":
@@ -8036,6 +8126,14 @@ export function AccountPage({
   const [customRequestStatusMessageById, setCustomRequestStatusMessageById] = useState({});
   const [customTopUpAmount, setCustomTopUpAmount] = useState("500");
   const [customTopUpError, setCustomTopUpError] = useState("");
+  const [topUpModalOpen, setTopUpModalOpen] = useState(false);
+  const [topUpMethod, setTopUpMethod] = useState("credit_card");
+  const [topUpDraftAmount, setTopUpDraftAmount] = useState(String(MIN_WALLET_TOP_UP_THB));
+  const [topUpPaymentError, setTopUpPaymentError] = useState("");
+  const [cardHolderName, setCardHolderName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
   const [showAllOrderHistory, setShowAllOrderHistory] = useState(false);
   const [orderHistoryPage, setOrderHistoryPage] = useState(1);
   const [showAllBillingLedger, setShowAllBillingLedger] = useState(false);
@@ -8064,6 +8162,64 @@ export function AccountPage({
     }, 450);
     return () => window.clearTimeout(timerId);
   }, [walletStatus, checkoutReturnPath, clearWalletTopUpContext, navigate]);
+  const openTopUpModal = (amount) => {
+    const normalizedAmount = Number(amount || 0);
+    const fallbackAmount = checkoutRequiredTopUpAmount > 0 ? Math.ceil(checkoutRequiredTopUpAmount) : MIN_WALLET_TOP_UP_THB;
+    const resolvedAmount = normalizedAmount > 0 ? normalizedAmount : fallbackAmount;
+    setTopUpDraftAmount(String(Math.max(MIN_WALLET_TOP_UP_THB, Math.ceil(resolvedAmount))));
+    setTopUpPaymentError("");
+    setCustomTopUpError("");
+    setTopUpMethod("credit_card");
+    setTopUpModalOpen(true);
+  };
+  const closeTopUpModal = () => {
+    if (walletStatus === "processing") return;
+    setTopUpModalOpen(false);
+    setTopUpPaymentError("");
+  };
+  const promptPayPayload = useMemo(
+    () =>
+      buildPromptPayPayload({
+        mobileNumber: effectivePromptPayReceiverMobile,
+        amount: topUpDraftAmount,
+      }),
+    [topUpDraftAmount, effectivePromptPayReceiverMobile]
+  );
+  const submitTopUpFromModal = async () => {
+    const amount = Number(topUpDraftAmount || 0);
+    if (!isValidWalletTopUpAmount(amount)) {
+      setTopUpPaymentError(`Top-up amount must be at least ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
+      return;
+    }
+    if (topUpMethod === "credit_card") {
+      const normalizedCardNumber = cardNumber.replace(/\s+/g, "");
+      const normalizedCvc = cardCvc.replace(/\D+/g, "");
+      const expiryIsValid = /^(0[1-9]|1[0-2])\/\d{2}$/.test(String(cardExpiry || "").trim());
+      if (!String(cardHolderName || "").trim()) {
+        setTopUpPaymentError("Enter the cardholder name.");
+        return;
+      }
+      if (!/^\d{12,19}$/.test(normalizedCardNumber)) {
+        setTopUpPaymentError("Enter a valid card number.");
+        return;
+      }
+      if (!expiryIsValid) {
+        setTopUpPaymentError("Enter expiry as MM/YY.");
+        return;
+      }
+      if (!/^\d{3,4}$/.test(normalizedCvc)) {
+        setTopUpPaymentError("Enter a valid CVC.");
+        return;
+      }
+    }
+    setTopUpPaymentError("");
+    const result = await runWalletTopUp(amount);
+    if (!result?.ok) {
+      setTopUpPaymentError(result?.error || "Top-up failed. Please try again.");
+      return;
+    }
+    setTopUpModalOpen(false);
+  };
   const canAffordCustomRequestMessage =
     currentUser?.role !== "buyer" || Number(currentWalletBalance || 0) >= MESSAGE_FEE_THB;
   const buyerUnreadMessageNotifications = useMemo(() => {
@@ -8545,6 +8701,10 @@ export function AccountPage({
                           key={amount}
                           onClick={() => {
                             setCustomTopUpError("");
+                            if (currentUser.role === "buyer") {
+                              openTopUpModal(amount);
+                              return;
+                            }
                             runWalletTopUp(amount);
                           }}
                           className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
@@ -8577,11 +8737,15 @@ export function AccountPage({
                             return;
                           }
                           setCustomTopUpError("");
+                          if (currentUser.role === "buyer") {
+                            openTopUpModal(amount);
+                            return;
+                          }
                           runWalletTopUp(amount);
                         }}
                         className="w-full rounded-2xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 sm:w-auto"
                       >
-                        Add custom amount
+                        {currentUser.role === "buyer" ? "Choose payment method" : "Add custom amount"}
                       </button>
                     </div>
                     {customTopUpError ? <div className="mt-2 text-sm font-medium text-rose-600">{customTopUpError}</div> : null}
@@ -8591,6 +8755,178 @@ export function AccountPage({
                     {walletStatus === "success" && checkoutReturnPath ? (
                       <div className="mt-2 text-xs font-medium text-emerald-700">
                         Top-up complete. Returning to checkout...
+                      </div>
+                    ) : null}
+                    {currentUser.role === "buyer" && topUpModalOpen ? (
+                      <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/50 px-4">
+                        <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <h4 className="text-lg font-semibold text-slate-900">Top up wallet</h4>
+                              <p className="mt-1 text-sm text-slate-600">Choose how you want to pay, then confirm your top-up.</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={closeTopUpModal}
+                              className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:text-slate-700"
+                              aria-label="Close top-up modal"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <div className="mt-4">
+                            <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Top-up amount (THB)</label>
+                            <div className="relative mt-2">
+                              <span className="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-sm font-semibold text-slate-500">฿</span>
+                              <input
+                                type="number"
+                                min={MIN_WALLET_TOP_UP_THB}
+                                step="1"
+                                value={topUpDraftAmount}
+                                onChange={(event) => {
+                                  setTopUpPaymentError("");
+                                  setTopUpDraftAmount(event.target.value);
+                                }}
+                                className="w-full rounded-2xl border border-slate-200 py-2 pl-8 pr-4 text-sm"
+                              />
+                            </div>
+                            <div className="mt-1 text-xs text-slate-500">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.</div>
+                          </div>
+                          <div className="mt-5">
+                            <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Payment method</label>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTopUpPaymentError("");
+                                  setTopUpMethod("credit_card");
+                                }}
+                                className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${topUpMethod === "credit_card" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                              >
+                                Credit Card
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTopUpPaymentError("");
+                                  setTopUpMethod("promptpay");
+                                }}
+                                className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${topUpMethod === "promptpay" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                              >
+                                PromptPay
+                              </button>
+                            </div>
+                          </div>
+                          {topUpMethod === "promptpay" ? (
+                            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <div className="text-sm font-semibold text-slate-800">PromptPay QR</div>
+                              <div className="mt-3 flex justify-center">
+                                <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                                  {promptPayPayload ? (
+                                    <QRCodeSVG value={promptPayPayload} size={176} includeMargin />
+                                  ) : (
+                                    <div className="flex h-44 w-44 items-center justify-center text-xs text-slate-500">
+                                      Enter a valid amount to generate QR.
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="mt-3 text-xs text-slate-600">
+                                Scan with a Thai banking app to pay {formatPriceTHB(Number(topUpDraftAmount || 0))} via PromptPay.
+                              </p>
+                              <p className="mt-1 text-[11px] text-slate-500">Receiver: {effectivePromptPayReceiverMobile}</p>
+                            </div>
+                          ) : (
+                            <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <div>
+                                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cardholder name</label>
+                                <input
+                                  type="text"
+                                  value={cardHolderName}
+                                  onChange={(event) => {
+                                    setTopUpPaymentError("");
+                                    setCardHolderName(event.target.value);
+                                  }}
+                                  placeholder="Name on card"
+                                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Card number</label>
+                                <input
+                                  type="text"
+                                  value={cardNumber}
+                                  onChange={(event) => {
+                                    setTopUpPaymentError("");
+                                    const digitsOnly = event.target.value.replace(/\D+/g, "").slice(0, 19);
+                                    const grouped = digitsOnly.replace(/(.{4})/g, "$1 ").trim();
+                                    setCardNumber(grouped);
+                                  }}
+                                  placeholder="1234 5678 9012 3456"
+                                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Expiry (MM/YY)</label>
+                                  <input
+                                    type="text"
+                                    value={cardExpiry}
+                                    onChange={(event) => {
+                                      setTopUpPaymentError("");
+                                      let nextValue = event.target.value.replace(/[^\d/]/g, "").slice(0, 5);
+                                      if (nextValue.length === 2 && !nextValue.includes("/")) {
+                                        nextValue = `${nextValue}/`;
+                                      }
+                                      setCardExpiry(nextValue);
+                                    }}
+                                    placeholder="MM/YY"
+                                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">CVC</label>
+                                  <input
+                                    type="text"
+                                    value={cardCvc}
+                                    onChange={(event) => {
+                                      setTopUpPaymentError("");
+                                      setCardCvc(event.target.value.replace(/\D+/g, "").slice(0, 4));
+                                    }}
+                                    placeholder="123"
+                                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {topUpPaymentError ? (
+                            <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+                              {topUpPaymentError}
+                            </div>
+                          ) : null}
+                          <div className="mt-5 flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={closeTopUpModal}
+                              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={submitTopUpFromModal}
+                              disabled={walletStatus === "processing"}
+                              className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {walletStatus === "processing"
+                                ? "Processing..."
+                                : topUpMethod === "promptpay"
+                                  ? "I scanned and paid"
+                                  : "Pay with card"}
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     ) : null}
                   </>

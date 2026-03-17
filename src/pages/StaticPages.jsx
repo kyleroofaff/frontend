@@ -74,7 +74,7 @@ const HELP_I18N = {
       { q: "What happens after the first strike versus the second strike?", a: "After a first moderation strike, a warning stays on the account and you can submit an appeal. After a second active strike, the account is automatically frozen until admin review and admin decides an outcome." },
       { q: "Where can I see my strike status and appeal history?", a: "Your dashboard shows active strike notices, and the appeals page shows your submitted appeals and admin decisions." },
       { q: "Can bars save posts and follow sellers or bars?", a: "Yes. Bars can save feed posts and follow sellers or bars to keep important content easier to find." },
-      { q: "Who can a bar message?", a: "Bars can message eligible contacts, including people who messaged the bar directly and users connected to affiliate seller message or sale activity. Bulk messaging is disabled." }
+      { q: "Who can a bar message?", a: "Bars can reply to buyers or sellers who contacted the bar first. Buyers and sellers can start conversations with bars. Bulk messaging is disabled." }
     ],
     sellerStandardsEyebrow: "Seller Policy",
     sellerStandardsTitle: "Seller Standards",
@@ -164,7 +164,7 @@ const HELP_I18N = {
       { q: "สไตรก์ครั้งแรกกับครั้งที่สองต่างกันอย่างไร?", a: "สไตรก์ครั้งแรกจะเป็นการเตือนและยังส่งอุทธรณ์ได้ ส่วนสไตรก์ที่สองที่ยัง active จะทำให้บัญชีถูกระงับอัตโนมัติจนกว่าจะผ่านการตรวจสอบและอุทธรณ์" },
       { q: "ดูสถานะสไตรก์และประวัติการอุทธรณ์ได้ที่ไหน?", a: "แดชบอร์ดจะแสดงการแจ้งเตือนสไตรก์ และหน้าศูนย์อุทธรณ์จะแสดงประวัติคำอุทธรณ์และผลการพิจารณาจากแอดมิน" },
       { q: "บาร์สามารถบันทึกโพสต์และติดตามผู้ขายหรือบาร์ได้ไหม?", a: "ได้ บาร์สามารถบันทึกโพสต์ในฟีด และติดตามทั้งผู้ขายและบาร์เพื่อกลับมาดูเนื้อหาสำคัญได้ง่ายขึ้น" },
-      { q: "บาร์ส่งข้อความหาใครได้บ้าง?", a: "บาร์สามารถส่งข้อความหาผู้ติดต่อที่มีสิทธิ์ เช่น ผู้ที่เคยทักหาบาร์โดยตรง และผู้ใช้ที่เชื่อมโยงกับการแชทหรือการขายของผู้ขายในเครือ ระบบไม่รองรับการส่งแบบเลือกหลายคน (bulk)" },
+      { q: "บาร์ส่งข้อความหาใครได้บ้าง?", a: "บาร์สามารถตอบกลับผู้ซื้อหรือผู้ขายที่ทักหาบาร์ก่อนเท่านั้น โดยผู้ซื้อและผู้ขายสามารถเริ่มบทสนทนากับบาร์ได้ ระบบไม่รองรับการส่งแบบเลือกหลายคน (bulk)" },
       { q: "ถ้าผู้ขายสองคนบล็อกผู้ซื้อจะเกิดอะไรขึ้น?", a: "หากผู้ซื้อถูกผู้ขายบล็อกครบสองคน บัญชีผู้ซื้อนั้นจะถูกบล็อกจากการใช้งานเว็บไซต์" }
     ],
     sellerStandardsEyebrow: "นโยบายผู้ขาย",
@@ -255,7 +255,7 @@ const HELP_I18N = {
       { q: "ပထမ strike နဲ့ ဒုတိယ strike က ဘာကွာလဲ?", a: "ပထမ strike တွင် account အပေါ်သတိပေးချက်ရှိနေပြီး appeal တင်နိုင်ပါသည်။ ဒုတိယ active strike ရောက်ပါက account ကို အလိုအလျောက် frozen လုပ်ပြီး admin review + appeal outcome အထိ စောင့်ရပါမည်။" },
       { q: "Strike status နဲ့ appeal history ကို ဘယ်မှာကြည့်နိုင်မလဲ?", a: "Dashboard တွင် active strike notice ကိုမြင်နိုင်ပြီး appeals page တွင် တင်ထားသော appeal များနှင့် admin ဆုံးဖြတ်ချက်များကို ကြည့်နိုင်ပါသည်။" },
       { q: "Bar က post save လုပ်ပြီး seller/bar ကို follow လုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Bar များသည် feed post များကို save လုပ်နိုင်ပြီး seller နှင့် bar နှစ်မျိုးလုံးကို follow လုပ်နိုင်ပါသည်။" },
-      { q: "Bar က ဘယ်သူတွေကို message ပို့နိုင်လဲ?", a: "Bar များသည် eligible contacts ကို message ပို့နိုင်ပါသည်။ ဥပမာ bar ကိုတိုက်ရိုက် message ပို့ဖူးသူများနှင့် affiliate seller များ၏ messaging/sales activity နှင့်ဆက်စပ် user များ။ Bulk messaging ကိုမခွင့်ပြုပါ။" },
+      { q: "Bar က ဘယ်သူတွေကို message ပို့နိုင်လဲ?", a: "Bar များသည် bar ကိုအရင်ဆက်သွယ်ထားသော buyer သို့မဟုတ် seller များကိုသာ ပြန်လည် message ပို့နိုင်ပါသည်။ Buyer နှင့် seller များက bar ကို စတင်ဆက်သွယ်နိုင်ပါသည်။ Bulk messaging ကိုမခွင့်ပြုပါ။" },
       { q: "Seller နှစ်ယောက်က buyer ကို block လုပ်ရင်ဘာဖြစ်မလဲ?", a: "Buyer တစ်ယောက်ကို seller နှစ်ယောက် block လုပ်ပါက အဆိုပါ buyer account ကို site မှ block လုပ်ပါသည်။" }
     ],
     sellerStandardsEyebrow: "Seller Policy",
@@ -345,7 +345,7 @@ const HELP_I18N = {
       { q: "Что происходит после первого и второго страйка?", a: "После первого страйка аккаунт получает предупреждение, и вы можете подать апелляцию. После второго активного страйка аккаунт автоматически замораживается до решения по апелляции." },
       { q: "Где посмотреть статус страйков и историю апелляций?", a: "На дашборде отображаются активные уведомления о страйках, а на странице апелляций — поданные апелляции и решения администратора." },
       { q: "Могут ли бары сохранять посты и подписываться на продавцов или бары?", a: "Да. Бары могут сохранять посты ленты и подписываться как на продавцов, так и на бары." },
-      { q: "Кому бар может писать сообщения?", a: "Бар может писать только допустимым контактам: тем, кто писал бару напрямую, и пользователям, связанным с сообщениями/продажами аффилированных продавцов. Массовая рассылка отключена." },
+      { q: "Кому бар может писать сообщения?", a: "Бар может отвечать только покупателям или продавцам, которые написали бару первыми. Покупатели и продавцы могут сами начинать диалог с баром. Массовая рассылка отключена." },
       { q: "Что будет, если два продавца заблокируют покупателя?", a: "Если покупателя заблокируют два продавца, аккаунт покупателя блокируется на сайте." }
     ],
     sellerStandardsEyebrow: "Политика продавцов",
@@ -1031,6 +1031,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
   const locale = HELP_I18N[pageLanguage] ? pageLanguage : "en";
   const text = helpText(locale);
   const allFaqs = Array.isArray(text.faqs) ? text.faqs : [];
+  const barSignals = /(bar|bars|bar messages|bar dashboard|บาร์|ข้อความบาร์|แดชบอร์ดบาร์|ဘား|bar ကို|бар|бары|сообщения бара)/i;
   const sellerSignals = /(seller|sellers|seller dashboard|seller feed|ผู้ขาย|แดชบอร์ดผู้ขาย|ရောင်းသူ|seller\s*dashboard|продав|панель продавца)/i;
   const buyerPrioritySignals = /(independent seller|independent means|အလိုအလျောက် seller|seller ကိုယ်တိုင်|อิสระ|независим|real person|fake profile|\bai\b|คนจริง|โปรไฟล์ปลอม|ลวง|လူအစစ်|အတု profile|реальным человеком|фейковым профилем)/i;
   const buyerQuestionPrioritySignals = /(how quickly are orders shipped|จัดส่งเร็วแค่ไหน|ပို့ဆောင်ချိန်ဘယ်လောက်|как быстро отправляются заказы)/i;
@@ -1038,10 +1039,12 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
     const question = String(faq?.q || "");
     const raw = `${faq?.q || ""} ${faq?.a || ""}`;
     if (buyerQuestionPrioritySignals.test(question)) return "buyer";
+    if (barSignals.test(question)) return "bar";
     if (buyerPrioritySignals.test(raw)) return "buyer";
     return sellerSignals.test(raw) ? "seller" : "buyer";
   };
   const sellerFaqs = allFaqs.filter((faq) => classifyFaq(faq) === "seller");
+  const barFaqs = allFaqs.filter((faq) => classifyFaq(faq) === "bar");
   const buyerFaqs = allFaqs.filter((faq) => classifyFaq(faq) === "buyer");
   const buyerFaqPriority = (faq) => {
     const q = String(faq?.q || "");
@@ -1058,6 +1061,8 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
     })
     .map((entry) => entry.faq);
   const hasSellerSection = sellerFaqs.length > 0;
+  const hasBarSection = barFaqs.length > 0;
+  const hasSpecializedSection = hasSellerSection || hasBarSection;
   const routeLabelsByLocale = {
     en: {
       "/refund-evidence": "Open refund evidence form",
@@ -1206,7 +1211,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
         <div className="rounded-3xl border border-rose-100 bg-rose-50/40 p-6">
           <h3 className="text-lg font-semibold text-slate-900">Buyer FAQ</h3>
           <div className="mt-4 grid gap-4">
-            {(hasSellerSection ? orderedBuyerFaqs : allFaqs).map(renderFaqCard)}
+            {(hasSpecializedSection ? orderedBuyerFaqs : allFaqs).map(renderFaqCard)}
           </div>
         </div>
         {hasSellerSection ? (
@@ -1214,6 +1219,14 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
             <h3 className="text-lg font-semibold text-slate-900">Seller FAQ</h3>
             <div className="mt-4 grid gap-4">
               {sellerFaqs.map(renderFaqCard)}
+            </div>
+          </div>
+        ) : null}
+        {hasBarSection ? (
+          <div className="rounded-3xl border border-cyan-100 bg-cyan-50/40 p-6">
+            <h3 className="text-lg font-semibold text-slate-900">Bar FAQ</h3>
+            <div className="mt-4 grid gap-4">
+              {barFaqs.map(renderFaqCard)}
             </div>
           </div>
         ) : null}
