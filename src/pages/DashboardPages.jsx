@@ -4320,6 +4320,8 @@ export function AdminPage({
   const [adminEmailComposeSubject, setAdminEmailComposeSubject] = useState("");
   const [adminEmailComposeBody, setAdminEmailComposeBody] = useState("");
   const [adminEmailComposeSending, setAdminEmailComposeSending] = useState(false);
+  const [adminEmailComposeStatusMessage, setAdminEmailComposeStatusMessage] = useState("");
+  const [adminEmailComposeStatusTone, setAdminEmailComposeStatusTone] = useState("neutral");
   const refreshAdminEmailInboxRef = useRef(refreshAdminEmailInbox);
   const fetchAdminEmailThreadMessagesRef = useRef(fetchAdminEmailThreadMessages);
   const [inboxSearch, setInboxSearch] = useState("");
@@ -6041,6 +6043,11 @@ export function AdminPage({
     const timer = window.setTimeout(() => setAdminEmailActionMessage(""), 7000);
     return () => window.clearTimeout(timer);
   }, [adminEmailActionMessage]);
+  useEffect(() => {
+    if (!adminEmailComposeStatusMessage || adminEmailComposeSending) return;
+    const timer = window.setTimeout(() => setAdminEmailComposeStatusMessage(""), 6000);
+    return () => window.clearTimeout(timer);
+  }, [adminEmailComposeStatusMessage, adminEmailComposeSending]);
   useEffect(() => {
     if (adminTab !== "email_inbox" || !refreshAdminEmailInboxRef.current) return;
     setAdminEmailLoading(true);
@@ -8226,8 +8233,15 @@ export function AdminPage({
                     type="button"
                     disabled={adminEmailComposeSending}
                     onClick={async () => {
+                      const recipientEmail = String(adminEmailComposeToEmail || "").trim();
+                      if (!recipientEmail.includes("@")) {
+                        setAdminEmailComposeStatusTone("error");
+                        setAdminEmailComposeStatusMessage("Please enter a valid recipient email address.");
+                        return;
+                      }
                       setAdminEmailComposeSending(true);
-                      setAdminEmailActionMessage("Sending email via Postmark...");
+                      setAdminEmailComposeStatusTone("neutral");
+                      setAdminEmailComposeStatusMessage("Sending email via Postmark...");
                       try {
                         const result = await Promise.resolve(sendAdminEmailInboxMessage?.({
                           mailbox: adminEmailComposeMailbox,
@@ -8236,7 +8250,10 @@ export function AdminPage({
                           subject: adminEmailComposeSubject,
                           body: adminEmailComposeBody
                         }));
-                        setAdminEmailActionMessage(result?.ok ? (result?.message || "Email sent.") : (result?.error || "Could not send email."));
+                        setAdminEmailComposeStatusTone(result?.ok ? "success" : "error");
+                        setAdminEmailComposeStatusMessage(result?.ok
+                          ? (result?.message || "Postmark accepted the email for delivery.")
+                          : (result?.error || "Could not send email."));
                         if (result?.ok) {
                           if (result?.thread?.id) setAdminEmailSelectedThreadId(result.thread.id);
                           setAdminEmailComposeToName("");
@@ -8265,6 +8282,11 @@ export function AdminPage({
                     Clear
                   </button>
                 </div>
+                {adminEmailComposeStatusMessage ? (
+                  <div className={`mt-3 text-xs font-medium ${adminEmailComposeStatusTone === "error" ? "text-rose-700" : adminEmailComposeStatusTone === "success" ? "text-emerald-700" : "text-slate-600"}`}>
+                    {adminEmailComposeStatusMessage}
+                  </div>
+                ) : null}
               </div>
               ) : null}
               {adminTab === "email_inbox" ? (
