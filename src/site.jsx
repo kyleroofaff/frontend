@@ -3924,6 +3924,12 @@ export default function ThailandPantiesMarketSite() {
     stableIdempotency = false,
   } = {}) {
     const nextHeaders = { ...headers };
+    if (body !== undefined) {
+      const hasContentType = Object.keys(nextHeaders).some((key) => key.toLowerCase() === 'content-type');
+      if (!hasContentType) {
+        nextHeaders['Content-Type'] = 'application/json';
+      }
+    }
     if (idempotencyScope && !nextHeaders['Idempotency-Key']) {
       const stableKey = stableIdempotency
         ? (apiIdempotencyKeysRef.current[idempotencyScope] || createIdempotencyKey(idempotencyScope))
