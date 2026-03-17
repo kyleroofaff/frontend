@@ -6032,6 +6032,12 @@ export function AdminPage({
       .filter((entry) => entry.threadId === selectedAdminEmailThread?.id)
       .sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime())
   ), [adminEmailMessages, selectedAdminEmailThread?.id]);
+  const adminEmailComposeCanSend = useMemo(() => {
+    const toEmail = String(adminEmailComposeToEmail || "").trim();
+    const subject = String(adminEmailComposeSubject || "").trim();
+    const body = String(adminEmailComposeBody || "").trim();
+    return Boolean(toEmail && toEmail.includes("@") && subject && body);
+  }, [adminEmailComposeToEmail, adminEmailComposeSubject, adminEmailComposeBody]);
   useEffect(() => {
     refreshAdminEmailInboxRef.current = refreshAdminEmailInbox;
   }, [refreshAdminEmailInbox]);
@@ -8231,9 +8237,16 @@ export function AdminPage({
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    disabled={adminEmailComposeSending}
+                    disabled={adminEmailComposeSending || !adminEmailComposeCanSend}
                     onClick={async () => {
                       const recipientEmail = String(adminEmailComposeToEmail || "").trim();
+                      const subject = String(adminEmailComposeSubject || "").trim();
+                      const body = String(adminEmailComposeBody || "").trim();
+                      if (!recipientEmail || !subject || !body) {
+                        setAdminEmailComposeStatusTone("error");
+                        setAdminEmailComposeStatusMessage("Recipient email, subject, and message body are required.");
+                        return;
+                      }
                       if (!recipientEmail.includes("@")) {
                         setAdminEmailComposeStatusTone("error");
                         setAdminEmailComposeStatusMessage("Please enter a valid recipient email address.");
@@ -8253,7 +8266,11 @@ export function AdminPage({
                         setAdminEmailComposeStatusTone(result?.ok ? "success" : "error");
                         setAdminEmailComposeStatusMessage(result?.ok
                           ? (result?.message || "Postmark accepted the email for delivery.")
-                          : (result?.error || "Could not send email."));
+                          : (
+                            String(result?.error || "").includes("toEmail, subject, and text are required.")
+                              ? "Recipient email, subject, and message body are required."
+                              : (result?.error || "Could not send email.")
+                          ));
                         if (result?.ok) {
                           if (result?.thread?.id) setAdminEmailSelectedThreadId(result.thread.id);
                           setAdminEmailComposeToName("");
@@ -8265,7 +8282,7 @@ export function AdminPage({
                         setAdminEmailComposeSending(false);
                       }
                     }}
-                    className={`rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 ${adminEmailComposeSending ? "cursor-not-allowed opacity-60" : ""}`}
+                    className={`rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 ${(adminEmailComposeSending || !adminEmailComposeCanSend) ? "cursor-not-allowed opacity-60" : ""}`}
                   >
                     {adminEmailComposeSending ? "Sending..." : "Send email"}
                   </button>
