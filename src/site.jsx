@@ -9754,11 +9754,18 @@ export default function ThailandPantiesMarketSite() {
           toName: String(toName || '').trim(),
           subject: nextSubject,
           text: nextBody,
+          fromEmail: mailboxAddress,
         },
       }
     );
     if (!ok) {
       return { ok: false, error: String(payload?.error || 'Could not send email.') };
+    }
+    if (!payload?.email?.delivered) {
+      return {
+        ok: false,
+        error: `Email was accepted but not delivered (${payload?.email?.reason || payload?.email?.mode || 'unknown'}).`,
+      };
     }
     const now = new Date().toISOString();
     const nextThreadId = `email_thread_local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
@@ -9800,9 +9807,7 @@ export default function ThailandPantiesMarketSite() {
     return {
       ok: true,
       thread: nextThread,
-      message: payload?.email?.delivered
-        ? `Email delivered to ${(payload?.email?.recipients || [nextToEmail]).join(', ')}.`
-        : 'Email sent.',
+      message: `Email delivered to ${(payload?.email?.recipients || [nextToEmail]).join(', ')}.`,
     };
   }
 

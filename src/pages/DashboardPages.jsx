@@ -8181,6 +8181,7 @@ export function AdminPage({
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <h3 className="text-xl font-semibold">Compose outbound email</h3>
                 <p className="mt-1 text-sm text-slate-600">Send a new support or admin email directly from the dashboard via Postmark.</p>
+                <p className="mt-1 text-xs text-slate-500">Sending can take 5-15 seconds. After success, check inbox plus spam/promotions for the recipient.</p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <select
                     value={adminEmailComposeMailbox}
@@ -8221,22 +8222,26 @@ export function AdminPage({
                     disabled={adminEmailComposeSending}
                     onClick={async () => {
                       setAdminEmailComposeSending(true);
-                      const result = await Promise.resolve(sendAdminEmailInboxMessage?.({
-                        mailbox: adminEmailComposeMailbox,
-                        toEmail: adminEmailComposeToEmail,
-                        toName: adminEmailComposeToName,
-                        subject: adminEmailComposeSubject,
-                        body: adminEmailComposeBody
-                      }));
-                      setAdminEmailActionMessage(result?.ok ? (result?.message || "Email sent.") : (result?.error || "Could not send email."));
-                      if (result?.ok) {
-                        if (result?.thread?.id) setAdminEmailSelectedThreadId(result.thread.id);
-                        setAdminEmailComposeToName("");
-                        setAdminEmailComposeToEmail("");
-                        setAdminEmailComposeSubject("");
-                        setAdminEmailComposeBody("");
+                      setAdminEmailActionMessage("Sending email via Postmark...");
+                      try {
+                        const result = await Promise.resolve(sendAdminEmailInboxMessage?.({
+                          mailbox: adminEmailComposeMailbox,
+                          toEmail: adminEmailComposeToEmail,
+                          toName: adminEmailComposeToName,
+                          subject: adminEmailComposeSubject,
+                          body: adminEmailComposeBody
+                        }));
+                        setAdminEmailActionMessage(result?.ok ? (result?.message || "Email sent.") : (result?.error || "Could not send email."));
+                        if (result?.ok) {
+                          if (result?.thread?.id) setAdminEmailSelectedThreadId(result.thread.id);
+                          setAdminEmailComposeToName("");
+                          setAdminEmailComposeToEmail("");
+                          setAdminEmailComposeSubject("");
+                          setAdminEmailComposeBody("");
+                        }
+                      } finally {
+                        setAdminEmailComposeSending(false);
                       }
-                      setAdminEmailComposeSending(false);
                     }}
                     className={`rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 ${adminEmailComposeSending ? "cursor-not-allowed opacity-60" : ""}`}
                   >
