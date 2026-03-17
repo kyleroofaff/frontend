@@ -4312,6 +4312,8 @@ export function AdminPage({
   const [adminEmailReplySubject, setAdminEmailReplySubject] = useState("");
   const [adminEmailReplyBody, setAdminEmailReplyBody] = useState("");
   const [adminEmailActionMessage, setAdminEmailActionMessage] = useState("");
+  const refreshAdminEmailInboxRef = useRef(refreshAdminEmailInbox);
+  const fetchAdminEmailThreadMessagesRef = useRef(fetchAdminEmailThreadMessages);
   const [inboxSearch, setInboxSearch] = useState("");
   const [inboxTypeFilter, setInboxTypeFilter] = useState("all");
   const [inboxPriorityFilter, setInboxPriorityFilter] = useState("all");
@@ -6021,10 +6023,16 @@ export function AdminPage({
       .sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime())
   ), [adminEmailMessages, selectedAdminEmailThread?.id]);
   useEffect(() => {
-    if (adminTab !== "email" || !refreshAdminEmailInbox) return;
+    refreshAdminEmailInboxRef.current = refreshAdminEmailInbox;
+  }, [refreshAdminEmailInbox]);
+  useEffect(() => {
+    fetchAdminEmailThreadMessagesRef.current = fetchAdminEmailThreadMessages;
+  }, [fetchAdminEmailThreadMessages]);
+  useEffect(() => {
+    if (adminTab !== "email" || !refreshAdminEmailInboxRef.current) return;
     setAdminEmailLoading(true);
     setAdminEmailActionMessage("");
-    Promise.resolve(refreshAdminEmailInbox({
+    Promise.resolve(refreshAdminEmailInboxRef.current({
       mailbox: adminEmailMailboxFilter,
       status: adminEmailStatusFilter,
       search: adminEmailSearch
@@ -6040,7 +6048,7 @@ export function AdminPage({
       .finally(() => {
         setAdminEmailLoading(false);
       });
-  }, [adminTab, adminEmailMailboxFilter, adminEmailStatusFilter, adminEmailSearch, refreshAdminEmailInbox]);
+  }, [adminTab, adminEmailMailboxFilter, adminEmailStatusFilter, adminEmailSearch]);
   useEffect(() => {
     if (!selectedAdminEmailThread?.id) return;
     setAdminEmailSelectedThreadId(selectedAdminEmailThread.id);
@@ -6049,9 +6057,9 @@ export function AdminPage({
     }
   }, [selectedAdminEmailThread?.id]);
   useEffect(() => {
-    if (!selectedAdminEmailThread?.id || !fetchAdminEmailThreadMessages) return;
-    Promise.resolve(fetchAdminEmailThreadMessages(selectedAdminEmailThread.id)).catch(() => {});
-  }, [selectedAdminEmailThread?.id, fetchAdminEmailThreadMessages]);
+    if (!selectedAdminEmailThread?.id || !fetchAdminEmailThreadMessagesRef.current) return;
+    Promise.resolve(fetchAdminEmailThreadMessagesRef.current(selectedAdminEmailThread.id)).catch(() => {});
+  }, [selectedAdminEmailThread?.id]);
   const activeAdminTabConfig = useMemo(
     () => ADMIN_TAB_CONFIG.find((entry) => entry.key === adminTab) || ADMIN_TAB_CONFIG[0],
     [adminTab]
@@ -8275,7 +8283,9 @@ export function AdminPage({
                           ) : (selectedAdminEmailThreadMessages || []).map((message) => (
                             <div key={message.id} className={`rounded-xl px-3 py-2 text-sm ${message.direction === "outbound" ? "bg-rose-100 text-rose-900" : "bg-white text-slate-800"}`}>
                               <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                                {message.direction === "outbound" ? "You" : "Customer"} · {formatDateTimeNoSeconds(message.createdAt || Date.now())}
+                                {message.direction === "outbound"
+                                  ? "Admin · admin@thailandpanties.com"
+                                  : "Customer"} · {formatDateTimeNoSeconds(message.createdAt || Date.now())}
                               </div>
                               <div className="mt-1 whitespace-pre-wrap">{message.text || "(No plain-text body)"}</div>
                             </div>
