@@ -13654,7 +13654,6 @@ export default function ThailandPantiesMarketSite() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button onClick={resetFilters} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">{publicText.resetFilters}</button>
-                  <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">Sort: Newest</div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {activeFilterChips.length === 0 ? (
