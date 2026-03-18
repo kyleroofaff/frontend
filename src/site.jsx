@@ -5972,30 +5972,6 @@ export default function ThailandPantiesMarketSite() {
       return matchesSearch && matchesSize && matchesColor && matchesStyle && matchesFabric && matchesDaysWorn && matchesWaistRise && matchesCoverage && matchesCondition && matchesScentLevel && matchesShipping && matchesPrice;
     });
   }, [filters, availableProducts, sellerMap]);
-  const homeTopTypes = useMemo(() => {
-    const counts = {};
-    availableProducts.forEach((product) => {
-      const type = (product.style || '').trim();
-      if (!type) return;
-      counts[type] = (counts[type] || 0) + 1;
-    });
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 4)
-      .map(([type, count]) => ({ type, count }));
-  }, [availableProducts]);
-  const homeTopSizes = useMemo(() => {
-    const counts = {};
-    availableProducts.forEach((product) => {
-      const size = (product.size || '').trim();
-      if (!size) return;
-      counts[size] = (counts[size] || 0) + 1;
-    });
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 4)
-      .map(([size, count]) => ({ size, count }));
-  }, [availableProducts]);
   const homeRotationDayKey = new Date().toISOString().slice(0, 10);
   const homeFeaturedSellersSeed = stableStringHash(`${homeRotationDayKey}_home_featured_sellers`);
   const homeProductPreviewSeed = stableStringHash(`${homeRotationDayKey}_home_product_preview`);
@@ -13369,11 +13345,15 @@ export default function ThailandPantiesMarketSite() {
                   <div className="mb-4 rounded-2xl bg-gradient-to-br from-rose-200 to-pink-100 p-5">
                     <div className="rounded-2xl border border-white/50 bg-white/50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-wide text-rose-700">{publicText.featuredSellers}</div>
-                      <div className="mt-3 space-y-2">
-                        {homeFeaturedSellers.map((seller) => (
-                          <div key={seller.id} className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm">
-                            <span className="font-medium text-slate-700">{seller.name}</span>
-                            <span className="text-slate-500">{seller.specialty || publicText.sellerFallback}</span>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        {homeFeaturedSellers.slice(0, 6).map((seller) => (
+                          <div key={seller.id} className="overflow-hidden rounded-xl bg-white">
+                            <div className="h-20 w-full">
+                              <ProductImage
+                                src={seller.profileImageResolved || seller.profileImage}
+                                label={seller.profileImageNameResolved || seller.profileImageName || `${seller.name} profile`}
+                              />
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -13390,18 +13370,13 @@ export default function ThailandPantiesMarketSite() {
                   <div className="mb-4 rounded-2xl bg-gradient-to-br from-fuchsia-200 to-rose-100 p-5">
                     <div className="rounded-2xl border border-white/50 bg-white/50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-wide text-rose-700">{publicText.liveDiscoverySnapshot}</div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {homeTopTypes.map((item) => (
-                          <span key={item.type} className="rounded-full bg-white px-3 py-1 text-xs text-slate-700">
-                            {item.type} ({item.count})
-                          </span>
-                        ))}
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {homeTopSizes.map((item) => (
-                          <span key={item.size} className="rounded-full border border-white bg-transparent px-3 py-1 text-xs text-slate-700">
-                            {publicText.sizeLabel} {item.size} ({item.count})
-                          </span>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        {homeProductPreview.slice(0, 4).map((product) => (
+                          <div key={product.id} className="overflow-hidden rounded-xl bg-white">
+                            <div className="h-20 w-full">
+                              <ProductImage src={product.image} label={product.imageName || product.title} />
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
