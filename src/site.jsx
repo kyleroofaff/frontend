@@ -13180,7 +13180,7 @@ export default function ThailandPantiesMarketSite() {
           <div className="shrink-0">
             <button onClick={() => navigate('/')} className="flex items-center gap-3 text-left text-lg font-bold tracking-tight text-rose-700 lg:text-2xl">
               <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-400 text-sm font-extrabold text-white shadow-lg shadow-rose-200">
-                TP
+                ThP
               </span>
               <span>Thailand Panties</span>
             </button>
