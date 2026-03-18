@@ -3360,6 +3360,7 @@ function parseRoute(pathname) {
   if (pathname === '/find') return { name: 'find' };
   if (pathname === '/login') return { name: 'login' };
   if (pathname === '/register') return { name: 'register' };
+  if (pathname === '/verify-email') return { name: 'verify-email' };
   if (pathname === '/checkout') return { name: 'checkout' };
   if (pathname === '/checkout/success') return { name: 'checkout-success' };
   if (pathname === '/admin') return { name: 'admin' };
@@ -3564,6 +3565,7 @@ export default function ThailandPantiesMarketSite() {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [postLoginRedirectPath, setPostLoginRedirectPath] = useState('');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [authLanguage, setAuthLanguage] = useState(() => normalizeAuthLanguage(readStore('tlm-auth-language', 'en')));
   const [registerForm, setRegisterForm] = useState({
     name: '',
@@ -3578,6 +3580,12 @@ export default function ThailandPantiesMarketSite() {
   const [authError, setAuthError] = useState('');
   const [authErrorRefreshKey, setAuthErrorRefreshKey] = useState(0);
   const [authSuccess, setAuthSuccess] = useState('');
+  const [authResendVerificationSending, setAuthResendVerificationSending] = useState(false);
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState({
+    loading: false,
+    message: '',
+    tone: 'neutral',
+  });
   const [checkoutForm, setCheckoutForm] = useState(() => normalizeCheckoutFormDraft(readStore('tlm-checkout-form', null)));
   const [accountForm, setAccountForm] = useState({
     name: '',
@@ -5286,6 +5294,66 @@ export default function ThailandPantiesMarketSite() {
   }, [route, currentUser?.id, currentUser?.role]);
 
   useEffect(() => {
+    if (parseRoute(route).name !== 'verify-email') {
+      setEmailVerificationStatus((prev) => (
+        prev.loading || prev.message
+          ? { loading: false, message: '', tone: 'neutral' }
+          : prev
+      ));
+      return;
+    }
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search || '');
+    const email = String(params.get('email') || '').trim().toLowerCase();
+    const token = String(params.get('token') || '').trim();
+    if (!email || !token) {
+      setEmailVerificationStatus({
+        loading: false,
+        message: 'Verification link is invalid. Please request a new verification email.',
+        tone: 'error',
+      });
+      return;
+    }
+    let isActive = true;
+    setEmailVerificationStatus({
+      loading: true,
+      message: 'Verifying your email...',
+      tone: 'neutral',
+    });
+    Promise.resolve(apiRequestJson('/api/auth/verify-email', {
+      method: 'POST',
+      body: { email, token },
+    }))
+      .then(({ ok, payload }) => {
+        if (!isActive) return;
+        if (!ok) {
+          setEmailVerificationStatus({
+            loading: false,
+            message: String(payload?.error || 'Verification failed. Please request a new link.'),
+            tone: 'error',
+          });
+          return;
+        }
+        setEmailVerificationStatus({
+          loading: false,
+          message: String(payload?.message || 'Email verified. You can now log in.'),
+          tone: 'success',
+        });
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setEmailVerificationStatus({
+          loading: false,
+          message: 'Verification failed. Please try again.',
+          tone: 'error',
+        });
+      });
+    return () => {
+      isActive = false;
+    };
+  }, [route]);
+
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     document.title = SEO_CONFIG.title;
 
@@ -5932,6 +6000,63 @@ export default function ThailandPantiesMarketSite() {
     finalizeLogin(user);
   }
 
+  async function resendVerificationEmailByAddress(rawEmail) {
+    const email = String(rawEmail || '').trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      return { ok: false, error: 'Enter your email first, then click resend verification.' };
+    }
+    if (!(backendStatus === 'connected' || REQUIRE_BACKEND_AUTH)) {
+      return { ok: false, error: 'Email verification resend is unavailable while API is offline.' };
+    }
+    setAuthResendVerificationSending(true);
+    try {
+      const { ok, payload } = await apiRequestJson('/api/auth/resend-verification', {
+        method: 'POST',
+        body: { email },
+      });
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Could not resend verification email.') };
+      }
+      return {
+        ok: true,
+        message: String(payload?.message || 'Verification email sent. Please check your inbox.')
+      };
+    } finally {
+      setAuthResendVerificationSending(false);
+    }
+  }
+
+  async function resendVerificationEmailForLogin() {
+    const result = await resendVerificationEmailByAddress(loginForm.email);
+    if (!result?.ok) {
+      setAuthError(String(result?.error || 'Could not resend verification email.'));
+      setAuthSuccess('');
+      return;
+    }
+    setAuthError('');
+    setAuthSuccess(String(result.message || 'Verification email sent. Please check your inbox.'));
+  }
+
+  async function resendVerificationEmailForVerifyPage() {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search || '');
+    const email = String(params.get('email') || '').trim().toLowerCase();
+    const result = await resendVerificationEmailByAddress(email);
+    if (!result?.ok) {
+      setEmailVerificationStatus({
+        loading: false,
+        message: String(result?.error || 'Could not resend verification email.'),
+        tone: 'error',
+      });
+      return;
+    }
+    setEmailVerificationStatus({
+      loading: false,
+      message: String(result.message || 'Verification email sent. Please check your inbox.'),
+      tone: 'success',
+    });
+  }
+
   async function registerAccount(event) {
     event.preventDefault();
     const name = registerForm.name.trim();
@@ -5963,6 +6088,42 @@ export default function ThailandPantiesMarketSite() {
     if (role === 'bar' && (!name || !email || !password || !city || !country)) {
       setAuthError(registerText.barRequiredError || registerText.sellerRequiredError);
       setAuthSuccess('');
+      return;
+    }
+    const shouldUseBackendRegistration = REQUIRE_BACKEND_AUTH || backendStatus === 'connected';
+    if (shouldUseBackendRegistration) {
+      const { ok, payload } = await apiRequestJson('/api/auth/register', {
+        method: 'POST',
+        body: {
+          name,
+          email,
+          password,
+          role,
+          city,
+          country,
+          preferredLanguage: authLanguage,
+          acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
+          acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
+        },
+      });
+      if (!ok) {
+        setAuthError(String(payload?.error || 'Could not create account right now. Please try again.'));
+        setAuthSuccess('');
+        return;
+      }
+      setRegisterForm({
+        name: '',
+        email: '',
+        password: '',
+        role: '',
+        city: '',
+        country: '',
+        acceptedRespectfulConduct: false,
+        acceptedNoRefunds: false,
+      });
+      setAuthError('');
+      setAuthSuccess(String(payload?.message || 'Account created. Check your email to verify before logging in.'));
+      navigate('/login');
       return;
     }
     const exists = users.some((user) => user.email.toLowerCase() === email);
@@ -14063,19 +14224,67 @@ export default function ThailandPantiesMarketSite() {
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3"
                 placeholder={loginText.password}
               />
-              <button
-                type="button"
-                onClick={() => setShowLoginPassword((prev) => !prev)}
-                className="text-sm font-semibold text-rose-700 hover:text-rose-800"
-                aria-label={showLoginPassword ? loginText.hidePassword : loginText.showPassword}
-              >
-                {showLoginPassword ? loginText.hidePassword : loginText.showPassword}
-              </button>
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword((prev) => !prev)}
+                  className="text-sm font-semibold text-rose-700 hover:text-rose-800"
+                  aria-label={showLoginPassword ? loginText.hidePassword : loginText.showPassword}
+                >
+                  {showLoginPassword ? loginText.hidePassword : loginText.showPassword}
+                </button>
+                <button
+                  type="button"
+                  onClick={resendVerificationEmailForLogin}
+                  disabled={authResendVerificationSending}
+                  className={`text-left text-sm font-semibold text-rose-700 hover:text-rose-800 ${
+                    authResendVerificationSending ? 'cursor-not-allowed opacity-60' : ''
+                  }`}
+                >
+                  {authResendVerificationSending ? 'Sending verification email...' : 'Resend verification email'}
+                </button>
+              </div>
               {authError ? <div key={authErrorRefreshKey} className="text-sm font-medium text-rose-700">{authError}</div> : null}
               {authSuccess ? <div className="text-sm font-medium text-emerald-700">{authSuccess}</div> : null}
               <button type="submit" className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{loginText.submit}</button>
               <button type="button" onClick={() => navigate('/register')} className="w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{loginText.registerCta}</button>
             </form>
+          </PageShell>
+        ) : null}
+
+        {routeInfo.name === 'verify-email' ? (
+          <PageShell title="Verify email" subtitle="Confirm your account email to complete registration">
+            <div className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <div className={`rounded-2xl border px-4 py-3 text-sm ${
+                emailVerificationStatus.tone === 'success'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                  : emailVerificationStatus.tone === 'error'
+                    ? 'border-rose-200 bg-rose-50 text-rose-700'
+                    : 'border-slate-200 bg-slate-50 text-slate-700'
+              }`}>
+                {emailVerificationStatus.message || 'Preparing verification...'}
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                disabled={emailVerificationStatus.loading}
+                className={`w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700 ${
+                  emailVerificationStatus.loading ? 'cursor-not-allowed opacity-60' : ''
+                }`}
+              >
+                Go to login
+              </button>
+              <button
+                type="button"
+                onClick={resendVerificationEmailForVerifyPage}
+                disabled={authResendVerificationSending}
+                className={`w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700 ${
+                  authResendVerificationSending ? 'cursor-not-allowed opacity-60' : ''
+                }`}
+              >
+                {authResendVerificationSending ? 'Sending verification email...' : 'Resend verification email'}
+              </button>
+            </div>
           </PageShell>
         ) : null}
 
@@ -14121,10 +14330,18 @@ export default function ThailandPantiesMarketSite() {
               <input
                 value={registerForm.password}
                 onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))}
-                type="password"
+                type={showRegisterPassword ? "text" : "password"}
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3"
                 placeholder={registerText.password}
               />
+              <button
+                type="button"
+                onClick={() => setShowRegisterPassword((prev) => !prev)}
+                className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800"
+                aria-label={showRegisterPassword ? registerText.hidePassword : registerText.showPassword}
+              >
+                {showRegisterPassword ? registerText.hidePassword : registerText.showPassword}
+              </button>
               {registerForm.role === 'seller' || registerForm.role === 'bar' ? (
                 <>
                   <input
