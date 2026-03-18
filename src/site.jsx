@@ -48,7 +48,6 @@ import {
 import {
   COLOR_OPTIONS,
   CONDITION_OPTIONS,
-  COVERAGE_OPTIONS,
   CUSTOM_REQUEST_FEE_THB,
   DAYS_WORN_OPTIONS,
   localizeOptionLabel,
@@ -63,7 +62,6 @@ import {
   SELLER_SPECIALTY_OPTIONS,
   SIZE_OPTIONS,
   STYLE_OPTIONS,
-  WAIST_RISE_OPTIONS,
 } from './productOptions.js';
 import { formatDateTimeNoSeconds, normalizeTimeFormat, setStoredTimeFormat } from './utils/timeFormat.js';
 import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from './utils/walletTopUp.js';
@@ -4073,12 +4071,9 @@ export default function ThailandPantiesMarketSite() {
     style: 'All',
     fabric: 'All',
     daysWorn: 'All',
-    waistRise: 'All',
-    coverage: 'All',
     condition: 'All',
     scentLevel: 'All',
     price: 'All',
-    shipping: 'All',
   });
   const [uploadDraft, setUploadDraft] = useState({
     title: '',
@@ -6028,11 +6023,8 @@ export default function ThailandPantiesMarketSite() {
       style: ['All', ...new Set(availableProducts.map((p) => p.style || 'Not specified'))],
       fabric: ['All', ...new Set([...FABRIC_OPTIONS, ...availableProducts.map((p) => p.fabric || 'Not specified')])],
       daysWorn: ['All', ...new Set([...DAYS_WORN_OPTIONS, ...availableProducts.map((p) => p.daysWorn || 'Not specified')])],
-      waistRise: ['All', ...new Set([...WAIST_RISE_OPTIONS, ...availableProducts.map((p) => p.waistRise || 'Not specified')])],
-      coverage: ['All', ...new Set([...COVERAGE_OPTIONS, ...availableProducts.map((p) => p.coverage || 'Not specified')])],
       condition: ['All', ...new Set([...CONDITION_OPTIONS, ...availableProducts.map((p) => p.condition || 'Not specified')])],
       scentLevel: ['All', ...new Set([...SCENT_LEVEL_OPTIONS, ...availableProducts.map((p) => p.scentLevel || 'Not specified')])],
-      shipping: ['All', ...new Set(availableProducts.map((p) => p.shipping))],
       price: ['All', `Under ${formatPriceTHB(1400)}`, `${formatPriceTHB(1400)}-${formatPriceTHB(2000)}`, `${formatPriceTHB(2000)}+`],
     }),
     [availableProducts],
@@ -6055,22 +6047,17 @@ export default function ThailandPantiesMarketSite() {
       const matchesFabric = filters.fabric === 'All' || product.fabric === filters.fabric;
       const productDaysWorn = product.daysWorn || 'Not specified';
       const matchesDaysWorn = filters.daysWorn === 'All' || productDaysWorn === filters.daysWorn;
-      const productWaistRise = product.waistRise || 'Not specified';
-      const productCoverage = product.coverage || 'Not specified';
       const productCondition = product.condition || 'Not specified';
       const productScentLevel = product.scentLevel || 'Not specified';
-      const matchesWaistRise = filters.waistRise === 'All' || productWaistRise === filters.waistRise;
-      const matchesCoverage = filters.coverage === 'All' || productCoverage === filters.coverage;
       const matchesCondition = filters.condition === 'All' || productCondition === filters.condition;
       const matchesScentLevel = filters.scentLevel === 'All' || productScentLevel === filters.scentLevel;
-      const matchesShipping = filters.shipping === 'All' || product.shipping === filters.shipping;
       const matchesPrice =
         filters.price === 'All' ||
         (filters.price === `Under ${formatPriceTHB(1400)}` && product.price < 1400) ||
         (filters.price === `${formatPriceTHB(1400)}-${formatPriceTHB(2000)}` && product.price >= 1400 && product.price <= 2000) ||
         (filters.price === `${formatPriceTHB(2000)}+` && product.price >= 2000);
 
-      return matchesSearch && matchesSize && matchesColor && matchesStyle && matchesFabric && matchesDaysWorn && matchesWaistRise && matchesCoverage && matchesCondition && matchesScentLevel && matchesShipping && matchesPrice;
+      return matchesSearch && matchesSize && matchesColor && matchesStyle && matchesFabric && matchesDaysWorn && matchesCondition && matchesScentLevel && matchesPrice;
     });
   }, [filters, availableProducts, sellerMap]);
   const homeRotationDayKey = new Date().toISOString().slice(0, 10);
@@ -6322,12 +6309,9 @@ export default function ThailandPantiesMarketSite() {
       style: 'All',
       fabric: 'All',
       daysWorn: 'All',
-      waistRise: 'All',
-      coverage: 'All',
       condition: 'All',
       scentLevel: 'All',
       price: 'All',
-      shipping: 'All',
     });
   }
 
@@ -13554,9 +13538,9 @@ export default function ThailandPantiesMarketSite() {
                     <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input value={filters.search} onChange={(e) => updateFilter('search', e.target.value)} placeholder={publicText.searchStylesSellersColors} className="w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 outline-none focus:border-rose-300" />
                   </label>
-                  {['size', 'color', 'style', 'fabric', 'daysWorn', 'waistRise', 'coverage', 'condition', 'scentLevel', 'price', 'shipping'].map((key) => (
+                  {['size', 'color', 'style', 'fabric', 'daysWorn', 'condition', 'scentLevel', 'price'].map((key) => (
                     <select key={key} value={filters[key]} onChange={(e) => updateFilter(key, e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-rose-300">
-                      {filterOptions[key].map((option) => <option key={option} value={option}>{({ daysWorn: 'Days worn', waistRise: 'Waist rise', scentLevel: 'Scent level' }[key] || key.charAt(0).toUpperCase() + key.slice(1))}: {localizeOptionLabel(option, uiLanguage)}</option>)}
+                      {filterOptions[key].map((option) => <option key={option} value={option}>{({ daysWorn: 'Days worn', scentLevel: 'Scent level' }[key] || key.charAt(0).toUpperCase() + key.slice(1))}: {localizeOptionLabel(option, uiLanguage)}</option>)}
                     </select>
                   ))}
                 </div>
