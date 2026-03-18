@@ -406,9 +406,9 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'Browse premium listings, use transparent filters, and message sellers in a respectful way to build real connections, with discreet worldwide shipping from Thailand.',
     browseListings: 'Browse Listings',
     meetSellers: 'Meet Sellers',
-    curatedListings: 'Curated listings',
-    shippingAvailable: 'Shipping available',
-    resaleQuality: 'Resale quality',
+    vettedSellers: 'Vetted sellers',
+    discreetShipping: 'Discreet shipping',
+    buyerPrivacy: 'Buyer privacy',
     featuredSellers: 'Featured sellers',
     sellerFallback: 'Seller',
     sellerPortfolioPages: 'Seller Portfolio Pages',
@@ -540,9 +540,9 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'เลือกดูรายการพรีเมียม ใช้ตัวกรองที่โปร่งใส และส่งข้อความหาผู้ขายอย่างสุภาพ พร้อมการจัดส่งแบบเป็นส่วนตัวทั่วโลกจากประเทศไทย',
     browseListings: 'ดูรายการสินค้า',
     meetSellers: 'พบผู้ขาย',
-    curatedListings: 'รายการคัดสรร',
-    shippingAvailable: 'จัดส่งได้',
-    resaleQuality: 'คุณภาพคัดสรร',
+    vettedSellers: 'ผู้ขายที่ผ่านการคัดกรอง',
+    discreetShipping: 'จัดส่งแบบเป็นความลับ',
+    buyerPrivacy: 'ความเป็นส่วนตัวของผู้ซื้อ',
     featuredSellers: 'ผู้ขายแนะนำ',
     sellerFallback: 'ผู้ขาย',
     sellerPortfolioPages: 'หน้าโปรไฟล์ผู้ขาย',
@@ -674,9 +674,9 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'premium listing များကို ကြည့်ရှုပါ၊ တိကျသော filter များဖြင့် ရှာဖွေပါ၊ seller များနှင့် လေးစားမှုရှိစွာ စကားပြောပါ၊ ထိုင်းမှ discreet worldwide shipping ဖြင့် ပို့ဆောင်ပေးပါသည်။',
     browseListings: 'Listing များကြည့်ရန်',
     meetSellers: 'Seller များတွေ့ရန်',
-    curatedListings: 'ရွေးချယ်ထားသော listing များ',
-    shippingAvailable: 'Shipping ရနိုင်သည်',
-    resaleQuality: 'အရည်အသွေးကောင်း',
+    vettedSellers: 'စိစစ်ပြီးသော sellers',
+    discreetShipping: 'လျှို့ဝှက်စနစ်ဖြင့် ပို့ဆောင်ခြင်း',
+    buyerPrivacy: 'buyer ကိုယ်ရေးကိုယ်တာ',
     featuredSellers: 'ထူးခြား seller များ',
     sellerFallback: 'Seller',
     sellerPortfolioPages: 'Seller Portfolio စာမျက်နှာများ',
@@ -808,9 +808,9 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'Просматривайте премиальные листинги, используйте прозрачные фильтры и общайтесь с продавцами уважительно. Доступна скрытая доставка по миру из Таиланда.',
     browseListings: 'Смотреть листинги',
     meetSellers: 'Познакомиться с продавцами',
-    curatedListings: 'Отобранные листинги',
-    shippingAvailable: 'Доставка доступна',
-    resaleQuality: 'Проверенное качество',
+    vettedSellers: 'Проверенные продавцы',
+    discreetShipping: 'Дискретная доставка',
+    buyerPrivacy: 'Конфиденциальность покупателя',
     featuredSellers: 'Рекомендуемые продавцы',
     sellerFallback: 'Продавец',
     sellerPortfolioPages: 'Страницы портфолио продавцов',
@@ -13139,9 +13139,9 @@ export default function ThailandPantiesMarketSite() {
                   ) : null}
                 </div>
                 <div className="mt-10 grid max-w-lg grid-cols-3 gap-4">
-                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">120+</div><div className="text-sm text-slate-500">{publicText.curatedListings}</div></div>
-                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Global</div><div className="text-sm text-slate-500">{publicText.shippingAvailable}</div></div>
-                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Curated</div><div className="text-sm text-slate-500">{publicText.resaleQuality}</div></div>
+                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">120+</div><div className="text-sm text-slate-500">{publicText.vettedSellers}</div></div>
+                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Global</div><div className="text-sm text-slate-500">{publicText.discreetShipping}</div></div>
+                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Trusted</div><div className="text-sm text-slate-500">{publicText.buyerPrivacy}</div></div>
                 </div>
               </div>
 
