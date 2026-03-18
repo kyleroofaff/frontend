@@ -2121,49 +2121,76 @@ export function SellerDashboardPage({
                   }}
                   className="rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-800"
                 >
-                  Open unread messages
+                  View unread messages
                 </button>
               </div>
             </div>
           ) : null}
+          <div className="mb-4 rounded-3xl border border-rose-100 bg-white p-4 shadow-sm">
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Quick actions</div>
+            <p className="mt-1 text-sm text-slate-600">Use these shortcuts to post listings, reply quickly, and manage incoming work.</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollToSection("seller-upload")}
+                className="min-h-[44px] rounded-xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white"
+              >
+                {t("quickNewListing")}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/seller-messages")}
+                className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
+              >
+                Open messages {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/custom-requests")}
+                className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
+              >
+                {t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}
+              </button>
+            </div>
+          </div>
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => navigate("/seller-dashboard")}
-              className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white"
+              className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
             >
               {t("quickProfile")}
             </button>
             <button
               type="button"
               onClick={() => navigate("/seller-messages")}
-              className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700"
+              className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
             >
               {t("messagesTab")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}
             </button>
             <button
               type="button"
               onClick={() => navigate("/custom-requests")}
-              className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700"
+              className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
             >
               {t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}
             </button>
             <button
               type="button"
               onClick={() => navigate("/seller-feed-workspace")}
-              className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700"
+              className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
             >
               {t("feedEyebrow")}
             </button>
           </div>
           <div className="mb-4 lg:hidden">
             <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-              <button onClick={() => scrollToSection("seller-profile")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickProfile")}</button>
-              <button onClick={() => scrollToSection("seller-upload")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
-              <button onClick={() => navigate("/seller-messages")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
-              <button onClick={() => navigate("/custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}</button>
-              <button onClick={() => navigate("/seller-feed-workspace")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
-              <button onClick={() => scrollToSection("seller-listings")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm font-semibold text-rose-700">{t("quickListings")}</button>
+              <button onClick={() => scrollToSection("seller-profile")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickProfile")}</button>
+              <button onClick={() => scrollToSection("seller-upload")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
+              <button onClick={() => navigate("/seller-messages")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
+              <button onClick={() => navigate("/custom-requests")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}</button>
+              <button onClick={() => navigate("/seller-feed-workspace")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
+              <button onClick={() => scrollToSection("seller-listings")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickListings")}</button>
             </div>
           </div>
           <div className="mb-4 flex justify-start lg:justify-end">
@@ -2784,7 +2811,15 @@ export function SellerDashboardPage({
           </div>
           <div id="seller-listings" className="mt-8 flex items-center justify-between gap-4"><h3 className="text-xl font-semibold">{t("listingLibrary")}</h3><div className="text-sm text-slate-500">{sellerDashboardProducts.length} {t("items")}</div></div>
           <div className="mt-5 space-y-4">
-                {sellerDashboardProducts.map((product) => (
+                {sellerDashboardProducts.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/40 p-4 text-sm text-slate-700">
+                    <div className="font-semibold text-slate-900">No listings yet.</div>
+                    <div className="mt-1">Create your first listing so buyers can discover and message you.</div>
+                    <button onClick={() => scrollToSection("seller-upload")} className="mt-3 rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white">
+                      Create your first listing
+                    </button>
+                  </div>
+                ) : sellerDashboardProducts.map((product) => (
                   <div key={product.id} className="flex flex-col gap-4 rounded-2xl border border-rose-100 p-4 md:flex-row md:items-center md:justify-between">
                     <div>
                       <div className="flex items-center gap-2">
@@ -4336,6 +4371,7 @@ export function AdminPage({
   const [adminEmailComposeStatusTone, setAdminEmailComposeStatusTone] = useState("neutral");
   const refreshAdminEmailInboxRef = useRef(refreshAdminEmailInbox);
   const fetchAdminEmailThreadMessagesRef = useRef(fetchAdminEmailThreadMessages);
+  const adminUxPrefsHydratedRef = useRef(false);
   const [inboxSearch, setInboxSearch] = useState("");
   const [inboxTypeFilter, setInboxTypeFilter] = useState("all");
   const [inboxPriorityFilter, setInboxPriorityFilter] = useState("all");
@@ -5982,6 +6018,67 @@ export function AdminPage({
     }
   }, [visibleAdminTabs, adminTab, setAdminTab]);
   useEffect(() => {
+    if (adminUxPrefsHydratedRef.current) return;
+    if (typeof window === "undefined") return;
+    const safeRead = (key, fallback) => {
+      try {
+        const raw = window.localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch {
+        return fallback;
+      }
+    };
+    const savedTab = String(safeRead("tlm-admin-tab", "overview") || "overview");
+    const savedWorkspace = String(safeRead("tlm-admin-workspace-mode", "all") || "all");
+    const savedSearch = String(safeRead("tlm-admin-user-search", "") || "");
+    const savedInboxSearch = String(safeRead("tlm-admin-inbox-search", "") || "");
+    const savedInboxType = String(safeRead("tlm-admin-inbox-type", "all") || "all");
+    const savedInboxPriority = String(safeRead("tlm-admin-inbox-priority", "all") || "all");
+    const savedInboxReview = String(safeRead("tlm-admin-inbox-review", "all") || "all");
+    const savedEmailMailbox = String(safeRead("tlm-admin-email-mailbox", "all") || "all");
+    const savedEmailStatus = String(safeRead("tlm-admin-email-status", "all") || "all");
+    const savedEmailSearch = String(safeRead("tlm-admin-email-search", "") || "");
+    if (visibleAdminTabs.some((tab) => tab.key === savedTab)) {
+      setAdminTab(savedTab);
+    }
+    setAdminWorkspaceMode(savedWorkspace);
+    setAdminUserSearch(savedSearch);
+    setInboxSearch(savedInboxSearch);
+    setInboxTypeFilter(savedInboxType);
+    setInboxPriorityFilter(savedInboxPriority);
+    setInboxReviewFilter(savedInboxReview);
+    setAdminEmailMailboxFilter(savedEmailMailbox);
+    setAdminEmailStatusFilter(savedEmailStatus);
+    setAdminEmailSearch(savedEmailSearch);
+    adminUxPrefsHydratedRef.current = true;
+  }, [visibleAdminTabs, setAdminTab, setAdminUserSearch]);
+  useEffect(() => {
+    if (!adminUxPrefsHydratedRef.current) return;
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("tlm-admin-tab", JSON.stringify(String(adminTab || "overview")));
+    window.localStorage.setItem("tlm-admin-workspace-mode", JSON.stringify(String(adminWorkspaceMode || "all")));
+    window.localStorage.setItem("tlm-admin-user-search", JSON.stringify(String(adminUserSearch || "")));
+    window.localStorage.setItem("tlm-admin-inbox-search", JSON.stringify(String(inboxSearch || "")));
+    window.localStorage.setItem("tlm-admin-inbox-type", JSON.stringify(String(inboxTypeFilter || "all")));
+    window.localStorage.setItem("tlm-admin-inbox-priority", JSON.stringify(String(inboxPriorityFilter || "all")));
+    window.localStorage.setItem("tlm-admin-inbox-review", JSON.stringify(String(inboxReviewFilter || "all")));
+    window.localStorage.setItem("tlm-admin-email-mailbox", JSON.stringify(String(adminEmailMailboxFilter || "all")));
+    window.localStorage.setItem("tlm-admin-email-status", JSON.stringify(String(adminEmailStatusFilter || "all")));
+    window.localStorage.setItem("tlm-admin-email-search", JSON.stringify(String(adminEmailSearch || "")));
+  }, [
+    adminTab,
+    adminWorkspaceMode,
+    adminUserSearch,
+    inboxSearch,
+    inboxTypeFilter,
+    inboxPriorityFilter,
+    inboxReviewFilter,
+    adminEmailMailboxFilter,
+    adminEmailStatusFilter,
+    adminEmailSearch,
+  ]);
+  useEffect(() => {
     if (!adminSelectedUser?.id) {
       setAdminUserNoteDraft("");
       return;
@@ -5989,29 +6086,29 @@ export function AdminPage({
     setAdminUserNoteDraft(adminNoteByEntityKey[`user:${adminSelectedUser.id}`]?.body || "");
   }, [adminSelectedUser?.id, adminNoteByEntityKey]);
   useEffect(() => {
-    if (!adminCredentialMessage) return undefined;
+    if (!adminCredentialMessage || adminCredentialTone !== "success") return undefined;
     const timerId = window.setTimeout(() => {
       setAdminCredentialMessage("");
       setAdminCredentialTone("neutral");
-    }, 4000);
+    }, 2800);
     return () => window.clearTimeout(timerId);
-  }, [adminCredentialMessage]);
+  }, [adminCredentialMessage, adminCredentialTone]);
   useEffect(() => {
-    if (!adminAccessMessage) return undefined;
+    if (!adminAccessMessage || adminAccessTone !== "success") return undefined;
     const timerId = window.setTimeout(() => {
       setAdminAccessMessage("");
       setAdminAccessTone("neutral");
-    }, 4000);
+    }, 2800);
     return () => window.clearTimeout(timerId);
-  }, [adminAccessMessage]);
+  }, [adminAccessMessage, adminAccessTone]);
   useEffect(() => {
-    if (!adminUserMessageStatus || adminUserMessageSending) return undefined;
+    if (!adminUserMessageStatus || adminUserMessageSending || adminUserMessageTone !== "success") return undefined;
     const timerId = window.setTimeout(() => {
       setAdminUserMessageStatus("");
       setAdminUserMessageTone("neutral");
-    }, 5000);
+    }, 2800);
     return () => window.clearTimeout(timerId);
-  }, [adminUserMessageStatus, adminUserMessageSending]);
+  }, [adminUserMessageStatus, adminUserMessageSending, adminUserMessageTone]);
   const selectedCredentialDraft = adminSelectedUser?.id
     ? (adminCredentialDraftByUserId[adminSelectedUser.id] || {
         newEmail: adminSelectedUser?.email || "",
@@ -6117,6 +6214,51 @@ export function AdminPage({
     });
     setAdminCredentialTone("success");
     setAdminCredentialMessage(String(result?.message || "User credentials updated."));
+  };
+  const promptForSafetyReason = ({ actionLabel = "this action", impactNote = "" } = {}) => {
+    if (typeof window !== "undefined" && impactNote) {
+      const confirmed = window.confirm(`${impactNote}\n\nContinue with ${actionLabel}?`);
+      if (!confirmed) return { ok: false, reason: "" };
+    }
+    const reason = String(
+      typeof window !== "undefined"
+        ? window.prompt(`Add a short reason for ${actionLabel} (minimum 8 characters).`, "")
+        : ""
+    ).trim();
+    if (reason.length < 8) {
+      return { ok: false, reason: "", error: "Reason is required (minimum 8 characters)." };
+    }
+    return { ok: true, reason };
+  };
+  const runAdminAffiliationChange = (sellerId, nextBarId) => {
+    const safety = promptForSafetyReason({
+      actionLabel: "this affiliation change",
+      impactNote: "Impact: this changes seller-bar visibility, reporting, and routing immediately.",
+    });
+    if (!safety.ok) {
+      if (safety.error) setInboxActionMessage(safety.error);
+      return;
+    }
+    const result = setSellerBarAffiliationByAdmin?.(sellerId, nextBarId, safety.reason);
+    if (result?.ok === false) {
+      setInboxActionMessage(result.error || "Could not update affiliation.");
+    }
+  };
+  const runAdminBlockToggle = (userId, currentlyBlocked) => {
+    const safety = promptForSafetyReason({
+      actionLabel: currentlyBlocked ? "unblocking this user" : "blocking this user",
+      impactNote: currentlyBlocked
+        ? "Impact: the user regains access and can resume activity immediately."
+        : "Impact: the user will lose access and cannot place orders or message until unblocked.",
+    });
+    if (!safety.ok) {
+      if (safety.error) setInboxActionMessage(safety.error);
+      return;
+    }
+    const result = toggleAdminBlockUser?.(userId, safety.reason);
+    if (result?.ok === false) {
+      setInboxActionMessage(result.error || "Could not update block status.");
+    }
   };
   const selectedUserMessageDraft = adminSelectedUser?.id
     ? (adminUserMessageDraftByUserId[adminSelectedUser.id] || {
@@ -6348,9 +6490,10 @@ export function AdminPage({
   }, [adminEmailActionMessage]);
   useEffect(() => {
     if (!adminEmailComposeStatusMessage || adminEmailComposeSending) return;
-    const timer = window.setTimeout(() => setAdminEmailComposeStatusMessage(""), 6000);
+    if (adminEmailComposeStatusTone !== "success") return;
+    const timer = window.setTimeout(() => setAdminEmailComposeStatusMessage(""), 2800);
     return () => window.clearTimeout(timer);
-  }, [adminEmailComposeStatusMessage, adminEmailComposeSending]);
+  }, [adminEmailComposeStatusMessage, adminEmailComposeSending, adminEmailComposeStatusTone]);
   useEffect(() => {
     if (adminTab !== "email_inbox" || !refreshAdminEmailInboxRef.current) return;
     setAdminEmailLoading(true);
@@ -6471,13 +6614,13 @@ export function AdminPage({
           </div>
           <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-2">
-              <button onClick={() => navigate("/account")} className="w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
+              <button onClick={() => navigate("/account")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-3 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
                 Open buyer account
               </button>
-              <button onClick={() => navigate("/seller-dashboard")} className="w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
+              <button onClick={() => navigate("/seller-dashboard")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-3 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
                 Open seller dashboard
               </button>
-              <button onClick={() => navigate("/bar-dashboard")} className="w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
+              <button onClick={() => navigate("/bar-dashboard")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-rose-200 px-3 py-3 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto">
                 Open bar dashboard
               </button>
               {currentUser?.role === "admin" ? (
@@ -6492,25 +6635,25 @@ export function AdminPage({
                 <p className="mt-1 text-sm text-slate-600">Jump to the most frequent admin tasks.</p>
               </div>
               <div className="grid w-full gap-2 sm:flex sm:flex-wrap">
-                <button onClick={() => setAdminTab("auth")} className="w-full cursor-pointer rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-800 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
+                <button onClick={() => setAdminTab("auth")} className="min-h-[44px] w-full cursor-pointer rounded-xl bg-rose-600 px-3 py-3 text-sm font-semibold text-white transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
                   Seller approvals ({pendingSellerCount})
                 </button>
-                <button onClick={() => setAdminTab("users")} className="w-full cursor-pointer rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm font-semibold text-violet-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
+                <button onClick={() => setAdminTab("users")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm sm:w-auto">
                   Appeals ({pendingAppeals.length})
                 </button>
-                <button onClick={() => setAdminTab("inbox")} className="w-full cursor-pointer rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
+                <button onClick={() => setAdminTab("inbox")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm sm:w-auto">
                   Inbox review ({inboxCounts.new + inboxCounts.followUp})
                 </button>
-                <button onClick={() => setAdminTab("disputes")} className="w-full cursor-pointer rounded-xl border border-orange-200 bg-orange-50 px-3 py-2.5 text-sm font-semibold text-orange-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
+                <button onClick={() => setAdminTab("disputes")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm sm:w-auto">
                   Disputes ({disputeCounts.open})
                 </button>
-                <button onClick={() => setAdminTab("social")} className="w-full cursor-pointer rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
+                <button onClick={() => setAdminTab("social")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm sm:w-auto">
                   Open reports ({openModerationCount})
                 </button>
-                <button onClick={() => setAdminTab("email")} className="w-full cursor-pointer rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-sm font-semibold text-sky-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
+                <button onClick={() => setAdminTab("email_templates")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm sm:w-auto">
                   Email templates
                 </button>
-                <button onClick={() => setAdminTab("bars")} className="w-full cursor-pointer rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-700 transition duration-150 hover:-translate-y-0.5 hover:shadow-sm sm:w-auto">
+                <button onClick={() => setAdminTab("bars")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm sm:w-auto">
                   Bars ({(bars || []).length})
                 </button>
               </div>
@@ -6565,13 +6708,34 @@ export function AdminPage({
                 <h3 className="text-lg font-semibold text-slate-900">What to review first</h3>
                 <p className="mt-1 text-sm text-slate-700">Start with seller approvals and moderation queues, then review sales and system logs.</p>
               </div>
+              <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-5">
+                <h3 className="text-lg font-semibold text-slate-900">Admin Today Queue</h3>
+                <p className="mt-1 text-sm text-slate-700">Handle highest-impact items first to reduce user wait time and payment mistakes.</p>
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  <button onClick={() => setAdminTab("disputes")} className="rounded-2xl border border-amber-200 bg-white p-3 text-left">
+                    <div className="text-xs uppercase tracking-[0.12em] text-amber-700">Disputes</div>
+                    <div className="mt-1 text-xl font-semibold text-amber-800">{disputeCounts.open}</div>
+                    <div className="mt-1 text-xs font-semibold text-amber-800">Review now</div>
+                  </button>
+                  <button onClick={() => setAdminTab("payments")} className="rounded-2xl border border-emerald-200 bg-white p-3 text-left">
+                    <div className="text-xs uppercase tracking-[0.12em] text-emerald-700">Pending payouts</div>
+                    <div className="mt-1 text-xl font-semibold text-emerald-800">{(payoutItems || []).filter((row) => row.status === "ready").length}</div>
+                    <div className="mt-1 text-xs font-semibold text-emerald-800">Process payouts</div>
+                  </button>
+                  <button onClick={() => setAdminTab("auth")} className="rounded-2xl border border-violet-200 bg-white p-3 text-left">
+                    <div className="text-xs uppercase tracking-[0.12em] text-violet-700">Pending approvals</div>
+                    <div className="mt-1 text-xl font-semibold text-violet-800">{pendingSellerCount}</div>
+                    <div className="mt-1 text-xs font-semibold text-violet-800">Open approvals</div>
+                  </button>
+                </div>
+              </div>
               {pendingSellerCount > 0 ? (
                 <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="text-sm font-semibold text-amber-800">{pendingSellerCount} seller application(s) waiting for review</div>
                     <div className="grid w-full gap-2 sm:flex sm:w-auto">
-                      <button onClick={() => setAdminTab("auth")} className="rounded-xl border border-amber-300 px-3 py-2.5 text-sm font-semibold text-amber-800">Open review queue</button>
-                      <button onClick={approveAllPendingSellers} className="rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white">Approve all</button>
+                      <button onClick={() => setAdminTab("auth")} className="min-h-[44px] rounded-xl border border-amber-300 px-3 py-3 text-sm font-semibold text-amber-800">Open review queue</button>
+                      <button onClick={approveAllPendingSellers} className="min-h-[44px] rounded-xl bg-emerald-600 px-3 py-3 text-sm font-semibold text-white">Approve all</button>
                     </div>
                   </div>
                 </div>
@@ -6773,7 +6937,7 @@ export function AdminPage({
                             <div className="flex flex-wrap items-center gap-2">
                               <select
                                 value={seller.affiliatedBarId || ""}
-                                onChange={(event) => setSellerBarAffiliationByAdmin?.(seller.id, event.target.value)}
+                                onChange={(event) => runAdminAffiliationChange(seller.id, event.target.value)}
                                 className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700"
                               >
                                 <option value="">Independent</option>
@@ -6782,7 +6946,7 @@ export function AdminPage({
                                 ))}
                               </select>
                               <button
-                                onClick={() => setSellerBarAffiliationByAdmin?.(seller.id, "")}
+                                onClick={() => runAdminAffiliationChange(seller.id, "")}
                                 className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"
                               >
                                 Set Independent
@@ -6808,7 +6972,7 @@ export function AdminPage({
                         defaultValue=""
                         onChange={(event) => {
                           if (!event.target.value) return;
-                          setSellerBarAffiliationByAdmin?.(seller.id, event.target.value);
+                          runAdminAffiliationChange(seller.id, event.target.value);
                           event.target.value = "";
                         }}
                         className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
@@ -6871,7 +7035,7 @@ export function AdminPage({
                         </div>
                         {canBlockUsers ? (
                           <button
-                            onClick={() => toggleAdminBlockUser(adminSelectedUser.id)}
+                            onClick={() => runAdminBlockToggle(adminSelectedUser.id, adminSelectedUser.accountStatus === "blocked")}
                             className={`rounded-2xl px-4 py-2 text-sm font-semibold ${adminSelectedUser.accountStatus === "blocked" ? "border border-emerald-200 text-emerald-700" : "border border-rose-200 text-rose-700"}`}
                           >
                             {adminSelectedUser.accountStatus === "blocked" ? "Unblock User" : "Block User"}
@@ -6895,7 +7059,7 @@ export function AdminPage({
                           <div className="mt-3 flex flex-wrap items-center gap-2">
                             <select
                               value={selectedSellerProfile?.affiliatedBarId || ""}
-                              onChange={(event) => setSellerBarAffiliationByAdmin?.(selectedSellerProfile?.id, event.target.value)}
+                              onChange={(event) => runAdminAffiliationChange(selectedSellerProfile?.id, event.target.value)}
                               className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
                             >
                               <option value="">Set to Independent</option>
@@ -6904,7 +7068,7 @@ export function AdminPage({
                               ))}
                             </select>
                             <button
-                              onClick={() => setSellerBarAffiliationByAdmin?.(selectedSellerProfile?.id, "")}
+                              onClick={() => runAdminAffiliationChange(selectedSellerProfile?.id, "")}
                               className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
                             >
                               Remove from bar
@@ -7165,7 +7329,15 @@ export function AdminPage({
                   <h4 className="text-lg font-semibold">Order history</h4>
                 <div className="mt-4 space-y-4">
                     {adminSelectedUserOrderHistory.length === 0 ? (
-                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No order history.</div>
+                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                        <div className="font-semibold text-slate-800">No order history yet.</div>
+                        <div className="mt-1">This section tracks paid orders and shipment updates once user activity starts.</div>
+                        <div className="mt-3">
+                          <button onClick={() => navigate("/find")} className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                            Browse sellers
+                          </button>
+                        </div>
+                      </div>
                     ) : adminSelectedUserOrderHistory.map((order) => (
                     <div key={order.id} className="rounded-2xl border border-rose-100 p-5">
                         <div className="font-semibold">{order.id}</div>
@@ -7258,7 +7430,15 @@ export function AdminPage({
                   <h4 className="text-lg font-semibold">Message history</h4>
                 <div className="mt-4 space-y-4">
                     {adminSelectedUserMessageHistory.length === 0 ? (
-                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No messages yet.</div>
+                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                        <div className="font-semibold text-slate-800">No messages yet.</div>
+                        <div className="mt-1">Messages appear here after buyers, sellers, or support start a conversation.</div>
+                        <div className="mt-3">
+                          <button onClick={() => setAdminTab("users")} className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                            Message user
+                          </button>
+                        </div>
+                      </div>
                     ) : adminSelectedUserMessageHistory.map((message) => (
                     <div key={message.id} className="rounded-2xl border border-rose-100 p-5">
                         <div className="text-sm font-semibold">{message.senderRole} message</div>
@@ -8277,19 +8457,27 @@ export function AdminPage({
                           <input
                             value={noteDraft}
                             onChange={(event) => setPayoutNoteByItemId((prev) => ({ ...prev, [item.id]: event.target.value }))}
-                            placeholder="Notes (optional)"
+                            placeholder="Reason / notes (required)"
                             className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
                           />
+                        </div>
+                        <div className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                          Impact: payout status updates seller earnings history and reconciliation logs immediately.
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={async () => {
+                              const reasonText = String(noteDraft || "").trim();
+                              if (reasonText.length < 8) {
+                                setPayoutRunActionMessage("Add a short reason in notes (minimum 8 characters) before marking sent.");
+                                return;
+                              }
                               if (typeof window !== "undefined" && !window.confirm(`Mark payout sent to ${recipient?.name || item.recipientUserId}?`)) return;
                               const result = await Promise.resolve(markPayoutItemSent?.(item.id, {
                                 method: methodDraft,
                                 externalReference: referenceDraft,
-                                notes: noteDraft,
+                                notes: reasonText,
                               }));
                               setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
                             }}
@@ -8300,7 +8488,13 @@ export function AdminPage({
                           <button
                             type="button"
                             onClick={async () => {
-                              const result = await Promise.resolve(markPayoutItemFailed?.(item.id, noteDraft || "Manual payout failed"));
+                              const reasonText = String(noteDraft || "").trim();
+                              if (reasonText.length < 8) {
+                                setPayoutRunActionMessage("Add a short failure reason (minimum 8 characters) before marking failed.");
+                                return;
+                              }
+                              if (typeof window !== "undefined" && !window.confirm(`Mark payout as failed for ${recipient?.name || item.recipientUserId}?`)) return;
+                              const result = await Promise.resolve(markPayoutItemFailed?.(item.id, reasonText));
                               setPayoutRunActionMessage(result?.message || result?.error || "No payout action result.");
                             }}
                             className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
@@ -9391,10 +9585,10 @@ export function AdminPage({
           ) : null}
           <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
             <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
-              {canAccessAdminTab("overview") ? <button onClick={() => setAdminTab("overview")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "overview" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.overview}</button> : null}
-              {canAccessAdminTab("inbox") ? <button onClick={() => setAdminTab("inbox")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "inbox" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.inbox}</button> : null}
-              {canAccessAdminTab("auth") ? <button onClick={() => setAdminTab("auth")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "auth" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.approvals}</button> : null}
-              {canAccessAdminTab("payments") ? <button onClick={() => setAdminTab("payments")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "payments" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.payments}</button> : null}
+              {canAccessAdminTab("overview") ? <button onClick={() => setAdminTab("overview")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "overview" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.overview}</button> : null}
+              {canAccessAdminTab("inbox") ? <button onClick={() => setAdminTab("inbox")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "inbox" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.inbox}</button> : null}
+              {canAccessAdminTab("auth") ? <button onClick={() => setAdminTab("auth")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "auth" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.approvals}</button> : null}
+              {canAccessAdminTab("payments") ? <button onClick={() => setAdminTab("payments")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "payments" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.payments}</button> : null}
             </div>
           </div>
         </div>
@@ -9481,6 +9675,11 @@ export function CheckoutPage({
       <style>{CHECKOUT_SHAKE_KEYFRAMES}</style>
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-8">
         <div className="rounded-[2rem] bg-slate-900 p-6 text-white shadow-xl">
+          <div className="mb-5 grid gap-2 rounded-2xl bg-white/10 p-3 text-xs font-semibold text-slate-100 sm:grid-cols-3">
+            <div className="rounded-xl bg-white/10 px-3 py-2">Discreet shipping</div>
+            <div className="rounded-xl bg-white/10 px-3 py-2">Secure payments</div>
+            <div className="rounded-xl bg-white/10 px-3 py-2">Policy-first support</div>
+          </div>
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 text-sm">
@@ -9536,22 +9735,28 @@ export function CheckoutPage({
                       Enter your email and name, then continue to delivery details.
                     </div>
                   )}
-                  <input
-                    ref={stepOneEmailRef}
-                    value={buyerEmail}
-                    onChange={(e) => setBuyerEmail(e.target.value)}
-                    className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeEmail ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                    placeholder="Email address"
-                  />
+                  <label className="text-sm font-medium text-slate-700">
+                    Email address
+                    <input
+                      ref={stepOneEmailRef}
+                      value={buyerEmail}
+                      onChange={(e) => setBuyerEmail(e.target.value)}
+                      className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeEmail ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                      placeholder="Email address"
+                    />
+                  </label>
                   {attemptedStepOneContinue && !trimmedEmail ? <div className="text-xs text-rose-600">Email is required.</div> : null}
                   {attemptedStepOneContinue && trimmedEmail && !emailLooksValid ? <div className="text-xs text-rose-600">Enter a valid email address.</div> : null}
-                  <input
-                    ref={stepOneNameRef}
-                    value={checkoutForm.fullName}
-                    onChange={(e) => updateCheckoutField("fullName", e.target.value)}
-                    className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeName ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                    placeholder="Full name"
-                  />
+                  <label className="text-sm font-medium text-slate-700">
+                    Full name
+                    <input
+                      ref={stepOneNameRef}
+                      value={checkoutForm.fullName}
+                      onChange={(e) => updateCheckoutField("fullName", e.target.value)}
+                      className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeName ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                      placeholder="Full name"
+                    />
+                  </label>
                   {attemptedStepOneContinue && trimmedFullName.length < 2 ? <div className="text-xs text-rose-600">Full name is required.</div> : null}
                   <button
                     onClick={() => {
@@ -9594,51 +9799,66 @@ export function CheckoutPage({
                   <div className="rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
                     You can edit your shipping address directly here in cart before payment.
                   </div>
-                  <select
-                    ref={stepTwoCountryRef}
-                    value={shippingCountryOptions.includes(checkoutForm.country) ? checkoutForm.country : ""}
-                    onChange={(e) => updateCheckoutField("country", e.target.value)}
-                    className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeCountry ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                  >
-                    <option value="">{localizeOptionLabel("Select country", currentUser?.preferredLanguage || "en")}</option>
-                    {shippingCountryOptions.map((country) => (
-                      <option key={country} value={country}>{country}</option>
-                    ))}
-                  </select>
+                  <label className="text-sm font-medium text-slate-700">
+                    Destination country
+                    <select
+                      ref={stepTwoCountryRef}
+                      value={shippingCountryOptions.includes(checkoutForm.country) ? checkoutForm.country : ""}
+                      onChange={(e) => updateCheckoutField("country", e.target.value)}
+                      className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeCountry ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                    >
+                      <option value="">{localizeOptionLabel("Select country", currentUser?.preferredLanguage || "en")}</option>
+                      {shippingCountryOptions.map((country) => (
+                        <option key={country} value={country}>{country}</option>
+                      ))}
+                    </select>
+                  </label>
                   {attemptedStepTwoContinue && !trimmedCountry ? <div className="text-xs text-rose-600">Destination country is required.</div> : null}
-                  <input
-                    ref={stepTwoAddressRef}
-                    value={checkoutForm.address}
-                    onChange={(e) => updateCheckoutField("address", e.target.value)}
-                    className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeAddress ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                    placeholder="Street address"
-                  />
+                  <label className="text-sm font-medium text-slate-700">
+                    Street address
+                    <input
+                      ref={stepTwoAddressRef}
+                      value={checkoutForm.address}
+                      onChange={(e) => updateCheckoutField("address", e.target.value)}
+                      className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeAddress ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                      placeholder="Street address"
+                    />
+                  </label>
                   {attemptedStepTwoContinue && !trimmedAddress ? <div className="text-xs text-rose-600">Street address is required.</div> : null}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <input
-                      ref={stepTwoCityRef}
-                      value={checkoutForm.city || ""}
-                      onChange={(e) => updateCheckoutField("city", e.target.value)}
-                      className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeCity ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                      placeholder="City"
-                    />
-                    <input
-                      ref={stepTwoRegionRef}
-                      value={checkoutForm.region || ""}
-                      onChange={(e) => updateCheckoutField("region", e.target.value)}
-                      className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakeRegion ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                      placeholder={checkoutAddressMeta.regionPlaceholder}
-                    />
+                    <label className="text-sm font-medium text-slate-700">
+                      City
+                      <input
+                        ref={stepTwoCityRef}
+                        value={checkoutForm.city || ""}
+                        onChange={(e) => updateCheckoutField("city", e.target.value)}
+                        className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeCity ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                        placeholder="City"
+                      />
+                    </label>
+                    <label className="text-sm font-medium text-slate-700">
+                      {checkoutAddressMeta.regionLabel}
+                      <input
+                        ref={stepTwoRegionRef}
+                        value={checkoutForm.region || ""}
+                        onChange={(e) => updateCheckoutField("region", e.target.value)}
+                        className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeRegion ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                        placeholder={checkoutAddressMeta.regionPlaceholder}
+                      />
+                    </label>
                   </div>
                   {attemptedStepTwoContinue && !trimmedCity ? <div className="text-xs text-rose-600">City is required.</div> : null}
                   {attemptedStepTwoContinue && checkoutAddressMeta.regionRequired && !trimmedRegion ? <div className="text-xs text-rose-600">{checkoutAddressMeta.regionLabel} is required.</div> : null}
-                  <input
-                    ref={stepTwoPostalCodeRef}
-                    value={checkoutForm.postalCode || ""}
-                    onChange={(e) => updateCheckoutField("postalCode", e.target.value)}
-                    className={`rounded-2xl border border-slate-200 px-4 py-3 ${shakePostalCode ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                    placeholder={checkoutAddressMeta.postalPlaceholder}
-                  />
+                  <label className="text-sm font-medium text-slate-700">
+                    {checkoutAddressMeta.postalLabel}
+                    <input
+                      ref={stepTwoPostalCodeRef}
+                      value={checkoutForm.postalCode || ""}
+                      onChange={(e) => updateCheckoutField("postalCode", e.target.value)}
+                      className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakePostalCode ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
+                      placeholder={checkoutAddressMeta.postalPlaceholder}
+                    />
+                  </label>
                   {attemptedStepTwoContinue && !trimmedPostalCode ? <div className="text-xs text-rose-600">{checkoutAddressMeta.postalLabel} is required.</div> : null}
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                     <div className="font-semibold text-slate-900">Delivery preview</div>
@@ -9745,6 +9965,9 @@ export function CheckoutPage({
                 <div className="grid gap-4">
                   <h3 className="text-xl font-semibold">Payment</h3>
                   <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">Wallet balance available: {formatPriceTHB(currentWalletBalance)}</div>
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-xs text-sky-900">
+                    Policy note: refunds require order evidence and are reviewed case-by-case. Keep all order and delivery details accurate before paying.
+                  </div>
                   <div className="mt-2 text-xs text-slate-500">{formatExchangeEstimates(currentWalletBalance)}</div>
                   {shouldShowTopUpPrompt ? (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
@@ -9871,6 +10094,9 @@ export function CheckoutPage({
                   {" "}· Carrier: international carriers
                 </div>
                 <div className="flex items-center justify-between border-t border-white/10 pt-3 text-base font-bold text-white"><span>Total</span><span>{formatPriceTHB(total)}</span></div>
+              </div>
+              <div className="mt-3 rounded-2xl border border-white/20 bg-white/5 p-3 text-xs text-slate-200">
+                Policy summary: discreet packaging is standard, wallet payments are secure, and support follows policy-first dispute handling.
               </div>
             </div>
           </div>
@@ -10343,7 +10569,7 @@ export function AccountPage({
                 <button
                   type="button"
                   onClick={() => navigate("/appeals")}
-                  className={`rounded-xl border bg-white px-3 py-2.5 text-sm font-semibold ${currentUser.accountStatus === "frozen" ? "border-rose-300 text-rose-800" : "border-amber-300 text-amber-800"}`}
+                  className={`min-h-[44px] rounded-xl border bg-white px-3 py-3 text-sm font-semibold ${currentUser.accountStatus === "frozen" ? "border-rose-300 text-rose-800" : "border-amber-300 text-amber-800"}`}
                 >
                   Open appeals
                 </button>
@@ -10352,27 +10578,27 @@ export function AccountPage({
           ) : null}
           {currentUser.role === "buyer" ? (
             <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-              <button className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+              <button className="min-h-[44px] w-full rounded-xl bg-rose-600 px-4 py-3 text-center text-sm font-semibold text-white sm:w-auto">
                 {tx("profile")}
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/buyer-messages")}
-                className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto"
               >
                 {tx("messages")}
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/custom-requests")}
-                className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto"
               >
                 {tx("customRequests")}
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/seller-feed")}
-                className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto"
               >
                 Seller feed
               </button>
@@ -10382,19 +10608,19 @@ export function AccountPage({
             <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
               {currentUser.role === "buyer" ? (
                 <>
-                  <button onClick={() => navigate("/buyer-messages")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
-                  <button onClick={() => scrollToSection("buyer-favorites")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.favorites}</button>
-                  <button onClick={() => scrollToSection("buyer-favorite-bars")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.favoriteBars || "Favorite bars"}</button>
-                  <button onClick={() => scrollToSection("buyer-wallet")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
-                  <button onClick={() => scrollToSection("buyer-orders")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
-                  <button onClick={() => navigate("/custom-requests")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{tx("customRequests")}</button>
-                  <button onClick={() => scrollToSection("buyer-contact")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.contact}</button>
+                  <button onClick={() => navigate("/buyer-messages")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.messages}</button>
+                  <button onClick={() => scrollToSection("buyer-favorites")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.favorites}</button>
+                  <button onClick={() => scrollToSection("buyer-favorite-bars")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.favoriteBars || "Favorite bars"}</button>
+                  <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
+                  <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.orders}</button>
+                  <button onClick={() => navigate("/custom-requests")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{tx("customRequests")}</button>
+                  <button onClick={() => scrollToSection("buyer-contact")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.contact}</button>
                 </>
               ) : (
                 <>
-                  <button onClick={() => scrollToSection("buyer-orders")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
-                  <button onClick={() => scrollToSection("buyer-contact")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.contact}</button>
-                  <button onClick={() => scrollToSection("buyer-wallet")} className="whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
+                  <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.orders}</button>
+                  <button onClick={() => scrollToSection("buyer-contact")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.contact}</button>
+                  <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
                 </>
               )}
             </div>
@@ -10426,7 +10652,7 @@ export function AccountPage({
                   onClick={() => navigate("/seller-dashboard")}
                   className="rounded-2xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
                 >
-                  Open Seller Dashboard
+                  Open seller dashboard
                 </button>
               </div>
             </div>
@@ -10440,7 +10666,7 @@ export function AccountPage({
                   : `Your seller application was rejected${currentUser.rejectionReason ? `: ${currentUser.rejectionReason}` : "."}`}
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={() => navigate("/seller-dashboard")} className="rounded-xl border border-amber-300 px-3 py-2.5 text-sm font-semibold text-amber-800">Open Seller Dashboard</button>
+                <button onClick={() => navigate("/seller-dashboard")} className="rounded-xl border border-amber-300 px-3 py-2.5 text-sm font-semibold text-amber-800">Open seller dashboard</button>
                 <button onClick={() => navigate("/contact")} className="rounded-xl border border-amber-300 px-3 py-2.5 text-sm font-semibold text-amber-800">Contact support</button>
               </div>
             </div>
@@ -11201,10 +11427,10 @@ export function AccountPage({
           {currentUser.role === "buyer" ? (
             <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
               <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
-                <button onClick={() => scrollToSection("buyer-orders")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.orders}</button>
-                <button onClick={() => navigate("/buyer-messages")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.messages}</button>
-                <button onClick={() => scrollToSection("buyer-wallet")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.wallet}</button>
-                <button onClick={() => scrollToSection("buyer-contact")} className="rounded-xl border border-rose-200 px-2 py-2 text-xs font-semibold text-rose-700">{accountText.contact}</button>
+                <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.orders}</button>
+                <button onClick={() => navigate("/buyer-messages")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.messages}</button>
+                <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
+                <button onClick={() => scrollToSection("buyer-contact")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.contact}</button>
               </div>
             </div>
           ) : null}
@@ -11332,16 +11558,16 @@ export function BuyerMessagesPage({
     <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:py-16">
       <SectionTitle eyebrow="Account" title={tx("messagingCenter")} subtitle={tx("messagingHelp")} />
       <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-        <button type="button" onClick={() => navigate("/account")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+        <button type="button" onClick={() => navigate("/account")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           {tx("profile")}
         </button>
-        <button className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
+        <button className="min-h-[44px] w-full rounded-xl bg-rose-600 px-4 py-3 text-center text-sm font-semibold text-white sm:w-auto">
           {tx("messages")}
         </button>
-        <button type="button" onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+        <button type="button" onClick={() => navigate("/custom-requests")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           {tx("customRequests")}
         </button>
-        <button type="button" onClick={() => navigate("/seller-feed")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+        <button type="button" onClick={() => navigate("/seller-feed")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           Seller feed
         </button>
       </div>
@@ -11370,7 +11596,7 @@ export function BuyerMessagesPage({
                   <button
                     key={seller.id}
                     onClick={() => startBuyerConversationWithSeller(seller.id)}
-                    className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
+                    className="min-h-[44px] flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
                   >
                     <span className="text-sm font-medium">{seller.name}</span>
                     <span className="text-xs text-slate-500">{tx("message")}</span>
@@ -11384,19 +11610,19 @@ export function BuyerMessagesPage({
                 <input
                   value={buyerMessageProductFilters.search}
                   onChange={(event) => updateBuyerMessageProductFilter("search", event.target.value)}
-                  className="rounded-2xl border border-slate-200 px-3 py-2 text-sm sm:col-span-2"
+                  className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm sm:col-span-2"
                   placeholder={tx("searchProductOrSeller")}
                 />
-                <select value={buyerMessageProductFilters.size} onChange={(event) => updateBuyerMessageProductFilter("size", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                <select value={buyerMessageProductFilters.size} onChange={(event) => updateBuyerMessageProductFilter("size", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
                   {(buyerMessageFilterOptions?.size || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
                 </select>
-                <select value={buyerMessageProductFilters.style} onChange={(event) => updateBuyerMessageProductFilter("style", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                <select value={buyerMessageProductFilters.style} onChange={(event) => updateBuyerMessageProductFilter("style", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
                   {(buyerMessageFilterOptions?.style || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
                 </select>
-                <select value={buyerMessageProductFilters.fabric} onChange={(event) => updateBuyerMessageProductFilter("fabric", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                <select value={buyerMessageProductFilters.fabric} onChange={(event) => updateBuyerMessageProductFilter("fabric", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
                   {(buyerMessageFilterOptions?.fabric || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
                 </select>
-                <select value={buyerMessageProductFilters.daysWorn} onChange={(event) => updateBuyerMessageProductFilter("daysWorn", event.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                <select value={buyerMessageProductFilters.daysWorn} onChange={(event) => updateBuyerMessageProductFilter("daysWorn", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
                   {(buyerMessageFilterOptions?.daysWorn || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
                 </select>
               </div>
@@ -11407,7 +11633,7 @@ export function BuyerMessagesPage({
                   <button
                     key={product.id}
                     onClick={() => startBuyerConversationWithSeller(product.sellerId)}
-                    className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
+                    className="min-h-[44px] flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
                   >
                     <span className="text-sm font-medium">{product.title}</span>
                     <span className="text-xs text-slate-500">{sellerMap[product.sellerId]?.name || tx("seller")} · {product.daysWorn || tx("notSpecified")}</span>

@@ -4063,7 +4063,7 @@ export default function ThailandPantiesMarketSite() {
     return window.location.pathname || '/';
   });
   const [checkoutStep, setCheckoutStep] = useState(() => normalizeCheckoutStep(readStore('tlm-checkout-step', 1)));
-  const [adminTab, setAdminTab] = useState('overview');
+  const [adminTab, setAdminTab] = useState(() => String(readStore('tlm-admin-tab', 'overview') || 'overview'));
   const [filters, setFilters] = useState({
     search: '',
     size: 'All',
@@ -4145,7 +4145,7 @@ export default function ThailandPantiesMarketSite() {
   const [accountCredentialMessage, setAccountCredentialMessage] = useState('');
   const [accountCredentialTone, setAccountCredentialTone] = useState('neutral');
   const [accountSearchQuery, setAccountSearchQuery] = useState('');
-  const [adminUserSearch, setAdminUserSearch] = useState('');
+  const [adminUserSearch, setAdminUserSearch] = useState(() => String(readStore('tlm-admin-user-search', '') || ''));
   useEffect(() => {
     if (!accountMenuOpen) return undefined;
     const closeOnOutsideClick = (event) => {
@@ -5720,6 +5720,14 @@ export default function ThailandPantiesMarketSite() {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('tlm-checkout-step', JSON.stringify(normalizeCheckoutStep(checkoutStep)));
   }, [checkoutStep]);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-admin-tab', JSON.stringify(String(adminTab || 'overview')));
+  }, [adminTab]);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-admin-user-search', JSON.stringify(String(adminUserSearch || '')));
+  }, [adminUserSearch]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -5757,6 +5765,8 @@ export default function ThailandPantiesMarketSite() {
     const syncFromStorage = () => {
       const nextCart = readStore('tlm-cart', []);
       const nextCheckoutStep = normalizeCheckoutStep(readStore('tlm-checkout-step', 1));
+      const nextAdminTab = String(readStore('tlm-admin-tab', 'overview') || 'overview');
+      const nextAdminUserSearch = String(readStore('tlm-admin-user-search', '') || '');
       const nextCheckoutBuyerEmail = String(readStore('tlm-checkout-buyer-email', '') || '');
       const nextCheckoutForm = normalizeCheckoutFormDraft(readStore('tlm-checkout-form', null));
       const nextSession = readStore('tlm-session', { userId: null });
@@ -5764,6 +5774,8 @@ export default function ThailandPantiesMarketSite() {
       const nextAuthLanguage = normalizeAuthLanguage(readStore('tlm-auth-language', 'en'));
       setCart((prev) => JSON.stringify(prev) === JSON.stringify(nextCart) ? prev : nextCart);
       setCheckoutStep((prev) => (prev === nextCheckoutStep ? prev : nextCheckoutStep));
+      setAdminTab((prev) => (prev === nextAdminTab ? prev : nextAdminTab));
+      setAdminUserSearch((prev) => (prev === nextAdminUserSearch ? prev : nextAdminUserSearch));
       setBuyerEmail((prev) => (prev === nextCheckoutBuyerEmail ? prev : nextCheckoutBuyerEmail));
       setCheckoutForm((prev) => (JSON.stringify(prev) === JSON.stringify(nextCheckoutForm) ? prev : nextCheckoutForm));
       setSession((prev) => JSON.stringify(prev) === JSON.stringify(nextSession) ? prev : nextSession);
@@ -5773,7 +5785,7 @@ export default function ThailandPantiesMarketSite() {
     };
 
     const onStorage = (event) => {
-      if (!event.key || ['tlm-cart', 'tlm-checkout-step', 'tlm-checkout-buyer-email', 'tlm-checkout-form', 'tlm-session', 'tlm-api-token', 'tlm-auth-language'].includes(event.key)) {
+      if (!event.key || ['tlm-cart', 'tlm-checkout-step', 'tlm-admin-tab', 'tlm-admin-user-search', 'tlm-checkout-buyer-email', 'tlm-checkout-form', 'tlm-session', 'tlm-api-token', 'tlm-auth-language'].includes(event.key)) {
         syncFromStorage();
       }
     };
@@ -6015,6 +6027,18 @@ export default function ThailandPantiesMarketSite() {
       saveAddressToProfile: true,
     });
   }, [currentUser?.id]);
+  const checkoutStepOneReadyForBuyer = useMemo(() => {
+    const email = String(buyerEmail || '').trim();
+    const fullName = String(checkoutForm?.fullName || '').trim();
+    return /\S+@\S+\.\S+/.test(email) && fullName.length >= 2;
+  }, [buyerEmail, checkoutForm?.fullName]);
+  useEffect(() => {
+    if (routeInfo.name !== 'checkout') return;
+    if (currentUser?.role !== 'buyer') return;
+    if (!checkoutStepOneReadyForBuyer) return;
+    if (checkoutStep !== 1) return;
+    setCheckoutStep(2);
+  }, [routeInfo.name, currentUser?.role, checkoutStepOneReadyForBuyer, checkoutStep]);
 
   const filterOptions = useMemo(
     () => ({
@@ -6060,6 +6084,19 @@ export default function ThailandPantiesMarketSite() {
       return matchesSearch && matchesSize && matchesColor && matchesStyle && matchesFabric && matchesDaysWorn && matchesCondition && matchesScentLevel && matchesPrice;
     });
   }, [filters, availableProducts, sellerMap]);
+  const activeFilterChips = useMemo(() => {
+    const chips = [];
+    const searchValue = String(filters.search || '').trim();
+    if (searchValue) chips.push({ key: 'search', label: `Search: ${searchValue}` });
+    const filterKeys = ['size', 'color', 'style', 'fabric', 'daysWorn', 'condition', 'scentLevel', 'price'];
+    filterKeys.forEach((key) => {
+      const value = String(filters[key] || 'All');
+      if (!value || value === 'All') return;
+      const labelKey = ({ daysWorn: 'Days worn', scentLevel: 'Scent level' }[key] || key.charAt(0).toUpperCase() + key.slice(1));
+      chips.push({ key, label: `${labelKey}: ${localizeOptionLabel(value, uiLanguage)}` });
+    });
+    return chips;
+  }, [filters, uiLanguage]);
   const homeRotationDayKey = new Date().toISOString().slice(0, 10);
   const homeFeaturedSellersSeed = stableStringHash(`${homeRotationDayKey}_home_featured_sellers`);
   const homeProductPreviewSeed = stableStringHash(`${homeRotationDayKey}_home_product_preview`);
@@ -6315,6 +6352,14 @@ export default function ThailandPantiesMarketSite() {
     });
   }
 
+  function clearSingleFilter(key) {
+    if (key === 'search') {
+      setFilters((prev) => ({ ...prev, search: '' }));
+      return;
+    }
+    setFilters((prev) => ({ ...prev, [key]: 'All' }));
+  }
+
   function addToCart(productId) {
     if (currentUser?.role === 'bar') {
       if (typeof window !== 'undefined') window.alert(loginText.barAccountMarketplaceBlocked || 'Bar accounts cannot buy or sell marketplace products.');
@@ -6421,6 +6466,15 @@ export default function ThailandPantiesMarketSite() {
         return;
       }
       if (user.role === 'seller') {
+        const sellerUnreadConversationCount = (messages || []).filter((message) => (
+          String(message?.sellerId || '').trim() === String(user?.sellerId || '').trim()
+          && message.senderRole === 'buyer'
+          && !message.readBySeller
+        )).length;
+        if (sellerUnreadConversationCount > 0) {
+          navigate('/seller-messages');
+          return;
+        }
         navigate('/account');
         return;
       }
@@ -6957,11 +7011,17 @@ export default function ThailandPantiesMarketSite() {
     setAdminAuthActionMessage(adminActionText('barUpdated'));
   }
 
-  function setSellerBarAffiliationByAdmin(sellerId, barId) {
-    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.AFFILIATIONS_MANAGE) || !sellerId) return;
+  function setSellerBarAffiliationByAdmin(sellerId, barId, reason = '') {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.AFFILIATIONS_MANAGE) || !sellerId) {
+      return { ok: false, error: 'You do not have permission to manage affiliations.' };
+    }
+    const normalizedReason = String(reason || '').trim();
+    if (normalizedReason.length < 8) {
+      return { ok: false, error: 'Add a short reason (at least 8 characters) before updating affiliation.' };
+    }
     const normalizedBarId = String(barId || '').trim();
     const barExists = !normalizedBarId || (bars || []).some((bar) => bar.id === normalizedBarId);
-    if (!barExists) return;
+    if (!barExists) return { ok: false, error: 'The selected bar does not exist.' };
     const now = new Date().toISOString();
     setDb((prev) => {
       const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
@@ -7009,12 +7069,14 @@ export default function ThailandPantiesMarketSite() {
             targetSellerId: sellerId,
             targetBarId: normalizedBarId || null,
             adminUserId: currentUser.id,
+            reason: normalizedReason,
             createdAt: now,
           },
         ],
       };
     });
     setAdminAuthActionMessage(normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent'));
+    return { ok: true, message: normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent') };
   }
 
   function removeBarByAdmin(barId) {
@@ -7043,11 +7105,19 @@ export default function ThailandPantiesMarketSite() {
     setAdminAuthActionMessage(adminActionText('barRemovedIndependent'));
   }
 
-  function toggleAdminBlockUser(userId) {
-    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.USERS_BLOCK)) return;
+  function toggleAdminBlockUser(userId, reason = '') {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.USERS_BLOCK)) {
+      return { ok: false, error: 'You do not have permission to block users.' };
+    }
     const target = users.find((user) => user.id === userId);
-    if (!target || resolveAdminAccess(target).level === 'super') return;
+    if (!target || resolveAdminAccess(target).level === 'super') {
+      return { ok: false, error: 'This user cannot be blocked by delegated admins.' };
+    }
     const isBlocked = target.accountStatus === 'blocked';
+    const normalizedReason = String(reason || '').trim();
+    if (normalizedReason.length < 8) {
+      return { ok: false, error: 'Add a short reason (at least 8 characters) before confirming this action.' };
+    }
     const now = new Date().toISOString();
     setDb((prev) => ({
       ...prev,
@@ -7077,7 +7147,7 @@ export default function ThailandPantiesMarketSite() {
               blockerUserId: currentUser.id,
               blockedUserId: userId,
               createdAt: now,
-              reason: 'admin_action',
+              reason: normalizedReason,
             },
           ],
       notifications: [
@@ -7097,10 +7167,12 @@ export default function ThailandPantiesMarketSite() {
           type: isBlocked ? 'unblock_user' : 'block_user',
           targetUserId: userId,
           adminUserId: currentUser.id,
+          reason: normalizedReason,
           createdAt: now,
         },
       ],
     }));
+    return { ok: true, message: isBlocked ? 'User unblocked.' : 'User blocked.' };
   }
 
   async function updateUserCredentialsByAdmin(userId, { newEmail, newPassword } = {}) {
@@ -10973,8 +11045,12 @@ export default function ThailandPantiesMarketSite() {
       return { ok: false, error: 'Admin access required.' };
     }
     const normalizedReference = String(externalReference || '').trim();
+    const normalizedNotes = String(notes || '').trim();
     if (!normalizedReference) {
       return { ok: false, error: 'Transfer reference is required before marking sent.' };
+    }
+    if (normalizedNotes.length < 8) {
+      return { ok: false, error: 'Add a short reason in notes (minimum 8 characters) before marking sent.' };
     }
     if (backendStatus === 'connected' && apiAuthToken) {
       const { ok, payload } = await apiRequestJson(`/api/admin/payout-items/${encodeURIComponent(String(payoutItemId || ''))}/sent`, {
@@ -10983,7 +11059,7 @@ export default function ThailandPantiesMarketSite() {
         body: {
           method,
           externalReference: normalizedReference,
-          notes: String(notes || '').trim(),
+          notes: normalizedNotes,
         },
       });
       if (!ok) {
@@ -11025,7 +11101,7 @@ export default function ThailandPantiesMarketSite() {
         status: 'sent',
         method: normalizedMethod,
         externalReference: normalizedReference,
-        notes: String(notes || '').trim(),
+        notes: normalizedNotes,
         paidAt: now,
         paidByUserId: currentUser.id,
       };
@@ -11094,11 +11170,15 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.PAYMENTS_MANAGE)) {
       return { ok: false, error: 'Admin access required.' };
     }
+    const normalizedReason = String(reason || '').trim();
+    if (normalizedReason.length < 8) {
+      return { ok: false, error: 'Add a short failure reason (minimum 8 characters).' };
+    }
     if (backendStatus === 'connected' && apiAuthToken) {
       const { ok, payload } = await apiRequestJson(`/api/admin/payout-items/${encodeURIComponent(String(payoutItemId || ''))}/failed`, {
         method: 'POST',
         idempotencyScope: `payout_failed_${String(payoutItemId || '')}_${Date.now()}`,
-        body: { reason: String(reason || '').trim() },
+        body: { reason: normalizedReason },
       });
       if (!ok) {
         return { ok: false, error: String(payload?.error || 'Could not mark payout item as failed.') };
@@ -11122,7 +11202,7 @@ export default function ThailandPantiesMarketSite() {
       const updatedItem = {
         ...item,
         status: 'failed',
-        notes: String(reason || '').trim(),
+        notes: normalizedReason,
       };
       const nextPayoutItems = [...(prev.payoutItems || [])];
       nextPayoutItems[idx] = updatedItem;
@@ -13467,7 +13547,7 @@ export default function ThailandPantiesMarketSite() {
                     {publicText.meetSellers}
                   </button>
                   {!currentUser ? (
-                    <button onClick={() => navigate('/register')} className="rounded-2xl border border-rose-200 bg-white px-6 py-3 font-semibold text-rose-700 transition hover:-translate-y-0.5 hover:border-rose-300">
+                    <button onClick={() => navigate('/register')} className="rounded-2xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-300">
                       Join as buyer, seller, or bar
                     </button>
                   ) : null}
@@ -13482,7 +13562,7 @@ export default function ThailandPantiesMarketSite() {
               <div className="grid gap-4 md:grid-cols-2">
                 <button
                   onClick={() => navigate('/seller-portfolios')}
-                  className="rounded-3xl bg-white p-4 text-left shadow-xl ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                  className="rounded-3xl bg-white p-5 text-left shadow-xl ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                 >
                   <div className="mb-4 rounded-2xl bg-gradient-to-br from-rose-200 to-pink-100 p-5">
                     <div className="rounded-2xl border border-white/50 bg-white/50 p-4">
@@ -13507,7 +13587,7 @@ export default function ThailandPantiesMarketSite() {
                 </button>
                 <button
                   onClick={() => navigate('/find')}
-                  className="rounded-3xl bg-white p-4 text-left shadow-xl ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 md:translate-y-10"
+                  className="rounded-3xl bg-white p-5 text-left shadow-xl ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 md:translate-y-10"
                 >
                   <div className="mb-4 rounded-2xl bg-gradient-to-br from-fuchsia-200 to-rose-100 p-5">
                     <div className="rounded-2xl border border-white/50 bg-white/50 p-4">
@@ -13529,6 +13609,24 @@ export default function ThailandPantiesMarketSite() {
                 </button>
               </div>
             </section>
+            <section className="mx-auto max-w-7xl px-6 pb-2">
+              <div className="rounded-3xl border border-rose-100 bg-white p-5 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">How it works</div>
+                <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
+                  {[
+                    { title: 'Browse', detail: 'Discover vetted sellers and listings that match your preferences.' },
+                    { title: 'Message', detail: 'Confirm details directly with the seller before you buy.' },
+                    { title: 'Checkout', detail: 'Pay securely with clear policy-first support at each step.' },
+                  ].map((step, index) => (
+                    <div key={step.title} className="rounded-2xl bg-slate-50 px-4 py-3 text-slate-700">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Step {index + 1}</div>
+                      <div className="mt-1 font-semibold text-slate-900">{step.title}</div>
+                      <div className="mt-1 text-xs leading-5 text-slate-600">{step.detail}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
 
             <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
               <SectionTitle eyebrow={publicText.marketplace} title={publicText.shopWithRealFilters} subtitle={`${filteredProducts.length} ${publicText.resultsFoundSuffix}`} />
@@ -13546,10 +13644,43 @@ export default function ThailandPantiesMarketSite() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button onClick={resetFilters} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">{publicText.resetFilters}</button>
+                  <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">Sort: Newest</div>
                   <div className="rounded-2xl bg-rose-50 px-4 py-2 text-sm text-rose-700">{publicText.premiumVerifiedSellers}</div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {activeFilterChips.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 px-3 py-1.5 text-xs text-slate-500">No filters selected</div>
+                  ) : (
+                    <>
+                      {activeFilterChips.map((chip) => (
+                        <button
+                          key={`${chip.key}_${chip.label}`}
+                          onClick={() => clearSingleFilter(chip.key)}
+                          className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700"
+                          title="Remove this filter"
+                        >
+                          {chip.label} ×
+                        </button>
+                      ))}
+                      <button onClick={resetFilters} className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700">
+                        Clear all
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
+              {homeProductPreview.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-700">
+                  <div className="font-semibold text-slate-900">No products match your filters yet.</div>
+                  <div className="mt-1 text-slate-600">Try broader options or reset filters to see more listings.</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button onClick={resetFilters} className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white">Reset filters</button>
+                    <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-700">Message a seller</button>
+                    <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700">Browse sellers</button>
+                  </div>
+                </div>
+              ) : (
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {homeProductPreview.map((product) => {
                   return (
@@ -13576,6 +13707,11 @@ export default function ThailandPantiesMarketSite() {
                       </div>
                       <div className="mt-1 text-sm text-slate-500">{product.size || localizeOptionLabel('Not specified', uiLanguage)} · {product.color || localizeOptionLabel('Not specified', uiLanguage)}</div>
                       <div className="mt-3 text-lg font-semibold text-rose-700">{formatPriceTHB(product.price)}</div>
+                      <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold text-slate-600">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1">Discreet shipping</span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1">Secure payments</span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1">Policy-first support</span>
+                      </div>
                       <div className="mt-4 flex gap-3">
                         <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl bg-rose-600 px-4 py-3 font-semibold text-white">{publicText.viewListing}</button>
                         <button
@@ -13593,6 +13729,7 @@ export default function ThailandPantiesMarketSite() {
                   </article>
                 )})}
               </div>
+              )}
               {!currentUser ? (
                 <div className="mt-8 mx-auto max-w-2xl rounded-3xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -14234,7 +14371,7 @@ export default function ThailandPantiesMarketSite() {
                 <div className="h-[420px]"><ProductImage src={selectedProduct.image} label={selectedProduct.imageName || selectedProduct.title} /></div>
                 <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map((item) => <div key={item} className="h-28"><ProductImage src={selectedProduct.image} label={`Gallery ${item}`} /></div>)}</div>
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100 lg:sticky lg:top-24">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="text-3xl font-bold tracking-tight">{selectedProduct.title}</h2>
@@ -14248,6 +14385,20 @@ export default function ThailandPantiesMarketSite() {
                   <div className="rounded-full bg-rose-50 px-4 py-2 text-lg font-bold text-rose-700">${selectedProduct.price}</div>
                 </div>
                 <p className="mt-5 leading-7 text-slate-600">{selectedProduct.description}</p>
+                <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50/70 p-3 text-sm text-rose-900">
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-600">Recommended flow</div>
+                  <div className="mt-1">Message seller (optional) &rarr; Add to cart &rarr; Checkout.</div>
+                  <div className="mt-2">
+                    <button onClick={() => navigate(`/seller/${selectedProduct.sellerId}`)} className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700">
+                      Message seller
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
+                  <div><span className="font-semibold">Price:</span> {formatPriceTHB(selectedProduct.price)}</div>
+                  <div className="mt-1"><span className="font-semibold">Shipping:</span> Discreet shipping with tracked options at checkout.</div>
+                  <div className="mt-1"><span className="font-semibold">Policy:</span> Refunds require evidence review and policy-first support handling.</div>
+                </div>
                 <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
                   <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.sizeField}:</span> {selectedProduct.size}</div>
                   <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.colorField}:</span> {selectedProduct.color}</div>
@@ -14298,6 +14449,26 @@ export default function ThailandPantiesMarketSite() {
                   )}
                   <button onClick={() => navigate(`/seller/${selectedProduct.sellerId}`)} className="rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">{publicText.viewSellerProfile}</button>
                 </div>
+                {cart.includes(selectedProduct.id) ? (
+                  <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
+                    <div className="text-sm font-semibold text-emerald-800">Added to cart. Ready to continue?</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => {
+                          if (currentUser?.role === 'buyer' && checkoutStepOneReadyForBuyer) setCheckoutStep(2);
+                          else setCheckoutStep(1);
+                          navigate('/checkout');
+                        }}
+                        className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white"
+                      >
+                        Checkout now
+                      </button>
+                      <button onClick={() => navigate('/find')} className="rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-emerald-700">
+                        Continue browsing
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>
