@@ -839,6 +839,14 @@ const ADMIN_TAB_CONFIG = [
   { key: "deployment", label: "Site Settings", description: "Manage SEO, routes, and technical settings.", icon: Upload },
 ];
 
+const DELEGATED_ADMIN_SCOPE_OPTIONS = [
+  { key: "sales.read", label: "Sales dashboard" },
+  { key: "payments.manage", label: "Payments and payouts" },
+  { key: "affiliations.manage", label: "Seller-bar affiliations" },
+  { key: "disputes.review", label: "Disputes and refund reviews" },
+  { key: "users.block", label: "Block and unblock users" },
+];
+
 const TRACKING_CARRIER_OPTIONS = [
   "Not set",
   "Thailand Post / EMS",
@@ -4187,6 +4195,8 @@ export function SellerFeedPage({
 
 export function AdminPage({
   isAdmin,
+  isSuperAdmin,
+  adminPermissions,
   adminTab,
   setAdminTab,
   products,
@@ -4230,6 +4240,7 @@ export function AdminPage({
   removeBarByAdmin,
   toggleAdminBlockUser,
   updateUserCredentialsByAdmin,
+  updateUserAdminAccessBySuperAdmin,
   adminUserSearch,
   setAdminUserSearch,
   adminUserResults,
@@ -4343,6 +4354,10 @@ export function AdminPage({
   const [adminCredentialSaving, setAdminCredentialSaving] = useState(false);
   const [adminCredentialMessage, setAdminCredentialMessage] = useState("");
   const [adminCredentialTone, setAdminCredentialTone] = useState("neutral");
+  const [adminAccessDraftByUserId, setAdminAccessDraftByUserId] = useState({});
+  const [adminAccessSaving, setAdminAccessSaving] = useState(false);
+  const [adminAccessMessage, setAdminAccessMessage] = useState("");
+  const [adminAccessTone, setAdminAccessTone] = useState("neutral");
   const [orderShipmentDrafts, setOrderShipmentDrafts] = useState({});
   const [orderHelpNoteDraftByItemKey, setOrderHelpNoteDraftByItemKey] = useState({});
   const [barDraftsById, setBarDraftsById] = useState({});
@@ -5918,6 +5933,14 @@ export function AdminPage({
   const selectedSellerAffiliatedBar = selectedSellerProfile?.affiliatedBarId
     ? (bars || []).find((bar) => bar.id === selectedSellerProfile.affiliatedBarId)
     : null;
+  const canManageAffiliations = adminPermissions?.canManageAffiliations !== false;
+  const canBlockUsers = adminPermissions?.canBlockUsers !== false;
+  const canManageAdminAccess = adminPermissions?.canManageAdminAccess === true;
+  const canManageCredentials = adminPermissions?.canManageCredentials !== false;
+  const canAccessAdminTab = (tabKey) => {
+    if (!adminPermissions?.tabAccess) return true;
+    return adminPermissions.tabAccess[tabKey] !== false;
+  };
   const openPostReportCount = unresolvedReports.length;
   const openCommentReportCount = unresolvedCommentReports.length;
   const openMessageReportCount = unresolvedMessageReports.length;
@@ -5948,9 +5971,11 @@ export function AdminPage({
   }), []);
   const visibleAdminTabs = useMemo(() => {
     const mode = workspaceModeConfig[adminWorkspaceMode] || workspaceModeConfig.all;
-    if (!mode.tabs) return ADMIN_TAB_CONFIG;
-    return ADMIN_TAB_CONFIG.filter((tab) => mode.tabs.has(tab.key));
-  }, [adminWorkspaceMode, workspaceModeConfig]);
+    const modeFiltered = mode.tabs
+      ? ADMIN_TAB_CONFIG.filter((tab) => mode.tabs.has(tab.key))
+      : ADMIN_TAB_CONFIG;
+    return modeFiltered.filter((tab) => canAccessAdminTab(tab.key));
+  }, [adminWorkspaceMode, workspaceModeConfig, adminPermissions]);
   useEffect(() => {
     if (!visibleAdminTabs.some((tab) => tab.key === adminTab)) {
       setAdminTab(visibleAdminTabs[0]?.key || "overview");
@@ -5971,6 +5996,14 @@ export function AdminPage({
     }, 4000);
     return () => window.clearTimeout(timerId);
   }, [adminCredentialMessage]);
+  useEffect(() => {
+    if (!adminAccessMessage) return undefined;
+    const timerId = window.setTimeout(() => {
+      setAdminAccessMessage("");
+      setAdminAccessTone("neutral");
+    }, 4000);
+    return () => window.clearTimeout(timerId);
+  }, [adminAccessMessage]);
   useEffect(() => {
     if (!adminUserMessageStatus || adminUserMessageSending) return undefined;
     const timerId = window.setTimeout(() => {
@@ -5999,6 +6032,55 @@ export function AdminPage({
         ...patch,
       },
     }));
+  };
+  const selectedAdminAccessDraft = adminSelectedUser?.id
+    ? (adminAccessDraftByUserId[adminSelectedUser.id] || {
+        enabled: adminSelectedUser?.adminAccess?.enabled === true,
+        scopes: Array.isArray(adminSelectedUser?.adminAccess?.scopes) ? adminSelectedUser.adminAccess.scopes : [],
+      })
+    : { enabled: false, scopes: [] };
+  const setSelectedAdminAccessDraft = (patch = {}) => {
+    if (!adminSelectedUser?.id) return;
+    setAdminAccessDraftByUserId((prev) => ({
+      ...prev,
+      [adminSelectedUser.id]: {
+        ...(prev[adminSelectedUser.id] || {
+          enabled: adminSelectedUser?.adminAccess?.enabled === true,
+          scopes: Array.isArray(adminSelectedUser?.adminAccess?.scopes) ? adminSelectedUser.adminAccess.scopes : [],
+        }),
+        ...patch,
+      },
+    }));
+  };
+  const submitSelectedUserAdminAccessUpdate = async () => {
+    if (!isSuperAdmin || !adminSelectedUser?.id || !updateUserAdminAccessBySuperAdmin || adminAccessSaving) return;
+    if (!["seller", "bar"].includes(String(adminSelectedUser.role || "").trim().toLowerCase())) {
+      setAdminAccessTone("error");
+      setAdminAccessMessage("Delegated admin access can only be assigned to seller or bar accounts.");
+      return;
+    }
+    const enabled = selectedAdminAccessDraft.enabled === true;
+    const scopes = Array.isArray(selectedAdminAccessDraft.scopes)
+      ? selectedAdminAccessDraft.scopes.map((scope) => String(scope || "").trim()).filter(Boolean)
+      : [];
+    if (enabled && scopes.length === 0) {
+      setAdminAccessTone("error");
+      setAdminAccessMessage("Select at least one permission scope.");
+      return;
+    }
+    setAdminAccessSaving(true);
+    const result = await updateUserAdminAccessBySuperAdmin(adminSelectedUser.id, {
+      enabled,
+      scopes,
+    });
+    setAdminAccessSaving(false);
+    if (!result?.ok) {
+      setAdminAccessTone("error");
+      setAdminAccessMessage(String(result?.error || "Could not update delegated admin access."));
+      return;
+    }
+    setAdminAccessTone("success");
+    setAdminAccessMessage(String(result?.message || "Delegated admin access updated."));
   };
   const submitSelectedUserCredentialUpdate = async () => {
     if (!adminSelectedUser?.id || !updateUserCredentialsByAdmin || adminCredentialSaving) return;
@@ -6787,12 +6869,14 @@ export function AdminPage({
                           <h3 className="text-xl font-semibold">{adminSelectedUser.name}</h3>
                         <div className="mt-1 text-sm text-slate-600">{adminSelectedUser.email} · {adminSelectedUser.role}</div>
                         </div>
-                        <button
-                          onClick={() => toggleAdminBlockUser(adminSelectedUser.id)}
-                          className={`rounded-2xl px-4 py-2 text-sm font-semibold ${adminSelectedUser.accountStatus === "blocked" ? "border border-emerald-200 text-emerald-700" : "border border-rose-200 text-rose-700"}`}
-                        >
-                          {adminSelectedUser.accountStatus === "blocked" ? "Unblock User" : "Block User"}
-                        </button>
+                        {canBlockUsers ? (
+                          <button
+                            onClick={() => toggleAdminBlockUser(adminSelectedUser.id)}
+                            className={`rounded-2xl px-4 py-2 text-sm font-semibold ${adminSelectedUser.accountStatus === "blocked" ? "border border-emerald-200 text-emerald-700" : "border border-rose-200 text-rose-700"}`}
+                          >
+                            {adminSelectedUser.accountStatus === "blocked" ? "Unblock User" : "Block User"}
+                          </button>
+                        ) : null}
                       </div>
                       <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
                         Status: <span className="font-semibold">{adminSelectedUser.accountStatus || "active"}</span>
@@ -6801,7 +6885,7 @@ export function AdminPage({
                         {" · "}
                         Appeals: <span className="font-semibold">{pendingAppeals.filter((appeal) => appeal.userId === adminSelectedUser.id).length} pending</span>
                       </div>
-                      {adminSelectedUser.role === "seller" ? (
+                      {adminSelectedUser.role === "seller" && canManageAffiliations ? (
                         <div className="mt-4 rounded-2xl border border-rose-100 p-4">
                           <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Bar affiliation</div>
                           <p className="mt-1 text-sm text-slate-600">Assign this seller to a bar, move them, or set them back to independent.</p>
@@ -6828,6 +6912,59 @@ export function AdminPage({
                           </div>
                         </div>
                       ) : null}
+                      {isSuperAdmin && canManageAdminAccess && ["seller", "bar"].includes(String(adminSelectedUser.role || "").trim().toLowerCase()) ? (
+                        <div className="mt-4 rounded-2xl border border-rose-100 p-4">
+                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Delegated admin access</div>
+                          <p className="mt-1 text-sm text-slate-600">Grant limited admin permissions to this seller or bar account.</p>
+                          <label className="mt-3 inline-flex items-center gap-2 text-sm text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(selectedAdminAccessDraft.enabled)}
+                              onChange={(event) => setSelectedAdminAccessDraft({ enabled: event.target.checked })}
+                              className="h-4 w-4 rounded border-slate-300"
+                            />
+                            Enable delegated admin access
+                          </label>
+                          {selectedAdminAccessDraft.enabled ? (
+                            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                              {DELEGATED_ADMIN_SCOPE_OPTIONS.map((option) => {
+                                const checked = (selectedAdminAccessDraft.scopes || []).includes(option.key);
+                                return (
+                                  <label key={option.key} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-700">
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={(event) => {
+                                        const current = new Set(selectedAdminAccessDraft.scopes || []);
+                                        if (event.target.checked) current.add(option.key);
+                                        else current.delete(option.key);
+                                        setSelectedAdminAccessDraft({ scopes: Array.from(current) });
+                                      }}
+                                      className="h-4 w-4 rounded border-slate-300"
+                                    />
+                                    {option.label}
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          ) : null}
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <button
+                              onClick={submitSelectedUserAdminAccessUpdate}
+                              disabled={adminAccessSaving}
+                              className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${adminAccessSaving ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                            >
+                              {adminAccessSaving ? "Saving..." : "Save delegated access"}
+                            </button>
+                            {adminAccessMessage ? (
+                              <div className={`text-xs font-semibold ${adminAccessTone === "error" ? "text-rose-700" : adminAccessTone === "success" ? "text-emerald-700" : "text-slate-700"}`}>
+                                {adminAccessMessage}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
+                      {canManageCredentials ? (
                       <div className="mt-4 rounded-2xl border border-rose-100 p-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Credentials</div>
                         <p className="mt-1 text-sm text-slate-600">Admins can update this user's email and password.</p>
@@ -6870,6 +7007,9 @@ export function AdminPage({
                           ) : null}
                         </div>
                       </div>
+                      ) : null}
+                      {isSuperAdmin ? (
+                      <>
                       <div className="mt-4 rounded-2xl border border-rose-100 p-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Message user</div>
                         <p className="mt-1 text-sm text-slate-600">Send an email to this user without leaving Users and Appeals.</p>
@@ -6954,6 +7094,8 @@ export function AdminPage({
                           </button>
                         </div>
                       </div>
+                      </>
+                      ) : null}
                     </>
                   )}
                 </div>
@@ -9249,10 +9391,10 @@ export function AdminPage({
           ) : null}
           <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
             <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
-              <button onClick={() => setAdminTab("overview")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "overview" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.overview}</button>
-              <button onClick={() => setAdminTab("inbox")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "inbox" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.inbox}</button>
-              <button onClick={() => setAdminTab("auth")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "auth" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.approvals}</button>
-              <button onClick={() => setAdminTab("payments")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "payments" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.payments}</button>
+              {canAccessAdminTab("overview") ? <button onClick={() => setAdminTab("overview")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "overview" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.overview}</button> : null}
+              {canAccessAdminTab("inbox") ? <button onClick={() => setAdminTab("inbox")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "inbox" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.inbox}</button> : null}
+              {canAccessAdminTab("auth") ? <button onClick={() => setAdminTab("auth")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "auth" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.approvals}</button> : null}
+              {canAccessAdminTab("payments") ? <button onClick={() => setAdminTab("payments")} className={`rounded-xl border px-2 py-2 text-xs font-semibold ${adminTab === "payments" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.payments}</button> : null}
             </div>
           </div>
         </div>

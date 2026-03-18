@@ -79,6 +79,107 @@ const CheckoutPage = lazy(() => import('./pages/DashboardPages.jsx').then((modul
 const AccountPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AccountPage })));
 const AppealsPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AppealsPage })));
 
+const ADMIN_SCOPES = {
+  SALES_READ: 'sales.read',
+  PAYMENTS_MANAGE: 'payments.manage',
+  AFFILIATIONS_MANAGE: 'affiliations.manage',
+  DISPUTES_REVIEW: 'disputes.review',
+  USERS_BLOCK: 'users.block',
+  USERS_ADMIN_ACCESS_MANAGE: 'users.admin_access.manage',
+  USERS_CREDENTIALS_MANAGE: 'users.credentials.manage',
+};
+
+const KNOWN_ADMIN_SCOPES = new Set(Object.values(ADMIN_SCOPES));
+
+function resolveAdminAccess(user) {
+  const role = String(user?.role || '').trim().toLowerCase();
+  if (role === 'admin') {
+    return { enabled: true, level: 'super', scopes: ['*'] };
+  }
+  const raw = user?.adminAccess && typeof user.adminAccess === 'object' ? user.adminAccess : {};
+  const enabled = raw.enabled === true;
+  if (!enabled) {
+    return { enabled: false, level: 'none', scopes: [] };
+  }
+  const scopes = Array.isArray(raw.scopes)
+    ? raw.scopes
+      .map((entry) => String(entry || '').trim())
+      .filter((scope) => KNOWN_ADMIN_SCOPES.has(scope))
+    : [];
+  return {
+    enabled: true,
+    level: raw.level === 'super' ? 'super' : 'limited',
+    scopes,
+  };
+}
+
+function hasAdminScopeAccess(user, scope) {
+  const normalizedScope = String(scope || '').trim();
+  if (!normalizedScope) return false;
+  const adminAccess = resolveAdminAccess(user);
+  if (adminAccess.level === 'super') return true;
+  if (!adminAccess.enabled) return false;
+  return adminAccess.scopes.includes(normalizedScope);
+}
+
+function hasAdminPanelAccess(user) {
+  const adminAccess = resolveAdminAccess(user);
+  return adminAccess.enabled || adminAccess.level === 'super';
+}
+
+function buildAdminPermissions(user) {
+  const isSuperAdmin = resolveAdminAccess(user).level === 'super';
+  const canManageAffiliations = hasAdminScopeAccess(user, ADMIN_SCOPES.AFFILIATIONS_MANAGE);
+  const canReviewDisputes = hasAdminScopeAccess(user, ADMIN_SCOPES.DISPUTES_REVIEW);
+  const canManagePayments = hasAdminScopeAccess(user, ADMIN_SCOPES.PAYMENTS_MANAGE);
+  const canViewSales = hasAdminScopeAccess(user, ADMIN_SCOPES.SALES_READ);
+  const canBlockUsers = hasAdminScopeAccess(user, ADMIN_SCOPES.USERS_BLOCK);
+  const canManageAdminAccess = hasAdminScopeAccess(user, ADMIN_SCOPES.USERS_ADMIN_ACCESS_MANAGE);
+  const canManageCredentials = hasAdminScopeAccess(user, ADMIN_SCOPES.USERS_CREDENTIALS_MANAGE);
+
+  if (isSuperAdmin) {
+    return {
+      isSuperAdmin: true,
+      canManageAffiliations: true,
+      canReviewDisputes: true,
+      canManagePayments: true,
+      canViewSales: true,
+      canBlockUsers: true,
+      canManageAdminAccess: true,
+      canManageCredentials: true,
+      tabAccess: null,
+    };
+  }
+
+  const canAccessUsersTab = canBlockUsers || canManageAffiliations || canManageAdminAccess || canManageCredentials;
+  return {
+    isSuperAdmin: false,
+    canManageAffiliations,
+    canReviewDisputes,
+    canManagePayments,
+    canViewSales,
+    canBlockUsers,
+    canManageAdminAccess,
+    canManageCredentials,
+    tabAccess: {
+      overview: true,
+      users: canAccessUsersTab,
+      bars: canManageAffiliations,
+      disputes: canReviewDisputes,
+      sales: canViewSales,
+      payments: canManagePayments,
+      inbox: false,
+      auth: false,
+      social: false,
+      products: false,
+      email_inbox: false,
+      email_templates: false,
+      cms: false,
+      deployment: false,
+    },
+  };
+}
+
 const SHARED_NAV_I18N = {
   en: { home: 'Home', sellers: 'Sellers', bars: 'Bars', find: 'Find', sellerFeed: 'Seller Feed', customRequests: 'Custom Requests', faq: 'FAQ', contact: 'Contact', account: 'Account', messages: 'Messages', login: 'Login', register: 'Register', logout: 'Logout' },
   th: { home: 'หน้าแรก', sellers: 'ผู้ขาย', bars: 'บาร์', find: 'ค้นหา', sellerFeed: 'ฟีดผู้ขาย', customRequests: 'คำขอพิเศษ', faq: 'คำถามที่พบบ่อย', contact: 'ติดต่อ', account: 'บัญชี', messages: 'ข้อความ', login: 'เข้าสู่ระบบ', register: 'สมัครสมาชิก', logout: 'ออกจากระบบ' },
@@ -6331,7 +6432,7 @@ export default function ThailandPantiesMarketSite() {
         navigate(normalizedPostLoginRedirectPath);
         return;
       }
-      if (user.role === 'admin') {
+      if (hasAdminPanelAccess(user)) {
         navigate('/admin');
         return;
       }
@@ -6873,7 +6974,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function setSellerBarAffiliationByAdmin(sellerId, barId) {
-    if (!currentUser || currentUser.role !== 'admin' || !sellerId) return;
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.AFFILIATIONS_MANAGE) || !sellerId) return;
     const normalizedBarId = String(barId || '').trim();
     const barExists = !normalizedBarId || (bars || []).some((bar) => bar.id === normalizedBarId);
     if (!barExists) return;
@@ -6933,7 +7034,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function removeBarByAdmin(barId) {
-    if (!currentUser || currentUser.role !== 'admin' || !barId) return;
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.AFFILIATIONS_MANAGE) || !barId) return;
     const now = new Date().toISOString();
     setDb((prev) => ({
       ...prev,
@@ -6959,9 +7060,9 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function toggleAdminBlockUser(userId) {
-    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.USERS_BLOCK)) return;
     const target = users.find((user) => user.id === userId);
-    if (!target || target.role === 'admin') return;
+    if (!target || resolveAdminAccess(target).level === 'super') return;
     const isBlocked = target.accountStatus === 'blocked';
     const now = new Date().toISOString();
     setDb((prev) => ({
@@ -7019,8 +7120,8 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function updateUserCredentialsByAdmin(userId, { newEmail, newPassword } = {}) {
-    if (!currentUser || currentUser.role !== 'admin') {
-      return { ok: false, error: 'Admin role is required.' };
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.USERS_CREDENTIALS_MANAGE)) {
+      return { ok: false, error: 'Admin permission is required.' };
     }
     const normalizedUserId = String(userId || '').trim();
     const normalizedEmail = String(newEmail || '').trim().toLowerCase();
@@ -7086,6 +7187,60 @@ export default function ThailandPantiesMarketSite() {
       )),
     }));
     return { ok: true, message: 'User credentials updated.' };
+  }
+
+  async function updateUserAdminAccessBySuperAdmin(userId, { enabled, scopes } = {}) {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.USERS_ADMIN_ACCESS_MANAGE)) {
+      return { ok: false, error: 'Super admin permission is required.' };
+    }
+    const normalizedUserId = String(userId || '').trim();
+    if (!normalizedUserId) {
+      return { ok: false, error: 'User id is required.' };
+    }
+    const nextEnabled = enabled === true;
+    const nextScopes = Array.isArray(scopes)
+      ? scopes.map((entry) => String(entry || '').trim()).filter((scope) => KNOWN_ADMIN_SCOPES.has(scope))
+      : [];
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const { ok, payload } = await apiRequestJson(`/api/admin/users/${encodeURIComponent(normalizedUserId)}/admin-access`, {
+        method: 'POST',
+        body: {
+          enabled: nextEnabled,
+          scopes: nextScopes,
+        },
+      });
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Could not update delegated admin access.') };
+      }
+      const nextUser = payload?.user || null;
+      if (nextUser?.id) {
+        setDb((prev) => ({
+          ...prev,
+          users: (prev.users || []).map((user) => (
+            user.id === nextUser.id
+              ? { ...user, ...nextUser }
+              : user
+          )),
+        }));
+      }
+      return { ok: true, message: String(payload?.message || 'Delegated admin access updated.'), user: nextUser };
+    }
+
+    setDb((prev) => ({
+      ...prev,
+      users: (prev.users || []).map((user) => {
+        if (user.id !== normalizedUserId) return user;
+        const role = String(user?.role || '').trim().toLowerCase();
+        if (!['seller', 'bar'].includes(role)) return user;
+        return {
+          ...user,
+          adminAccess: nextEnabled
+            ? { enabled: true, level: 'limited', scopes: nextScopes }
+            : { enabled: false, level: 'none', scopes: [] },
+        };
+      }),
+    }));
+    return { ok: true, message: nextEnabled ? 'Delegated admin access updated.' : 'Delegated admin access removed.' };
   }
 
   function logout() {
@@ -8721,8 +8876,8 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function updateOrderHelpRequestStatus(requestId, nextStatus, note, onSuccess, onError) {
-    if (!currentUser || currentUser.role !== 'admin') {
-      onError?.('Only admin can update order help requests.');
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.DISPUTES_REVIEW)) {
+      onError?.('Insufficient admin permissions.');
       return;
     }
     if (!requestId || !['submitted', 'in_review', 'resolved'].includes(nextStatus)) {
@@ -10670,7 +10825,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function updatePromptPayReceiverMobile(nextMobileValue) {
-    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.PAYMENTS_MANAGE)) return;
     const sanitized = String(nextMobileValue || '').replace(/[^\d+]/g, '').trim();
     if (backendStatus === 'connected' && apiAuthToken) {
       const { ok, payload } = await apiRequestJson('/api/admin/site-settings/promptpay', {
@@ -10694,7 +10849,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function createMonthlyPayoutRun(monthValue, notes = '') {
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.PAYMENTS_MANAGE)) {
       return { ok: false, error: 'Admin access required.' };
     }
     if (backendStatus === 'connected' && apiAuthToken) {
@@ -10830,7 +10985,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function markPayoutItemSent(payoutItemId, { method = 'bank_transfer', externalReference = '', notes = '' } = {}) {
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.PAYMENTS_MANAGE)) {
       return { ok: false, error: 'Admin access required.' };
     }
     const normalizedReference = String(externalReference || '').trim();
@@ -10952,7 +11107,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function markPayoutItemFailed(payoutItemId, reason = '') {
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.PAYMENTS_MANAGE)) {
       return { ok: false, error: 'Admin access required.' };
     }
     if (backendStatus === 'connected' && apiAuthToken) {
@@ -12766,8 +12921,8 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function updateRefundClaimDecision(claimId, decision, note = '', onSuccess, onError) {
-    if (!currentUser || currentUser.role !== 'admin') {
-      onError?.('Only admins can review refund claims.');
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.DISPUTES_REVIEW)) {
+      onError?.('Insufficient admin permissions.');
       return;
     }
     if (!claimId || !['approved', 'rejected'].includes(decision)) {
@@ -12941,7 +13096,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function updateAdminDisputeCase(caseKey, status, metadata = {}) {
-    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.DISPUTES_REVIEW)) return;
     if (!caseKey || !['new', 'investigating', 'pending_refund', 'resolved', 'rejected'].includes(status)) return;
     const updatedAt = new Date().toISOString();
     setDb((prev) => {
@@ -13006,7 +13161,10 @@ export default function ThailandPantiesMarketSite() {
     },
   ];
 
-  const isAdmin = currentUser?.role === 'admin';
+  const currentAdminAccess = resolveAdminAccess(currentUser);
+  const adminPermissions = buildAdminPermissions(currentUser);
+  const isAdmin = hasAdminPanelAccess(currentUser);
+  const isSuperAdmin = currentAdminAccess.level === 'super';
   const isSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'active';
   const isBar = currentUser?.role === 'bar' && currentUser?.accountStatus === 'active';
   const isPendingSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'pending';
@@ -14907,6 +15065,8 @@ export default function ThailandPantiesMarketSite() {
         {routeInfo.name === 'admin' ? (
           <AdminPage
             isAdmin={isAdmin}
+            isSuperAdmin={isSuperAdmin}
+            adminPermissions={adminPermissions}
             adminTab={adminTab}
             setAdminTab={setAdminTab}
             products={products}
@@ -14950,6 +15110,7 @@ export default function ThailandPantiesMarketSite() {
             removeBarByAdmin={removeBarByAdmin}
             toggleAdminBlockUser={toggleAdminBlockUser}
             updateUserCredentialsByAdmin={updateUserCredentialsByAdmin}
+            updateUserAdminAccessBySuperAdmin={updateUserAdminAccessBySuperAdmin}
             adminUserSearch={adminUserSearch}
             setAdminUserSearch={setAdminUserSearch}
             adminUserResults={adminUserResults}
