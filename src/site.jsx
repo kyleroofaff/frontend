@@ -4234,7 +4234,7 @@ export default function ThailandPantiesMarketSite() {
   const currentUser = users.find((u) => u.id === session.userId) || null;
   const uiLanguage = ['en', 'th', 'my', 'ru'].includes(currentUser?.preferredLanguage)
     ? currentUser.preferredLanguage
-    : 'en';
+    : authLanguage;
   const rawProducts = db.products;
   const rawSellerPosts = db.sellerPosts || [];
   const products = useMemo(
@@ -13094,6 +13094,24 @@ export default function ThailandPantiesMarketSite() {
         >
         {routeInfo.name === 'home' ? (
           <>
+            <section className="mx-auto max-w-7xl px-6 pt-8 md:pt-10">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                  {loginText.language}
+                </label>
+                <select
+                  value={authLanguage}
+                  onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                  aria-label={loginText.language}
+                >
+                  <option value="en">{localizeOptionLabel("English", uiLanguage)}</option>
+                  <option value="th">{localizeOptionLabel("Thai", uiLanguage)}</option>
+                  <option value="my">{localizeOptionLabel("Burmese", uiLanguage)}</option>
+                  <option value="ru">{localizeOptionLabel("Russian", uiLanguage)}</option>
+                </select>
+              </div>
+            </section>
             <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.2fr_0.8fr] md:py-24">
               <div className="flex flex-col justify-center">
                 <h1 className="max-w-xl text-4xl font-bold tracking-tight text-slate-900 md:text-6xl">
@@ -13431,6 +13449,24 @@ export default function ThailandPantiesMarketSite() {
                   </div>
                 </div>
               ) : null}
+            </section>
+            <section className="mx-auto max-w-7xl px-6 pb-12 md:pb-16">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                  {loginText.language}
+                </label>
+                <select
+                  value={authLanguage}
+                  onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                  aria-label={loginText.language}
+                >
+                  <option value="en">{localizeOptionLabel("English", uiLanguage)}</option>
+                  <option value="th">{localizeOptionLabel("Thai", uiLanguage)}</option>
+                  <option value="my">{localizeOptionLabel("Burmese", uiLanguage)}</option>
+                  <option value="ru">{localizeOptionLabel("Russian", uiLanguage)}</option>
+                </select>
+              </div>
             </section>
           </>
         ) : null}
