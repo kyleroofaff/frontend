@@ -4039,6 +4039,15 @@ export default function ThailandPantiesMarketSite() {
     timeFormat: '12h',
   });
   const [accountSaveMessage, setAccountSaveMessage] = useState('');
+  const [accountCredentialForm, setAccountCredentialForm] = useState({
+    currentPassword: '',
+    newEmail: '',
+    newPassword: '',
+    confirmNewPassword: '',
+  });
+  const [accountCredentialSaving, setAccountCredentialSaving] = useState(false);
+  const [accountCredentialMessage, setAccountCredentialMessage] = useState('');
+  const [accountCredentialTone, setAccountCredentialTone] = useState('neutral');
   const [accountSearchQuery, setAccountSearchQuery] = useState('');
   const [adminUserSearch, setAdminUserSearch] = useState('');
   useEffect(() => {
@@ -5845,6 +5854,14 @@ export default function ThailandPantiesMarketSite() {
       hobbies: currentUser?.hobbies || '',
       timeFormat: normalizeTimeFormat(currentUser?.timeFormat),
     });
+    setAccountCredentialForm({
+      currentPassword: '',
+      newEmail: currentUser?.email || '',
+      newPassword: '',
+      confirmNewPassword: '',
+    });
+    setAccountCredentialMessage('');
+    setAccountCredentialTone('neutral');
   }, [currentUser]);
 
   useEffect(() => {
@@ -5854,6 +5871,15 @@ export default function ThailandPantiesMarketSite() {
     }, 2500);
     return () => clearTimeout(timeoutId);
   }, [accountSaveMessage]);
+
+  useEffect(() => {
+    if (!accountCredentialMessage) return undefined;
+    const timeoutId = setTimeout(() => {
+      setAccountCredentialMessage('');
+      setAccountCredentialTone('neutral');
+    }, 4000);
+    return () => clearTimeout(timeoutId);
+  }, [accountCredentialMessage]);
 
   useEffect(() => {
     const nextTimeFormat = currentUser?.role === 'buyer'
@@ -7014,6 +7040,76 @@ export default function ThailandPantiesMarketSite() {
         },
       ],
     }));
+  }
+
+  async function updateUserCredentialsByAdmin(userId, { newEmail, newPassword } = {}) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin role is required.' };
+    }
+    const normalizedUserId = String(userId || '').trim();
+    const normalizedEmail = String(newEmail || '').trim().toLowerCase();
+    const normalizedPassword = String(newPassword || '');
+    const hasEmail = Boolean(normalizedEmail);
+    const hasPassword = Boolean(normalizedPassword);
+    if (!normalizedUserId || (!hasEmail && !hasPassword)) {
+      return { ok: false, error: 'Provide a new email or new password.' };
+    }
+    if (hasEmail && !normalizedEmail.includes('@')) {
+      return { ok: false, error: 'Enter a valid email address.' };
+    }
+    if (hasPassword) {
+      const hasNumber = /\d/.test(normalizedPassword);
+      const hasSymbol = /[^A-Za-z0-9]/.test(normalizedPassword);
+      if (normalizedPassword.length < 8 || !hasNumber || !hasSymbol) {
+        return { ok: false, error: registerText.passwordPolicyError || 'Password must be at least 8 characters and include at least 1 number and 1 symbol.' };
+      }
+    }
+
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const { ok, payload } = await apiRequestJson(`/api/admin/users/${encodeURIComponent(normalizedUserId)}/credentials`, {
+        method: 'POST',
+        body: {
+          ...(hasEmail ? { newEmail: normalizedEmail } : {}),
+          ...(hasPassword ? { newPassword: normalizedPassword } : {}),
+        },
+      });
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Could not update user credentials right now.') };
+      }
+      const nextUser = payload?.user || null;
+      if (nextUser?.id) {
+        setDb((prev) => ({
+          ...prev,
+          users: (prev.users || []).map((user) => (
+            user.id === nextUser.id
+              ? { ...user, ...nextUser }
+              : user
+          )),
+        }));
+      }
+      return { ok: true, message: String(payload?.message || 'User credentials updated.') };
+    }
+
+    const duplicateEmail = hasEmail && users.some((user) => (
+      user.id !== normalizedUserId
+      && String(user.email || '').trim().toLowerCase() === normalizedEmail
+    ));
+    if (duplicateEmail) {
+      return { ok: false, error: registerText.emailExistsError || 'This email is already registered.' };
+    }
+    setDb((prev) => ({
+      ...prev,
+      users: (prev.users || []).map((user) => (
+        user.id === normalizedUserId
+          ? {
+              ...user,
+              ...(hasEmail ? { email: normalizedEmail } : {}),
+              ...(hasPassword ? { password: normalizedPassword } : {}),
+            }
+          : user
+      )),
+    }));
+    return { ok: true, message: 'User credentials updated.' };
   }
 
   function logout() {
@@ -8270,6 +8366,126 @@ export default function ThailandPantiesMarketSite() {
       setStoredTimeFormat(normalizedTimeFormat);
     }
     setAccountSaveMessage('Account details saved successfully.');
+  }
+
+  async function submitAccountCredentialChanges() {
+    if (!currentUser || accountCredentialSaving) return;
+    const currentPassword = String(accountCredentialForm.currentPassword || '');
+    const newEmail = String(accountCredentialForm.newEmail || '').trim().toLowerCase();
+    const newPassword = String(accountCredentialForm.newPassword || '');
+    const confirmNewPassword = String(accountCredentialForm.confirmNewPassword || '');
+    const hasEmailChange = Boolean(newEmail) && newEmail !== String(currentUser.email || '').trim().toLowerCase();
+    const hasPasswordChange = Boolean(newPassword);
+    if (!hasEmailChange && !hasPasswordChange) {
+      setAccountCredentialTone('error');
+      setAccountCredentialMessage('Add a new email or new password to save credential changes.');
+      return;
+    }
+    if (!currentPassword) {
+      setAccountCredentialTone('error');
+      setAccountCredentialMessage('Enter your current password to confirm these changes.');
+      return;
+    }
+    if (hasEmailChange && !newEmail.includes('@')) {
+      setAccountCredentialTone('error');
+      setAccountCredentialMessage('Enter a valid email address.');
+      return;
+    }
+    if (hasPasswordChange) {
+      const hasNumber = /\d/.test(newPassword);
+      const hasSymbol = /[^A-Za-z0-9]/.test(newPassword);
+      if (newPassword.length < 8 || !hasNumber || !hasSymbol) {
+        setAccountCredentialTone('error');
+        setAccountCredentialMessage(registerText.passwordPolicyError || 'Password must be at least 8 characters and include at least 1 number and 1 symbol.');
+        return;
+      }
+      if (newPassword !== confirmNewPassword) {
+        setAccountCredentialTone('error');
+        setAccountCredentialMessage(registerText.passwordMismatchError || 'Passwords do not match.');
+        return;
+      }
+    }
+    setAccountCredentialSaving(true);
+    setAccountCredentialMessage('');
+    setAccountCredentialTone('neutral');
+    try {
+      if (backendStatus === 'connected' && apiAuthToken) {
+        const { ok, payload } = await apiRequestJson('/api/auth/account-credentials', {
+          method: 'POST',
+          body: {
+            currentPassword,
+            ...(hasEmailChange ? { newEmail } : {}),
+            ...(hasPasswordChange ? { newPassword } : {}),
+          },
+        });
+        if (!ok) {
+          setAccountCredentialTone('error');
+          setAccountCredentialMessage(String(payload?.error || 'Could not update credentials right now.'));
+          return;
+        }
+        const nextUser = payload?.user || null;
+        if (nextUser?.id) {
+          setDb((prev) => ({
+            ...prev,
+            users: (prev.users || []).map((user) => (
+              user.id === nextUser.id
+                ? { ...user, ...nextUser }
+                : user
+            )),
+          }));
+          setAccountForm((prev) => ({ ...prev, email: nextUser.email || prev.email }));
+          setAccountCredentialForm({
+            currentPassword: '',
+            newEmail: nextUser.email || '',
+            newPassword: '',
+            confirmNewPassword: '',
+          });
+        }
+        setAccountCredentialTone('success');
+        setAccountCredentialMessage(String(payload?.message || 'Account credentials updated.'));
+        return;
+      }
+
+      const duplicateEmail = hasEmailChange && users.some((user) => (
+        user.id !== currentUser.id
+        && String(user.email || '').trim().toLowerCase() === newEmail
+      ));
+      if (duplicateEmail) {
+        setAccountCredentialTone('error');
+        setAccountCredentialMessage(registerText.emailExistsError || 'This email is already registered.');
+        return;
+      }
+      if (String(currentUser.password || '') !== currentPassword) {
+        setAccountCredentialTone('error');
+        setAccountCredentialMessage('Current password is incorrect.');
+        return;
+      }
+      setDb((prev) => ({
+        ...prev,
+        users: (prev.users || []).map((user) => (
+          user.id === currentUser.id
+            ? {
+                ...user,
+                ...(hasEmailChange ? { email: newEmail } : {}),
+                ...(hasPasswordChange ? { password: newPassword } : {}),
+              }
+            : user
+        )),
+      }));
+      if (hasEmailChange) {
+        setAccountForm((prev) => ({ ...prev, email: newEmail }));
+      }
+      setAccountCredentialForm((prev) => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: '',
+      }));
+      setAccountCredentialTone('success');
+      setAccountCredentialMessage('Account credentials updated.');
+    } finally {
+      setAccountCredentialSaving(false);
+    }
   }
 
   function submitRefundEvidence(payload, onSuccess, onError) {
@@ -14035,6 +14251,56 @@ export default function ThailandPantiesMarketSite() {
                     </select>
                   </label>
                 </div>
+                <div className="mb-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                  <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
+                  <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <input
+                      type="password"
+                      value={accountCredentialForm.currentPassword}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder="Current password"
+                    />
+                    <input
+                      type="email"
+                      value={accountCredentialForm.newEmail}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder="New email"
+                    />
+                    <input
+                      type="password"
+                      value={accountCredentialForm.newPassword}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder="New password"
+                    />
+                    <input
+                      type="password"
+                      value={accountCredentialForm.confirmNewPassword}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder={registerText.confirmPassword || 'Confirm password'}
+                    />
+                  </div>
+                  <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={submitAccountCredentialChanges}
+                      disabled={accountCredentialSaving}
+                      className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
+                    >
+                      {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
+                    </button>
+                    {accountCredentialMessage ? (
+                      <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
+                        {accountCredentialMessage}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
                 {currentBarProfile ? (
                   <div className="mt-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                     <BarQrCard bar={currentBarProfile} />
@@ -14347,7 +14613,60 @@ export default function ThailandPantiesMarketSite() {
         ) : null}
 
         {routeInfo.name === 'account' && currentUser?.role === 'seller' ? (
-          <SellerDashboardPage
+          <>
+            <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
+                <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <input
+                    type="password"
+                    value={accountCredentialForm.currentPassword}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder="Current password"
+                  />
+                  <input
+                    type="email"
+                    value={accountCredentialForm.newEmail}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder="New email"
+                  />
+                  <input
+                    type="password"
+                    value={accountCredentialForm.newPassword}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder="New password"
+                  />
+                  <input
+                    type="password"
+                    value={accountCredentialForm.confirmNewPassword}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder={registerText.confirmPassword || 'Confirm password'}
+                  />
+                </div>
+                <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={submitAccountCredentialChanges}
+                    disabled={accountCredentialSaving}
+                    className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
+                  >
+                    {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
+                  </button>
+                  {accountCredentialMessage ? (
+                    <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
+                      {accountCredentialMessage}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </section>
+            <SellerDashboardPage
             isSeller={isSeller}
             isPendingSeller={isPendingSeller}
             isRejectedSeller={isRejectedSeller}
@@ -14422,6 +14741,7 @@ export default function ThailandPantiesMarketSite() {
             sendCustomRequestMessage={sendCustomRequestMessage}
             navigate={navigate}
           />
+          </>
         ) : null}
         {routeInfo.name === 'seller-messages' ? (
           <SellerMessagesPage
@@ -14654,6 +14974,7 @@ export default function ThailandPantiesMarketSite() {
             setSellerBarAffiliationByAdmin={setSellerBarAffiliationByAdmin}
             removeBarByAdmin={removeBarByAdmin}
             toggleAdminBlockUser={toggleAdminBlockUser}
+            updateUserCredentialsByAdmin={updateUserCredentialsByAdmin}
             adminUserSearch={adminUserSearch}
             setAdminUserSearch={setAdminUserSearch}
             adminUserResults={adminUserResults}
@@ -14813,7 +15134,7 @@ export default function ThailandPantiesMarketSite() {
                 <button
                   type="button"
                   onClick={() => setShowLoginPassword((prev) => !prev)}
-                  className="text-sm font-semibold text-rose-700 hover:text-rose-800"
+                  className="block text-sm font-semibold text-rose-700 hover:text-rose-800"
                   aria-label={showLoginPassword ? loginText.hidePassword : loginText.showPassword}
                 >
                   {showLoginPassword ? loginText.hidePassword : loginText.showPassword}
@@ -14822,7 +15143,7 @@ export default function ThailandPantiesMarketSite() {
                   type="button"
                   onClick={resendVerificationEmailForLogin}
                   disabled={authResendVerificationSending}
-                  className={`text-left text-sm font-semibold text-rose-700 hover:text-rose-800 ${
+                  className={`block text-left text-sm font-semibold text-rose-700 hover:text-rose-800 ${
                     authResendVerificationSending ? 'cursor-not-allowed opacity-60' : ''
                   }`}
                 >
@@ -15009,7 +15330,60 @@ export default function ThailandPantiesMarketSite() {
         ) : null}
 
         {routeInfo.name === 'account' && currentUser?.role !== 'seller' && currentUser?.role !== 'bar' ? (
-          <AccountPage
+          <>
+            <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
+                <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <input
+                    type="password"
+                    value={accountCredentialForm.currentPassword}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder="Current password"
+                  />
+                  <input
+                    type="email"
+                    value={accountCredentialForm.newEmail}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder="New email"
+                  />
+                  <input
+                    type="password"
+                    value={accountCredentialForm.newPassword}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder="New password"
+                  />
+                  <input
+                    type="password"
+                    value={accountCredentialForm.confirmNewPassword}
+                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                    placeholder={registerText.confirmPassword || 'Confirm password'}
+                  />
+                </div>
+                <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={submitAccountCredentialChanges}
+                    disabled={accountCredentialSaving}
+                    className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
+                  >
+                    {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
+                  </button>
+                  {accountCredentialMessage ? (
+                    <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
+                      {accountCredentialMessage}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </section>
+            <AccountPage
             currentUser={currentUser}
             buyerOrders={buyerOrders}
             recentBuyerOrders={recentBuyerOrders}
@@ -15067,6 +15441,7 @@ export default function ThailandPantiesMarketSite() {
             uiLanguage={uiLanguage}
             navigate={navigate}
           />
+          </>
         ) : null}
         {routeInfo.name === 'appeals' ? (
           <AppealsPage

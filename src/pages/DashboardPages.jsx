@@ -4229,6 +4229,7 @@ export function AdminPage({
   setSellerBarAffiliationByAdmin,
   removeBarByAdmin,
   toggleAdminBlockUser,
+  updateUserCredentialsByAdmin,
   adminUserSearch,
   setAdminUserSearch,
   adminUserResults,
@@ -4334,6 +4335,14 @@ export function AdminPage({
   const [inboxActionMessage, setInboxActionMessage] = useState("");
   const [adminWorkspaceMode, setAdminWorkspaceMode] = useState("all");
   const [adminUserNoteDraft, setAdminUserNoteDraft] = useState("");
+  const [adminUserMessageDraftByUserId, setAdminUserMessageDraftByUserId] = useState({});
+  const [adminUserMessageSending, setAdminUserMessageSending] = useState(false);
+  const [adminUserMessageStatus, setAdminUserMessageStatus] = useState("");
+  const [adminUserMessageTone, setAdminUserMessageTone] = useState("neutral");
+  const [adminCredentialDraftByUserId, setAdminCredentialDraftByUserId] = useState({});
+  const [adminCredentialSaving, setAdminCredentialSaving] = useState(false);
+  const [adminCredentialMessage, setAdminCredentialMessage] = useState("");
+  const [adminCredentialTone, setAdminCredentialTone] = useState("neutral");
   const [orderShipmentDrafts, setOrderShipmentDrafts] = useState({});
   const [orderHelpNoteDraftByItemKey, setOrderHelpNoteDraftByItemKey] = useState({});
   const [barDraftsById, setBarDraftsById] = useState({});
@@ -5949,6 +5958,195 @@ export function AdminPage({
     setAdminUserNoteDraft(adminNoteByEntityKey[`user:${adminSelectedUser.id}`]?.body || "");
   }, [adminSelectedUser?.id, adminNoteByEntityKey]);
   useEffect(() => {
+    if (!adminCredentialMessage) return undefined;
+    const timerId = window.setTimeout(() => {
+      setAdminCredentialMessage("");
+      setAdminCredentialTone("neutral");
+    }, 4000);
+    return () => window.clearTimeout(timerId);
+  }, [adminCredentialMessage]);
+  useEffect(() => {
+    if (!adminUserMessageStatus || adminUserMessageSending) return undefined;
+    const timerId = window.setTimeout(() => {
+      setAdminUserMessageStatus("");
+      setAdminUserMessageTone("neutral");
+    }, 5000);
+    return () => window.clearTimeout(timerId);
+  }, [adminUserMessageStatus, adminUserMessageSending]);
+  const selectedCredentialDraft = adminSelectedUser?.id
+    ? (adminCredentialDraftByUserId[adminSelectedUser.id] || {
+        newEmail: adminSelectedUser?.email || "",
+        newPassword: "",
+        confirmPassword: "",
+      })
+    : { newEmail: "", newPassword: "", confirmPassword: "" };
+  const setSelectedCredentialDraft = (patch = {}) => {
+    if (!adminSelectedUser?.id) return;
+    setAdminCredentialDraftByUserId((prev) => ({
+      ...prev,
+      [adminSelectedUser.id]: {
+        ...(prev[adminSelectedUser.id] || {
+          newEmail: adminSelectedUser?.email || "",
+          newPassword: "",
+          confirmPassword: "",
+        }),
+        ...patch,
+      },
+    }));
+  };
+  const submitSelectedUserCredentialUpdate = async () => {
+    if (!adminSelectedUser?.id || !updateUserCredentialsByAdmin || adminCredentialSaving) return;
+    const newEmail = String(selectedCredentialDraft.newEmail || "").trim();
+    const newPassword = String(selectedCredentialDraft.newPassword || "");
+    const confirmPassword = String(selectedCredentialDraft.confirmPassword || "");
+    const hasEmailChange = newEmail && newEmail.toLowerCase() !== String(adminSelectedUser.email || "").trim().toLowerCase();
+    const hasPasswordChange = Boolean(newPassword);
+    if (!hasEmailChange && !hasPasswordChange) {
+      setAdminCredentialTone("error");
+      setAdminCredentialMessage("Add a new email or password to update credentials.");
+      return;
+    }
+    if (hasPasswordChange && newPassword !== confirmPassword) {
+      setAdminCredentialTone("error");
+      setAdminCredentialMessage("Passwords do not match.");
+      return;
+    }
+    setAdminCredentialSaving(true);
+    const result = await updateUserCredentialsByAdmin(adminSelectedUser.id, {
+      ...(hasEmailChange ? { newEmail } : {}),
+      ...(hasPasswordChange ? { newPassword } : {}),
+    });
+    setAdminCredentialSaving(false);
+    if (!result?.ok) {
+      setAdminCredentialTone("error");
+      setAdminCredentialMessage(String(result?.error || "Could not update user credentials."));
+      return;
+    }
+    setSelectedCredentialDraft({
+      ...(hasEmailChange ? { newEmail } : {}),
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setAdminCredentialTone("success");
+    setAdminCredentialMessage(String(result?.message || "User credentials updated."));
+  };
+  const selectedUserMessageDraft = adminSelectedUser?.id
+    ? (adminUserMessageDraftByUserId[adminSelectedUser.id] || {
+        templateKey: "",
+        subject: "",
+        body: "",
+        ccAdminInbox: false,
+      })
+    : { templateKey: "", subject: "", body: "", ccAdminInbox: false };
+  const USER_MESSAGE_TEMPLATE_OPTIONS = [
+    {
+      key: "policy_reminder",
+      label: "Policy reminder",
+      subject: "Important policy reminder from support",
+      body: "Hi {name},\n\nThis is a reminder to follow community and messaging policies while using the platform.\n\nIf you have any questions, reply to this email and our team can help.\n\nThank you,\nAdmin team",
+    },
+    {
+      key: "account_update",
+      label: "Account update required",
+      subject: "Action needed on your account",
+      body: "Hi {name},\n\nWe need you to review and update some account details.\n\nPlease log in and check your account dashboard. If you need help, reply to this email.\n\nThank you,\nAdmin team",
+    },
+    {
+      key: "warning_notice",
+      label: "Warning notice",
+      subject: "Warning notice regarding account activity",
+      body: "Hi {name},\n\nWe noticed activity that may violate platform rules.\n\nPlease correct this immediately to avoid further account restrictions.\n\nIf you believe this is a mistake, reply and we will review.\n\nAdmin team",
+    },
+  ];
+  const applyTemplateToSelectedUserMessage = (templateKey) => {
+    const selectedTemplate = USER_MESSAGE_TEMPLATE_OPTIONS.find((entry) => entry.key === templateKey) || null;
+    if (!selectedTemplate) {
+      setSelectedUserMessageDraft({ templateKey: "", subject: "", body: "" });
+      return;
+    }
+    const name = String(adminSelectedUser?.name || "there").trim() || "there";
+    const interpolatedBody = String(selectedTemplate.body || "").replaceAll("{name}", name);
+    setSelectedUserMessageDraft({
+      templateKey: selectedTemplate.key,
+      subject: selectedTemplate.subject,
+      body: interpolatedBody,
+    });
+  };
+  const setSelectedUserMessageDraft = (patch = {}) => {
+    if (!adminSelectedUser?.id) return;
+    setAdminUserMessageDraftByUserId((prev) => ({
+      ...prev,
+      [adminSelectedUser.id]: {
+        ...(prev[adminSelectedUser.id] || { templateKey: "", subject: "", body: "", ccAdminInbox: false }),
+        ...patch,
+      },
+    }));
+  };
+  const sendMessageToSelectedUser = async () => {
+    if (!adminSelectedUser?.id || !sendAdminEmailInboxMessage || adminUserMessageSending) return;
+    const toEmail = String(adminSelectedUser.email || "").trim();
+    const subject = String(selectedUserMessageDraft.subject || "").trim();
+    const body = String(selectedUserMessageDraft.body || "").trim();
+    if (!toEmail || !toEmail.includes("@")) {
+      setAdminUserMessageTone("error");
+      setAdminUserMessageStatus("Selected user does not have a valid email address.");
+      return;
+    }
+    if (!subject || !body) {
+      setAdminUserMessageTone("error");
+      setAdminUserMessageStatus("Add both subject and message body before sending.");
+      return;
+    }
+    setAdminUserMessageSending(true);
+    setAdminUserMessageTone("neutral");
+    setAdminUserMessageStatus("");
+    try {
+      const result = await Promise.resolve(sendAdminEmailInboxMessage({
+        mailbox: "admin",
+        toEmail,
+        toName: String(adminSelectedUser.name || ""),
+        subject,
+        body,
+      }));
+      if (!result?.ok) {
+        setAdminUserMessageTone("error");
+        setAdminUserMessageStatus(String(result?.error || "Could not send message."));
+        return;
+      }
+      if (selectedUserMessageDraft.ccAdminInbox) {
+        const adminAuditEmail = "admin@thailandpanties.com";
+        const ccSubject = `[Copy] ${subject}`;
+        const ccBody = [
+          `Original recipient: ${toEmail}`,
+          `Recipient name: ${String(adminSelectedUser.name || "").trim() || "N/A"}`,
+          "",
+          "----- Original message -----",
+          body,
+        ].join("\n");
+        const ccResult = await Promise.resolve(sendAdminEmailInboxMessage({
+          mailbox: "admin",
+          toEmail: adminAuditEmail,
+          toName: "Admin Inbox",
+          subject: ccSubject,
+          body: ccBody,
+        }));
+        if (!ccResult?.ok) {
+          setAdminUserMessageTone("error");
+          setAdminUserMessageStatus(`User message sent, but admin copy failed: ${String(ccResult?.error || "unknown error")}`);
+          return;
+        }
+      }
+      setSelectedUserMessageDraft({ templateKey: "", subject: "", body: "" });
+      setAdminUserMessageTone("success");
+      setAdminUserMessageStatus(selectedUserMessageDraft.ccAdminInbox ? "Message sent and copied to admin inbox." : "Message sent.");
+    } catch {
+      setAdminUserMessageTone("error");
+      setAdminUserMessageStatus("Could not send message.");
+    } finally {
+      setAdminUserMessageSending(false);
+    }
+  };
+  useEffect(() => {
     const nextDrafts = {};
     (bars || []).forEach((bar) => {
       nextDrafts[bar.id] = {
@@ -6596,6 +6794,106 @@ export function AdminPage({
                         Active strikes: <span className="font-semibold">{activeStrikesByUserId[adminSelectedUser.id] || 0}</span>
                         {" · "}
                         Appeals: <span className="font-semibold">{pendingAppeals.filter((appeal) => appeal.userId === adminSelectedUser.id).length} pending</span>
+                      </div>
+                      <div className="mt-4 rounded-2xl border border-rose-100 p-4">
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Credentials</div>
+                        <p className="mt-1 text-sm text-slate-600">Admins can update this user's email and password.</p>
+                        <div className="mt-3 grid gap-2 md:grid-cols-2">
+                          <input
+                            type="email"
+                            value={selectedCredentialDraft.newEmail}
+                            onChange={(event) => setSelectedCredentialDraft({ newEmail: event.target.value })}
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                            placeholder="New email"
+                          />
+                          <input
+                            type="password"
+                            value={selectedCredentialDraft.newPassword}
+                            onChange={(event) => setSelectedCredentialDraft({ newPassword: event.target.value })}
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                            placeholder="New password"
+                          />
+                          <input
+                            type="password"
+                            value={selectedCredentialDraft.confirmPassword}
+                            onChange={(event) => setSelectedCredentialDraft({ confirmPassword: event.target.value })}
+                            className="rounded-xl border border-slate-200 px-3 py-2 text-sm md:col-span-2"
+                            placeholder="Confirm new password"
+                          />
+                        </div>
+                        <div className="mt-2 text-xs text-slate-500">Password policy: at least 8 characters, 1 number, and 1 symbol.</div>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <button
+                            onClick={submitSelectedUserCredentialUpdate}
+                            disabled={adminCredentialSaving}
+                            className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${adminCredentialSaving ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                          >
+                            {adminCredentialSaving ? "Updating..." : "Update credentials"}
+                          </button>
+                          {adminCredentialMessage ? (
+                            <div className={`text-xs font-semibold ${adminCredentialTone === "error" ? "text-rose-700" : adminCredentialTone === "success" ? "text-emerald-700" : "text-slate-700"}`}>
+                              {adminCredentialMessage}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="mt-4 rounded-2xl border border-rose-100 p-4">
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Message user</div>
+                        <p className="mt-1 text-sm text-slate-600">Send an email to this user without leaving Users and Appeals.</p>
+                        <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                          To: <span className="font-semibold text-slate-800">{adminSelectedUser.email || "No email set"}</span>
+                        </div>
+                        <div className="mt-3">
+                          <label className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            Template
+                          </label>
+                          <select
+                            value={selectedUserMessageDraft.templateKey || ""}
+                            onChange={(event) => applyTemplateToSelectedUserMessage(event.target.value)}
+                            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          >
+                            <option value="">No template (custom message)</option>
+                            {USER_MESSAGE_TEMPLATE_OPTIONS.map((template) => (
+                              <option key={template.key} value={template.key}>{template.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <input
+                          type="text"
+                          value={selectedUserMessageDraft.subject}
+                          onChange={(event) => setSelectedUserMessageDraft({ subject: event.target.value })}
+                          className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          placeholder="Email subject"
+                        />
+                        <textarea
+                          value={selectedUserMessageDraft.body}
+                          onChange={(event) => setSelectedUserMessageDraft({ body: event.target.value })}
+                          className="mt-2 min-h-[110px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          placeholder="Write your message"
+                        />
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <label className="mr-2 inline-flex items-center gap-2 text-xs text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(selectedUserMessageDraft.ccAdminInbox)}
+                              onChange={(event) => setSelectedUserMessageDraft({ ccAdminInbox: event.target.checked })}
+                              className="h-4 w-4 rounded border-slate-300"
+                            />
+                            CC to admin inbox
+                          </label>
+                          <button
+                            onClick={sendMessageToSelectedUser}
+                            disabled={adminUserMessageSending}
+                            className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${adminUserMessageSending ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                          >
+                            {adminUserMessageSending ? "Sending..." : "Send message"}
+                          </button>
+                          {adminUserMessageStatus ? (
+                            <div className={`text-xs font-semibold ${adminUserMessageTone === "error" ? "text-rose-700" : adminUserMessageTone === "success" ? "text-emerald-700" : "text-slate-700"}`}>
+                              {adminUserMessageStatus}
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
                       <div className="mt-4 rounded-2xl border border-rose-100 p-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Admin notes</div>
