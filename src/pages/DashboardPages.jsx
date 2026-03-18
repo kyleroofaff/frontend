@@ -5912,6 +5912,12 @@ export function AdminPage({
   const selectedSellerQuality = adminSelectedUser?.role === "seller"
     ? sellerQualityByUserId[adminSelectedUser.id]
     : null;
+  const selectedSellerProfile = adminSelectedUser?.role === "seller"
+    ? (sellers || []).find((seller) => seller.id === adminSelectedUser.sellerId)
+    : null;
+  const selectedSellerAffiliatedBar = selectedSellerProfile?.affiliatedBarId
+    ? (bars || []).find((bar) => bar.id === selectedSellerProfile.affiliatedBarId)
+    : null;
   const openPostReportCount = unresolvedReports.length;
   const openCommentReportCount = unresolvedCommentReports.length;
   const openMessageReportCount = unresolvedMessageReports.length;
@@ -6795,6 +6801,33 @@ export function AdminPage({
                         {" · "}
                         Appeals: <span className="font-semibold">{pendingAppeals.filter((appeal) => appeal.userId === adminSelectedUser.id).length} pending</span>
                       </div>
+                      {adminSelectedUser.role === "seller" ? (
+                        <div className="mt-4 rounded-2xl border border-rose-100 p-4">
+                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Bar affiliation</div>
+                          <p className="mt-1 text-sm text-slate-600">Assign this seller to a bar, move them, or set them back to independent.</p>
+                          <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                            Current: <span className="font-semibold text-slate-800">{selectedSellerAffiliatedBar?.name || "Independent"}</span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <select
+                              value={selectedSellerProfile?.affiliatedBarId || ""}
+                              onChange={(event) => setSellerBarAffiliationByAdmin?.(selectedSellerProfile?.id, event.target.value)}
+                              className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                            >
+                              <option value="">Set to Independent</option>
+                              {(bars || []).map((bar) => (
+                                <option key={bar.id} value={bar.id}>{bar.name}</option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => setSellerBarAffiliationByAdmin?.(selectedSellerProfile?.id, "")}
+                              className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+                            >
+                              Remove from bar
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
                       <div className="mt-4 rounded-2xl border border-rose-100 p-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Credentials</div>
                         <p className="mt-1 text-sm text-slate-600">Admins can update this user's email and password.</p>
