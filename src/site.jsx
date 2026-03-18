@@ -505,7 +505,7 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'Browse premium listings, use transparent filters, and message sellers in a respectful way to build real connections, with discreet worldwide shipping from Thailand.',
     browseListings: 'Browse Listings',
     meetSellers: 'Meet Sellers',
-    vettedSellers: 'Vetted sellers',
+    vettedSellers: 'Vetted sellers and bars',
     discreetShipping: 'Discreet shipping',
     buyerPrivacy: 'Buyer privacy',
     featuredSellers: 'Featured sellers',
@@ -639,7 +639,7 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'เลือกดูรายการพรีเมียม ใช้ตัวกรองที่โปร่งใส และส่งข้อความหาผู้ขายอย่างสุภาพ พร้อมการจัดส่งแบบเป็นส่วนตัวทั่วโลกจากประเทศไทย',
     browseListings: 'ดูรายการสินค้า',
     meetSellers: 'พบผู้ขาย',
-    vettedSellers: 'ผู้ขายที่ผ่านการคัดกรอง',
+    vettedSellers: 'ผู้ขายและบาร์ที่ผ่านการคัดกรอง',
     discreetShipping: 'จัดส่งแบบเป็นความลับ',
     buyerPrivacy: 'ความเป็นส่วนตัวของผู้ซื้อ',
     featuredSellers: 'ผู้ขายแนะนำ',
@@ -773,7 +773,7 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'premium listing များကို ကြည့်ရှုပါ၊ တိကျသော filter များဖြင့် ရှာဖွေပါ၊ seller များနှင့် လေးစားမှုရှိစွာ စကားပြောပါ၊ ထိုင်းမှ discreet worldwide shipping ဖြင့် ပို့ဆောင်ပေးပါသည်။',
     browseListings: 'Listing များကြည့်ရန်',
     meetSellers: 'Seller များတွေ့ရန်',
-    vettedSellers: 'စိစစ်ပြီးသော sellers',
+    vettedSellers: 'စိစစ်ပြီးသော sellers နှင့် bars',
     discreetShipping: 'လျှို့ဝှက်စနစ်ဖြင့် ပို့ဆောင်ခြင်း',
     buyerPrivacy: 'buyer ကိုယ်ရေးကိုယ်တာ',
     featuredSellers: 'ထူးခြား seller များ',
@@ -907,7 +907,7 @@ const PUBLIC_SITE_I18N = {
     heroSubtitle: 'Просматривайте премиальные листинги, используйте прозрачные фильтры и общайтесь с продавцами уважительно. Доступна скрытая доставка по миру из Таиланда.',
     browseListings: 'Смотреть листинги',
     meetSellers: 'Познакомиться с продавцами',
-    vettedSellers: 'Проверенные продавцы',
+    vettedSellers: 'Проверенные продавцы и бары',
     discreetShipping: 'Дискретная доставка',
     buyerPrivacy: 'Конфиденциальность покупателя',
     featuredSellers: 'Рекомендуемые продавцы',
@@ -6214,6 +6214,16 @@ export default function ThailandPantiesMarketSite() {
       .sort((a, b) => new Date(b.latestPost?.createdAt || 0).getTime() - new Date(a.latestPost?.createdAt || 0).getTime())
     return rotateAndTake(source, 6, homeBarsPreviewSeed);
   }, [barFeedPosts, localizedBarMap, barMap, homeBarsPreviewSeed]);
+  const vettedMarketplaceCountLabel = useMemo(() => {
+    const vettedCount = (users || []).filter((user) => {
+      const role = String(user?.role || '').trim().toLowerCase();
+      if (!['seller', 'bar'].includes(role)) return false;
+      return String(user?.accountStatus || 'active').trim().toLowerCase() === 'active';
+    }).length;
+    if (vettedCount <= 10) return '10+';
+    if (vettedCount <= 20) return '20+';
+    return `${Math.ceil(vettedCount / 10) * 10}+`;
+  }, [users]);
   const sellerDashboardPosts = useMemo(
     () => sellerAllPosts.filter((post) => post.sellerId === currentSellerId),
     [sellerAllPosts, currentSellerId],
@@ -13553,7 +13563,7 @@ export default function ThailandPantiesMarketSite() {
                   ) : null}
                 </div>
                 <div className="mt-10 grid max-w-lg grid-cols-3 gap-4">
-                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">120+</div><div className="text-sm text-slate-500">{publicText.vettedSellers}</div></div>
+                  <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">{vettedMarketplaceCountLabel}</div><div className="text-sm text-slate-500">{publicText.vettedSellers}</div></div>
                   <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Global</div><div className="text-sm text-slate-500">{publicText.discreetShipping}</div></div>
                   <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">Trusted</div><div className="text-sm text-slate-500">{publicText.buyerPrivacy}</div></div>
                 </div>
@@ -13645,7 +13655,6 @@ export default function ThailandPantiesMarketSite() {
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button onClick={resetFilters} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">{publicText.resetFilters}</button>
                   <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">Sort: Newest</div>
-                  <div className="rounded-2xl bg-rose-50 px-4 py-2 text-sm text-rose-700">{publicText.premiumVerifiedSellers}</div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {activeFilterChips.length === 0 ? (
