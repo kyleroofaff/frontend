@@ -1168,6 +1168,12 @@ const REGISTER_I18N = {
     fullName: 'Full name',
     email: 'Email',
     password: 'Password',
+    confirmPassword: 'Confirm password',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    passwordRequirementsHint: 'Use at least 8 characters with 1 number and 1 symbol.',
+    passwordPolicyError: 'Password must be at least 8 characters and include at least 1 number and 1 symbol.',
+    passwordMismatchError: 'Passwords do not match.',
     accountTypePlaceholder: 'Select account type',
     buyerAccount: 'Buyer account',
     sellerAccount: 'Seller account',
@@ -1183,6 +1189,9 @@ const REGISTER_I18N = {
     barRequiredError: 'Bar registration requires bar name, email, password, city, and country.',
     buyerRequiredError: 'Name, email, and password are required.',
     buyerTermsRequiredError: 'Buyer signup requires accepting respectful behavior and no-refund terms.',
+    buyerTermsTitle: 'Buyer terms acceptance',
+    viewCommunityStandards: 'View Community Standards',
+    viewRefundPolicy: 'View Refund Policy',
     buyerRespectfulCheckbox: 'I agree to be respectful in messages and interactions.',
     buyerNoRefundCheckbox: 'I understand and accept that all purchases are final (no refunds).',
     emailExistsError: 'This email is already registered.',
@@ -1197,6 +1206,12 @@ const REGISTER_I18N = {
     fullName: 'ชื่อ-นามสกุล',
     email: 'อีเมล',
     password: 'รหัสผ่าน',
+    confirmPassword: 'ยืนยันรหัสผ่าน',
+    showPassword: 'แสดงรหัสผ่าน',
+    hidePassword: 'ซ่อนรหัสผ่าน',
+    passwordRequirementsHint: 'ใช้รหัสผ่านอย่างน้อย 8 ตัวอักษร และต้องมีตัวเลข 1 ตัวกับสัญลักษณ์ 1 ตัว',
+    passwordPolicyError: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร และมีตัวเลขอย่างน้อย 1 ตัวกับสัญลักษณ์อย่างน้อย 1 ตัว',
+    passwordMismatchError: 'รหัสผ่านทั้งสองช่องไม่ตรงกัน',
     accountTypePlaceholder: 'เลือกประเภทบัญชี',
     buyerAccount: 'บัญชีผู้ซื้อ',
     sellerAccount: 'บัญชีผู้ขาย',
@@ -1212,6 +1227,9 @@ const REGISTER_I18N = {
     barRequiredError: 'การสมัครบัญชีบาร์ต้องมีชื่อบาร์ อีเมล รหัสผ่าน เมือง และประเทศ',
     buyerRequiredError: 'ต้องกรอกชื่อ อีเมล และรหัสผ่าน',
     buyerTermsRequiredError: 'การสมัครผู้ซื้อต้องยอมรับข้อกำหนดเรื่องความสุภาพและไม่มีการคืนเงิน',
+    buyerTermsTitle: 'การยอมรับข้อกำหนดสำหรับผู้ซื้อ',
+    viewCommunityStandards: 'ดูมาตรฐานชุมชน',
+    viewRefundPolicy: 'ดูนโยบายการคืนเงิน',
     buyerRespectfulCheckbox: 'ฉันยินยอมที่จะสื่อสารอย่างสุภาพและให้เกียรติ',
     buyerNoRefundCheckbox: 'ฉันเข้าใจและยอมรับว่ายอดซื้อทั้งหมดไม่สามารถขอคืนเงินได้',
     emailExistsError: 'อีเมลนี้ถูกใช้งานแล้ว',
@@ -1226,6 +1244,12 @@ const REGISTER_I18N = {
     fullName: 'အမည်အပြည့်အစုံ',
     email: 'အီးမေးလ်',
     password: 'စကားဝှက်',
+    confirmPassword: 'စကားဝှက် ထပ်မံအတည်ပြုရန်',
+    showPassword: 'စကားဝှက် ပြရန်',
+    hidePassword: 'စကားဝှက် ဝှက်ရန်',
+    passwordRequirementsHint: 'အနည်းဆုံး စာလုံး 8 လုံးနှင့် နံပါတ် 1 လုံး၊ သင်္ကေတ 1 လုံး ပါဝင်ရမည်',
+    passwordPolicyError: 'စကားဝှက်မှာ အနည်းဆုံး 8 လုံးရှိပြီး နံပါတ် 1 လုံးနှင့် သင်္ကေတ 1 လုံး ပါဝင်ရမည်',
+    passwordMismatchError: 'စကားဝှက်နှစ်ခု မကိုက်ညီပါ',
     accountTypePlaceholder: 'အကောင့်အမျိုးအစားရွေးပါ',
     buyerAccount: 'ဝယ်သူအကောင့်',
     sellerAccount: 'ရောင်းသူအကောင့်',
@@ -1241,6 +1265,9 @@ const REGISTER_I18N = {
     barRequiredError: 'bar စာရင်းသွင်းရန် ဘားအမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     buyerRequiredError: 'အမည်၊ အီးမေးလ်နှင့် စကားဝှက် လိုအပ်သည်',
     buyerTermsRequiredError: 'buyer စာရင်းသွင်းရန် လေးစားသောဆက်သွယ်ရေးနှင့် no-refund စည်းကမ်းများကို လက်ခံရန် လိုအပ်သည်',
+    buyerTermsTitle: 'buyer စည်းကမ်း လက်ခံမှု',
+    viewCommunityStandards: 'Community Standards ကြည့်ရန်',
+    viewRefundPolicy: 'Refund Policy ကြည့်ရန်',
     buyerRespectfulCheckbox: 'မက်ဆေ့ချ်နှင့် ဆက်ဆံမှုများတွင် လေးစားစွာ ပြုမူမည်ဟု လက်ခံပါသည်',
     buyerNoRefundCheckbox: 'ဝယ်ယူမှုအားလုံးမှာ အပြီးသတ်ဖြစ်ပြီး ပြန်အမ်းမရှိကြောင်း နားလည်လက်ခံပါသည်',
     emailExistsError: 'ဤအီးမေးလ်ကို အသုံးပြုပြီးဖြစ်သည်',
@@ -1255,6 +1282,12 @@ const REGISTER_I18N = {
     fullName: 'Полное имя',
     email: 'Email',
     password: 'Пароль',
+    confirmPassword: 'Подтвердите пароль',
+    showPassword: 'Показать пароль',
+    hidePassword: 'Скрыть пароль',
+    passwordRequirementsHint: 'Используйте не менее 8 символов, включая 1 цифру и 1 спецсимвол.',
+    passwordPolicyError: 'Пароль должен содержать минимум 8 символов, включая хотя бы 1 цифру и 1 спецсимвол.',
+    passwordMismatchError: 'Пароли не совпадают.',
     accountTypePlaceholder: 'Выберите тип аккаунта',
     buyerAccount: 'Аккаунт покупателя',
     sellerAccount: 'Аккаунт продавца',
@@ -1270,6 +1303,9 @@ const REGISTER_I18N = {
     barRequiredError: 'Для регистрации бара нужны название, email, пароль, город и страна.',
     buyerRequiredError: 'Имя, email и пароль обязательны.',
     buyerTermsRequiredError: 'Для регистрации покупателя нужно принять условия уважительного общения и отсутствия возвратов.',
+    buyerTermsTitle: 'Принятие условий для покупателя',
+    viewCommunityStandards: 'Открыть стандарты сообщества',
+    viewRefundPolicy: 'Открыть политику возвратов',
     buyerRespectfulCheckbox: 'Я согласен(на) соблюдать уважительное общение в сообщениях и взаимодействиях.',
     buyerNoRefundCheckbox: 'Я понимаю и принимаю, что все покупки окончательные (без возврата).',
     emailExistsError: 'Этот email уже зарегистрирован.',
@@ -1296,6 +1332,47 @@ const LOGIN_I18N = {
     sellerRejectedFallback: 'Please update your details and reapply.',
     sellerPending: 'Your seller account is pending admin approval.',
     welcomeBack: 'Welcome back',
+    loginResponseInvalid: 'Login response is invalid. Please try again.',
+    loginOffline: 'Login is unavailable while API is offline. Please try again in a moment.',
+    resendEnterEmail: 'Enter your email first, then click resend verification.',
+    resendOffline: 'Email verification resend is unavailable while API is offline.',
+    resendFailed: 'Could not resend verification email.',
+    resendSent: 'Verification email sent. Please check your inbox.',
+    resendButton: 'Resend verification email',
+    resendSending: 'Sending verification email...',
+    verifyTitle: 'Verify email',
+    verifySubtitle: 'Confirm your account email to complete registration',
+    verifyPreparing: 'Preparing verification...',
+    verifyInvalidLink: 'Verification link is invalid. Please request a new verification email.',
+    verifyInProgress: 'Verifying your email...',
+    verifyFailedRequestNew: 'Verification failed. Please request a new link.',
+    verifyFailedTryAgain: 'Verification failed. Please try again.',
+    verifyGoToLogin: 'Go to login',
+    verifySuccess: 'Email verified. You can now log in.',
+    homeCtaBuyerLine: 'Want to save favorites, message sellers, and checkout faster?',
+    homeCtaBuyerButton: 'Create your account',
+    homeCtaSellerLine: 'Ready to sell? Create a seller account and build your profile.',
+    homeCtaSellerButton: 'Register now',
+    homeCtaBarLine: 'Own a venue? Join as a bar account to post events and connect with sellers.',
+    homeCtaBarButton: 'Register a bar account',
+    barLoginRequiredTitle: 'Bar login required',
+    barLoginProfileSubtitle: 'Use a bar account to manage bar profile details and photo posts.',
+    barLoginFeedSubtitle: 'Use a bar account to create and manage bar feed posts.',
+    loginBuyerToMessage: 'Please login as a buyer to send messages.',
+    loginBuyerToCustomRequest: 'Please login as a buyer to send custom requests.',
+    loginBuyerToRefundEvidence: 'Please login as a buyer to submit refund evidence.',
+    loginToSendCustomRequestMessages: 'Please login to send custom request messages.',
+    loginToLikePosts: 'Please login to like posts.',
+    loginToCommentPosts: 'Please login to comment on posts.',
+    loginToSavePosts: 'Please login to save posts.',
+    loginToReportComments: 'Please login to report comments.',
+    loginToReportMessages: 'Please login to report messages.',
+    accountFrozenAppeal: 'Your account is frozen after two moderation strikes. Please submit an appeal to continue.',
+    barAccountMarketplaceBlocked: 'Bar accounts cannot buy or sell marketplace products.',
+    unlockOnlyBuyer: 'Only buyer accounts can unlock private posts.',
+    unlockWalletRequiredPrefix: 'You need at least',
+    unlockWalletRequiredSuffix: 'in your wallet to unlock this post.',
+    postUnlockedPrefix: 'Post unlocked for',
   },
   th: {
     title: 'เข้าสู่ระบบ',
@@ -1313,6 +1390,47 @@ const LOGIN_I18N = {
     sellerRejectedFallback: 'โปรดอัปเดตรายละเอียดและสมัครใหม่',
     sellerPending: 'บัญชีผู้ขายของคุณกำลังรอการอนุมัติจากผู้ดูแลระบบ',
     welcomeBack: 'ยินดีต้อนรับกลับ',
+    loginResponseInvalid: 'ข้อมูลตอบกลับจากการเข้าสู่ระบบไม่ถูกต้อง โปรดลองอีกครั้ง',
+    loginOffline: 'ไม่สามารถเข้าสู่ระบบได้ในขณะนี้ เนื่องจาก API ออฟไลน์ โปรดลองอีกครั้งในอีกสักครู่',
+    resendEnterEmail: 'กรอกอีเมลก่อน แล้วกดส่งอีเมลยืนยันอีกครั้ง',
+    resendOffline: 'ไม่สามารถส่งอีเมลยืนยันอีกครั้งได้ในขณะนี้ เนื่องจาก API ออฟไลน์',
+    resendFailed: 'ไม่สามารถส่งอีเมลยืนยันอีกครั้งได้',
+    resendSent: 'ส่งอีเมลยืนยันแล้ว โปรดตรวจสอบกล่องจดหมายของคุณ',
+    resendButton: 'ส่งอีเมลยืนยันอีกครั้ง',
+    resendSending: 'กำลังส่งอีเมลยืนยัน...',
+    verifyTitle: 'ยืนยันอีเมล',
+    verifySubtitle: 'ยืนยันอีเมลบัญชีของคุณเพื่อทำการสมัครให้เสร็จสมบูรณ์',
+    verifyPreparing: 'กำลังเตรียมการยืนยัน...',
+    verifyInvalidLink: 'ลิงก์ยืนยันไม่ถูกต้อง โปรดขออีเมลยืนยันใหม่',
+    verifyInProgress: 'กำลังยืนยันอีเมลของคุณ...',
+    verifyFailedRequestNew: 'การยืนยันล้มเหลว โปรดขอลิงก์ใหม่',
+    verifyFailedTryAgain: 'การยืนยันล้มเหลว โปรดลองอีกครั้ง',
+    verifyGoToLogin: 'ไปหน้าเข้าสู่ระบบ',
+    verifySuccess: 'ยืนยันอีเมลสำเร็จแล้ว ตอนนี้คุณสามารถเข้าสู่ระบบได้',
+    homeCtaBuyerLine: 'อยากบันทึกรายการโปรด ส่งข้อความหาผู้ขาย และชำระเงินได้เร็วขึ้นไหม?',
+    homeCtaBuyerButton: 'สร้างบัญชีของคุณ',
+    homeCtaSellerLine: 'พร้อมเริ่มขายหรือยัง? สร้างบัญชีผู้ขายและเริ่มทำโปรไฟล์ของคุณ',
+    homeCtaSellerButton: 'สมัครตอนนี้',
+    homeCtaBarLine: 'มีร้านหรือสถานที่ใช่ไหม? สมัครบัญชีบาร์เพื่อโพสต์กิจกรรมและเชื่อมต่อกับผู้ขาย',
+    homeCtaBarButton: 'สมัครบัญชีบาร์',
+    barLoginRequiredTitle: 'ต้องเข้าสู่ระบบด้วยบัญชีบาร์',
+    barLoginProfileSubtitle: 'ใช้บัญชีบาร์เพื่อจัดการข้อมูลโปรไฟล์และโพสต์รูปภาพของบาร์',
+    barLoginFeedSubtitle: 'ใช้บัญชีบาร์เพื่อสร้างและจัดการโพสต์ฟีดของบาร์',
+    loginBuyerToMessage: 'กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อเพื่อส่งข้อความ',
+    loginBuyerToCustomRequest: 'กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อเพื่อส่งคำขอพิเศษ',
+    loginBuyerToRefundEvidence: 'กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อเพื่อส่งหลักฐานการขอคืนเงิน',
+    loginToSendCustomRequestMessages: 'กรุณาเข้าสู่ระบบเพื่อส่งข้อความคำขอพิเศษ',
+    loginToLikePosts: 'กรุณาเข้าสู่ระบบเพื่อกดถูกใจโพสต์',
+    loginToCommentPosts: 'กรุณาเข้าสู่ระบบเพื่อคอมเมนต์โพสต์',
+    loginToSavePosts: 'กรุณาเข้าสู่ระบบเพื่อบันทึกโพสต์',
+    loginToReportComments: 'กรุณาเข้าสู่ระบบเพื่อรายงานความคิดเห็น',
+    loginToReportMessages: 'กรุณาเข้าสู่ระบบเพื่อรายงานข้อความ',
+    accountFrozenAppeal: 'บัญชีของคุณถูกระงับหลังจากได้รับการเตือนด้านการดูแลชุมชน 2 ครั้ง กรุณาส่งคำร้องอุทธรณ์เพื่อดำเนินการต่อ',
+    barAccountMarketplaceBlocked: 'บัญชีบาร์ไม่สามารถซื้อหรือขายสินค้าในมาร์เก็ตเพลสได้',
+    unlockOnlyBuyer: 'เฉพาะบัญชีผู้ซื้อเท่านั้นที่ปลดล็อกโพสต์ส่วนตัวได้',
+    unlockWalletRequiredPrefix: 'คุณต้องมียอดเงินอย่างน้อย',
+    unlockWalletRequiredSuffix: 'ในวอลเล็ตเพื่อปลดล็อกโพสต์นี้',
+    postUnlockedPrefix: 'ปลดล็อกโพสต์แล้ว สำหรับ',
   },
   my: {
     title: 'ဝင်ရန်',
@@ -1330,6 +1448,47 @@ const LOGIN_I18N = {
     sellerRejectedFallback: 'အသေးစိတ်ကို ပြင်ဆင်ပြီး ထပ်မံလျှောက်ထားပါ',
     sellerPending: 'သင့် seller အကောင့်သည် admin အတည်ပြုမှုကို စောင့်နေသည်',
     welcomeBack: 'ပြန်လည်ကြိုဆိုပါသည်',
+    loginResponseInvalid: 'ဝင်ရောက်မှုတုံ့ပြန်ချက် မမှန်ကန်ပါ။ ထပ်ကြိုးစားပါ။',
+    loginOffline: 'API အော့ဖ်လိုင်းဖြစ်နေသောကြောင့် ယခု ဝင်၍မရပါ။ ခဏနောက် ထပ်ကြိုးစားပါ။',
+    resendEnterEmail: 'ပထမဦးစွာ အီးမေးလ်ထည့်ပြီးနောက် verification ကို ပြန်ပို့ပါ။',
+    resendOffline: 'API အော့ဖ်လိုင်းဖြစ်နေသောကြောင့် verification email ကို ပြန်ပို့မရပါ။',
+    resendFailed: 'verification email ကို ပြန်ပို့မရပါ။',
+    resendSent: 'verification email ပို့ပြီးပါပြီ။ သင့် inbox ကို စစ်ဆေးပါ။',
+    resendButton: 'verification email ပြန်ပို့ရန်',
+    resendSending: 'verification email ပို့နေသည်...',
+    verifyTitle: 'အီးမေးလ် အတည်ပြုရန်',
+    verifySubtitle: 'စာရင်းသွင်းမှုကို ပြီးစီးစေရန် သင့်အကောင့် အီးမေးလ်ကို အတည်ပြုပါ',
+    verifyPreparing: 'အတည်ပြုမှု ပြင်ဆင်နေသည်...',
+    verifyInvalidLink: 'အတည်ပြု link မမှန်ကန်ပါ။ verification email အသစ်တောင်းပါ။',
+    verifyInProgress: 'သင့်အီးမေးလ်ကို အတည်ပြုနေသည်...',
+    verifyFailedRequestNew: 'အတည်ပြုမှု မအောင်မြင်ပါ။ link အသစ်တောင်းပါ။',
+    verifyFailedTryAgain: 'အတည်ပြုမှု မအောင်မြင်ပါ။ ထပ်ကြိုးစားပါ။',
+    verifyGoToLogin: 'ဝင်ရန် သို့ သွားပါ',
+    verifySuccess: 'အီးမေးလ် အတည်ပြုပြီးပါပြီ။ ယခု ဝင်နိုင်ပါပြီ။',
+    homeCtaBuyerLine: 'favorites သိမ်းရန်၊ seller များကို မက်ဆေ့ချ်ပို့ရန်နှင့် checkout ကို မြန်မြန်လုပ်ရန် အကောင့်ဖန်တီးပါ',
+    homeCtaBuyerButton: 'သင့်အကောင့် ဖန်တီးရန်',
+    homeCtaSellerLine: 'ရောင်းချရန် အဆင်သင့်ဖြစ်ပြီလား? seller အကောင့်ဖန်တီးပြီး profile တည်ဆောက်ပါ',
+    homeCtaSellerButton: 'ယခု စာရင်းသွင်းရန်',
+    homeCtaBarLine: 'venue ရှိပါသလား? events တင်ရန်နှင့် sellers နှင့်ချိတ်ဆက်ရန် bar အကောင့်ဖွင့်ပါ',
+    homeCtaBarButton: 'bar အကောင့် စာရင်းသွင်းရန်',
+    barLoginRequiredTitle: 'bar အကောင့်ဖြင့် ဝင်ရန်လိုအပ်သည်',
+    barLoginProfileSubtitle: 'bar profile အသေးစိတ်နှင့် ဓာတ်ပုံပို့စ်များကို စီမံရန် bar အကောင့်ကို အသုံးပြုပါ',
+    barLoginFeedSubtitle: 'bar feed posts များကို ဖန်တီး/စီမံရန် bar အကောင့်ကို အသုံးပြုပါ',
+    loginBuyerToMessage: 'မက်ဆေ့ချ်ပို့ရန် buyer အကောင့်ဖြင့် ဝင်ပါ',
+    loginBuyerToCustomRequest: 'custom request ပို့ရန် buyer အကောင့်ဖြင့် ဝင်ပါ',
+    loginBuyerToRefundEvidence: 'refund evidence တင်ရန် buyer အကောင့်ဖြင့် ဝင်ပါ',
+    loginToSendCustomRequestMessages: 'custom request messages ပို့ရန် ဝင်ပါ',
+    loginToLikePosts: 'post များကို like လုပ်ရန် ဝင်ပါ',
+    loginToCommentPosts: 'post များတွင် comment ရေးရန် ဝင်ပါ',
+    loginToSavePosts: 'post များကို save လုပ်ရန် ဝင်ပါ',
+    loginToReportComments: 'comments များကို report လုပ်ရန် ဝင်ပါ',
+    loginToReportMessages: 'messages များကို report လုပ်ရန် ဝင်ပါ',
+    accountFrozenAppeal: 'moderation strike 2 ကြိမ်ရရှိသောကြောင့် သင့်အကောင့်ကို freeze လုပ်ထားပါသည်။ ဆက်လက်အသုံးပြုရန် appeal တင်ပါ။',
+    barAccountMarketplaceBlocked: 'bar အကောင့်များသည် marketplace products များကို မဝယ်/မရောင်းနိုင်ပါ။',
+    unlockOnlyBuyer: 'private posts များကို buyer အကောင့်သာ unlock လုပ်နိုင်သည်။',
+    unlockWalletRequiredPrefix: 'ဤ post ကို unlock လုပ်ရန် သင့် wallet တွင် အနည်းဆုံး',
+    unlockWalletRequiredSuffix: 'လိုအပ်သည်။',
+    postUnlockedPrefix: 'post ကို unlock လုပ်ပြီးပါပြီ -',
   },
   ru: {
     title: 'Вход',
@@ -1347,6 +1506,47 @@ const LOGIN_I18N = {
     sellerRejectedFallback: 'Обновите данные и отправьте заявку снова.',
     sellerPending: 'Ваш аккаунт продавца ожидает одобрения администратора.',
     welcomeBack: 'С возвращением',
+    loginResponseInvalid: 'Некорректный ответ сервера при входе. Попробуйте снова.',
+    loginOffline: 'Вход недоступен, пока API офлайн. Пожалуйста, попробуйте чуть позже.',
+    resendEnterEmail: 'Сначала введите email, затем нажмите повторную отправку подтверждения.',
+    resendOffline: 'Повторная отправка письма подтверждения недоступна, пока API офлайн.',
+    resendFailed: 'Не удалось повторно отправить письмо подтверждения.',
+    resendSent: 'Письмо подтверждения отправлено. Проверьте вашу почту.',
+    resendButton: 'Отправить письмо подтверждения снова',
+    resendSending: 'Отправка письма подтверждения...',
+    verifyTitle: 'Подтверждение email',
+    verifySubtitle: 'Подтвердите email аккаунта, чтобы завершить регистрацию',
+    verifyPreparing: 'Подготовка подтверждения...',
+    verifyInvalidLink: 'Ссылка подтверждения недействительна. Запросите новое письмо подтверждения.',
+    verifyInProgress: 'Подтверждаем ваш email...',
+    verifyFailedRequestNew: 'Подтверждение не удалось. Запросите новую ссылку.',
+    verifyFailedTryAgain: 'Подтверждение не удалось. Попробуйте снова.',
+    verifyGoToLogin: 'Перейти ко входу',
+    verifySuccess: 'Email подтвержден. Теперь вы можете войти.',
+    homeCtaBuyerLine: 'Хотите сохранять избранное, писать продавцам и быстрее оформлять заказ?',
+    homeCtaBuyerButton: 'Создать аккаунт',
+    homeCtaSellerLine: 'Готовы продавать? Создайте аккаунт продавца и оформите профиль.',
+    homeCtaSellerButton: 'Зарегистрироваться',
+    homeCtaBarLine: 'Есть заведение? Создайте аккаунт бара, публикуйте события и связывайтесь с продавцами.',
+    homeCtaBarButton: 'Зарегистрировать аккаунт бара',
+    barLoginRequiredTitle: 'Требуется вход в аккаунт бара',
+    barLoginProfileSubtitle: 'Используйте аккаунт бара, чтобы управлять профилем бара и фото-постами.',
+    barLoginFeedSubtitle: 'Используйте аккаунт бара для создания и управления постами бара.',
+    loginBuyerToMessage: 'Войдите как покупатель, чтобы отправлять сообщения.',
+    loginBuyerToCustomRequest: 'Войдите как покупатель, чтобы отправлять индивидуальные запросы.',
+    loginBuyerToRefundEvidence: 'Войдите как покупатель, чтобы отправить доказательства для возврата.',
+    loginToSendCustomRequestMessages: 'Войдите, чтобы отправлять сообщения по индивидуальным запросам.',
+    loginToLikePosts: 'Войдите, чтобы ставить лайки постам.',
+    loginToCommentPosts: 'Войдите, чтобы комментировать посты.',
+    loginToSavePosts: 'Войдите, чтобы сохранять посты.',
+    loginToReportComments: 'Войдите, чтобы отправлять жалобы на комментарии.',
+    loginToReportMessages: 'Войдите, чтобы отправлять жалобы на сообщения.',
+    accountFrozenAppeal: 'Ваш аккаунт заморожен после двух страйков модерации. Подайте апелляцию, чтобы продолжить.',
+    barAccountMarketplaceBlocked: 'Аккаунты баров не могут покупать или продавать товары маркетплейса.',
+    unlockOnlyBuyer: 'Только аккаунты покупателей могут открывать приватные посты.',
+    unlockWalletRequiredPrefix: 'Для разблокировки этого поста нужно как минимум',
+    unlockWalletRequiredSuffix: 'в кошельке.',
+    postUnlockedPrefix: 'Пост разблокирован за',
   },
 };
 
@@ -1388,6 +1588,40 @@ const SELLER_STATUS_I18N = {
     adminRoleRequired: 'Admin role is required.',
     invalidResolveRequest: 'Invalid resolve request.',
     sellerNotFound: 'Seller not found.',
+    affiliationConfirmed: ({ barName }) => `${barName} affiliation confirmed.`,
+    affiliationRejected: ({ barName }) => `Affiliation request for ${barName} was rejected.`,
+    affiliationRequestCancelled: 'Affiliation request cancelled.',
+    affiliationRemoved: ({ barName }) => `Removed affiliation with ${barName}.`,
+    feedPrivate: 'Entire feed set to private.',
+    feedPublic: 'Entire feed set to public.',
+    feedPerPost: 'Feed set to choose-per-post mode.',
+    postPrivate: 'Post set to private.',
+    postPublic: 'Post set to public.',
+    privatePricesUpdated: ({ amount }) => `Updated all private post prices to ${amount}.`,
+    postUnscheduled: 'Post unscheduled.',
+    scheduledPostPublishedNow: 'Scheduled post published now.',
+    accountActiveToComment: 'Your account must be active to post comments.',
+    onlyBuyerPaidComments: 'Only buyer accounts can post paid comments.',
+    walletNeededToComment: ({ amount }) => `You need at least ${amount} in your wallet to comment.`,
+    loginBuyerFollowSellers: 'Login as a buyer to follow sellers.',
+    loginBuyerOrBarFollowBars: 'Login as a buyer or bar to follow bars.',
+    accountActiveToReport: 'Your account must be active to submit reports.',
+    cannotReportOwnComment: 'You cannot report your own comment.',
+    alreadyReportedComment: 'You already reported this comment.',
+    commentReported: 'Comment reported. Admin will review it.',
+    onlyBuyersReportDirectMessages: 'Only buyers can report direct messages.',
+    onlySellerMessagesReportable: 'Only seller messages can be reported from this view.',
+    cannotReportOwnMessage: 'You cannot report your own message.',
+    alreadyReportedMessage: 'You already reported this message.',
+    messageReported: 'Message reported. Admin will review it.',
+    commentReportResolved: 'Comment report resolved.',
+    messageReportResolved: 'Message report resolved.',
+    messageReportDismissed: 'Message report dismissed.',
+    appealsOnlyEligible: 'Appeals are only available for frozen accounts or accounts with active strikes.',
+    appealSubmitted: 'Appeal submitted. Admin will review it soon.',
+    appealApprovedRestored: 'Appeal approved and account restored.',
+    appealDenied: 'Appeal denied.',
+    listingPriceAtLeast: ({ amount }) => `Listing price must be at least ${amount}.`,
     onlineEnabled: 'You are visible as online.',
     onlineDisabled: 'You are now offline.',
   },
@@ -1427,6 +1661,40 @@ const SELLER_STATUS_I18N = {
     adminRoleRequired: 'จำเป็นต้องมีสิทธิ์ผู้ดูแลระบบ',
     invalidResolveRequest: 'คำขอปิดเคสไม่ถูกต้อง',
     sellerNotFound: 'ไม่พบผู้ขาย',
+    affiliationConfirmed: ({ barName }) => `ยืนยันการเชื่อมโยงกับ ${barName} แล้ว`,
+    affiliationRejected: ({ barName }) => `คำขอเชื่อมโยงกับ ${barName} ถูกปฏิเสธ`,
+    affiliationRequestCancelled: 'ยกเลิกคำขอเชื่อมโยงแล้ว',
+    affiliationRemoved: ({ barName }) => `ยกเลิกการเชื่อมโยงกับ ${barName} แล้ว`,
+    feedPrivate: 'ตั้งค่าฟีดทั้งหมดเป็นส่วนตัวแล้ว',
+    feedPublic: 'ตั้งค่าฟีดทั้งหมดเป็นสาธารณะแล้ว',
+    feedPerPost: 'ตั้งค่าฟีดเป็นแบบเลือกต่อโพสต์แล้ว',
+    postPrivate: 'ตั้งค่าโพสต์เป็นส่วนตัวแล้ว',
+    postPublic: 'ตั้งค่าโพสต์เป็นสาธารณะแล้ว',
+    privatePricesUpdated: ({ amount }) => `อัปเดตราคาโพสต์ส่วนตัวทั้งหมดเป็น ${amount} แล้ว`,
+    postUnscheduled: 'ยกเลิกการตั้งเวลาโพสต์แล้ว',
+    scheduledPostPublishedNow: 'เผยแพร่โพสต์ที่ตั้งเวลาไว้ทันทีแล้ว',
+    accountActiveToComment: 'บัญชีของคุณต้องเป็นสถานะใช้งานจึงจะแสดงความคิดเห็นได้',
+    onlyBuyerPaidComments: 'เฉพาะบัญชีผู้ซื้อเท่านั้นที่สามารถคอมเมนต์แบบมีค่าบริการได้',
+    walletNeededToComment: ({ amount }) => `คุณต้องมียอดเงินอย่างน้อย ${amount} ในวอลเล็ตเพื่อคอมเมนต์`,
+    loginBuyerFollowSellers: 'เข้าสู่ระบบด้วยบัญชีผู้ซื้อเพื่อกดติดตามผู้ขาย',
+    loginBuyerOrBarFollowBars: 'เข้าสู่ระบบด้วยบัญชีผู้ซื้อหรือบาร์เพื่อกดติดตามบาร์',
+    accountActiveToReport: 'บัญชีของคุณต้องเป็นสถานะใช้งานจึงจะส่งรายงานได้',
+    cannotReportOwnComment: 'คุณไม่สามารถรายงานความคิดเห็นของตัวเองได้',
+    alreadyReportedComment: 'คุณรายงานความคิดเห็นนี้ไปแล้ว',
+    commentReported: 'รายงานความคิดเห็นแล้ว ผู้ดูแลระบบจะตรวจสอบ',
+    onlyBuyersReportDirectMessages: 'เฉพาะผู้ซื้อเท่านั้นที่รายงานข้อความโดยตรงได้',
+    onlySellerMessagesReportable: 'ในหน้านี้สามารถรายงานได้เฉพาะข้อความของผู้ขาย',
+    cannotReportOwnMessage: 'คุณไม่สามารถรายงานข้อความของตัวเองได้',
+    alreadyReportedMessage: 'คุณรายงานข้อความนี้ไปแล้ว',
+    messageReported: 'รายงานข้อความแล้ว ผู้ดูแลระบบจะตรวจสอบ',
+    commentReportResolved: 'ปิดเคสรายงานความคิดเห็นแล้ว',
+    messageReportResolved: 'ปิดเคสรายงานข้อความแล้ว',
+    messageReportDismissed: 'ยกเลิกรายงานข้อความแล้ว',
+    appealsOnlyEligible: 'การอุทธรณ์ใช้ได้เฉพาะบัญชีที่ถูกระงับหรือมีการเตือนที่ยังมีผลอยู่',
+    appealSubmitted: 'ส่งคำร้องอุทธรณ์แล้ว ผู้ดูแลระบบจะตรวจสอบในเร็วๆ นี้',
+    appealApprovedRestored: 'อนุมัติคำอุทธรณ์แล้ว และกู้คืนบัญชีเรียบร้อย',
+    appealDenied: 'คำอุทธรณ์ถูกปฏิเสธ',
+    listingPriceAtLeast: ({ amount }) => `ราคาสินค้าต้องไม่น้อยกว่า ${amount}`,
     onlineEnabled: 'เปิดสถานะออนไลน์แล้ว',
     onlineDisabled: 'ปิดสถานะออนไลน์แล้ว',
   },
@@ -1466,6 +1734,40 @@ const SELLER_STATUS_I18N = {
     adminRoleRequired: 'admin role လိုအပ်ပါသည်',
     invalidResolveRequest: 'resolve request မမှန်ကန်ပါ',
     sellerNotFound: 'seller မတွေ့ပါ',
+    affiliationConfirmed: ({ barName }) => `${barName} နှင့် affiliation ကို အတည်ပြုပြီးပါပြီ`,
+    affiliationRejected: ({ barName }) => `${barName} အတွက် affiliation request ကို ငြင်းပယ်ခဲ့သည်`,
+    affiliationRequestCancelled: 'affiliation request ကို ပယ်ဖျက်ပြီးပါပြီ',
+    affiliationRemoved: ({ barName }) => `${barName} နှင့် affiliation ကို ဖယ်ရှားပြီးပါပြီ`,
+    feedPrivate: 'feed တစ်ခုလုံးကို private အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    feedPublic: 'feed တစ်ခုလုံးကို public အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    feedPerPost: 'feed ကို post တစ်ခုစီအလိုက် ရွေးချယ်မည့် mode သို့ ပြောင်းထားသည်',
+    postPrivate: 'post ကို private အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    postPublic: 'post ကို public အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    privatePricesUpdated: ({ amount }) => `private post စျေးနှုန်းများအားလုံးကို ${amount} သို့ အပ်ဒိတ်လုပ်ပြီးပါပြီ`,
+    postUnscheduled: 'post schedule ကို ဖြုတ်ပြီးပါပြီ',
+    scheduledPostPublishedNow: 'schedule လုပ်ထားသော post ကို ယခုတင်ပြီးပါပြီ',
+    accountActiveToComment: 'comment ရေးရန် သင့်အကောင့်သည် active ဖြစ်ရမည်',
+    onlyBuyerPaidComments: 'paid comment များကို buyer အကောင့်သာ ပို့နိုင်သည်',
+    walletNeededToComment: ({ amount }) => `comment ရေးရန် wallet တွင် အနည်းဆုံး ${amount} လိုအပ်သည်`,
+    loginBuyerFollowSellers: 'sellers များကို follow လုပ်ရန် buyer အဖြစ် login ဝင်ပါ',
+    loginBuyerOrBarFollowBars: 'bars များကို follow လုပ်ရန် buyer သို့မဟုတ် bar အဖြစ် login ဝင်ပါ',
+    accountActiveToReport: 'report တင်ရန် သင့်အကောင့်သည် active ဖြစ်ရမည်',
+    cannotReportOwnComment: 'သင့်ကိုယ်ပိုင် comment ကို report မလုပ်နိုင်ပါ',
+    alreadyReportedComment: 'ဤ comment ကို report လုပ်ပြီးသားဖြစ်သည်',
+    commentReported: 'comment ကို report လုပ်ပြီးပါပြီ။ Admin မှ စစ်ဆေးပါမည်',
+    onlyBuyersReportDirectMessages: 'direct messages များကို buyer များသာ report လုပ်နိုင်သည်',
+    onlySellerMessagesReportable: 'ဤ view မှ seller messages များကိုသာ report လုပ်နိုင်သည်',
+    cannotReportOwnMessage: 'သင့်ကိုယ်ပိုင် message ကို report မလုပ်နိုင်ပါ',
+    alreadyReportedMessage: 'ဤ message ကို report လုပ်ပြီးသားဖြစ်သည်',
+    messageReported: 'message ကို report လုပ်ပြီးပါပြီ။ Admin မှ စစ်ဆေးပါမည်',
+    commentReportResolved: 'comment report ကို ဖြေရှင်းပြီးပါပြီ',
+    messageReportResolved: 'message report ကို ဖြေရှင်းပြီးပါပြီ',
+    messageReportDismissed: 'message report ကို ပယ်ချပြီးပါပြီ',
+    appealsOnlyEligible: 'appeal ကို frozen accounts သို့မဟုတ် active strikes ရှိသော accounts များသာ အသုံးပြုနိုင်သည်',
+    appealSubmitted: 'appeal တင်ပြီးပါပြီ။ Admin မှ မကြာမီ စစ်ဆေးပါမည်',
+    appealApprovedRestored: 'appeal ကို အတည်ပြုပြီး account ကို ပြန်ဖွင့်ပေးခဲ့သည်',
+    appealDenied: 'appeal ကို ငြင်းပယ်ခဲ့သည်',
+    listingPriceAtLeast: ({ amount }) => `listing စျေးနှုန်းသည် ${amount} အနည်းဆုံးဖြစ်ရမည်`,
     onlineEnabled: 'online status ကို ဖွင့်ပြီးပါပြီ',
     onlineDisabled: 'offline status သို့ ပြောင်းပြီးပါပြီ',
   },
@@ -1505,8 +1807,120 @@ const SELLER_STATUS_I18N = {
     adminRoleRequired: 'Требуется роль администратора.',
     invalidResolveRequest: 'Некорректный запрос на обработку.',
     sellerNotFound: 'Продавец не найден.',
+    affiliationConfirmed: ({ barName }) => `Связь с баром ${barName} подтверждена.`,
+    affiliationRejected: ({ barName }) => `Запрос на связь с ${barName} был отклонен.`,
+    affiliationRequestCancelled: 'Запрос на связь отменен.',
+    affiliationRemoved: ({ barName }) => `Связь с ${barName} удалена.`,
+    feedPrivate: 'Вся лента переведена в приватный режим.',
+    feedPublic: 'Вся лента переведена в публичный режим.',
+    feedPerPost: 'Лента переведена в режим выбора для каждого поста.',
+    postPrivate: 'Пост переведен в приватный режим.',
+    postPublic: 'Пост переведен в публичный режим.',
+    privatePricesUpdated: ({ amount }) => `Цены всех приватных постов обновлены до ${amount}.`,
+    postUnscheduled: 'Публикация по расписанию отменена.',
+    scheduledPostPublishedNow: 'Запланированный пост опубликован сейчас.',
+    accountActiveToComment: 'Чтобы оставлять комментарии, аккаунт должен быть активен.',
+    onlyBuyerPaidComments: 'Платные комментарии могут оставлять только покупатели.',
+    walletNeededToComment: ({ amount }) => `Чтобы комментировать, на кошельке нужно как минимум ${amount}.`,
+    loginBuyerFollowSellers: 'Войдите как покупатель, чтобы подписываться на продавцов.',
+    loginBuyerOrBarFollowBars: 'Войдите как покупатель или бар, чтобы подписываться на бары.',
+    accountActiveToReport: 'Чтобы отправлять жалобы, аккаунт должен быть активен.',
+    cannotReportOwnComment: 'Нельзя пожаловаться на собственный комментарий.',
+    alreadyReportedComment: 'Вы уже пожаловались на этот комментарий.',
+    commentReported: 'Жалоба на комментарий отправлена. Администратор проверит.',
+    onlyBuyersReportDirectMessages: 'На личные сообщения могут жаловаться только покупатели.',
+    onlySellerMessagesReportable: 'В этом разделе можно жаловаться только на сообщения продавца.',
+    cannotReportOwnMessage: 'Нельзя пожаловаться на собственное сообщение.',
+    alreadyReportedMessage: 'Вы уже пожаловались на это сообщение.',
+    messageReported: 'Жалоба на сообщение отправлена. Администратор проверит.',
+    commentReportResolved: 'Жалоба на комментарий обработана.',
+    messageReportResolved: 'Жалоба на сообщение обработана.',
+    messageReportDismissed: 'Жалоба на сообщение отклонена.',
+    appealsOnlyEligible: 'Апелляции доступны только для замороженных аккаунтов или аккаунтов с активными страйками.',
+    appealSubmitted: 'Апелляция отправлена. Администратор скоро рассмотрит ее.',
+    appealApprovedRestored: 'Апелляция одобрена, аккаунт восстановлен.',
+    appealDenied: 'Апелляция отклонена.',
+    listingPriceAtLeast: ({ amount }) => `Цена объявления должна быть не ниже ${amount}.`,
     onlineEnabled: 'Статус онлайн включен.',
     onlineDisabled: 'Статус офлайн включен.',
+  },
+};
+
+const ADMIN_ACTION_I18N = {
+  en: {
+    sellerApproved: 'Seller account approved.',
+    sellersApprovedBulk: ({ count }) => `Approved ${count} seller application(s).`,
+    sellerRejected: 'Seller application marked as rejected.',
+    barUpdated: 'Bar profile updated.',
+    sellerAffiliationUpdated: 'Seller affiliation updated.',
+    sellerSetIndependent: 'Seller set to Independent.',
+    barRemovedIndependent: 'Bar removed. Linked sellers set to Independent.',
+  },
+  th: {
+    sellerApproved: 'อนุมัติบัญชีผู้ขายแล้ว',
+    sellersApprovedBulk: ({ count }) => `อนุมัติคำขอผู้ขายแล้ว ${count} รายการ`,
+    sellerRejected: 'ทำเครื่องหมายคำขอผู้ขายเป็นปฏิเสธแล้ว',
+    barUpdated: 'อัปเดตโปรไฟล์บาร์แล้ว',
+    sellerAffiliationUpdated: 'อัปเดตการเชื่อมโยงผู้ขายแล้ว',
+    sellerSetIndependent: 'ตั้งค่าผู้ขายเป็นอิสระแล้ว',
+    barRemovedIndependent: 'ลบบาร์แล้ว และตั้งค่าผู้ขายที่เกี่ยวข้องเป็นอิสระ',
+  },
+  my: {
+    sellerApproved: 'seller account ကို အတည်ပြုပြီးပါပြီ',
+    sellersApprovedBulk: ({ count }) => `seller application ${count} ခုကို အတည်ပြုပြီးပါပြီ`,
+    sellerRejected: 'seller application ကို reject အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    barUpdated: 'bar profile ကို အပ်ဒိတ်လုပ်ပြီးပါပြီ',
+    sellerAffiliationUpdated: 'seller affiliation ကို အပ်ဒိတ်လုပ်ပြီးပါပြီ',
+    sellerSetIndependent: 'seller ကို Independent အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    barRemovedIndependent: 'bar ကို ဖယ်ရှားပြီး linked sellers များကို Independent အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+  },
+  ru: {
+    sellerApproved: 'Аккаунт продавца одобрен.',
+    sellersApprovedBulk: ({ count }) => `Одобрено заявок продавцов: ${count}.`,
+    sellerRejected: 'Заявка продавца отмечена как отклоненная.',
+    barUpdated: 'Профиль бара обновлен.',
+    sellerAffiliationUpdated: 'Связь продавца обновлена.',
+    sellerSetIndependent: 'Продавец переведен в независимый статус.',
+    barRemovedIndependent: 'Бар удален. Связанные продавцы переведены в независимый статус.',
+  },
+};
+
+const BAR_STATUS_I18N = {
+  en: {
+    affiliationRequestCancelled: 'Affiliation request cancelled.',
+    addLocationBeforeAutofill: 'Add your venue location first, then use auto-fill.',
+    saveFailed: 'Could not save bar profile. Please try again.',
+    uploadImageBeforePosting: 'Please upload a bar image before posting.',
+    photoPosted: 'Bar photo posted.',
+    postRemoved: 'Bar post removed.',
+    languageUpdated: 'Bar language updated.',
+  },
+  th: {
+    affiliationRequestCancelled: 'ยกเลิกคำขอเชื่อมโยงแล้ว',
+    addLocationBeforeAutofill: 'กรอกตำแหน่งสถานที่ของคุณก่อน แล้วจึงใช้การเติมข้อมูลอัตโนมัติ',
+    saveFailed: 'ไม่สามารถบันทึกโปรไฟล์บาร์ได้ โปรดลองอีกครั้ง',
+    uploadImageBeforePosting: 'โปรดอัปโหลดรูปภาพบาร์ก่อนโพสต์',
+    photoPosted: 'โพสต์รูปภาพบาร์แล้ว',
+    postRemoved: 'ลบโพสต์บาร์แล้ว',
+    languageUpdated: 'อัปเดตภาษาของบาร์แล้ว',
+  },
+  my: {
+    affiliationRequestCancelled: 'affiliation request ကို ပယ်ဖျက်ပြီးပါပြီ',
+    addLocationBeforeAutofill: 'venue တည်နေရာကို အရင်ထည့်ပြီးမှ auto-fill ကို သုံးပါ',
+    saveFailed: 'bar profile ကို မသိမ်းနိုင်ပါ။ ထပ်ကြိုးစားပါ။',
+    uploadImageBeforePosting: 'post မတင်ခင် bar image ကို အရင်တင်ပါ',
+    photoPosted: 'bar photo ကို post တင်ပြီးပါပြီ',
+    postRemoved: 'bar post ကို ဖယ်ရှားပြီးပါပြီ',
+    languageUpdated: 'bar language ကို အပ်ဒိတ်လုပ်ပြီးပါပြီ',
+  },
+  ru: {
+    affiliationRequestCancelled: 'Запрос на связь отменен.',
+    addLocationBeforeAutofill: 'Сначала добавьте адрес заведения, затем используйте автозаполнение.',
+    saveFailed: 'Не удалось сохранить профиль бара. Попробуйте снова.',
+    uploadImageBeforePosting: 'Пожалуйста, загрузите фото бара перед публикацией.',
+    photoPosted: 'Фото бара опубликовано.',
+    postRemoved: 'Пост бара удален.',
+    languageUpdated: 'Язык бара обновлен.',
   },
 };
 
@@ -3409,6 +3823,25 @@ function removeBundlesContainingSoldItems(products, soldProductIds) {
   });
 }
 
+function stableStringHash(value) {
+  const source = String(value || "");
+  let hash = 0;
+  for (let index = 0; index < source.length; index += 1) {
+    hash = ((hash << 5) - hash) + source.charCodeAt(index);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function rotateAndTake(items, count, seedValue) {
+  const list = Array.isArray(items) ? items : [];
+  if (list.length <= 1) return list.slice(0, count);
+  const normalizedCount = Number.isFinite(Number(count)) ? Math.max(0, Number(count)) : list.length;
+  const offset = Math.abs(Number(seedValue || 0)) % list.length;
+  const rotated = [...list.slice(offset), ...list.slice(0, offset)];
+  return rotated.slice(0, normalizedCount);
+}
+
 const MALI_BUNDLE_PRODUCT_ID_SET = new Set([
   'product-mali-bar-night-bodysuit',
   'product-mali-underwear-velvet-brief',
@@ -3571,6 +4004,7 @@ export default function ThailandPantiesMarketSite() {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     role: '',
     city: '',
     country: '',
@@ -3889,6 +4323,16 @@ export default function ThailandPantiesMarketSite() {
   const sellerStatus = (key, params = {}) => {
     const dict = SELLER_STATUS_I18N[uiLanguage] || SELLER_STATUS_I18N.en;
     const template = dict[key] ?? SELLER_STATUS_I18N.en[key] ?? key;
+    return typeof template === 'function' ? template(params) : template;
+  };
+  const adminActionText = (key, params = {}) => {
+    const dict = ADMIN_ACTION_I18N[uiLanguage] || ADMIN_ACTION_I18N.en;
+    const template = dict[key] ?? ADMIN_ACTION_I18N.en[key] ?? key;
+    return typeof template === 'function' ? template(params) : template;
+  };
+  const barStatus = (key, params = {}) => {
+    const dict = BAR_STATUS_I18N[uiLanguage] || BAR_STATUS_I18N.en;
+    const template = dict[key] ?? BAR_STATUS_I18N.en[key] ?? key;
     return typeof template === 'function' ? template(params) : template;
   };
   const loginText = LOGIN_I18N[authLanguage] || LOGIN_I18N.en;
@@ -4283,9 +4727,9 @@ export default function ThailandPantiesMarketSite() {
     if (routeInfo.name === 'appeals') return;
     if (lastFrozenPopupUserId === currentUser.id) return;
     setLastFrozenPopupUserId(currentUser.id);
-    window.alert('Your account is frozen after two moderation strikes. Please submit an appeal to continue.');
+    window.alert(loginText.accountFrozenAppeal || 'Your account is frozen after two moderation strikes. Please submit an appeal to continue.');
     navigate('/appeals');
-  }, [currentUser, routeInfo.name, lastFrozenPopupUserId]);
+  }, [currentUser, routeInfo.name, lastFrozenPopupUserId, loginText.accountFrozenAppeal]);
 
   const buyerOrders = useMemo(() => {
     if (!currentUser) return [];
@@ -5309,7 +5753,7 @@ export default function ThailandPantiesMarketSite() {
     if (!email || !token) {
       setEmailVerificationStatus({
         loading: false,
-        message: 'Verification link is invalid. Please request a new verification email.',
+        message: loginText.verifyInvalidLink || 'Verification link is invalid. Please request a new verification email.',
         tone: 'error',
       });
       return;
@@ -5317,7 +5761,7 @@ export default function ThailandPantiesMarketSite() {
     let isActive = true;
     setEmailVerificationStatus({
       loading: true,
-      message: 'Verifying your email...',
+      message: loginText.verifyInProgress || 'Verifying your email...',
       tone: 'neutral',
     });
     Promise.resolve(apiRequestJson('/api/auth/verify-email', {
@@ -5329,14 +5773,14 @@ export default function ThailandPantiesMarketSite() {
         if (!ok) {
           setEmailVerificationStatus({
             loading: false,
-            message: String(payload?.error || 'Verification failed. Please request a new link.'),
+            message: String(payload?.error || loginText.verifyFailedRequestNew || 'Verification failed. Please request a new link.'),
             tone: 'error',
           });
           return;
         }
         setEmailVerificationStatus({
           loading: false,
-          message: String(payload?.message || 'Email verified. You can now log in.'),
+          message: String(payload?.message || loginText.verifySuccess || 'Email verified. You can now log in.'),
           tone: 'success',
         });
       })
@@ -5344,14 +5788,14 @@ export default function ThailandPantiesMarketSite() {
         if (!isActive) return;
         setEmailVerificationStatus({
           loading: false,
-          message: 'Verification failed. Please try again.',
+          message: loginText.verifyFailedTryAgain || 'Verification failed. Please try again.',
           tone: 'error',
         });
       });
     return () => {
       isActive = false;
     };
-  }, [route]);
+  }, [route, authLanguage, loginText.verifySuccess, loginText.verifyInvalidLink, loginText.verifyInProgress, loginText.verifyFailedRequestNew, loginText.verifyFailedTryAgain]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -5526,12 +5970,18 @@ export default function ThailandPantiesMarketSite() {
       .slice(0, 4)
       .map(([size, count]) => ({ size, count }));
   }, [availableProducts]);
+  const homeRotationDayKey = new Date().toISOString().slice(0, 10);
+  const homeFeaturedSellersSeed = stableStringHash(`${homeRotationDayKey}_home_featured_sellers`);
+  const homeProductPreviewSeed = stableStringHash(`${homeRotationDayKey}_home_product_preview`);
+  const homeSellerPreviewSeed = stableStringHash(`${homeRotationDayKey}_home_seller_preview`);
+  const homeBarsPreviewSeed = stableStringHash(`${homeRotationDayKey}_home_bars_preview`);
   const homeFeaturedSellers = useMemo(
-    () =>
-      Object.values(sellerMap)
-        .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')))
-        .slice(0, 6),
-    [sellerMap],
+    () => {
+      const source = Object.values(sellerMap)
+        .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+      return rotateAndTake(source, 6, homeFeaturedSellersSeed);
+    },
+    [sellerMap, homeFeaturedSellersSeed],
   );
   const homeSellerInsightsById = useMemo(() => {
     const byId = {};
@@ -5557,15 +6007,15 @@ export default function ThailandPantiesMarketSite() {
       if (!acc[sellerId] || ts > acc[sellerId]) acc[sellerId] = ts;
       return acc;
     }, {});
-    return Object.values(sellerMap)
+    const source = Object.values(sellerMap)
       .sort((a, b) => {
         const bTs = latestProductTsBySeller[b.id] || 0;
         const aTs = latestProductTsBySeller[a.id] || 0;
         if (bTs !== aTs) return bTs - aTs;
         return String(a?.name || '').localeCompare(String(b?.name || ''));
-      })
-      .slice(0, 6);
-  }, [sellerMap, availableProducts]);
+      });
+    return rotateAndTake(source, 6, homeSellerPreviewSeed);
+  }, [sellerMap, availableProducts, homeSellerPreviewSeed]);
   const sellerCountByBarId = useMemo(() => {
     const counts = {};
     (sellers || []).forEach((seller) => {
@@ -5597,7 +6047,10 @@ export default function ThailandPantiesMarketSite() {
       }),
     [sellerAllPosts, feedNow],
   );
-  const homeProductPreview = filteredProducts.slice(0, 6);
+  const homeProductPreview = useMemo(
+    () => rotateAndTake(filteredProducts, 6, homeProductPreviewSeed),
+    [filteredProducts, homeProductPreviewSeed],
+  );
   const homeAllFeedPreviewPosts = useMemo(() => {
     const sellerRows = (sellerFeedPosts || []).map((post) => ({
       ...post,
@@ -5625,15 +6078,15 @@ export default function ThailandPantiesMarketSite() {
         newestBarPostByBarId[barId] = post;
       }
     });
-    return Object.entries(newestBarPostByBarId)
+    const source = Object.entries(newestBarPostByBarId)
       .map(([barId, latestPost]) => ({
         bar: localizedBarMap[barId] || barMap[barId] || null,
         latestPost,
       }))
       .filter((entry) => entry.bar && entry.latestPost)
       .sort((a, b) => new Date(b.latestPost?.createdAt || 0).getTime() - new Date(a.latestPost?.createdAt || 0).getTime())
-      .slice(0, 6);
-  }, [barFeedPosts, localizedBarMap, barMap]);
+    return rotateAndTake(source, 6, homeBarsPreviewSeed);
+  }, [barFeedPosts, localizedBarMap, barMap, homeBarsPreviewSeed]);
   const sellerDashboardPosts = useMemo(
     () => sellerAllPosts.filter((post) => post.sellerId === currentSellerId),
     [sellerAllPosts, currentSellerId],
@@ -5777,7 +6230,7 @@ export default function ThailandPantiesMarketSite() {
 
   function addToCart(productId) {
     if (currentUser?.role === 'bar') {
-      if (typeof window !== 'undefined') window.alert('Bar accounts cannot buy or sell marketplace products.');
+      if (typeof window !== 'undefined') window.alert(loginText.barAccountMarketplaceBlocked || 'Bar accounts cannot buy or sell marketplace products.');
       return;
     }
     let itemWasAdded = false;
@@ -5802,7 +6255,7 @@ export default function ThailandPantiesMarketSite() {
   function addBundleToCartFromSingleItem(bundleProductId, sourceItemId) {
     if (!bundleProductId) return;
     if (currentUser?.role === 'bar') {
-      if (typeof window !== 'undefined') window.alert('Bar accounts cannot buy or sell marketplace products.');
+      if (typeof window !== 'undefined') window.alert(loginText.barAccountMarketplaceBlocked || 'Bar accounts cannot buy or sell marketplace products.');
       return;
     }
     let changed = false;
@@ -5916,7 +6369,7 @@ export default function ThailandPantiesMarketSite() {
         const authUser = authPayload?.user || null;
         if (!token || !authUser?.id) {
           setApiAuthToken('');
-          setAuthError('Login response is invalid. Please try again.');
+          setAuthError(loginText.loginResponseInvalid || 'Login response is invalid. Please try again.');
           setAuthSuccess('');
           return;
         }
@@ -5943,14 +6396,14 @@ export default function ThailandPantiesMarketSite() {
       } catch {
         if (REQUIRE_BACKEND_AUTH) {
           setApiAuthToken('');
-          setAuthError('Login is unavailable while API is offline. Please try again in a moment.');
+          setAuthError(loginText.loginOffline || 'Login is unavailable while API is offline. Please try again in a moment.');
           setAuthSuccess('');
           return;
         }
       }
     } else if (REQUIRE_BACKEND_AUTH) {
       setApiAuthToken('');
-      setAuthError('Login is unavailable while API is offline. Please try again in a moment.');
+      setAuthError(loginText.loginOffline || 'Login is unavailable while API is offline. Please try again in a moment.');
       setAuthSuccess('');
       return;
     }
@@ -6003,10 +6456,10 @@ export default function ThailandPantiesMarketSite() {
   async function resendVerificationEmailByAddress(rawEmail) {
     const email = String(rawEmail || '').trim().toLowerCase();
     if (!email || !email.includes('@')) {
-      return { ok: false, error: 'Enter your email first, then click resend verification.' };
+      return { ok: false, error: loginText.resendEnterEmail || 'Enter your email first, then click resend verification.' };
     }
     if (!(backendStatus === 'connected' || REQUIRE_BACKEND_AUTH)) {
-      return { ok: false, error: 'Email verification resend is unavailable while API is offline.' };
+      return { ok: false, error: loginText.resendOffline || 'Email verification resend is unavailable while API is offline.' };
     }
     setAuthResendVerificationSending(true);
     try {
@@ -6015,11 +6468,11 @@ export default function ThailandPantiesMarketSite() {
         body: { email },
       });
       if (!ok) {
-        return { ok: false, error: String(payload?.error || 'Could not resend verification email.') };
+        return { ok: false, error: String(payload?.error || loginText.resendFailed || 'Could not resend verification email.') };
       }
       return {
         ok: true,
-        message: String(payload?.message || 'Verification email sent. Please check your inbox.')
+        message: String(payload?.message || loginText.resendSent || 'Verification email sent. Please check your inbox.')
       };
     } finally {
       setAuthResendVerificationSending(false);
@@ -6029,12 +6482,12 @@ export default function ThailandPantiesMarketSite() {
   async function resendVerificationEmailForLogin() {
     const result = await resendVerificationEmailByAddress(loginForm.email);
     if (!result?.ok) {
-      setAuthError(String(result?.error || 'Could not resend verification email.'));
+      setAuthError(String(result?.error || loginText.resendFailed || 'Could not resend verification email.'));
       setAuthSuccess('');
       return;
     }
     setAuthError('');
-    setAuthSuccess(String(result.message || 'Verification email sent. Please check your inbox.'));
+    setAuthSuccess(String(result.message || loginText.resendSent || 'Verification email sent. Please check your inbox.'));
   }
 
   async function resendVerificationEmailForVerifyPage() {
@@ -6045,14 +6498,14 @@ export default function ThailandPantiesMarketSite() {
     if (!result?.ok) {
       setEmailVerificationStatus({
         loading: false,
-        message: String(result?.error || 'Could not resend verification email.'),
+        message: String(result?.error || loginText.resendFailed || 'Could not resend verification email.'),
         tone: 'error',
       });
       return;
     }
     setEmailVerificationStatus({
       loading: false,
-      message: String(result.message || 'Verification email sent. Please check your inbox.'),
+      message: String(result.message || loginText.resendSent || 'Verification email sent. Please check your inbox.'),
       tone: 'success',
     });
   }
@@ -6065,6 +6518,9 @@ export default function ThailandPantiesMarketSite() {
     const city = registerForm.city.trim();
     const country = registerForm.country.trim();
     const password = registerForm.password;
+    const confirmPassword = registerForm.confirmPassword;
+    const hasPasswordNumber = /\d/.test(password);
+    const hasPasswordSymbol = /[^A-Za-z0-9]/.test(password);
     if (!['buyer', 'seller', 'bar'].includes(role)) {
       setAuthError(registerText.chooseRoleError);
       setAuthSuccess('');
@@ -6087,6 +6543,16 @@ export default function ThailandPantiesMarketSite() {
     }
     if (role === 'bar' && (!name || !email || !password || !city || !country)) {
       setAuthError(registerText.barRequiredError || registerText.sellerRequiredError);
+      setAuthSuccess('');
+      return;
+    }
+    if (password.length < 8 || !hasPasswordNumber || !hasPasswordSymbol) {
+      setAuthError(registerText.passwordPolicyError || 'Password must be at least 8 characters and include at least 1 number and 1 symbol.');
+      setAuthSuccess('');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setAuthError(registerText.passwordMismatchError || 'Passwords do not match.');
       setAuthSuccess('');
       return;
     }
@@ -6115,6 +6581,7 @@ export default function ThailandPantiesMarketSite() {
         name: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role: '',
         city: '',
         country: '',
@@ -6226,6 +6693,7 @@ export default function ThailandPantiesMarketSite() {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
       role: '',
       city: '',
       country: '',
@@ -6315,14 +6783,14 @@ export default function ThailandPantiesMarketSite() {
         fallbackPath: '/seller-dashboard',
       });
     });
-    setAdminAuthActionMessage('Seller account approved.');
+    setAdminAuthActionMessage(adminActionText('sellerApproved'));
   }
 
   function approveAllPendingSellers() {
     if (!pendingSellerApprovals.length) return;
     if (typeof window !== 'undefined' && !window.confirm(`Approve all ${pendingSellerApprovals.length} pending sellers?`)) return;
     pendingSellerApprovals.forEach((user) => approveSellerAccount(user.id));
-    setAdminAuthActionMessage(`Approved ${pendingSellerApprovals.length} seller application(s).`);
+    setAdminAuthActionMessage(adminActionText('sellersApprovedBulk', { count: pendingSellerApprovals.length }));
   }
 
   function rejectSellerAccount(userId, reason = 'Not a fit right now') {
@@ -6367,7 +6835,7 @@ export default function ThailandPantiesMarketSite() {
         fallbackPath: '/account',
       });
     });
-    setAdminAuthActionMessage('Seller application marked as rejected.');
+    setAdminAuthActionMessage(adminActionText('sellerRejected'));
   }
 
   function updateBarProfileByAdmin(barId, updates = {}) {
@@ -6399,7 +6867,7 @@ export default function ThailandPantiesMarketSite() {
         },
       ],
     }));
-    setAdminAuthActionMessage('Bar profile updated.');
+    setAdminAuthActionMessage(adminActionText('barUpdated'));
   }
 
   function setSellerBarAffiliationByAdmin(sellerId, barId) {
@@ -6459,7 +6927,7 @@ export default function ThailandPantiesMarketSite() {
         ],
       };
     });
-    setAdminAuthActionMessage(normalizedBarId ? 'Seller affiliation updated.' : 'Seller set to Independent.');
+    setAdminAuthActionMessage(normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent'));
   }
 
   function removeBarByAdmin(barId) {
@@ -6485,7 +6953,7 @@ export default function ThailandPantiesMarketSite() {
         },
       ],
     }));
-    setAdminAuthActionMessage('Bar removed. Linked sellers set to Independent.');
+    setAdminAuthActionMessage(adminActionText('barRemovedIndependent'));
   }
 
   function toggleAdminBlockUser(userId) {
@@ -6897,10 +7365,10 @@ export default function ThailandPantiesMarketSite() {
       });
       if (decision === 'approved') {
         setBarProfileMessage(`Approved affiliation for ${seller.name}.`);
-        setSellerProfileMessage(`${bar.name} affiliation confirmed.`);
+        setSellerProfileMessage(sellerStatus('affiliationConfirmed', { barName: bar.name }));
       } else {
         setBarProfileMessage(`Rejected affiliation request for ${seller.name}.`);
-        setSellerProfileMessage(`Affiliation request for ${bar.name} was rejected.`);
+        setSellerProfileMessage(sellerStatus('affiliationRejected', { barName: bar.name }));
       }
 
       const base = {
@@ -6961,8 +7429,8 @@ export default function ThailandPantiesMarketSite() {
         && request.direction === 'bar_to_seller'
         && request.requestedByUserId === currentUser.id;
       if (!actorIsSellerRequester && !actorIsBarRequester) return prev;
-      setBarProfileMessage('Affiliation request cancelled.');
-      setSellerProfileMessage('Affiliation request cancelled.');
+      setBarProfileMessage(barStatus('affiliationRequestCancelled'));
+      setSellerProfileMessage(sellerStatus('affiliationRequestCancelled'));
       return {
         ...prev,
         barAffiliationRequests: (prev.barAffiliationRequests || []).map((entry) => (
@@ -6992,7 +7460,7 @@ export default function ThailandPantiesMarketSite() {
       if (!oldBarId) return prev;
       const oldBar = (prev.bars || []).find((entry) => entry.id === oldBarId);
       const oldBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === oldBarId);
-      setSellerProfileMessage(`Removed affiliation with ${oldBar?.name || 'bar'}.`);
+      setSellerProfileMessage(sellerStatus('affiliationRemoved', { barName: oldBar?.name || 'bar' }));
       setSellerProfileDraft((draft) => ({ ...draft, affiliatedBarId: '' }));
       return {
         ...prev,
@@ -7088,7 +7556,7 @@ export default function ThailandPantiesMarketSite() {
   function autofillBarMapFromLocation() {
     const locationText = String(barProfileDraft.location || '').trim();
     if (!locationText) {
-      setBarProfileMessage('Add your venue location first, then use auto-fill.');
+      setBarProfileMessage(barStatus('addLocationBeforeAutofill'));
       return;
     }
     const nextMap = buildBarMapFields('', locationText);
@@ -7173,7 +7641,7 @@ export default function ThailandPantiesMarketSite() {
       }));
       setBarProfileMessage(`Bar profile saved at ${formatDateTimeNoSeconds(new Date().toISOString())}.`);
     } catch {
-      setBarProfileMessage('Could not save bar profile. Please try again.');
+      setBarProfileMessage(barStatus('saveFailed'));
     } finally {
       setSavingBarProfile(false);
     }
@@ -7212,7 +7680,7 @@ export default function ThailandPantiesMarketSite() {
   function createBarPost() {
     if (!currentUser || currentUser.role !== 'bar' || !currentBarId) return;
     if (!barPostDraft.image) {
-      setBarProfileMessage('Please upload a bar image before posting.');
+      setBarProfileMessage(barStatus('uploadImageBeforePosting'));
       return;
     }
     if (creatingBarPost) return;
@@ -7233,7 +7701,7 @@ export default function ThailandPantiesMarketSite() {
       ],
     }));
     setBarPostDraft({ caption: '', image: '', imageName: '' });
-    setBarProfileMessage('Bar photo posted.');
+    setBarProfileMessage(barStatus('photoPosted'));
     setCreatingBarPost(false);
   }
 
@@ -7245,7 +7713,7 @@ export default function ThailandPantiesMarketSite() {
       ...prev,
       barPosts: (prev.barPosts || []).filter((post) => !(post.id === postId && post.barId === currentBarId)),
     }));
-    setBarProfileMessage('Bar post removed.');
+    setBarProfileMessage(barStatus('postRemoved'));
     setDeletingBarPostId(null);
   }
 
@@ -7290,7 +7758,7 @@ export default function ThailandPantiesMarketSite() {
           : user
       ),
     }));
-    setBarProfileMessage('Bar language updated.');
+    setBarProfileMessage(barStatus('languageUpdated'));
   }
 
   function toggleSellerOnlineStatus() {
@@ -7322,9 +7790,9 @@ export default function ThailandPantiesMarketSite() {
     if (nextVisibility === 'public' || nextVisibility === 'private') {
       setSellerPostDraft((prev) => ({ ...prev, visibility: nextVisibility }));
     }
-    if (nextVisibility === 'private') setSellerProfileMessage('Entire feed set to private.');
-    else if (nextVisibility === 'public') setSellerProfileMessage('Entire feed set to public.');
-    else setSellerProfileMessage('Feed set to choose-per-post mode.');
+    if (nextVisibility === 'private') setSellerProfileMessage(sellerStatus('feedPrivate'));
+    else if (nextVisibility === 'public') setSellerProfileMessage(sellerStatus('feedPublic'));
+    else setSellerProfileMessage(sellerStatus('feedPerPost'));
   }
 
   function updateSellerPostVisibility(postId, visibility, nextPriceInput) {
@@ -7340,7 +7808,7 @@ export default function ThailandPantiesMarketSite() {
           : post
       )),
     }));
-    setSellerProfileMessage(visibility === 'private' ? 'Post set to private.' : 'Post set to public.');
+    setSellerProfileMessage(visibility === 'private' ? sellerStatus('postPrivate') : sellerStatus('postPublic'));
   }
 
   function updateSellerPostPrice(postId, nextPriceInput) {
@@ -7369,7 +7837,7 @@ export default function ThailandPantiesMarketSite() {
           : post
       )),
     }));
-    setSellerProfileMessage(`Updated all private post prices to ${formatPriceTHB(normalizedPrice)}.`);
+    setSellerProfileMessage(sellerStatus('privatePricesUpdated', { amount: formatPriceTHB(normalizedPrice) }));
   }
 
   function unscheduleSellerPost(postId) {
@@ -7382,7 +7850,7 @@ export default function ThailandPantiesMarketSite() {
           : post
       )),
     }));
-    setSellerProfileMessage('Post unscheduled.');
+    setSellerProfileMessage(sellerStatus('postUnscheduled'));
   }
 
   function publishSellerPostNow(postId) {
@@ -7396,7 +7864,7 @@ export default function ThailandPantiesMarketSite() {
           : post
       )),
     }));
-    setSellerProfileMessage('Scheduled post published now.');
+    setSellerProfileMessage(sellerStatus('scheduledPostPublishedNow'));
   }
 
   function isSellerPostPrivate(post) {
@@ -7420,7 +7888,7 @@ export default function ThailandPantiesMarketSite() {
 
   function toggleSellerPostLike(postId) {
     if (!currentUser) {
-      setSellerProfileMessage('Please login to like posts.');
+      setSellerProfileMessage(loginText.loginToLikePosts || 'Please login to like posts.');
       return false;
     }
     const post = sellerPosts.find((candidate) => candidate.id === postId);
@@ -7466,15 +7934,15 @@ export default function ThailandPantiesMarketSite() {
 
   function addSellerPostComment(postId, body) {
     if (!currentUser) {
-      setSellerProfileMessage('Please login to comment on posts.');
+      setSellerProfileMessage(loginText.loginToCommentPosts || 'Please login to comment on posts.');
       return false;
     }
     if (currentUser.accountStatus !== 'active') {
-      setSellerProfileMessage('Your account must be active to post comments.');
+      setSellerProfileMessage(sellerStatus('accountActiveToComment'));
       return false;
     }
     if (currentUser.role !== 'buyer') {
-      setSellerProfileMessage('Only buyer accounts can post paid comments.');
+      setSellerProfileMessage(sellerStatus('onlyBuyerPaidComments'));
       return false;
     }
     const post = sellerPosts.find((candidate) => candidate.id === postId);
@@ -7483,7 +7951,7 @@ export default function ThailandPantiesMarketSite() {
     if (!trimmedBody) return false;
     const commentFee = MESSAGE_FEE_THB;
     if (Number(currentUser.walletBalance || 0) < commentFee) {
-      setSellerProfileMessage(`You need at least ${formatPriceTHB(commentFee)} in your wallet to comment.`);
+      setSellerProfileMessage(sellerStatus('walletNeededToComment', { amount: formatPriceTHB(commentFee) }));
       return false;
     }
     const createdAt = new Date().toISOString();
@@ -7605,7 +8073,7 @@ export default function ThailandPantiesMarketSite() {
 
   function toggleSellerFollow(sellerId) {
     if (!currentUser || currentUser.role !== 'buyer') {
-      setSellerProfileMessage('Login as a buyer to follow sellers.');
+      setSellerProfileMessage(sellerStatus('loginBuyerFollowSellers'));
       return false;
     }
     const seller = sellerMap[sellerId];
@@ -7651,7 +8119,7 @@ export default function ThailandPantiesMarketSite() {
 
   function toggleBarFollow(barId) {
     if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'bar')) {
-      setSellerProfileMessage('Login as a buyer or bar to follow bars.');
+      setSellerProfileMessage(sellerStatus('loginBuyerOrBarFollowBars'));
       return false;
     }
     const normalizedBarId = String(barId || '').trim();
@@ -7681,7 +8149,7 @@ export default function ThailandPantiesMarketSite() {
 
   function toggleSavedSellerPost(postId, feedType = 'seller') {
     if (!currentUser) {
-      setSellerProfileMessage('Please login to save posts.');
+      setSellerProfileMessage(loginText.loginToSavePosts || 'Please login to save posts.');
       return false;
     }
     const normalizedFeedType = feedType === 'bar' ? 'bar' : 'seller';
@@ -7730,13 +8198,15 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     if (currentUser.role !== 'buyer') {
-      if (typeof window !== 'undefined') window.alert('Only buyer accounts can unlock private posts.');
+      if (typeof window !== 'undefined') window.alert(loginText.unlockOnlyBuyer || 'Only buyer accounts can unlock private posts.');
       return;
     }
     const alreadyUnlocked = postUnlocks.some((entry) => entry.postId === postId && entry.buyerUserId === currentUser.id);
     if (alreadyUnlocked) return;
     if (currentWalletBalance < unlockPrice) {
-      if (typeof window !== 'undefined') window.alert(`You need at least ${formatPriceTHB(unlockPrice)} in your wallet to unlock this post.`);
+      if (typeof window !== 'undefined') {
+        window.alert(`${loginText.unlockWalletRequiredPrefix || 'You need at least'} ${formatPriceTHB(unlockPrice)} ${loginText.unlockWalletRequiredSuffix || 'in your wallet to unlock this post.'}`);
+      }
       return;
     }
     const now = new Date().toISOString();
@@ -7778,7 +8248,7 @@ export default function ThailandPantiesMarketSite() {
         afterBalance: buyerAfter,
       });
     });
-    if (typeof window !== 'undefined') window.alert(`Post unlocked for ${formatPriceTHB(unlockPrice)}.`);
+    if (typeof window !== 'undefined') window.alert(`${loginText.postUnlockedPrefix || 'Post unlocked for'} ${formatPriceTHB(unlockPrice)}.`);
   }
 
   function saveAccountDetails() {
@@ -7804,7 +8274,7 @@ export default function ThailandPantiesMarketSite() {
 
   function submitRefundEvidence(payload, onSuccess, onError) {
     if (!currentUser || currentUser.role !== 'buyer') {
-      const message = 'Please login as a buyer to submit refund evidence.';
+      const message = loginText.loginBuyerToRefundEvidence || 'Please login as a buyer to submit refund evidence.';
       onError?.(message);
       navigate('/login');
       return;
@@ -8177,7 +8647,7 @@ export default function ThailandPantiesMarketSite() {
 
   async function sendBuyerMessageToConversation(sellerId, conversationId, body, onSuccess, onError) {
     if (!currentUser || currentUser.role !== 'buyer') {
-      const message = 'Please login as a buyer to send messages.';
+      const message = loginText.loginBuyerToMessage || 'Please login as a buyer to send messages.';
       onError?.(message);
       if (typeof window !== 'undefined') window.alert(message);
       navigate('/login');
@@ -8509,7 +8979,7 @@ export default function ThailandPantiesMarketSite() {
 
   async function submitCustomRequest(payload, onSuccess, onError) {
     if (!currentUser || currentUser.role !== 'buyer') {
-      const message = 'Please login as a buyer to send custom requests.';
+      const message = loginText.loginBuyerToCustomRequest || 'Please login as a buyer to send custom requests.';
       onError?.(message);
       if (typeof window !== 'undefined') window.alert(message);
       navigate('/login');
@@ -9494,7 +9964,7 @@ export default function ThailandPantiesMarketSite() {
     const onSuccess = Array.isArray(arg3) ? arg4 : arg3;
     const onError = Array.isArray(arg3) ? arg5 : arg4;
     if (!currentUser || !['buyer', 'seller'].includes(currentUser.role)) {
-      onError?.('Please login to send custom request messages.');
+      onError?.(loginText.loginToSendCustomRequestMessages || 'Please login to send custom request messages.');
       return;
     }
     const trimmedBody = String(body || '').trim();
@@ -11001,7 +11471,7 @@ export default function ThailandPantiesMarketSite() {
     if (!uploadDraft.title || !uploadDraft.price || !uploadDraft.image) return;
     const parsedUploadPrice = Number(uploadDraft.price);
     if (!Number.isFinite(parsedUploadPrice) || parsedUploadPrice < MIN_SELLER_PRICE_THB) {
-      setSellerProfileMessage(`Listing price must be at least ${formatPriceTHB(MIN_SELLER_PRICE_THB)}.`);
+      setSellerProfileMessage(sellerStatus('listingPriceAtLeast', { amount: formatPriceTHB(MIN_SELLER_PRICE_THB) }));
       return;
     }
     const slug = uploadDraft.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -11266,7 +11736,7 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     if (currentUser.accountStatus !== 'active') {
-      setSellerProfileMessage('Your account must be active to submit reports.');
+      setSellerProfileMessage(sellerStatus('accountActiveToReport'));
       return;
     }
     if (reportingSellerPostId === postId) return;
@@ -11349,25 +11819,25 @@ export default function ThailandPantiesMarketSite() {
 
   function reportSellerPostComment(commentId, providedReason) {
     if (!currentUser) {
-      setSellerProfileMessage('Please login to report comments.');
+      setSellerProfileMessage(loginText.loginToReportComments || 'Please login to report comments.');
       return;
     }
     if (currentUser.accountStatus !== 'active') {
-      setSellerProfileMessage('Your account must be active to submit reports.');
+      setSellerProfileMessage(sellerStatus('accountActiveToReport'));
       return;
     }
     if (reportingSellerPostCommentId === commentId) return;
     const targetComment = sellerPostComments.find((entry) => entry.id === commentId);
     if (!targetComment) return;
     if (targetComment.senderUserId === currentUser.id) {
-      setSellerProfileMessage('You cannot report your own comment.');
+      setSellerProfileMessage(sellerStatus('cannotReportOwnComment'));
       return;
     }
     const existingOpenReport = commentReports.find(
       (report) => report.commentId === commentId && report.reporterUserId === currentUser.id && report.status !== 'resolved'
     );
     if (existingOpenReport) {
-      setSellerProfileMessage('You already reported this comment.');
+      setSellerProfileMessage(sellerStatus('alreadyReportedComment'));
       return;
     }
     const trimmedReason = String(providedReason || '').trim();
@@ -11409,7 +11879,7 @@ export default function ThailandPantiesMarketSite() {
           },
         ],
       }));
-      setSellerProfileMessage('Comment reported. Admin will review it.');
+      setSellerProfileMessage(sellerStatus('commentReported'));
     } finally {
       setReportingSellerPostCommentId(null);
     }
@@ -11417,33 +11887,33 @@ export default function ThailandPantiesMarketSite() {
 
   async function reportDirectMessage(messageId, reasonCategory, providedReasonText = '') {
     if (!currentUser) {
-      setSellerProfileMessage('Please login to report messages.');
+      setSellerProfileMessage(loginText.loginToReportMessages || 'Please login to report messages.');
       return false;
     }
     if (currentUser.accountStatus !== 'active') {
-      setSellerProfileMessage('Your account must be active to submit reports.');
+      setSellerProfileMessage(sellerStatus('accountActiveToReport'));
       return false;
     }
     if (currentUser.role !== 'buyer') {
-      setSellerProfileMessage('Only buyers can report direct messages.');
+      setSellerProfileMessage(sellerStatus('onlyBuyersReportDirectMessages'));
       return false;
     }
     if (reportingDirectMessageId === messageId) return false;
     const message = messages.find((entry) => entry.id === messageId);
     if (!message) return false;
     if (String(message.senderRole || '').toLowerCase() !== 'seller') {
-      setSellerProfileMessage('Only seller messages can be reported from this view.');
+      setSellerProfileMessage(sellerStatus('onlySellerMessagesReportable'));
       return false;
     }
     if ((message.senderId || message.senderUserId) === currentUser.id) {
-      setSellerProfileMessage('You cannot report your own message.');
+      setSellerProfileMessage(sellerStatus('cannotReportOwnMessage'));
       return false;
     }
     const existingOpenReport = messageReports.find(
       (report) => report.messageId === messageId && report.reporterUserId === currentUser.id && report.status !== 'resolved' && report.status !== 'dismissed'
     );
     if (existingOpenReport) {
-      setSellerProfileMessage('You already reported this message.');
+      setSellerProfileMessage(sellerStatus('alreadyReportedMessage'));
       return false;
     }
 
@@ -11508,7 +11978,7 @@ export default function ThailandPantiesMarketSite() {
           },
         ],
       }));
-      setSellerProfileMessage('Message reported. Admin will review it.');
+      setSellerProfileMessage(sellerStatus('messageReported'));
       return true;
     } finally {
       setReportingDirectMessageId(null);
@@ -11730,7 +12200,7 @@ export default function ThailandPantiesMarketSite() {
             })
           : resolvedBase;
       });
-      setSellerProfileMessage('Comment report resolved.');
+      setSellerProfileMessage(sellerStatus('commentReportResolved'));
     } finally {
       setResolvingCommentReportId(null);
     }
@@ -11795,7 +12265,7 @@ export default function ThailandPantiesMarketSite() {
             })
           : resolvedBase;
       });
-      setSellerProfileMessage('Message report resolved.');
+      setSellerProfileMessage(sellerStatus('messageReportResolved'));
     } finally {
       setResolvingMessageReportId(null);
     }
@@ -11830,7 +12300,7 @@ export default function ThailandPantiesMarketSite() {
           },
         ],
       }));
-      setSellerProfileMessage('Message report dismissed.');
+      setSellerProfileMessage(sellerStatus('messageReportDismissed'));
     } finally {
       setDismissingMessageReportId(null);
     }
@@ -11860,7 +12330,7 @@ export default function ThailandPantiesMarketSite() {
     const activeStrikeCount = (userStrikes || []).filter((strike) => strike.userId === currentUser.id && strike.status === 'active').length;
     const canAppeal = currentUser.accountStatus === 'frozen' || activeStrikeCount > 0;
     if (!canAppeal) {
-      setSellerProfileMessage('Appeals are only available for frozen accounts or accounts with active strikes.');
+      setSellerProfileMessage(sellerStatus('appealsOnlyEligible'));
       return false;
     }
     setSubmittingStrikeAppeal(true);
@@ -11906,7 +12376,7 @@ export default function ThailandPantiesMarketSite() {
           },
         ],
       }));
-      setSellerProfileMessage('Appeal submitted. Admin will review it soon.');
+      setSellerProfileMessage(sellerStatus('appealSubmitted'));
       return true;
     } finally {
       setSubmittingStrikeAppeal(false);
@@ -11982,7 +12452,7 @@ export default function ThailandPantiesMarketSite() {
           ],
         };
       });
-      setSellerProfileMessage(decision === 'approved' ? 'Appeal approved and account restored.' : 'Appeal denied.');
+      setSellerProfileMessage(decision === 'approved' ? sellerStatus('appealApprovedRestored') : sellerStatus('appealDenied'));
     } finally {
       setReviewingAppealId(null);
     }
@@ -12633,12 +13103,22 @@ export default function ThailandPantiesMarketSite() {
                   {publicText.heroSubtitle}
                 </p>
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <button onClick={() => navigate('/')} className="rounded-2xl bg-rose-600 px-6 py-3 font-semibold text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 hover:bg-rose-700">
+                  {!currentUser ? (
+                    <button onClick={() => navigate('/register')} className="rounded-2xl bg-rose-600 px-6 py-3 font-semibold text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 hover:bg-rose-700">
+                      {navText.register}
+                    </button>
+                  ) : null}
+                  <button onClick={() => navigate('/find')} className="rounded-2xl border border-rose-200 bg-white px-6 py-3 font-semibold text-rose-700 transition hover:-translate-y-0.5 hover:border-rose-300">
                     {publicText.browseListings}
                   </button>
                   <button onClick={() => navigate('/seller-portfolios')} className="rounded-2xl border border-rose-200 bg-white px-6 py-3 font-semibold text-rose-700 transition hover:-translate-y-0.5 hover:border-rose-300">
                     {publicText.meetSellers}
                   </button>
+                  {!currentUser ? (
+                    <button onClick={() => navigate('/register')} className="rounded-2xl border border-rose-200 bg-white px-6 py-3 font-semibold text-rose-700 transition hover:-translate-y-0.5 hover:border-rose-300">
+                      Join as buyer, seller, or bar
+                    </button>
+                  ) : null}
                 </div>
                 <div className="mt-10 grid max-w-lg grid-cols-3 gap-4">
                   <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-rose-100"><div className="text-2xl font-bold">120+</div><div className="text-sm text-slate-500">{publicText.curatedListings}</div></div>
@@ -12722,7 +13202,19 @@ export default function ThailandPantiesMarketSite() {
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {homeProductPreview.map((product) => {
                   return (
-                  <article key={product.id} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                  <article
+                    key={product.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/product/${product.slug}`)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        navigate(`/product/${product.slug}`);
+                      }
+                    }}
+                    className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                  >
                     <button onClick={() => navigate(`/product/${product.slug}`)} className="block h-56 w-full text-left">
                       <ProductImage src={product.image} label={product.imageName || product.title} />
                     </button>
@@ -12736,7 +13228,10 @@ export default function ThailandPantiesMarketSite() {
                       <div className="mt-4 flex gap-3">
                         <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl bg-rose-600 px-4 py-3 font-semibold text-white">{publicText.viewListing}</button>
                         <button
-                          onClick={() => addToCart(product.id)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            addToCart(product.id);
+                          }}
                           disabled={cart.includes(product.id)}
                           className={`rounded-2xl border px-4 py-3 font-semibold ${cart.includes(product.id) ? 'cursor-not-allowed border-slate-200 text-slate-500' : 'border-rose-200 text-rose-700'}`}
                         >
@@ -12747,6 +13242,16 @@ export default function ThailandPantiesMarketSite() {
                   </article>
                 )})}
               </div>
+              {!currentUser ? (
+                <div className="mt-8 mx-auto max-w-2xl rounded-3xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-sm text-slate-600">{loginText.homeCtaBuyerLine || 'Want to save favorites, message sellers, and checkout faster?'}</div>
+                    <button onClick={() => navigate('/register')} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">
+                      {loginText.homeCtaBuyerButton || 'Create your account'}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </section>
 
             <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
@@ -12767,7 +13272,19 @@ export default function ThailandPantiesMarketSite() {
               ) : (
                 <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                   {homeSellerPreview.map((seller) => (
-                    <article key={seller.id} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                    <article
+                      key={seller.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/seller/${seller.id}`)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          navigate(`/seller/${seller.id}`);
+                        }
+                      }}
+                      className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                    >
                       <div className="h-44">
                         <ProductImage
                           src={seller.profileImageResolved || seller.profileImage}
@@ -12795,6 +13312,16 @@ export default function ThailandPantiesMarketSite() {
                   ))}
                 </div>
               )}
+              {!currentUser ? (
+                <div className="mt-8 mx-auto max-w-2xl rounded-3xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-sm text-slate-600">{loginText.homeCtaSellerLine || 'Ready to sell? Create a seller account and build your profile.'}</div>
+                    <button onClick={() => navigate('/register')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                      {loginText.homeCtaSellerButton || 'Register now'}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </section>
 
             <section className="mx-auto max-w-7xl px-6 py-8 md:py-12">
@@ -12864,7 +13391,19 @@ export default function ThailandPantiesMarketSite() {
               ) : (
                 <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                   {homeBarsByRecentPost.map(({ bar, latestPost }) => (
-                    <article key={`home_bar_${bar.id}`} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                    <article
+                      key={`home_bar_${bar.id}`}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/bar/${bar.id}`)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          navigate(`/bar/${bar.id}`);
+                        }
+                      }}
+                      className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                    >
                       <div className="h-44">
                         <ProductImage src={latestPost?.image || bar.profileImage} label={latestPost?.imageName || `${bar.name} latest post`} />
                       </div>
@@ -12882,6 +13421,16 @@ export default function ThailandPantiesMarketSite() {
                   ))}
                 </div>
               )}
+              {!currentUser ? (
+                <div className="mt-8 mx-auto max-w-2xl rounded-3xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-sm text-slate-600">{loginText.homeCtaBarLine || 'Own a venue? Join as a bar account to post events and connect with sellers.'}</div>
+                    <button onClick={() => navigate('/register')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                      {loginText.homeCtaBarButton || 'Register a bar account'}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </section>
           </>
         ) : null}
@@ -13399,8 +13948,8 @@ export default function ThailandPantiesMarketSite() {
             {!isBar ? (
               <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
                 <Lock className="mx-auto h-10 w-10 text-rose-600" />
-                <h2 className="mt-4 text-2xl font-bold">Bar login required</h2>
-                <p className="mt-2 text-slate-600">Use a bar account to manage bar profile details and photo posts.</p>
+                <h2 className="mt-4 text-2xl font-bold">{loginText.barLoginRequiredTitle || 'Bar login required'}</h2>
+                <p className="mt-2 text-slate-600">{loginText.barLoginProfileSubtitle || 'Use a bar account to manage bar profile details and photo posts.'}</p>
               </div>
             ) : (
               <>
@@ -13939,8 +14488,8 @@ export default function ThailandPantiesMarketSite() {
             {!isBar ? (
               <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
                 <Lock className="mx-auto h-10 w-10 text-rose-600" />
-                <h2 className="mt-4 text-2xl font-bold">Bar login required</h2>
-                <p className="mt-2 text-slate-600">Use a bar account to create and manage bar feed posts.</p>
+                <h2 className="mt-4 text-2xl font-bold">{loginText.barLoginRequiredTitle || 'Bar login required'}</h2>
+                <p className="mt-2 text-slate-600">{loginText.barLoginFeedSubtitle || 'Use a bar account to create and manage bar feed posts.'}</p>
               </div>
             ) : (
               <>
@@ -14241,7 +14790,9 @@ export default function ThailandPantiesMarketSite() {
                     authResendVerificationSending ? 'cursor-not-allowed opacity-60' : ''
                   }`}
                 >
-                  {authResendVerificationSending ? 'Sending verification email...' : 'Resend verification email'}
+                  {authResendVerificationSending
+                    ? (loginText.resendSending || 'Sending verification email...')
+                    : (loginText.resendButton || 'Resend verification email')}
                 </button>
               </div>
               {authError ? <div key={authErrorRefreshKey} className="text-sm font-medium text-rose-700">{authError}</div> : null}
@@ -14253,7 +14804,10 @@ export default function ThailandPantiesMarketSite() {
         ) : null}
 
         {routeInfo.name === 'verify-email' ? (
-          <PageShell title="Verify email" subtitle="Confirm your account email to complete registration">
+          <PageShell
+            title={loginText.verifyTitle || 'Verify email'}
+            subtitle={loginText.verifySubtitle || 'Confirm your account email to complete registration'}
+          >
             <div className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
               <div className={`rounded-2xl border px-4 py-3 text-sm ${
                 emailVerificationStatus.tone === 'success'
@@ -14262,7 +14816,7 @@ export default function ThailandPantiesMarketSite() {
                     ? 'border-rose-200 bg-rose-50 text-rose-700'
                     : 'border-slate-200 bg-slate-50 text-slate-700'
               }`}>
-                {emailVerificationStatus.message || 'Preparing verification...'}
+                {emailVerificationStatus.message || loginText.verifyPreparing || 'Preparing verification...'}
               </div>
               <button
                 type="button"
@@ -14272,7 +14826,7 @@ export default function ThailandPantiesMarketSite() {
                   emailVerificationStatus.loading ? 'cursor-not-allowed opacity-60' : ''
                 }`}
               >
-                Go to login
+                {loginText.verifyGoToLogin || 'Go to login'}
               </button>
               <button
                 type="button"
@@ -14282,7 +14836,9 @@ export default function ThailandPantiesMarketSite() {
                   authResendVerificationSending ? 'cursor-not-allowed opacity-60' : ''
                 }`}
               >
-                {authResendVerificationSending ? 'Sending verification email...' : 'Resend verification email'}
+                {authResendVerificationSending
+                  ? (loginText.resendSending || 'Sending verification email...')
+                  : (loginText.resendButton || 'Resend verification email')}
               </button>
             </div>
           </PageShell>
@@ -14334,14 +14890,22 @@ export default function ThailandPantiesMarketSite() {
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3"
                 placeholder={registerText.password}
               />
+              <input
+                value={registerForm.confirmPassword}
+                onChange={(event) => setRegisterForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
+                type={showRegisterPassword ? "text" : "password"}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                placeholder={registerText.confirmPassword || 'Confirm password'}
+              />
               <button
                 type="button"
                 onClick={() => setShowRegisterPassword((prev) => !prev)}
                 className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800"
-                aria-label={showRegisterPassword ? registerText.hidePassword : registerText.showPassword}
+                aria-label={showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
               >
-                {showRegisterPassword ? registerText.hidePassword : registerText.showPassword}
+                {showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
               </button>
+              <div className="text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
               {registerForm.role === 'seller' || registerForm.role === 'bar' ? (
                 <>
                   <input
@@ -14363,21 +14927,21 @@ export default function ThailandPantiesMarketSite() {
               ) : null}
               {registerForm.role === 'buyer' ? (
                 <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
-                  <div className="mb-2 text-sm font-semibold text-rose-800">Buyer terms acceptance</div>
+                  <div className="mb-2 text-sm font-semibold text-rose-800">{registerText.buyerTermsTitle || 'Buyer terms acceptance'}</div>
                   <div className="mb-3 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => navigate('/community-standards')}
                       className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
                     >
-                      View Community Standards
+                      {registerText.viewCommunityStandards || 'View Community Standards'}
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate('/refund-policy')}
                       className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
                     >
-                      View Refund Policy
+                      {registerText.viewRefundPolicy || 'View Refund Policy'}
                     </button>
                   </div>
                   <label className="mb-2 flex items-start gap-2 text-sm text-slate-700">
