@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Bell,
@@ -28,7 +28,6 @@ import {
   CUSTOM_REQUEST_FEE_THB,
   DAYS_WORN_OPTIONS,
   FABRIC_OPTIONS,
-  formatExchangeEstimates,
   formatPriceTHB,
   localizeOptionLabel,
   MESSAGE_FEE_THB,
@@ -126,6 +125,63 @@ function getAddressConventionMeta(countryValue) {
   };
 }
 
+function formatRelativeTimeLabel(value) {
+  if (!value) return "Just now";
+  const dateValue = new Date(value);
+  if (Number.isNaN(dateValue.getTime())) return "Just now";
+  const diffMs = Date.now() - dateValue.getTime();
+  const diffSeconds = Math.max(0, Math.floor(diffMs / 1000));
+  if (diffSeconds < 45) return "Just now";
+  if (diffSeconds < 3600) {
+    const minutes = Math.floor(diffSeconds / 60);
+    return `${minutes}m ago`;
+  }
+  if (diffSeconds < 86400) {
+    const hours = Math.floor(diffSeconds / 3600);
+    return `${hours}h ago`;
+  }
+  if (diffSeconds < 604800) {
+    const days = Math.floor(diffSeconds / 86400);
+    return `${days}d ago`;
+  }
+  return formatDateTimeNoSeconds(value);
+}
+
+function getDiscreetNotificationText(text, type, enabled) {
+  if (!enabled) return String(text || "");
+  const normalizedType = String(type || "").toLowerCase();
+  if (normalizedType === "message") return "You have a new message.";
+  if (normalizedType === "engagement") return "You have a new account update.";
+  if (normalizedType === "admin_ops") return "You have a new admin alert.";
+  return "You have a new notification.";
+}
+
+function formatNotificationDayLabel(value) {
+  const dateValue = new Date(value || Date.now());
+  if (Number.isNaN(dateValue.getTime())) return "Earlier";
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfTarget = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate()).getTime();
+  const diffDays = Math.floor((startOfToday - startOfTarget) / 86400000);
+  if (diffDays <= 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return dateValue.toLocaleDateString();
+}
+
+function groupNotificationsByDay(items) {
+  const groups = [];
+  let currentLabel = "";
+  (items || []).forEach((item) => {
+    const label = formatNotificationDayLabel(item?.createdAt);
+    if (!groups.length || currentLabel !== label) {
+      groups.push({ label, items: [] });
+      currentLabel = label;
+    }
+    groups[groups.length - 1].items.push(item);
+  });
+  return groups;
+}
+
 const SELLER_UI_LANGUAGE_OPTIONS = [
   { value: "en", label: "English" },
   { value: "th", label: "Thai" },
@@ -157,6 +213,7 @@ const ACCOUNT_PAGE_I18N = {
     accountBalance: "Account balance",
     favoriteSellers: "Favorite sellers",
     favoriteBars: "Favorite bars",
+    watchedProducts: "Liked Products",
     profile: "Profile",
     quickFinder: "Quick finder",
     contactDetails: "Contact details",
@@ -170,6 +227,11 @@ const ACCOUNT_PAGE_I18N = {
     items: "item(s)",
     orderPlaced: "Placed",
     tracking: "Tracking",
+    resendReceipt: "Resend receipt",
+    resendingReceipt: "Sending...",
+    receiptRecentlySent: "Recently sent",
+    receiptResent: "Receipt email sent.",
+    receiptResendFailed: "Could not send receipt right now.",
     pending: "Pending",
     copied: "Copied",
     copyCode: "Copy code",
@@ -213,6 +275,12 @@ const ACCOUNT_PAGE_I18N = {
     reportSubmitFailed: "Unable to submit report right now.",
     purchaseHistoryHelp: "Your purchase history will appear here after checkout.",
     markNotificationsRead: "Mark notifications read",
+    notifications: "Notifications",
+    notificationsHelp: "Stay on top of messages, activity, and order updates.",
+    notificationDiscreetMode: "Discreet notification text",
+    noNotifications: "No notifications yet.",
+    markRead: "Mark read",
+    openThread: "Open thread",
     noWalletActivity: "No wallet activity yet.",
     availableBalance: "Available balance",
     walletHelp: "Messages and custom request messages deduct",
@@ -222,10 +290,12 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedPrefix: "Added",
     walletAddedSuffix: "to your wallet.",
     walletPresetHelp: "Minimum top-up is 500 baht.",
-    favoritesHelp: "Bookmark sellers for quick profile and messaging access.",
-    noFavorites: "No favorite sellers yet. Use Bookmark in the quick finder or Follow in seller feed.",
+    favoritesHelp: "Favorite sellers for quick profile and messaging access.",
+    noFavorites: "No favorite sellers yet. Use Favorite in the quick finder or Follow in seller feed.",
     favoriteBarsHelp: "Follow bars to keep their feed posts close and easy to find.",
     noFavoriteBars: "No favorite bars yet. Use Follow bar on bar feed cards.",
+    watchedProductsHelp: "Like products you want to revisit later from listing and product pages.",
+    noWatchedProducts: "No liked products yet. Tap Like on product cards.",
     locationNotSet: "Location not set",
     savedOn: "Saved",
     view: "View",
@@ -237,12 +307,16 @@ const ACCOUNT_PAGE_I18N = {
     postalCodeFallback: "ZIP / Postal code",
     phoneNotSet: "Phone not set",
     emailNotSet: "Email not set",
-    quickFinderHelp: "Search sellers and products, then jump directly to the page you need.",
-    searchSellersProductsStyles: "Search sellers, products, styles...",
+    quickFinderHelp: "Search sellers, products, and bars, then jump directly to the page you need.",
+    searchSellersProductsStyles: "Search sellers, products, bars, styles...",
     sellersLabel: "Sellers",
     noSellersFound: "No sellers found for this query.",
-    bookmarked: "Bookmarked",
-    bookmark: "Bookmark",
+    barsLabel: "Bars",
+    noBarsFound: "No bars found for this query.",
+    bookmarked: "Favorited",
+    bookmark: "Favorite",
+    followBar: "Favorite bar",
+    followingBar: "Favorited bar",
     productsLabel: "Products",
     noProductsFound: "No products found for this query.",
     updateContactHelp: "Update your name, email, phone number, and shipping contact information.",
@@ -287,6 +361,7 @@ const ACCOUNT_PAGE_I18N = {
     billingLedger: "ประวัติการเงิน",
     accountBalance: "ยอดเงินคงเหลือ",
     favoriteSellers: "ผู้ขายที่ชื่นชอบ",
+    watchedProducts: "สินค้าที่ถูกใจ",
     profile: "โปรไฟล์",
     quickFinder: "ค้นหาแบบรวดเร็ว",
     contactDetails: "ข้อมูลติดต่อ",
@@ -353,7 +428,9 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedSuffix: "เข้าสู่กระเป๋าเงินของคุณแล้ว",
     walletPresetHelp: "ยอดเติมขั้นต่ำคือ 500 บาท",
     favoritesHelp: "บันทึกผู้ขายไว้เพื่อเข้าถึงโปรไฟล์และข้อความได้รวดเร็ว",
-    noFavorites: "ยังไม่มีผู้ขายที่ชื่นชอบ ใช้ Bookmark ใน quick finder หรือ Follow ในฟีดผู้ขาย",
+    noFavorites: "ยังไม่มีผู้ขายที่ชื่นชอบ ใช้ Favorite ใน quick finder หรือ Follow ในฟีดผู้ขาย",
+    watchedProductsHelp: "กดถูกใจสินค้าเพื่อกลับมาดูได้ภายหลังจากหน้ารายการหรือหน้าสินค้า",
+    noWatchedProducts: "ยังไม่มีสินค้าที่ถูกใจ กด Like บนการ์ดสินค้าได้เลย",
     locationNotSet: "ยังไม่ได้ระบุที่อยู่",
     savedOn: "บันทึกเมื่อ",
     view: "ดู",
@@ -415,6 +492,7 @@ const ACCOUNT_PAGE_I18N = {
     billingLedger: "ငွေစာရင်း",
     accountBalance: "လက်ကျန်ငွေ",
     favoriteSellers: "အကြိုက်ဆုံး seller များ",
+    watchedProducts: "Like လုပ်ထားသော Product များ",
     profile: "ပရိုဖိုင်",
     quickFinder: "အမြန်ရှာဖွေမှု",
     contactDetails: "ဆက်သွယ်ရန် အချက်အလက်",
@@ -481,7 +559,9 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedSuffix: "သင့် wallet ထဲသို့ ရောက်ရှိပါပြီ။",
     walletPresetHelp: "အနည်းဆုံး top-up ပမာဏသည် 500 ဘတ် ဖြစ်သည်။",
     favoritesHelp: "profile နှင့် messaging ကို မြန်မြန်ဝင်ကြည့်ရန် seller များကို bookmark လုပ်ပါ။",
-    noFavorites: "အကြိုက်ဆုံး seller မရှိသေးပါ။ quick finder တွင် Bookmark သို့မဟုတ် seller feed တွင် Follow ကို သုံးပါ။",
+    noFavorites: "အကြိုက်ဆုံး seller မရှိသေးပါ။ quick finder တွင် Favorite သို့မဟုတ် seller feed တွင် Follow ကို သုံးပါ။",
+    watchedProductsHelp: "Listing နှင့် product စာမျက်နှာများမှ ပြန်ကြည့်ချင်သော product များကို Like လုပ်ထားနိုင်သည်။",
+    noWatchedProducts: "Like လုပ်ထားသော product မရှိသေးပါ။ Product card များပေါ်ရှိ Like ကိုနှိပ်ပါ။",
     locationNotSet: "တည်နေရာ မသတ်မှတ်ရသေး",
     savedOn: "သိမ်းထားသောနေ့",
     view: "ကြည့်ရန်",
@@ -497,8 +577,8 @@ const ACCOUNT_PAGE_I18N = {
     searchSellersProductsStyles: "seller, product, style များကို ရှာပါ...",
     sellersLabel: "seller များ",
     noSellersFound: "ဤရှာဖွေမှုအတွက် seller မတွေ့ပါ။",
-    bookmarked: "bookmark လုပ်ပြီး",
-    bookmark: "bookmark",
+    bookmarked: "favorite လုပ်ပြီး",
+    bookmark: "favorite",
     productsLabel: "product များ",
     noProductsFound: "ဤရှာဖွေမှုအတွက် product မတွေ့ပါ။",
     updateContactHelp: "သင့်အမည်၊ email၊ ဖုန်းနံပါတ်နှင့် ပို့ဆောင်ရေးဆိုင်ရာ ဆက်သွယ်ရန်အချက်အလက်များကို အပ်ဒိတ်လုပ်ပါ။",
@@ -543,6 +623,7 @@ const ACCOUNT_PAGE_I18N = {
     billingLedger: "История операций",
     accountBalance: "Баланс аккаунта",
     favoriteSellers: "Избранные продавцы",
+    watchedProducts: "Понравившиеся товары",
     profile: "Профиль",
     quickFinder: "Быстрый поиск",
     contactDetails: "Контактные данные",
@@ -609,7 +690,9 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedSuffix: "в ваш кошелек.",
     walletPresetHelp: "Минимальное пополнение — 500 бат.",
     favoritesHelp: "Добавляйте продавцов в закладки для быстрого доступа к профилю и сообщениям.",
-    noFavorites: "Пока нет избранных продавцов. Используйте Bookmark в быстром поиске или Follow в ленте продавца.",
+    noFavorites: "Пока нет избранных продавцов. Используйте Favorite в быстром поиске или Follow в ленте продавца.",
+    watchedProductsHelp: "Отмечайте товары Like, чтобы быстро возвращаться к ним со страниц каталога и товара.",
+    noWatchedProducts: "Пока нет понравившихся товаров. Нажмите Like на карточке товара.",
     locationNotSet: "Локация не указана",
     savedOn: "Сохранено",
     view: "Открыть",
@@ -921,7 +1004,8 @@ const SELLER_WRITING_PRESETS_I18N = {
         presets: [
           "I'm good today, how are you?",
           "Hey, hope your day is going well.",
-          "Just checking in, how has your day been?"
+          "Just checking in, how has your day been?",
+          "Have you eaten today?"
         ],
       },
       {
@@ -982,7 +1066,8 @@ const SELLER_WRITING_PRESETS_I18N = {
         presets: [
           "วันนี้ฉันสบายดี คุณเป็นยังไงบ้าง?",
           "หวังว่าวันนี้ของคุณจะเป็นวันที่ดีนะ",
-          "แวะมาทักเฉยๆ วันนี้ของคุณเป็นยังไงบ้าง?"
+          "แวะมาทักเฉยๆ วันนี้ของคุณเป็นยังไงบ้าง?",
+          "วันนี้ทานข้าวหรือยัง?"
         ],
       },
       {
@@ -1043,7 +1128,8 @@ const SELLER_WRITING_PRESETS_I18N = {
         presets: [
           "ဒီနေ့ကျွန်မ/ကျွန်တော် အဆင်ပြေပါတယ်၊ သင်ကော ဘယ်လိုလဲ?",
           "ဟယ်လို, သင့်နေ့လေး ကောင်းကောင်းဖြတ်သန်းနေရမယ်လို့ မျှော်လင့်ပါတယ်။",
-          "အခြေအနေမေးချင်လို့ပါ - ဒီနေ့ သင့်နေ့လေး ဘယ်လိုလဲ?"
+          "အခြေအနေမေးချင်လို့ပါ - ဒီနေ့ သင့်နေ့လေး ဘယ်လိုလဲ?",
+          "ဒီနေ့ ထမင်းစားပြီးပြီလား?"
         ],
       },
       {
@@ -1104,7 +1190,8 @@ const SELLER_WRITING_PRESETS_I18N = {
         presets: [
           "У меня сегодня все хорошо, как ты?",
           "Привет, надеюсь, у тебя хороший день.",
-          "Просто решила написать: как у тебя проходит день?"
+          "Просто решила написать: как у тебя проходит день?",
+          "Ты сегодня уже ела?"
         ],
       },
       {
@@ -1845,6 +1932,12 @@ export function SellerDashboardPage({
   respondToCustomRequestCounter,
   toggleCustomRequestBuyerImageUpload,
   sendCustomRequestMessage,
+  accountCredentialForm,
+  setAccountCredentialForm,
+  submitAccountCredentialChanges,
+  accountCredentialSaving,
+  accountCredentialMessage,
+  accountCredentialTone,
   navigate
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
@@ -1900,7 +1993,60 @@ export function SellerDashboardPage({
   const [customRequestQuoteDraftById, setCustomRequestQuoteDraftById] = useState({});
   const [customRequestQuoteNoteById, setCustomRequestQuoteNoteById] = useState({});
   const [customRequestQuoteMessageById, setCustomRequestQuoteMessageById] = useState({});
+  const sellerSectionStateStorageKey = `tlm-seller-dashboard-sections-${currentUser?.id || "anon"}`;
+  const [sellerSectionOpen, setSellerSectionOpen] = useState(() => {
+    const defaults = { credentials: true, profile: true, upload: true, listings: true };
+    if (typeof window === "undefined") return defaults;
+    try {
+      const raw = window.localStorage.getItem(sellerSectionStateStorageKey);
+      if (!raw) return defaults;
+      const parsed = JSON.parse(raw);
+      return {
+        credentials: typeof parsed?.credentials === "boolean" ? parsed.credentials : defaults.credentials,
+        profile: typeof parsed?.profile === "boolean" ? parsed.profile : defaults.profile,
+        upload: typeof parsed?.upload === "boolean" ? parsed.upload : defaults.upload,
+        listings: typeof parsed?.listings === "boolean" ? parsed.listings : defaults.listings,
+      };
+    } catch {
+      return defaults;
+    }
+  });
+  useEffect(() => {
+    const defaults = { credentials: true, profile: true, upload: true, listings: true };
+    if (typeof window === "undefined") {
+      setSellerSectionOpen(defaults);
+      return;
+    }
+    try {
+      const raw = window.localStorage.getItem(sellerSectionStateStorageKey);
+      if (!raw) {
+        setSellerSectionOpen(defaults);
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      setSellerSectionOpen({
+        credentials: typeof parsed?.credentials === "boolean" ? parsed.credentials : defaults.credentials,
+        profile: typeof parsed?.profile === "boolean" ? parsed.profile : defaults.profile,
+        upload: typeof parsed?.upload === "boolean" ? parsed.upload : defaults.upload,
+        listings: typeof parsed?.listings === "boolean" ? parsed.listings : defaults.listings,
+      });
+    } catch {
+      setSellerSectionOpen(defaults);
+    }
+  }, [sellerSectionStateStorageKey]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(sellerSectionStateStorageKey, JSON.stringify(sellerSectionOpen));
+  }, [sellerSectionStateStorageKey, sellerSectionOpen]);
   const [notificationFilter, setNotificationFilter] = useState("all");
+  const [sellerNotificationCompactMode, setSellerNotificationCompactMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(`tlm-seller-notification-density-${currentUser?.id || "anon"}`) === "compact";
+  });
+  const [sellerDiscreetNotificationText, setSellerDiscreetNotificationText] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(`tlm-seller-discreet-notifications-${currentUser?.id || "anon"}`) === "1";
+  });
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
   const applyPresetToDraft = (currentValue, preset) => {
     if (String(currentValue || "").trim()) {
@@ -1933,8 +2079,60 @@ export function SellerDashboardPage({
     return "";
   };
   const unreadNotificationCount = sellerNotifications.filter((notification) => !notification.read).length;
-  const sellerUnreadConversationCount = (sellerInbox || []).filter((message) => message.hasUnread ?? !message.readBySeller).length;
-  const firstUnreadSellerConversation = (sellerInbox || []).find((message) => message.hasUnread ?? !message.readBySeller) || null;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      `tlm-seller-discreet-notifications-${currentUser?.id || "anon"}`,
+      sellerDiscreetNotificationText ? "1" : "0"
+    );
+  }, [sellerDiscreetNotificationText, currentUser?.id]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      `tlm-seller-notification-density-${currentUser?.id || "anon"}`,
+      sellerNotificationCompactMode ? "compact" : "comfort"
+    );
+  }, [sellerNotificationCompactMode, currentUser?.id]);
+  const groupedSellerNotifications = useMemo(
+    () => groupNotificationsByDay(filteredSellerNotifications),
+    [filteredSellerNotifications]
+  );
+  const sellerNotificationTypeMeta = (notificationType) => {
+    const normalizedType = String(notificationType || "").toLowerCase();
+    if (normalizedType === "message") {
+      return {
+        label: "Message",
+        icon: MessageSquare,
+        chipClassName: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        iconWrapClassName: "bg-emerald-50 text-emerald-700",
+      };
+    }
+    if (normalizedType === "engagement") {
+      return {
+        label: "Activity",
+        icon: Bell,
+        chipClassName: "border-amber-200 bg-amber-50 text-amber-700",
+        iconWrapClassName: "bg-amber-50 text-amber-700",
+      };
+    }
+    if (normalizedType === "admin_ops") {
+      return {
+        label: "Admin",
+        icon: Shield,
+        chipClassName: "border-indigo-200 bg-indigo-50 text-indigo-700",
+        iconWrapClassName: "bg-indigo-50 text-indigo-700",
+      };
+    }
+    return {
+      label: "Update",
+      icon: Bell,
+      chipClassName: "border-slate-200 bg-slate-50 text-slate-700",
+      iconWrapClassName: "bg-slate-100 text-slate-700",
+    };
+  };
+  const safeSellerInbox = (sellerInbox || []).filter((message) => message && typeof message === "object");
+  const sellerUnreadConversationCount = safeSellerInbox.filter((message) => message.hasUnread ?? !message.readBySeller).length;
+  const firstUnreadSellerConversation = safeSellerInbox.find((message) => message.hasUnread ?? !message.readBySeller) || null;
   const parseBuyerIdFromConversationId = (conversationId) => {
     const [buyerId] = String(conversationId || "").split("__");
     return String(buyerId || "").trim();
@@ -1954,18 +2152,23 @@ export function SellerDashboardPage({
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   };
-  const activeSellerConversation = (sellerInbox || []).find((row) => row.conversationId === sellerActiveConversationId) || null;
+  const activeSellerConversation = safeSellerInbox.find((row) => row.conversationId === sellerActiveConversationId) || null;
   const activeSellerConversationLabel = resolveBuyerDisplayName(activeSellerConversation);
   const activeSellerConversationInitials = getConversationInitials(activeSellerConversationLabel);
   const unlockRevenue = Number(sellerPostAnalytics?.unlockRevenue || 0);
   const messageRevenue = Number(sellerPostAnalytics?.messageRevenue || 0);
+  const orderRevenue = Number(sellerPostAnalytics?.orderRevenue || 0);
   const netEarnings = Number(
     sellerPostAnalytics?.totalRevenue
-    ?? Number((unlockRevenue + messageRevenue).toFixed(2))
+    ?? Number((unlockRevenue + messageRevenue + orderRevenue).toFixed(2))
   );
   const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.7 : 0.8;
   const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
-  const grossEarnings = Number((unlockRevenue + grossMessageFees).toFixed(2));
+  const grossOrderRevenue = Number((orderRevenue / sellerPayoutRatio).toFixed(2));
+  const grossEarnings = Number(
+    sellerPostAnalytics?.totalGrossRevenue
+    ?? Number((unlockRevenue + grossMessageFees + grossOrderRevenue).toFixed(2))
+  );
   const openSellerRequestCount = useMemo(
     () =>
       (sellerCustomRequests || []).filter((request) => {
@@ -2072,7 +2275,14 @@ export function SellerDashboardPage({
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
           <h2 className="mt-4 text-2xl font-bold">{t("loginRequired")}</h2>
-          <p className="mt-2 text-slate-600">Use the Seller Login button in the header to access the seller dashboard.</p>
+          <p className="mt-2 text-slate-600">Please log in with a seller account to continue.</p>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
+          >
+            Go to login
+          </button>
         </div>
       ) : (
         <>
@@ -2209,6 +2419,76 @@ export function SellerDashboardPage({
               </label>
             </div>
           </div>
+          <details
+            id="seller-credentials"
+            open={sellerSectionOpen.credentials}
+            onToggle={(event) => {
+              const isOpen = Boolean(event.currentTarget?.open);
+              setSellerSectionOpen((prev) => ({ ...prev, credentials: isOpen }));
+            }}
+            className="mb-6 overflow-hidden rounded-3xl border border-rose-100 bg-white shadow-sm ring-1 ring-rose-100"
+          >
+            <summary className="cursor-pointer list-none px-5 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-lg font-semibold text-slate-900">Login credentials</div>
+                  <div className="mt-0.5 text-sm text-slate-600">Change your email/password only when needed.</div>
+                </div>
+                <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
+                  {sellerSectionOpen.credentials ? "Collapse" : "Expand"}
+                </span>
+              </div>
+            </summary>
+            <div className="border-t border-rose-100 px-5 pb-5 pt-4">
+              <p className="text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <input
+                  type="password"
+                  value={accountCredentialForm.currentPassword}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder="Current password"
+                />
+                <input
+                  type="email"
+                  value={accountCredentialForm.newEmail}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder="New email"
+                />
+                <input
+                  type="password"
+                  value={accountCredentialForm.newPassword}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder="New password"
+                />
+                <input
+                  type="password"
+                  value={accountCredentialForm.confirmNewPassword}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder="Confirm password"
+                />
+              </div>
+              <div className="mt-2 text-xs text-slate-500">Use at least 8 characters with 1 number and 1 symbol.</div>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={submitAccountCredentialChanges}
+                  disabled={accountCredentialSaving}
+                  className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? "cursor-not-allowed bg-rose-300" : "bg-rose-600 hover:bg-rose-700"}`}
+                >
+                  {accountCredentialSaving ? "Saving..." : "Update credentials"}
+                </button>
+                {accountCredentialMessage ? (
+                  <div className={`text-sm font-medium ${accountCredentialTone === "error" ? "text-rose-700" : accountCredentialTone === "success" ? "text-emerald-700" : "text-slate-700"}`}>
+                    {accountCredentialMessage}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </details>
           <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
             <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -2242,7 +2522,22 @@ export function SellerDashboardPage({
               <button onClick={() => setNotificationFilter("unread")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Unread ({unreadNotificationCount})</button>
               <button onClick={() => setNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Messages</button>
               <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Engagement</button>
+              <button
+                onClick={() => setSellerDiscreetNotificationText((prev) => !prev)}
+                className={`rounded-xl px-3 py-2 text-sm font-semibold ${sellerDiscreetNotificationText ? "bg-slate-800 text-white" : "border border-slate-200 text-slate-700"}`}
+              >
+                Discreet Messages: {sellerDiscreetNotificationText ? "On" : "Off"}
+              </button>
+              <button
+                onClick={() => setSellerNotificationCompactMode((prev) => !prev)}
+                className={`rounded-xl px-3 py-2 text-sm font-semibold ${sellerNotificationCompactMode ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}
+              >
+                View: {sellerNotificationCompactMode ? "Compact" : "Comfort"}
+              </button>
             </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).
+            </p>
             <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
               <div className="flex flex-wrap gap-2">
                 <button
@@ -2276,46 +2571,76 @@ export function SellerDashboardPage({
             {pushSupported && pushPermission === "denied" ? (
               <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
             ) : null}
-            <div className="mt-4 space-y-3">
-              {filteredSellerNotifications.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noNotifications")}</div> : filteredSellerNotifications.map((notification) => (
-                <div key={notification.id} className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm text-slate-700">{notification.text}</div>
-                    {!notification.read ? <span className="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">Unread</span> : null}
-                  </div>
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-[11px] text-slate-500">{formatDateTimeNoSeconds(notification.createdAt || Date.now())}</div>
-                    <div className="flex gap-2">
-                      {!notification.read ? (
-                        <button onClick={() => markNotificationRead(notification.id)} className="rounded-lg border border-rose-200 px-2 py-1 text-[10px] font-semibold text-rose-700">Mark read</button>
-                      ) : null}
-                      {resolveNotificationActionPath(notification) ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!notification.read) {
-                              markNotificationRead(notification.id);
-                            }
-                            navigate(resolveNotificationActionPath(notification));
-                          }}
-                          className="rounded-lg border border-amber-300 px-2 py-1 text-[10px] font-semibold text-amber-800"
-                        >
-                          {notification.actionLabel || "Appeal now"}
-                        </button>
-                      ) : null}
-                      {notification.conversationId ? (
-                        <button
-                          onClick={() => {
-                            setSellerSelectedConversationId(notification.conversationId);
-                            markNotificationsReadForConversation(notification.conversationId);
-                            navigate("/seller-messages");
-                          }}
-                          className="rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-700"
-                        >
-                          Open thread
-                        </button>
-                      ) : null}
-                    </div>
+            <div className="mt-4 space-y-4">
+              {groupedSellerNotifications.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noNotifications")}</div> : groupedSellerNotifications.map((group) => (
+                <div key={group.label}>
+                  <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{group.label}</div>
+                  <div className="space-y-3">
+                    {group.items.map((notification) => (
+                      <div key={notification.id} className={`rounded-2xl ${sellerNotificationCompactMode ? "p-3" : "p-4"} ring-1 ${notification.read ? "bg-white ring-rose-100" : "border border-rose-200 bg-rose-50/40 ring-rose-200"}`}>
+                        <div className="flex items-start gap-3">
+                          {(() => {
+                            const meta = sellerNotificationTypeMeta(notification.type);
+                            const MetaIcon = meta.icon;
+                            return (
+                              <div className={`mt-0.5 inline-flex ${sellerNotificationCompactMode ? "h-7 w-7" : "h-8 w-8"} shrink-0 items-center justify-center rounded-full ${meta.iconWrapClassName}`}>
+                                <MetaIcon className={sellerNotificationCompactMode ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                              </div>
+                            );
+                          })()}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                {(() => {
+                                  const meta = sellerNotificationTypeMeta(notification.type);
+                                  return <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${meta.chipClassName}`}>{meta.label}</span>;
+                                })()}
+                                {!notification.read ? <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">Unread</span> : null}
+                              </div>
+                              <div className="text-[11px] text-slate-500" title={formatDateTimeNoSeconds(notification.createdAt || Date.now())}>
+                                {formatRelativeTimeLabel(notification.createdAt || Date.now())}
+                              </div>
+                            </div>
+                            <div className={`${sellerNotificationCompactMode ? "mt-1.5 text-[13px] leading-5" : "mt-2 text-sm leading-6"} text-slate-700`}>
+                              {getDiscreetNotificationText(notification.text, notification.type, sellerDiscreetNotificationText)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className={`${sellerNotificationCompactMode ? "mt-2.5" : "mt-3"} flex flex-wrap items-center justify-end gap-2`}>
+                          <div className="flex flex-wrap gap-2">
+                            {!notification.read ? (
+                              <button onClick={() => markNotificationRead(notification.id)} className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700">Mark read</button>
+                            ) : null}
+                            {resolveNotificationActionPath(notification) ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!notification.read) {
+                                    markNotificationRead(notification.id);
+                                  }
+                                  navigate(resolveNotificationActionPath(notification));
+                                }}
+                                className="rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-amber-800"
+                              >
+                                {notification.actionLabel || "Appeal now"}
+                              </button>
+                            ) : null}
+                            {notification.conversationId ? (
+                              <button
+                                onClick={() => {
+                                  setSellerSelectedConversationId(notification.conversationId);
+                                  markNotificationsReadForConversation(notification.conversationId);
+                                  navigate("/seller-messages");
+                                }}
+                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-slate-700"
+                              >
+                                Open thread
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -2325,8 +2650,21 @@ export function SellerDashboardPage({
             <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
               <SellerQrCard seller={sellerMap[currentSellerId]} />
             </div>
-            <div id="seller-profile" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-              <h3 className="text-xl font-semibold">{t("profileChecklist")}</h3>
+            <details
+              id="seller-profile"
+              open={sellerSectionOpen.profile}
+              onToggle={(event) => {
+                const isOpen = Boolean(event.currentTarget?.open);
+                setSellerSectionOpen((prev) => ({ ...prev, profile: isOpen }));
+              }}
+              className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100"
+            >
+              <summary className="cursor-pointer list-none">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold">{t("profileChecklist")}</h3>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                </div>
+              </summary>
               <div className="mt-1 text-sm text-slate-500">Profile: {currentSellerProfile?.name || "Seller profile"}</div>
               <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("sellerPresence")}</div>
@@ -2569,10 +2907,28 @@ export function SellerDashboardPage({
                 <button onClick={saveSellerProfile} className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">{t("saveProfile")}</button>
                 {sellerProfileMessage ? <div className="text-sm font-medium text-rose-700">{sellerProfileMessage}</div> : null}
               </div>
+            </details>
 
-              <div id="seller-upload" className="flex items-center gap-3"><Upload className="h-5 w-5 text-rose-600" /><h3 className="text-xl font-semibold">{t("mediaUpload")}</h3></div>
-              <p className="mt-3 text-sm leading-7 text-slate-600">{t("mediaUploadHelp")}</p>
-              <div className="mt-5 grid gap-4">
+              <details
+                id="seller-upload"
+                open={sellerSectionOpen.upload}
+                onToggle={(event) => {
+                  const isOpen = Boolean(event.currentTarget?.open);
+                  setSellerSectionOpen((prev) => ({ ...prev, upload: isOpen }));
+                }}
+                className="overflow-hidden rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100"
+              >
+                <summary className="cursor-pointer list-none">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <Upload className="h-5 w-5 text-rose-600" />
+                      <h3 className="text-xl font-semibold">{t("mediaUpload")}</h3>
+                    </div>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  </div>
+                </summary>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{t("mediaUploadHelp")}</p>
+                <div className="mt-5 grid gap-4">
                 <input value={uploadDraft.title} onChange={(e) => setUploadDraft((prev) => ({ ...prev, title: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("productTitle")} />
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={uploadDraft.price} onChange={(e) => setUploadDraft((prev) => ({ ...prev, price: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("price")} />
@@ -2660,7 +3016,7 @@ export function SellerDashboardPage({
                   onChange={handleUploadFile}
                   className="sr-only"
                 />
-                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
+                <div className="flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
                   <label htmlFor="seller-product-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
                     {t("chooseFile")}
                   </label>
@@ -2806,10 +3162,27 @@ export function SellerDashboardPage({
                   </div>
                 ) : null}
               </div>
-            </div>
+            </details>
 
-          </div>
-          <div id="seller-listings" className="mt-8 flex items-center justify-between gap-4"><h3 className="text-xl font-semibold">{t("listingLibrary")}</h3><div className="text-sm text-slate-500">{sellerDashboardProducts.length} {t("items")}</div></div>
+          <details
+            id="seller-listings"
+            open={sellerSectionOpen.listings}
+            onToggle={(event) => {
+              const isOpen = Boolean(event.currentTarget?.open);
+              setSellerSectionOpen((prev) => ({ ...prev, listings: isOpen }));
+            }}
+            className="mt-8 overflow-hidden rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100"
+          >
+            <summary className="cursor-pointer list-none">
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="text-xl font-semibold">{t("listingLibrary")}</h3>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm text-slate-500">{sellerDashboardProducts.length} {t("items")}</div>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                </div>
+              </div>
+            </summary>
+
           <div className="mt-5 space-y-4">
                 {sellerDashboardProducts.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/40 p-4 text-sm text-slate-700">
@@ -2847,6 +3220,8 @@ export function SellerDashboardPage({
                     </div>
                   </div>
                 ))}
+          </div>
+          </details>
           </div>
         </>
       )}
@@ -2915,7 +3290,14 @@ export function SellerFeedWorkspacePage({
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
           <h2 className="mt-4 text-2xl font-bold">{t("loginRequired")}</h2>
-          <p className="mt-2 text-slate-600">Use the Seller Login button in the header to access this page.</p>
+          <p className="mt-2 text-slate-600">Please log in with a seller account to continue.</p>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
+          >
+            Go to login
+          </button>
         </div>
       ) : (
         <>
@@ -2935,7 +3317,13 @@ export function SellerFeedWorkspacePage({
           </div>
           <SectionTitle eyebrow={t("feedEyebrow")} title={t("createFeedPost")} subtitle={t("createFeedPostHelp")} />
           <div className="mt-6 space-y-6">
-            <div id="seller-post-create" className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
+            <details id="seller-post-create" className="overflow-hidden rounded-3xl border border-rose-100 bg-slate-50 p-5" open>
+              <summary className="cursor-pointer list-none">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold">{t("createFeedPost")}</h3>
+                  <span className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                </div>
+              </summary>
               <div className="mt-5 grid gap-4">
                 <textarea
                   value={sellerPostDraft.caption}
@@ -2957,7 +3345,7 @@ export function SellerFeedWorkspacePage({
                   </label>
                   <span className="text-xs text-slate-600">{sellerPostDraft.imageName || t("noFileChosen")}</span>
                 </div>
-                <label className="grid gap-1 text-sm text-slate-600">
+                <label className="grid max-w-md gap-1 text-sm text-slate-600">
                   <span className="font-medium">{t("scheduleOptional")}</span>
                   <input
                     type="datetime-local"
@@ -2967,7 +3355,7 @@ export function SellerFeedWorkspacePage({
                   />
                   <span className="text-[11px] text-slate-500">{t("futureTimeOnly")}</span>
                 </label>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("postVisibility")}</span>
                     <select
@@ -2980,7 +3368,7 @@ export function SellerFeedWorkspacePage({
                     </select>
                   </label>
                   {effectiveDraftVisibility === "private" ? (
-                    <label className="grid gap-1 text-sm text-slate-600">
+                    <label className="grid max-w-sm gap-1 text-sm text-slate-600">
                       <span className="font-medium">{t("privateUnlockPrice")}</span>
                       <input
                         type="number"
@@ -3015,44 +3403,17 @@ export function SellerFeedWorkspacePage({
                   </button>
                 </div>
               </div>
-            </div>
-            <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-xl font-semibold">{t("yourFeedPosts")}</h3>
-                <div className="text-sm text-slate-500">{sellerDashboardPosts.length} post(s)</div>
-              </div>
-              <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("lockedPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.lockedPostCount}</div></div>
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("paidUnlocks")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.unlockCount}</div></div>
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("unlockRevenue")}</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(sellerPostAnalytics.unlockRevenue)}</div></div>
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("topPost")}</div><div className="mt-1 text-xs text-slate-600">{sellerPostAnalytics.topPostTitle} ({sellerPostAnalytics.topPostUnlocks})</div></div>
-              </div>
-              <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("grossEarnings")}</div>
-                    <div className="mt-1 text-2xl font-semibold text-slate-900">{formatPriceTHB(grossEarnings)}</div>
-                    <div className="mt-1 text-xs text-slate-500">{t("grossEarningsHelp")}</div>
-                  </div>
-                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("netEarnings")}</div>
-                    <div className="mt-1 text-2xl font-semibold text-emerald-800">{formatPriceTHB(netEarnings)}</div>
-                    <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
+            </details>
+            <details className="overflow-hidden rounded-3xl border border-rose-100 bg-slate-50 p-5" open>
+              <summary className="cursor-pointer list-none">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold">{t("yourFeedPosts")}</h3>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-slate-500">{sellerDashboardPosts.length} post(s)</div>
+                    <span className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
                   </div>
                 </div>
-              </div>
-              <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("scheduledPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.scheduledPostCount}</div></div>
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("likes")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.likeCount}</div></div>
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("comments")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.commentCount}</div></div>
-                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("followers")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.followerCount}</div></div>
-              </div>
-              <div className="mt-3 rounded-2xl bg-white p-3 text-xs text-slate-600 ring-1 ring-rose-100">
-                {t("engagement7Day")}: <span className="font-semibold text-slate-900">{sellerPostAnalytics.recentEngagement}</span>
-                {" · "}
-                {t("trendVsPrevious7Day")}: <span className={`font-semibold ${sellerPostAnalytics.engagementTrendPct >= 0 ? "text-emerald-700" : "text-rose-700"}`}>{sellerPostAnalytics.engagementTrendPct >= 0 ? "+" : ""}{sellerPostAnalytics.engagementTrendPct}%</span>
-              </div>
+              </summary>
               <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("privatePostPricingMode")}</div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -3163,7 +3524,39 @@ export function SellerFeedWorkspacePage({
                   </div>
                 ))}
               </div>
-            </div>
+              <div className="mt-4 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("lockedPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.lockedPostCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("paidUnlocks")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.unlockCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("unlockRevenue")}</div><div className="mt-1 text-lg font-semibold text-emerald-700">{formatPriceTHB(sellerPostAnalytics.unlockRevenue)}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("topPost")}</div><div className="mt-1 text-xs text-slate-600">{sellerPostAnalytics.topPostTitle} ({sellerPostAnalytics.topPostUnlocks})</div></div>
+              </div>
+              <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-rose-100">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("grossEarnings")}</div>
+                    <div className="mt-1 text-2xl font-semibold text-slate-900">{formatPriceTHB(grossEarnings)}</div>
+                    <div className="mt-1 text-xs text-slate-500">{t("grossEarningsHelp")}</div>
+                  </div>
+                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("netEarnings")}</div>
+                    <div className="mt-1 text-2xl font-semibold text-emerald-800">{formatPriceTHB(netEarnings)}</div>
+                    <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 grid gap-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100 md:grid-cols-4">
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("scheduledPosts")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.scheduledPostCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("likes")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.likeCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("comments")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.commentCount}</div></div>
+                <div><div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("followers")}</div><div className="mt-1 text-lg font-semibold text-slate-800">{sellerPostAnalytics.followerCount}</div></div>
+              </div>
+              <div className="mt-3 rounded-2xl bg-white p-3 text-xs text-slate-600 ring-1 ring-rose-100">
+                {t("engagement7Day")}: <span className="font-semibold text-slate-900">{sellerPostAnalytics.recentEngagement}</span>
+                {" · "}
+                {t("trendVsPrevious7Day")}: <span className={`font-semibold ${sellerPostAnalytics.engagementTrendPct >= 0 ? "text-emerald-700" : "text-rose-700"}`}>{sellerPostAnalytics.engagementTrendPct >= 0 ? "+" : ""}{sellerPostAnalytics.engagementTrendPct}%</span>
+              </div>
+            </details>
           </div>
         </>
       )}
@@ -3192,9 +3585,12 @@ export function SellerMessagesPage({
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
   const sellerWritingPresetText = SELLER_WRITING_PRESETS_I18N[locale] || SELLER_WRITING_PRESETS_I18N.en;
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
-  const sellerInboxReceivedCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "buyer").length;
-  const sellerInboxSentCount = (sellerMessageHistory || []).filter((message) => message.senderRole === "seller").length;
-  const sellerUnreadConversationCount = (sellerInbox || []).filter((message) => message.hasUnread ?? !message.readBySeller).length;
+  const safeSellerInbox = (sellerInbox || []).filter((message) => message && typeof message === "object");
+  const safeSellerMessageHistory = (sellerMessageHistory || []).filter((message) => message && typeof message === "object");
+  const safeSellerActiveConversationMessages = (sellerActiveConversationMessages || []).filter((message) => message && typeof message === "object");
+  const sellerInboxReceivedCount = safeSellerMessageHistory.filter((message) => message.senderRole === "buyer").length;
+  const sellerInboxSentCount = safeSellerMessageHistory.filter((message) => message.senderRole === "seller").length;
+  const sellerUnreadConversationCount = safeSellerInbox.filter((message) => message.hasUnread ?? !message.readBySeller).length;
   const parseBuyerIdFromConversationId = (conversationId) => {
     const [buyerId] = String(conversationId || "").split("__");
     return String(buyerId || "").trim();
@@ -3214,7 +3610,7 @@ export function SellerMessagesPage({
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   };
-  const activeSellerConversation = (sellerInbox || []).find((row) => row.conversationId === sellerActiveConversationId) || null;
+  const activeSellerConversation = safeSellerInbox.find((row) => row.conversationId === sellerActiveConversationId) || null;
   const activeSellerConversationLabel = resolveBuyerDisplayName(activeSellerConversation);
   const activeSellerConversationInitials = getConversationInitials(activeSellerConversationLabel);
   const resolveConversationMessageBody = (message) => {
@@ -3248,8 +3644,9 @@ export function SellerMessagesPage({
       <section className="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6 md:pb-16 md:py-16">
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <h2 className="text-2xl font-bold">{t("loginRequired")}</h2>
-          <button onClick={() => navigate("/account")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">
-            {t("customRequestsTab")}
+          <p className="mt-2 text-slate-600">Please log in with a seller account to continue.</p>
+          <button onClick={() => navigate("/login")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">
+            Go to login
           </button>
         </div>
       </section>
@@ -3286,14 +3683,14 @@ export function SellerMessagesPage({
             <div className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${sellerUnreadConversationCount > 0 ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-white text-slate-700 ring-rose-100"}`}>
               Unread {sellerUnreadConversationCount}
             </div>
-            <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{sellerInbox.length} {t("conversations")}</div>
+            <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{safeSellerInbox.length} {t("conversations")}</div>
             <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Received {sellerInboxReceivedCount}</div>
             <div className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100 sm:inline-flex">Sent {sellerInboxSentCount}</div>
           </div>
         </div>
         <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-3">
-            {sellerInbox.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noMessages")}</div> : sellerInbox.map((message) => {
+            {safeSellerInbox.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noMessages")}</div> : safeSellerInbox.map((message) => {
               const buyerName = resolveBuyerDisplayName(message);
               const buyerInitials = getConversationInitials(buyerName);
               return (
@@ -3314,14 +3711,14 @@ export function SellerMessagesPage({
             })}
           </div>
           <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
-            {sellerActiveConversationMessages.length === 0 ? <div className="text-sm text-slate-500">{t("selectConversation")}</div> : (
+            {safeSellerActiveConversationMessages.length === 0 ? <div className="text-sm text-slate-500">{t("selectConversation")}</div> : (
               <>
                 <div className="mb-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">{activeSellerConversationInitials}</span>
                   <span>{t("chattingWith")}: {activeSellerConversationLabel}</span>
                 </div>
                 <div className="max-h-64 space-y-3 overflow-y-auto">
-                  {sellerActiveConversationMessages.map((message) => (
+                  {safeSellerActiveConversationMessages.map((message) => (
                     <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === 'seller' ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
                       {resolveConversationMessageBody(message)}
                       {canToggleConversationTranslation(message) ? (
@@ -3403,8 +3800,9 @@ export function BarMessagesPage({
       <section className="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6 md:pb-16 md:py-16">
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <h2 className="text-2xl font-bold">Login required</h2>
+          <p className="mt-2 text-slate-600">Please log in with a buyer, seller, or bar account to continue.</p>
           <button onClick={() => navigate("/login")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">
-            Open login
+            Go to login
           </button>
         </div>
       </section>
@@ -4328,8 +4726,15 @@ export function AdminPage({
   sendAdminEmailThreadReply,
   sendAdminEmailInboxMessage,
   updateAdminEmailThreadStatus,
+  deleteAdminEmailThread,
+  getAdminEmailInboxHealth,
+  listAdminEmailSuppressions,
+  addAdminEmailSuppression,
+  removeAdminEmailSuppression,
+  downloadAdminEmailAttachment,
   sellerMap,
   currentUser,
+  sendTestBrowserNotification,
   navigate,
   CMS_SCHEMA,
   NEXTJS_EXPORT_BLUEPRINT,
@@ -4341,7 +4746,9 @@ export function AdminPage({
   payoutEvents,
   createMonthlyPayoutRun,
   markPayoutItemSent,
-  markPayoutItemFailed
+  markPayoutItemFailed,
+  appMode,
+  switchAppMode
 }) {
   const [socialSearch, setSocialSearch] = useState("");
   const [socialFilter, setSocialFilter] = useState("all");
@@ -4354,7 +4761,7 @@ export function AdminPage({
   const [sendingTestTemplateKey, setSendingTestTemplateKey] = useState(null);
   const [emailTemplateActionMessage, setEmailTemplateActionMessage] = useState("");
   const [adminEmailMailboxFilter, setAdminEmailMailboxFilter] = useState("all");
-  const [adminEmailStatusFilter, setAdminEmailStatusFilter] = useState("all");
+  const [adminEmailStatusFilter, setAdminEmailStatusFilter] = useState("active");
   const [adminEmailSearch, setAdminEmailSearch] = useState("");
   const [adminEmailLoading, setAdminEmailLoading] = useState(false);
   const [adminEmailSelectedThreadId, setAdminEmailSelectedThreadId] = useState("");
@@ -4366,9 +4773,39 @@ export function AdminPage({
   const [adminEmailComposeToEmail, setAdminEmailComposeToEmail] = useState("");
   const [adminEmailComposeSubject, setAdminEmailComposeSubject] = useState("");
   const [adminEmailComposeBody, setAdminEmailComposeBody] = useState("");
+  const [adminEmailComposeAttachments, setAdminEmailComposeAttachments] = useState([]);
+  const [adminEmailReplyAttachments, setAdminEmailReplyAttachments] = useState([]);
   const [adminEmailComposeSending, setAdminEmailComposeSending] = useState(false);
+  const [adminEmailComposeConfirmed, setAdminEmailComposeConfirmed] = useState(false);
+  const [adminEmailInboxHealth, setAdminEmailInboxHealth] = useState(null);
+  const [adminEmailInboxHealthLoading, setAdminEmailInboxHealthLoading] = useState(false);
+  const [adminEmailSuppressions, setAdminEmailSuppressions] = useState([]);
+  const [adminEmailSuppressionsLoading, setAdminEmailSuppressionsLoading] = useState(false);
+  const [adminEmailSuppressionEmailDraft, setAdminEmailSuppressionEmailDraft] = useState("");
+  const [adminEmailSuppressionReasonDraft, setAdminEmailSuppressionReasonDraft] = useState("");
   const [adminEmailComposeStatusMessage, setAdminEmailComposeStatusMessage] = useState("");
   const [adminEmailComposeStatusTone, setAdminEmailComposeStatusTone] = useState("neutral");
+  const normalizeAdminEmailStatus = useCallback((value) => {
+    const normalized = String(value || "").trim().toLowerCase();
+    if (normalized === "all") return "all";
+    if (normalized === "active") return "active";
+    if (normalized === "closed") return "archived";
+    if (["open", "pending_customer", "archived"].includes(normalized)) return normalized;
+    return "open";
+  }, []);
+  const doesAdminEmailThreadMatchStatusFilter = useCallback((threadStatus, statusFilter) => {
+    const normalizedStatus = normalizeAdminEmailStatus(threadStatus);
+    const normalizedFilter = normalizeAdminEmailStatus(statusFilter);
+    if (normalizedFilter === "all") return true;
+    if (normalizedFilter === "active") return normalizedStatus === "open" || normalizedStatus === "pending_customer";
+    return normalizedStatus === normalizedFilter;
+  }, [normalizeAdminEmailStatus]);
+  const getAdminEmailStatusLabel = useCallback((value) => {
+    const normalized = normalizeAdminEmailStatus(value);
+    if (normalized === "pending_customer") return "Waiting for customer";
+    if (normalized === "archived") return "Archived";
+    return "Open";
+  }, [normalizeAdminEmailStatus]);
   const refreshAdminEmailInboxRef = useRef(refreshAdminEmailInbox);
   const fetchAdminEmailThreadMessagesRef = useRef(fetchAdminEmailThreadMessages);
   const adminUxPrefsHydratedRef = useRef(false);
@@ -4402,6 +4839,7 @@ export function AdminPage({
   const [payoutDateRangeFilter, setPayoutDateRangeFilter] = useState("all");
   const [promptPayReceiverDraft, setPromptPayReceiverDraft] = useState(String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE));
   const [promptPayReceiverMessage, setPromptPayReceiverMessage] = useState("");
+  const [adminNotificationTestStatus, setAdminNotificationTestStatus] = useState({ tone: "neutral", message: "" });
   useEffect(() => {
     setPromptPayReceiverDraft(String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE));
   }, [promptPayReceiverMobile]);
@@ -6037,7 +6475,8 @@ export function AdminPage({
     const savedInboxPriority = String(safeRead("tlm-admin-inbox-priority", "all") || "all");
     const savedInboxReview = String(safeRead("tlm-admin-inbox-review", "all") || "all");
     const savedEmailMailbox = String(safeRead("tlm-admin-email-mailbox", "all") || "all");
-    const savedEmailStatus = String(safeRead("tlm-admin-email-status", "all") || "all");
+    const savedEmailStatusRaw = String(safeRead("tlm-admin-email-status", "active") || "active");
+    const savedEmailStatus = savedEmailStatusRaw === "all" ? "active" : normalizeAdminEmailStatus(savedEmailStatusRaw);
     const savedEmailSearch = String(safeRead("tlm-admin-email-search", "") || "");
     if (visibleAdminTabs.some((tab) => tab.key === savedTab)) {
       setAdminTab(savedTab);
@@ -6052,7 +6491,7 @@ export function AdminPage({
     setAdminEmailStatusFilter(savedEmailStatus);
     setAdminEmailSearch(savedEmailSearch);
     adminUxPrefsHydratedRef.current = true;
-  }, [visibleAdminTabs, setAdminTab, setAdminUserSearch]);
+  }, [visibleAdminTabs, setAdminTab, setAdminUserSearch, normalizeAdminEmailStatus]);
   useEffect(() => {
     if (!adminUxPrefsHydratedRef.current) return;
     if (typeof window === "undefined") return;
@@ -6435,7 +6874,7 @@ export function AdminPage({
     return [...(adminEmailThreads || [])]
       .filter((thread) => {
         if (adminEmailMailboxFilter !== "all" && String(thread?.mailbox || "admin") !== adminEmailMailboxFilter) return false;
-        if (adminEmailStatusFilter !== "all" && String(thread?.status || "open") !== adminEmailStatusFilter) return false;
+        if (!doesAdminEmailThreadMatchStatusFilter(thread?.status, adminEmailStatusFilter)) return false;
         if (!normalizedSearch) return true;
         const haystack = [
           thread?.participantName,
@@ -6446,7 +6885,7 @@ export function AdminPage({
         return haystack.includes(normalizedSearch);
       })
       .sort((a, b) => new Date(b.lastMessageAt || b.createdAt || 0).getTime() - new Date(a.lastMessageAt || a.createdAt || 0).getTime());
-  }, [adminEmailThreads, adminEmailMailboxFilter, adminEmailStatusFilter, adminEmailSearch]);
+  }, [adminEmailThreads, adminEmailMailboxFilter, adminEmailStatusFilter, adminEmailSearch, doesAdminEmailThreadMatchStatusFilter]);
   const selectedAdminEmailThread = useMemo(() => {
     if (adminEmailSelectedThreadId) {
       return filteredAdminEmailThreads.find((entry) => entry.id === adminEmailSelectedThreadId)
@@ -6477,6 +6916,35 @@ export function AdminPage({
     if (!body) missing.push("message body");
     return missing;
   }, [adminEmailComposeToEmail, adminEmailComposeSubject, adminEmailComposeBody]);
+  const readAttachmentAsBase64 = useCallback((file) => (
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        const marker = "base64,";
+        const idx = result.indexOf(marker);
+        resolve(idx >= 0 ? result.slice(idx + marker.length) : "");
+      };
+      reader.onerror = () => reject(new Error("Could not read attachment."));
+      reader.readAsDataURL(file);
+    })
+  ), []);
+  const buildAttachmentPayloadsFromFileList = useCallback(async (fileList) => {
+    const files = Array.from(fileList || []);
+    if (files.length === 0) return [];
+    const nextPayloads = [];
+    for (const file of files) {
+      const base64 = await readAttachmentAsBase64(file);
+      if (!base64) continue;
+      nextPayloads.push({
+        filename: String(file?.name || "attachment").slice(0, 180),
+        contentType: String(file?.type || "application/octet-stream"),
+        contentBase64: base64,
+        sizeBytes: Number(file?.size || 0),
+      });
+    }
+    return nextPayloads;
+  }, [readAttachmentAsBase64]);
   useEffect(() => {
     refreshAdminEmailInboxRef.current = refreshAdminEmailInbox;
   }, [refreshAdminEmailInbox]);
@@ -6494,6 +6962,11 @@ export function AdminPage({
     const timer = window.setTimeout(() => setAdminEmailComposeStatusMessage(""), 2800);
     return () => window.clearTimeout(timer);
   }, [adminEmailComposeStatusMessage, adminEmailComposeSending, adminEmailComposeStatusTone]);
+  useEffect(() => {
+    if (!adminEmailComposeConfirmed) return;
+    const timer = window.setTimeout(() => setAdminEmailComposeConfirmed(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [adminEmailComposeConfirmed]);
   useEffect(() => {
     if (adminTab !== "email_inbox" || !refreshAdminEmailInboxRef.current) return;
     setAdminEmailLoading(true);
@@ -6515,6 +6988,25 @@ export function AdminPage({
         setAdminEmailLoading(false);
       });
   }, [adminTab, adminEmailMailboxFilter, adminEmailStatusFilter, adminEmailSearch]);
+  useEffect(() => {
+    if (adminTab !== "email_inbox") return;
+    setAdminEmailInboxHealthLoading(true);
+    Promise.resolve(getAdminEmailInboxHealth?.())
+      .then((result) => {
+        if (result?.ok) {
+          setAdminEmailInboxHealth(result.health || null);
+        }
+      })
+      .finally(() => setAdminEmailInboxHealthLoading(false));
+    setAdminEmailSuppressionsLoading(true);
+    Promise.resolve(listAdminEmailSuppressions?.())
+      .then((result) => {
+        if (result?.ok) {
+          setAdminEmailSuppressions(Array.isArray(result.suppressions) ? result.suppressions : []);
+        }
+      })
+      .finally(() => setAdminEmailSuppressionsLoading(false));
+  }, [adminTab, getAdminEmailInboxHealth, listAdminEmailSuppressions]);
   useEffect(() => {
     if (!selectedAdminEmailThread?.id) return;
     setAdminEmailSelectedThreadId(selectedAdminEmailThread.id);
@@ -6566,7 +7058,14 @@ export function AdminPage({
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
           <h2 className="mt-4 text-2xl font-bold">Admin login required</h2>
-          <p className="mt-2 text-slate-600">Use the Admin Login button in the header to access the admin dashboard.</p>
+          <p className="mt-2 text-slate-600">Please log in with an admin account to continue.</p>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
+          >
+            Go to login
+          </button>
         </div>
       ) : (
         <div className="text-[15px] leading-6 text-slate-800">
@@ -6628,6 +7127,45 @@ export function AdminPage({
               ) : null}
             </div>
           </div>
+          <div className="mb-6 rounded-3xl border border-emerald-100 bg-emerald-50/70 p-4 sm:p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-slate-900">Environment mode</div>
+                <p className="mt-1 text-sm text-slate-700">
+                  Test mode keeps only Alex (buyer), Nina (seller), Small World (bar), and the Nina bra + panty + bundle products.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => switchAppMode?.("live")}
+                  disabled={appMode === "live"}
+                  className={`min-h-[44px] rounded-xl px-4 py-2 text-sm font-semibold ${
+                    appMode === "live"
+                      ? "cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-500"
+                      : "border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
+                  }`}
+                >
+                  Live mode
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchAppMode?.("test")}
+                  disabled={appMode === "test"}
+                  className={`min-h-[44px] rounded-xl px-4 py-2 text-sm font-semibold ${
+                    appMode === "test"
+                      ? "cursor-not-allowed border border-emerald-300 bg-emerald-100 text-emerald-800"
+                      : "border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
+                  }`}
+                >
+                  Test mode
+                </button>
+              </div>
+            </div>
+            <div className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+              Active mode: {appMode === "test" ? "Test" : "Live"}
+            </div>
+          </div>
           <div className="mb-8 rounded-3xl border border-rose-100 bg-white p-4 sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -6656,8 +7194,28 @@ export function AdminPage({
                 <button onClick={() => setAdminTab("bars")} className="min-h-[44px] w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 transition duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm sm:w-auto">
                   Bars ({(bars || []).length})
                 </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setAdminNotificationTestStatus({ tone: "neutral", message: "" });
+                    const result = await sendTestBrowserNotification?.();
+                    if (result?.ok) {
+                      setAdminNotificationTestStatus({ tone: "success", message: result.message || "Test notification sent." });
+                    } else {
+                      setAdminNotificationTestStatus({ tone: "error", message: result?.error || "Could not send test notification." });
+                    }
+                  }}
+                  className="min-h-[44px] w-full cursor-pointer rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-sm sm:w-auto"
+                >
+                  Send test notification
+                </button>
               </div>
             </div>
+            {adminNotificationTestStatus.message ? (
+              <div className={`mt-3 text-sm ${adminNotificationTestStatus.tone === "success" ? "text-emerald-700" : "text-rose-700"}`}>
+                {adminNotificationTestStatus.message}
+              </div>
+            ) : null}
           </div>
 
           {adminTab === "overview" ? (
@@ -7893,52 +8451,6 @@ export function AdminPage({
                     </button>
                   </div>
                 ) : null}
-                        {item.type === "order_help_request" ? (
-                          <>
-                            <input
-                              value={orderHelpNoteDraftByItemKey[item.itemKey] || ""}
-                              onChange={(event) => setOrderHelpNoteDraftByItemKey((prev) => ({ ...prev, [item.itemKey]: event.target.value }))}
-                              className="min-w-[220px] rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                              placeholder="Admin note for this ticket"
-                            />
-                            <button
-                              onClick={() => {
-                                if (!updateOrderHelpRequestStatus) return;
-                                updateOrderHelpRequestStatus(
-                                  item.id,
-                                  "in_review",
-                                  orderHelpNoteDraftByItemKey[item.itemKey] || "",
-                                  () => {
-                                    setInboxActionMessage(`Marked order help request ${item.id} as in review.`);
-                                    updateAdminInboxReview?.(item.itemKey, "follow_up");
-                                  },
-                                  (message) => setInboxActionMessage(message || "Could not update order help request."),
-                                );
-                              }}
-                              className="rounded-xl border border-violet-300 px-3 py-2 text-sm font-semibold text-violet-700"
-                            >
-                              Mark in review
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (!updateOrderHelpRequestStatus) return;
-                                updateOrderHelpRequestStatus(
-                                  item.id,
-                                  "resolved",
-                                  orderHelpNoteDraftByItemKey[item.itemKey] || "",
-                                  () => {
-                                    setInboxActionMessage(`Resolved order help request ${item.id}.`);
-                                    updateAdminInboxReview?.(item.itemKey, "resolved");
-                                  },
-                                  (message) => setInboxActionMessage(message || "Could not resolve order help request."),
-                                );
-                              }}
-                              className="rounded-xl border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700"
-                            >
-                              Resolve request
-                            </button>
-                          </>
-                        ) : null}
               </div>
             </div>
           ) : null}
@@ -8912,6 +9424,28 @@ export function AdminPage({
                   placeholder="Write your email..."
                   className="mt-3 min-h-[120px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
                 />
+                <div className="mt-3 space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Attachments</label>
+                  <input
+                    type="file"
+                    multiple
+                    accept=".txt,.csv,.pdf,.jpg,.jpeg,.png,.webp,.zip"
+                    onChange={async (event) => {
+                      const next = await buildAttachmentPayloadsFromFileList(event.target.files);
+                      setAdminEmailComposeAttachments(next);
+                    }}
+                    className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  />
+                  {adminEmailComposeAttachments.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {adminEmailComposeAttachments.map((attachment, index) => (
+                        <span key={`compose_att_${index}`} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
+                          {attachment.filename} · {Math.max(1, Math.round(Number(attachment.sizeBytes || 0) / 1024))}KB
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -8931,6 +9465,7 @@ export function AdminPage({
                         return;
                       }
                       setAdminEmailComposeSending(true);
+                      setAdminEmailComposeConfirmed(false);
                       setAdminEmailComposeStatusTone("neutral");
                       setAdminEmailComposeStatusMessage("Sending email via Postmark...");
                       try {
@@ -8939,11 +9474,13 @@ export function AdminPage({
                           toEmail: adminEmailComposeToEmail,
                           toName: adminEmailComposeToName,
                           subject: adminEmailComposeSubject,
-                          body: adminEmailComposeBody
+                          body: adminEmailComposeBody,
+                          attachments: adminEmailComposeAttachments,
                         }));
                         setAdminEmailComposeStatusTone(result?.ok ? "success" : "error");
+                        setAdminEmailComposeConfirmed(Boolean(result?.ok));
                         setAdminEmailComposeStatusMessage(result?.ok
-                          ? (result?.message || "Postmark accepted the email for delivery.")
+                          ? `Confirmed: sent to Postmark${String(adminEmailComposeToEmail || "").trim() ? ` for ${String(adminEmailComposeToEmail || "").trim()}` : ""}.`
                           : (
                             String(result?.error || "").includes("toEmail, subject, and text are required.")
                               ? "Recipient email, subject, and message body are required."
@@ -8955,6 +9492,7 @@ export function AdminPage({
                           setAdminEmailComposeToEmail("");
                           setAdminEmailComposeSubject("");
                           setAdminEmailComposeBody("");
+                          setAdminEmailComposeAttachments([]);
                         }
                       } finally {
                         setAdminEmailComposeSending(false);
@@ -8962,7 +9500,7 @@ export function AdminPage({
                     }}
                     className={`rounded-xl border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 ${(adminEmailComposeSending || !adminEmailComposeCanSend) ? "cursor-not-allowed opacity-60" : ""}`}
                   >
-                    {adminEmailComposeSending ? "Sending..." : "Send email"}
+                    {adminEmailComposeSending ? "Sending..." : (adminEmailComposeConfirmed ? "Confirmed" : "Send email")}
                   </button>
                   <button
                     type="button"
@@ -8971,6 +9509,7 @@ export function AdminPage({
                       setAdminEmailComposeToEmail("");
                       setAdminEmailComposeSubject("");
                       setAdminEmailComposeBody("");
+                      setAdminEmailComposeAttachments([]);
                     }}
                     className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
                   >
@@ -9034,11 +9573,103 @@ export function AdminPage({
                     onChange={(event) => setAdminEmailStatusFilter(event.target.value)}
                     className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
                   >
+                    <option value="active">Active (Open + Waiting)</option>
                     <option value="all">All statuses</option>
                     <option value="open">Open</option>
                     <option value="pending_customer">Waiting for customer</option>
-                    <option value="closed">Closed</option>
+                    <option value="archived">Archived</option>
                   </select>
+                </div>
+                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm font-semibold text-slate-800">Inbound webhook health</div>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setAdminEmailInboxHealthLoading(true);
+                          const result = await Promise.resolve(getAdminEmailInboxHealth?.());
+                          if (result?.ok) {
+                            setAdminEmailInboxHealth(result.health || null);
+                          }
+                          setAdminEmailInboxHealthLoading(false);
+                        }}
+                        className="rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs font-semibold text-slate-700"
+                      >
+                        {adminEmailInboxHealthLoading ? "Refreshing..." : "Refresh"}
+                      </button>
+                    </div>
+                    <div className="mt-2 text-xs text-slate-600">
+                      Last event: {adminEmailInboxHealth?.lastWebhookAt ? formatDateTimeNoSeconds(adminEmailInboxHealth.lastWebhookAt) : "No webhook events yet."}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-700">ok: {Number(adminEmailInboxHealth?.totals?.ok || 0)}</span>
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">duplicate: {Number(adminEmailInboxHealth?.totals?.duplicate || 0)}</span>
+                      <span className="rounded-full bg-rose-100 px-2 py-0.5 font-semibold text-rose-700">error: {Number(adminEmailInboxHealth?.totals?.error || 0)}</span>
+                      <span className="rounded-full bg-slate-200 px-2 py-0.5 font-semibold text-slate-700">denied: {Number(adminEmailInboxHealth?.totals?.denied || 0)}</span>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-sm font-semibold text-slate-800">Suppression list</div>
+                    <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                      <input
+                        value={adminEmailSuppressionEmailDraft}
+                        onChange={(event) => setAdminEmailSuppressionEmailDraft(event.target.value)}
+                        placeholder="email@example.com"
+                        className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                      />
+                      <input
+                        value={adminEmailSuppressionReasonDraft}
+                        onChange={(event) => setAdminEmailSuppressionReasonDraft(event.target.value)}
+                        placeholder="Reason (optional)"
+                        className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const result = await Promise.resolve(addAdminEmailSuppression?.(adminEmailSuppressionEmailDraft, adminEmailSuppressionReasonDraft));
+                          if (result?.ok) {
+                            setAdminEmailSuppressionEmailDraft("");
+                            setAdminEmailSuppressionReasonDraft("");
+                            const refreshed = await Promise.resolve(listAdminEmailSuppressions?.());
+                            if (refreshed?.ok) setAdminEmailSuppressions(refreshed.suppressions || []);
+                            setAdminEmailActionMessage("Suppression saved.");
+                          } else {
+                            setAdminEmailActionMessage(result?.error || "Could not save suppression.");
+                          }
+                        }}
+                        className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
+                      >
+                        Suppress
+                      </button>
+                    </div>
+                    <div className="mt-2 max-h-[120px] space-y-1 overflow-auto text-xs text-slate-700">
+                      {adminEmailSuppressionsLoading ? (
+                        <div>Loading suppressions...</div>
+                      ) : (adminEmailSuppressions || []).length === 0 ? (
+                        <div>No suppressions.</div>
+                      ) : (adminEmailSuppressions || []).map((entry) => (
+                        <div key={entry.id || entry.email} className="flex items-center justify-between gap-2 rounded-lg bg-white px-2 py-1">
+                          <div className="truncate">{entry.email} {entry.reason ? `· ${entry.reason}` : ""}</div>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const result = await Promise.resolve(removeAdminEmailSuppression?.(entry.email));
+                              if (result?.ok) {
+                                setAdminEmailSuppressions((prev) => (prev || []).filter((row) => String(row?.email || "").toLowerCase() !== String(entry.email || "").toLowerCase()));
+                                setAdminEmailActionMessage(`Removed suppression for ${entry.email}.`);
+                              } else {
+                                setAdminEmailActionMessage(result?.error || "Could not remove suppression.");
+                              }
+                            }}
+                            className="rounded-lg border border-slate-300 px-2 py-0.5 font-semibold text-slate-700"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 {adminEmailActionMessage ? <div className="mt-2 text-xs font-medium text-emerald-700">{adminEmailActionMessage}</div> : null}
                 <div className="mt-4 grid gap-4 lg:grid-cols-[320px_1fr]">
@@ -9067,7 +9698,7 @@ export function AdminPage({
                         <div className="mt-1 text-xs font-medium text-slate-700">{thread.lastSubject || "(No subject)"}</div>
                         <div className="mt-1 line-clamp-2 text-xs text-slate-600">{thread.lastSnippet || "No body preview"}</div>
                         <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
-                          <span>{thread.status || "open"}</span>
+                          <span>{getAdminEmailStatusLabel(thread.status)}</span>
                           <span>{formatDateTimeNoSeconds(thread.lastMessageAt || thread.createdAt || Date.now())}</span>
                         </div>
                       </button>
@@ -9084,7 +9715,7 @@ export function AdminPage({
                             <div className="mt-1 text-sm text-slate-600">{selectedAdminEmailThread.participantName || selectedAdminEmailThread.participantEmail} · {selectedAdminEmailThread.participantEmail}</div>
                           </div>
                           <select
-                            value={String(selectedAdminEmailThread.status || "open")}
+                            value={normalizeAdminEmailStatus(selectedAdminEmailThread.status)}
                             onChange={async (event) => {
                               const result = await Promise.resolve(updateAdminEmailThreadStatus?.(selectedAdminEmailThread.id, event.target.value));
                               setAdminEmailActionMessage(result?.ok ? "Thread status updated." : (result?.error || "Could not update status."));
@@ -9093,8 +9724,39 @@ export function AdminPage({
                           >
                             <option value="open">Open</option>
                             <option value="pending_customer">Waiting for customer</option>
-                            <option value="closed">Closed</option>
+                            <option value="archived">Archived</option>
                           </select>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!selectedAdminEmailThread?.id) return;
+                                const result = await Promise.resolve(updateAdminEmailThreadStatus?.(selectedAdminEmailThread.id, "archived"));
+                                setAdminEmailActionMessage(result?.ok ? "Thread archived." : (result?.error || "Could not archive thread."));
+                              }}
+                              className="rounded-xl border border-amber-200 px-3 py-2 text-sm font-semibold text-amber-700"
+                            >
+                              Archive thread
+                            </button>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!selectedAdminEmailThread?.id) return;
+                                const confirmed = window.confirm("Delete this thread and all messages permanently?");
+                                if (!confirmed) return;
+                                const deletingThreadId = selectedAdminEmailThread.id;
+                                const result = await Promise.resolve(deleteAdminEmailThread?.(deletingThreadId));
+                                if (result?.ok) {
+                                  const nextThread = (filteredAdminEmailThreads || []).find((entry) => entry.id !== deletingThreadId);
+                                  setAdminEmailSelectedThreadId(nextThread?.id || "");
+                                }
+                                setAdminEmailActionMessage(result?.ok ? "Thread deleted." : (result?.error || "Could not delete thread."));
+                              }}
+                              className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
+                            >
+                              Delete thread
+                            </button>
+                          </div>
                         </div>
                         <div className="max-h-[260px] space-y-2 overflow-auto rounded-xl bg-slate-50 p-3">
                           {(selectedAdminEmailThreadMessages || []).length === 0 ? (
@@ -9107,6 +9769,46 @@ export function AdminPage({
                                   : "Customer"} · {formatDateTimeNoSeconds(message.createdAt || Date.now())}
                               </div>
                               <div className="mt-1 whitespace-pre-wrap">{message.text || "(No plain-text body)"}</div>
+                              {Array.isArray(message.attachments) && message.attachments.length > 0 ? (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {message.attachments.map((attachment, index) => (
+                                    <button
+                                      key={`${message.id}_att_${index}`}
+                                      type="button"
+                                      onClick={async () => {
+                                        if (!selectedAdminEmailThread?.id || !message?.id || !attachment?.id) return;
+                                        const result = await Promise.resolve(
+                                          downloadAdminEmailAttachment?.(
+                                            selectedAdminEmailThread.id,
+                                            message.id,
+                                            attachment.id,
+                                            attachment.filename || `attachment-${index + 1}`
+                                          )
+                                        );
+                                        if (!result?.ok) {
+                                          setAdminEmailActionMessage(result?.error || "Could not download attachment.");
+                                        }
+                                      }}
+                                      className={`rounded-full bg-white/80 px-2 py-1 text-[11px] font-semibold text-slate-700 underline-offset-2 hover:underline ${attachment?.hasContent === false ? "opacity-60" : ""}`}
+                                      disabled={attachment?.hasContent === false}
+                                      title={attachment?.hasContent === false
+                                        ? (
+                                          attachment?.blockedReason
+                                            ? `Attachment blocked: ${String(attachment.blockedReason).replaceAll("_", " ")}`
+                                            : "Attachment metadata retained, content unavailable."
+                                        )
+                                        : "Download attachment"}
+                                    >
+                                      {attachment.filename || `Attachment ${index + 1}`}
+                                    </button>
+                                  ))}
+                                </div>
+                              ) : null}
+                              {message.delivery ? (
+                                <div className="mt-2 text-[11px] text-slate-600">
+                                  Delivery: {message.delivery.status || "unknown"}{message.delivery.reason ? ` · ${message.delivery.reason}` : ""}
+                                </div>
+                              ) : null}
                             </div>
                           ))}
                         </div>
@@ -9124,6 +9826,28 @@ export function AdminPage({
                             className="min-h-[120px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
                             placeholder="Write your reply..."
                           />
+                          <div className="space-y-2">
+                            <label className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Reply attachments</label>
+                            <input
+                              type="file"
+                              multiple
+                              accept=".txt,.csv,.pdf,.jpg,.jpeg,.png,.webp,.zip"
+                              onChange={async (event) => {
+                                const next = await buildAttachmentPayloadsFromFileList(event.target.files);
+                                setAdminEmailReplyAttachments(next);
+                              }}
+                              className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                            />
+                            {adminEmailReplyAttachments.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {adminEmailReplyAttachments.map((attachment, index) => (
+                                  <span key={`reply_att_${index}`} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
+                                    {attachment.filename} · {Math.max(1, Math.round(Number(attachment.sizeBytes || 0) / 1024))}KB
+                                  </span>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
                           <div className="flex flex-wrap gap-2">
                             <button
                               type="button"
@@ -9133,11 +9857,13 @@ export function AdminPage({
                                   toEmail: selectedAdminEmailThread.participantEmail || "",
                                   toName: selectedAdminEmailThread.participantName || "",
                                   subject: adminEmailReplySubject,
-                                  body: adminEmailReplyBody
+                                  body: adminEmailReplyBody,
+                                  attachments: adminEmailReplyAttachments
                                 }));
                                 setAdminEmailActionMessage(result?.ok ? (result?.message || "Reply sent.") : (result?.error || "Could not send reply."));
                                 if (result?.ok) {
                                   setAdminEmailReplyBody("");
+                                  setAdminEmailReplyAttachments([]);
                                   await Promise.resolve(fetchAdminEmailThreadMessages?.(selectedAdminEmailThread.id));
                                 }
                               }}
@@ -9147,7 +9873,10 @@ export function AdminPage({
                             </button>
                             <button
                               type="button"
-                              onClick={() => setAdminEmailReplyBody("")}
+                              onClick={() => {
+                                setAdminEmailReplyBody("");
+                                setAdminEmailReplyAttachments([]);
+                              }}
                               className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
                             >
                               Clear
@@ -9965,10 +10694,12 @@ export function CheckoutPage({
                 <div className="grid gap-4">
                   <h3 className="text-xl font-semibold">Payment</h3>
                   <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">Wallet balance available: {formatPriceTHB(currentWalletBalance)}</div>
-                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-xs text-sky-900">
-                    Policy note: refunds require order evidence and are reviewed case-by-case. Keep all order and delivery details accurate before paying.
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900">
+                    Test mode card (Stripe): use <span className="font-semibold">4242 4242 4242 4242</span>, any future expiry, any CVC, and any ZIP/postal code.
                   </div>
-                  <div className="mt-2 text-xs text-slate-500">{formatExchangeEstimates(currentWalletBalance)}</div>
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-xs text-sky-900">
+                    Policy note: refunds require order evidence and are reviewed case-by-case. Before you pay, double-check your items, shipping address, and contact details.
+                  </div>
                   {shouldShowTopUpPrompt ? (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                       <div>Short by: {formatPriceTHB(walletShortfall)}</div>
@@ -10046,7 +10777,40 @@ export function CheckoutPage({
                 {cartItems.map((item, index) => (
                   <div key={`${item.id}-${index}`} className="rounded-2xl bg-white/10 p-4">
                     <div className="flex items-start justify-between gap-3">
-                      <div><div className="font-semibold text-white">{item.title}</div><div className="mt-1 text-sm text-slate-300">{sellerMap[item.sellerId]?.name}</div></div>
+                      <div>
+                        {item.slug ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (typeof window !== "undefined") {
+                                window.location.assign(`/product/${item.slug}`);
+                              }
+                            }}
+                            className="font-semibold text-white underline-offset-2 hover:underline"
+                            title={`Open ${item.title}`}
+                          >
+                            {item.title}
+                          </button>
+                        ) : (
+                          <div className="font-semibold text-white">{item.title}</div>
+                        )}
+                        {item.sellerId ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (typeof window !== "undefined") {
+                                window.location.assign(`/seller/${item.sellerId}`);
+                              }
+                            }}
+                            className="mt-1 block text-sm text-slate-300 underline-offset-2 hover:text-white hover:underline"
+                            title={`Open ${sellerMap[item.sellerId]?.name || "seller"} profile`}
+                          >
+                            {sellerMap[item.sellerId]?.name || "Seller"}
+                          </button>
+                        ) : (
+                          <div className="mt-1 text-sm text-slate-300">{sellerMap[item.sellerId]?.name}</div>
+                        )}
+                      </div>
                       <button
                         onClick={() => removeFromCart(index)}
                         className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:border-white/40 hover:text-white"
@@ -10123,7 +10887,7 @@ export function CheckoutPage({
                 }}
                 className="rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white"
               >
-                Open login
+                Go to login
               </button>
               <button
                 onClick={() => {
@@ -10168,12 +10932,16 @@ export function AccountPage({
   walletStatus,
   topUpAmount,
   markAllNotificationsRead,
+  markNotificationRead,
   buyerLedger,
   buyerSellerDirectory,
   accountSearchQuery,
   setAccountSearchQuery,
   quickSellerResults,
   quickProductResults,
+  quickBarResults,
+  watchedProducts,
+  toggleProductWatch,
   buyerMessageSellerSearch,
   setBuyerMessageSellerSearch,
   buyerMessageSellerResults,
@@ -10200,6 +10968,13 @@ export function AccountPage({
   walletTopUpContext,
   clearWalletTopUpContext,
   promptPayReceiverMobile,
+  accountCredentialForm,
+  setAccountCredentialForm,
+  submitAccountCredentialChanges,
+  accountCredentialSaving,
+  accountCredentialMessage,
+  accountCredentialTone,
+  resendOrderReceipt,
   uiLanguage = "en",
   navigate
 }) {
@@ -10250,10 +11025,42 @@ export function AccountPage({
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
+  const [showCheckoutTopUpSuccessPopup, setShowCheckoutTopUpSuccessPopup] = useState(false);
+  const [resendingReceiptOrderId, setResendingReceiptOrderId] = useState("");
+  const [receiptActionMessage, setReceiptActionMessage] = useState("");
+  const [receiptActionTone, setReceiptActionTone] = useState("neutral");
+  const [receiptCooldownByOrderId, setReceiptCooldownByOrderId] = useState({});
+  const [receiptCooldownNow, setReceiptCooldownNow] = useState(Date.now());
   const [showAllOrderHistory, setShowAllOrderHistory] = useState(false);
   const [orderHistoryPage, setOrderHistoryPage] = useState(1);
   const [showAllBillingLedger, setShowAllBillingLedger] = useState(false);
   const [billingLedgerPage, setBillingLedgerPage] = useState(1);
+  const RECEIPT_RESEND_COOLDOWN_MS = 30000;
+  const handledCheckoutTopUpContextRef = useRef("");
+  useEffect(() => {
+    if (!receiptActionMessage) return undefined;
+    const timerId = window.setTimeout(() => {
+      setReceiptActionMessage("");
+      setReceiptActionTone("neutral");
+    }, 3500);
+    return () => window.clearTimeout(timerId);
+  }, [receiptActionMessage]);
+  useEffect(() => {
+    const hasActiveCooldown = Object.values(receiptCooldownByOrderId).some((expiresAt) => Number(expiresAt || 0) > Date.now());
+    if (!hasActiveCooldown) return undefined;
+    const timerId = window.setInterval(() => {
+      const now = Date.now();
+      setReceiptCooldownNow(now);
+      setReceiptCooldownByOrderId((prev) => {
+        const next = Object.entries(prev || {}).reduce((acc, [orderId, expiresAt]) => {
+          if (Number(expiresAt || 0) > now) acc[orderId] = Number(expiresAt);
+          return acc;
+        }, {});
+        return next;
+      });
+    }, 1000);
+    return () => window.clearInterval(timerId);
+  }, [receiptCooldownByOrderId]);
   const detailPageSize = 10;
   const checkoutRequiredTopUpAmount = getRequiredTopUpAmount(walletTopUpContext?.topupRequired || 0);
   const checkoutReturnPath = String(walletTopUpContext?.returnTo || "").trim();
@@ -10272,10 +11079,12 @@ export function AccountPage({
   }, [checkoutRequiredTopUpAmount, checkoutReturnPath, currentWalletBalance, clearWalletTopUpContext]);
   useEffect(() => {
     if (walletStatus !== "success" || !checkoutReturnPath) return;
+    setShowCheckoutTopUpSuccessPopup(true);
     const timerId = window.setTimeout(() => {
+      setShowCheckoutTopUpSuccessPopup(false);
       clearWalletTopUpContext?.();
       navigate(checkoutReturnPath);
-    }, 450);
+    }, 1200);
     return () => window.clearTimeout(timerId);
   }, [walletStatus, checkoutReturnPath, clearWalletTopUpContext, navigate]);
   const openTopUpModal = (amount) => {
@@ -10293,6 +11102,24 @@ export function AccountPage({
     setTopUpModalOpen(false);
     setTopUpPaymentError("");
   };
+  useEffect(() => {
+    if (currentUser?.role !== "buyer") return;
+    if (walletTopUpContext?.source !== "checkout") return;
+    const contextKey = [
+      String(walletTopUpContext?.source || ""),
+      String(walletTopUpContext?.topupRequired || ""),
+      String(walletTopUpContext?.returnTo || ""),
+    ].join("|");
+    if (!contextKey || handledCheckoutTopUpContextRef.current === contextKey) return;
+    handledCheckoutTopUpContextRef.current = contextKey;
+    if (typeof document !== "undefined") {
+      document.getElementById("buyer-wallet")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    const nextAmount = checkoutRequiredTopUpAmount > 0
+      ? checkoutRequiredTopUpAmount
+      : Number(walletTopUpContext?.topupRequired || 0);
+    openTopUpModal(nextAmount > 0 ? nextAmount : MIN_WALLET_TOP_UP_THB);
+  }, [currentUser?.role, walletTopUpContext?.source, walletTopUpContext?.topupRequired, walletTopUpContext?.returnTo, checkoutRequiredTopUpAmount]);
   const promptPayPayload = useMemo(
     () =>
       buildPromptPayPayload({
@@ -10338,6 +11165,15 @@ export function AccountPage({
   };
   const canAffordCustomRequestMessage =
     currentUser?.role !== "buyer" || Number(currentWalletBalance || 0) >= MESSAGE_FEE_THB;
+  const [buyerNotificationFilter, setBuyerNotificationFilter] = useState("all");
+  const [buyerNotificationCompactMode, setBuyerNotificationCompactMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(`tlm-buyer-notification-density-${currentUser?.id || "anon"}`) === "compact";
+  });
+  const [buyerDiscreetNotificationText, setBuyerDiscreetNotificationText] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(`tlm-buyer-discreet-notifications-${currentUser?.id || "anon"}`) === "1";
+  });
   const buyerUnreadMessageNotifications = useMemo(() => {
     if (currentUser?.role !== "buyer") return [];
     return (notifications || []).filter((notification) => (
@@ -10365,6 +11201,36 @@ export function AccountPage({
     [buyerUnreadMessageNotifications],
   );
   const buyerUnreadSellerReplyCount = buyerUnreadDirectMessageCount + buyerUnreadCustomRequestMessageCount;
+  const buyerNotifications = useMemo(() => {
+    if (currentUser?.role !== "buyer") return [];
+    return (notifications || [])
+      .filter((notification) => notification.userId === currentUser.id)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [notifications, currentUser]);
+  const filteredBuyerNotifications = useMemo(() => {
+    if (buyerNotificationFilter === "unread") return buyerNotifications.filter((notification) => !notification.read);
+    if (buyerNotificationFilter === "messages") return buyerNotifications.filter((notification) => notification.type === "message");
+    if (buyerNotificationFilter === "engagement") return buyerNotifications.filter((notification) => notification.type === "engagement");
+    return buyerNotifications;
+  }, [buyerNotifications, buyerNotificationFilter]);
+  const groupedBuyerNotifications = useMemo(
+    () => groupNotificationsByDay(filteredBuyerNotifications),
+    [filteredBuyerNotifications]
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      `tlm-buyer-discreet-notifications-${currentUser?.id || "anon"}`,
+      buyerDiscreetNotificationText ? "1" : "0"
+    );
+  }, [buyerDiscreetNotificationText, currentUser?.id]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      `tlm-buyer-notification-density-${currentUser?.id || "anon"}`,
+      buyerNotificationCompactMode ? "compact" : "comfort"
+    );
+  }, [buyerNotificationCompactMode, currentUser?.id]);
   const followedSellerIds = useMemo(
     () =>
       new Set(
@@ -10373,6 +11239,16 @@ export function AccountPage({
           .map((entry) => entry.sellerId)
       ),
     [sellerFollows, currentUser]
+  );
+  const followedBarIds = useMemo(
+    () =>
+      new Set(
+        (barFollows || [])
+          .filter((entry) => entry.followerUserId === currentUser?.id)
+          .map((entry) => String(entry?.barId || ""))
+          .filter(Boolean)
+      ),
+    [barFollows, currentUser]
   );
   const favoriteSellers = useMemo(() => {
     if (currentUser?.role !== "buyer") return [];
@@ -10407,6 +11283,10 @@ export function AccountPage({
     });
     return list;
   }, [barFollows, currentUser, barMap]);
+  const watchedProductIds = useMemo(
+    () => new Set((watchedProducts || []).map((product) => product.id)),
+    [watchedProducts]
+  );
   const scrollToSection = (sectionId) => {
     if (typeof document === "undefined") return;
     const node = document.getElementById(sectionId);
@@ -10509,10 +11389,44 @@ export function AccountPage({
   const buyerInAppAllEnabled =
     (currentUser?.notificationPreferences?.message !== false)
     && (currentUser?.notificationPreferences?.engagement !== false);
-  const buyerPushAllEnabled =
-    (currentUser?.notificationPreferences?.push?.message !== false)
-    && (currentUser?.notificationPreferences?.push?.engagement !== false)
-    && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
+  const buyerPushDefaultEnabled = currentUser?.role === "seller" || currentUser?.role === "bar" || currentUser?.role === "admin";
+  const buyerPushMessageEnabled = typeof currentUser?.notificationPreferences?.push?.message === "boolean"
+    ? currentUser.notificationPreferences.push.message
+    : buyerPushDefaultEnabled;
+  const buyerPushEngagementEnabled = typeof currentUser?.notificationPreferences?.push?.engagement === "boolean"
+    ? currentUser.notificationPreferences.push.engagement
+    : buyerPushDefaultEnabled;
+  const buyerPushAdminOpsEnabled = currentUser?.role !== "admin"
+    ? true
+    : (typeof currentUser?.notificationPreferences?.push?.adminOps === "boolean"
+      ? currentUser.notificationPreferences.push.adminOps
+      : true);
+  const buyerPushAllEnabled = buyerPushMessageEnabled && buyerPushEngagementEnabled && buyerPushAdminOpsEnabled;
+  const buyerNotificationTypeMeta = (notificationType) => {
+    const normalizedType = String(notificationType || "").toLowerCase();
+    if (normalizedType === "message") {
+      return {
+        label: "Message",
+        icon: MessageSquare,
+        chipClassName: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        iconWrapClassName: "bg-emerald-50 text-emerald-700",
+      };
+    }
+    if (normalizedType === "engagement") {
+      return {
+        label: "Activity",
+        icon: Bell,
+        chipClassName: "border-amber-200 bg-amber-50 text-amber-700",
+        iconWrapClassName: "bg-amber-50 text-amber-700",
+      };
+    }
+    return {
+      label: "Update",
+      icon: Bell,
+      chipClassName: "border-slate-200 bg-slate-50 text-slate-700",
+      iconWrapClassName: "bg-slate-100 text-slate-700",
+    };
+  };
   const accountAddressMeta = getAddressConventionMeta(accountForm.country);
   const orderHistoryPageCount = Math.max(1, Math.ceil(recentBuyerOrders.length / detailPageSize));
   const visibleOrderHistory = showAllOrderHistory
@@ -10539,6 +11453,36 @@ export function AccountPage({
     );
     setCustomRequestImageDraftById((prev) => ({ ...prev, [requestId]: nextImages.filter((item) => item?.image) }));
   };
+  const handleResendReceipt = async (order) => {
+    if (!order?.id || !resendOrderReceipt) return;
+    const cooldownExpiresAt = Number(receiptCooldownByOrderId[order.id] || 0);
+    if (cooldownExpiresAt > Date.now()) {
+      setReceiptActionMessage(`${tx("receiptRecentlySent")} (${Math.ceil((cooldownExpiresAt - Date.now()) / 1000)}s)`);
+      setReceiptActionTone("neutral");
+      return;
+    }
+    setResendingReceiptOrderId(order.id);
+    setReceiptActionMessage("");
+    setReceiptActionTone("neutral");
+    try {
+      const result = await resendOrderReceipt(order.id);
+      if (result?.ok) {
+        setReceiptActionMessage(tx("receiptResent"));
+        setReceiptActionTone("success");
+        const nextExpiry = Date.now() + RECEIPT_RESEND_COOLDOWN_MS;
+        setReceiptCooldownNow(Date.now());
+        setReceiptCooldownByOrderId((prev) => ({ ...prev, [order.id]: nextExpiry }));
+      } else {
+        setReceiptActionMessage(result?.error || tx("receiptResendFailed"));
+        setReceiptActionTone("error");
+      }
+    } catch {
+      setReceiptActionMessage(tx("receiptResendFailed"));
+      setReceiptActionTone("error");
+    } finally {
+      setResendingReceiptOrderId("");
+    }
+  };
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-16">
       {!currentUser ? (
@@ -10546,6 +11490,13 @@ export function AccountPage({
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
           <h2 className="mt-4 text-2xl font-bold">{accountText.loginRequired}</h2>
           <p className="mt-2 text-slate-600">{tx("loginHelp")}</p>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white hover:bg-rose-700"
+          >
+            Go to login
+          </button>
         </div>
       ) : (
         <>
@@ -10610,6 +11561,7 @@ export function AccountPage({
                 <>
                   <button onClick={() => navigate("/buyer-messages")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.messages}</button>
                   <button onClick={() => scrollToSection("buyer-favorites")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.favorites}</button>
+                  <button onClick={() => scrollToSection("buyer-watched-products")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.watchedProducts || "Liked Products"}</button>
                   <button onClick={() => scrollToSection("buyer-favorite-bars")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.favoriteBars || "Favorite bars"}</button>
                   <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
                   <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.orders}</button>
@@ -10712,10 +11664,13 @@ export function AccountPage({
               </div>
             </div>
           ) : null}
-          <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-semibold">Notification preferences</h3>
-            </div>
+          <details className="mb-6 overflow-hidden rounded-3xl border border-rose-100 bg-white p-5" open>
+            <summary className="cursor-pointer list-none">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-lg font-semibold">Notification preferences</h3>
+                <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+              </div>
+            </summary>
             <div className="mt-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
               <div className="flex flex-wrap gap-2">
                 <button
@@ -10751,8 +11706,106 @@ export function AccountPage({
             {pushSupported && pushPermission === "denied" ? (
               <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
             ) : null}
-          </div>
-          <div className="space-y-5 sm:space-y-6">
+          </details>
+          {currentUser.role === "buyer" ? (
+            <details className="mb-6 overflow-hidden rounded-3xl border border-rose-100 bg-white p-5" open>
+              <summary className="cursor-pointer list-none">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg font-semibold">{tx("notifications")}</h3>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                </div>
+              </summary>
+              <p className="mt-2 text-sm text-slate-600">{tx("notificationsHelp")}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button onClick={() => setBuyerNotificationFilter("all")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>All ({buyerNotifications.length})</button>
+                <button onClick={() => setBuyerNotificationFilter("unread")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Unread ({buyerNotifications.filter((entry) => !entry.read).length})</button>
+                <button onClick={() => setBuyerNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Messages</button>
+                <button onClick={() => setBuyerNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Activity</button>
+                <button onClick={() => setBuyerDiscreetNotificationText((prev) => !prev)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerDiscreetNotificationText ? "bg-slate-800 text-white" : "border border-slate-200 text-slate-700"}`}>
+                  Discreet Messages: {buyerDiscreetNotificationText ? "On" : "Off"}
+                </button>
+                <button onClick={() => setBuyerNotificationCompactMode((prev) => !prev)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationCompactMode ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}>
+                  View: {buyerNotificationCompactMode ? "Compact" : "Comfort"}
+                </button>
+                <button onClick={markAllNotificationsRead} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">{tx("markNotificationsRead")}</button>
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).
+              </p>
+              <div className="mt-4 space-y-4">
+                {groupedBuyerNotifications.length === 0 ? (
+                  <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("noNotifications")}</div>
+                ) : groupedBuyerNotifications.map((group) => (
+                  <div key={group.label}>
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{group.label}</div>
+                    <div className="space-y-3">
+                      {group.items.map((notification) => (
+                        <div key={notification.id} className={`rounded-2xl ${buyerNotificationCompactMode ? "p-3" : "p-4"} ring-1 ${notification.read ? "bg-white ring-rose-100" : "border border-rose-200 bg-rose-50/40 ring-rose-200"}`}>
+                          <div className="flex items-start gap-3">
+                            {(() => {
+                              const meta = buyerNotificationTypeMeta(notification.type);
+                              const MetaIcon = meta.icon;
+                              return (
+                                <div className={`mt-0.5 inline-flex ${buyerNotificationCompactMode ? "h-7 w-7" : "h-8 w-8"} shrink-0 items-center justify-center rounded-full ${meta.iconWrapClassName}`}>
+                                  <MetaIcon className={buyerNotificationCompactMode ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                                </div>
+                              );
+                            })()}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {(() => {
+                                    const meta = buyerNotificationTypeMeta(notification.type);
+                                    return <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${meta.chipClassName}`}>{meta.label}</span>;
+                                  })()}
+                                  {!notification.read ? <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">Unread</span> : null}
+                                </div>
+                                <div className="text-[11px] text-slate-500" title={formatDateTimeNoSeconds(notification.createdAt || Date.now())}>
+                                  {formatRelativeTimeLabel(notification.createdAt || Date.now())}
+                                </div>
+                              </div>
+                              <div className={`${buyerNotificationCompactMode ? "mt-1.5 text-[13px] leading-5" : "mt-2 text-sm leading-6"} text-slate-700`}>
+                                {getDiscreetNotificationText(notification.text, notification.type, buyerDiscreetNotificationText)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className={`${buyerNotificationCompactMode ? "mt-2.5" : "mt-3"} flex flex-wrap items-center justify-end gap-2`}>
+                            {!notification.read ? (
+                              <button onClick={() => markNotificationRead?.(notification.id)} className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700">
+                                {tx("markRead")}
+                              </button>
+                            ) : null}
+                            {notification.conversationId ? (
+                              <button
+                                onClick={() => {
+                                  if (!notification.read) markNotificationRead?.(notification.id);
+                                  const conversationId = String(notification.conversationId || "");
+                                  if (conversationId.startsWith("custom_request_")) {
+                                    navigate("/custom-requests");
+                                    return;
+                                  }
+                                  if (conversationId.includes("__")) {
+                                    setBuyerDashboardConversationId(conversationId);
+                                    navigate("/buyer-messages");
+                                    return;
+                                  }
+                                  navigate("/account");
+                                }}
+                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-slate-700"
+                              >
+                                {tx("openThread")}
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </details>
+          ) : null}
+          <div className="flex flex-col gap-5 sm:gap-6">
               <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
                 <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                   <ShoppingBag className="h-6 w-6 text-rose-600" />
@@ -10785,11 +11838,16 @@ export function AccountPage({
                 </div>
               ) : null}
 
-              <div id="buyer-wallet" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-5 w-5 text-rose-600" />
-                  <h3 className="text-xl font-semibold">{accountText.accountBalance}</h3>
-                </div>
+              <details id="buyer-wallet" className="order-first overflow-hidden rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6" open>
+                <summary className="cursor-pointer list-none">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-5 w-5 text-rose-600" />
+                      <h3 className="text-xl font-semibold">{accountText.accountBalance}</h3>
+                    </div>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  </div>
+                </summary>
                 <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">
                   {tx("availableBalance")}: <span className="font-bold">{formatPriceTHB(currentWalletBalance)}</span>
                 </div>
@@ -11047,7 +12105,7 @@ export function AccountPage({
                     ) : null}
                   </>
                 ) : null}
-              </div>
+              </details>
 
               <div id="buyer-orders" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
                 <h3 className="text-xl font-semibold">{accountText.orderTracking}</h3>
@@ -11120,11 +12178,16 @@ export function AccountPage({
               </div>
 
               {currentUser.role === "buyer" ? (
-                <div id="buyer-favorites" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                  <div className="flex items-center gap-2">
-                    <Bookmark className="h-5 w-5 text-rose-600" />
-                    <h3 className="text-xl font-semibold">{accountText.favoriteSellers}</h3>
-                  </div>
+                <details id="buyer-favorites" className="overflow-hidden rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6" open>
+                  <summary className="cursor-pointer list-none">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Bookmark className="h-5 w-5 text-rose-600" />
+                        <h3 className="text-xl font-semibold">{accountText.favoriteSellers}</h3>
+                      </div>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    </div>
+                  </summary>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{tx("favoritesHelp")}</p>
                   <div className="mt-4 space-y-3">
                     {favoriteSellers.length === 0 ? (
@@ -11188,12 +12251,49 @@ export function AccountPage({
                       ))}
                     </div>
                   </div>
-                </div>
+                </details>
               ) : null}
 
               {currentUser.role === "buyer" ? (
-                <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <h3 className="text-xl font-semibold">{accountText.quickFinder}</h3>
+                <details id="buyer-watched-products" className="overflow-hidden rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6" open>
+                  <summary className="cursor-pointer list-none">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-xl font-semibold">{accountText.watchedProducts || "Liked Products"}</h3>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    </div>
+                  </summary>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{tx("watchedProductsHelp")}</p>
+                  <div className="mt-4 space-y-3">
+                    {(watchedProducts || []).length === 0 ? (
+                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("noWatchedProducts")}</div>
+                    ) : (watchedProducts || []).slice(0, 12).map((product) => (
+                      <div key={product.id} className="rounded-2xl border border-rose-100 p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <button onClick={() => navigate(`/product/${product.slug}`)} className="truncate text-left text-sm font-semibold text-slate-800 hover:text-rose-700">{product.title}</button>
+                            <div className="text-xs text-slate-500">{product.style || tx("notSpecified")} · {formatPriceTHB(product.price)}</div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <button onClick={() => navigate(`/product/${product.slug}`)} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">{tx("view")}</button>
+                            <button onClick={() => toggleProductWatch?.(product.id)} className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700">
+                              {tx("remove")}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              ) : null}
+
+              {currentUser.role === "buyer" ? (
+                <details className="overflow-hidden rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6" open>
+                <summary className="cursor-pointer list-none">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xl font-semibold">{accountText.quickFinder}</h3>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  </div>
+                </summary>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{tx("quickFinderHelp")}</p>
                   <input
                     value={accountSearchQuery}
@@ -11239,19 +12339,60 @@ export function AccountPage({
                       {quickProductResults.length === 0 ? (
                         <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noProductsFound")}</div>
                       ) : quickProductResults.map((product) => (
-                        <button key={product.id} onClick={() => navigate(`/product/${product.slug}`)} className="flex w-full items-center justify-between rounded-2xl border border-rose-100 px-4 py-3 text-left hover:bg-rose-50">
-                          <span className="flex min-w-0 items-center gap-3">
+                        <div key={product.id} className="flex w-full items-center justify-between gap-3 rounded-2xl border border-rose-100 px-4 py-3">
+                          <button onClick={() => navigate(`/product/${product.slug}`)} className="flex min-w-0 flex-1 items-center gap-3 text-left hover:text-rose-700">
                             <span className="h-10 w-10 overflow-hidden rounded-xl ring-1 ring-rose-100">
                               {product.image ? <ProductImage src={product.image} label={product.imageName || product.title} /> : <ProductImage label={product.title} />}
                             </span>
                             <span className="truncate font-medium">{product.title}</span>
-                          </span>
-                          <span className="text-xs text-slate-500">${product.price}</span>
-                        </button>
+                          </button>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-slate-500">${product.price}</span>
+                            <button
+                              type="button"
+                              onClick={() => toggleProductWatch?.(product.id)}
+                              className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${watchedProductIds.has(product.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                            >
+                              {watchedProductIds.has(product.id) ? "Liked" : "Like"}
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
-                </div>
+                  <div className="mt-4">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("barsLabel")}</div>
+                    <div className="mt-2 space-y-2">
+                      {(quickBarResults || []).length === 0 ? (
+                        <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noBarsFound")}</div>
+                      ) : (quickBarResults || []).map((bar) => (
+                        <div key={bar.id} className="rounded-2xl border border-rose-100 px-4 py-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <button onClick={() => navigate(`/bar/${bar.id}`)} className="flex min-w-0 items-center gap-3 text-left hover:text-rose-700">
+                              {bar.profileImage ? (
+                                <span className="h-10 w-10 overflow-hidden rounded-xl ring-1 ring-rose-100">
+                                  <ProductImage src={bar.profileImage} label={bar.profileImageName || bar.name || "Bar"} />
+                                </span>
+                              ) : (
+                                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-xs font-bold text-indigo-700">
+                                  {getConversationInitials(bar.name)}
+                                </span>
+                              )}
+                              <span className="truncate font-medium">{bar.name}</span>
+                            </button>
+                            <button
+                              onClick={() => toggleBarFollow(bar.id)}
+                              className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${followedBarIds.has(bar.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                            >
+                              {followedBarIds.has(bar.id) ? tx("followingBar") : tx("followBar")}
+                            </button>
+                          </div>
+                          <div className="mt-1 text-xs text-slate-500">{bar.location || tx("locationNotSet")}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </details>
               ) : null}
 
               <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
@@ -11268,26 +12409,31 @@ export function AccountPage({
                   </button>
                 </div>
                 <div className="mt-4 space-y-3 text-sm text-slate-600">
+                  <div>{accountForm.name || tx("fullName")}</div>
                   <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-rose-600" /> {accountForm.address || tx("noAddressSaved")}</div>
                   <div>
                     {accountForm.city || tx("cityFallback")}
                     {accountForm.region ? `, ${accountForm.region}` : ""}
-                    {(accountForm.city || accountForm.region) && accountForm.postalCode ? ", " : ""}
-                    {accountForm.postalCode || tx("postalCodeFallback")}
                   </div>
+                  <div>{accountForm.postalCode || tx("postalCodeFallback")}</div>
                   <div>{accountForm.country || tx("countryFallback")}</div>
                   <div>{accountForm.phone || tx("phoneNotSet")}</div>
                   <div>{accountForm.email || tx("emailNotSet")}</div>
                 </div>
               </div>
 
-              <div id="buyer-contact" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <h3 className="text-xl font-semibold">{accountText.contactDetails}</h3>
+              <details id="buyer-contact" className="overflow-hidden rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6" open>
+                <summary className="cursor-pointer list-none">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xl font-semibold">{accountText.contactDetails}</h3>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  </div>
+                </summary>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{tx("updateContactHelp")}</p>
                 <div className="mt-5 grid gap-4">
                   <input value={accountForm.name} onChange={(e) => updateAccountField("name", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("fullName")} />
                   <input value={accountForm.email} onChange={(e) => updateAccountField("email", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("emailPlaceholder")} />
-                  <input value={accountForm.phone} onChange={(e) => updateAccountField("phone", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("phone")} />
+                  <input value={accountForm.phone} onChange={(e) => updateAccountField("phone", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={`${tx("phone")} (optional)`} />
                   {currentUser.role === "buyer" ? (
                     <label className="grid gap-2 text-sm text-slate-700">
                       <span className="font-medium">{accountText.timeFormat}</span>
@@ -11311,11 +12457,74 @@ export function AccountPage({
                   <button onClick={saveAccountDetails} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{accountText.saveDetails}</button>
                   {accountSaveMessage ? <div className="text-sm font-medium text-emerald-700">{accountSaveMessage}</div> : null}
                 </div>
-              </div>
+              </details>
 
-              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-semibold">{accountText.orderHistory}</h3>
+              {currentUser.role === "buyer" ? (
+                <details className="overflow-hidden rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100" open>
+                  <summary className="cursor-pointer list-none">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-lg font-semibold text-slate-900">Login credentials</div>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    </div>
+                  </summary>
+                  <p className="mt-2 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <input
+                      type="password"
+                      value={accountCredentialForm.currentPassword}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder="Current password"
+                    />
+                    <input
+                      type="email"
+                      value={accountCredentialForm.newEmail}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder="New email"
+                    />
+                    <input
+                      type="password"
+                      value={accountCredentialForm.newPassword}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder="New password"
+                    />
+                    <input
+                      type="password"
+                      value={accountCredentialForm.confirmNewPassword}
+                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      placeholder="Confirm password"
+                    />
+                  </div>
+                  <div className="mt-2 text-xs text-slate-500">Use at least 8 characters with 1 number and 1 symbol.</div>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={submitAccountCredentialChanges}
+                      disabled={accountCredentialSaving}
+                      className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? "cursor-not-allowed bg-rose-300" : "bg-rose-600 hover:bg-rose-700"}`}
+                    >
+                      {accountCredentialSaving ? "Saving..." : "Update credentials"}
+                    </button>
+                    {accountCredentialMessage ? (
+                      <div className={`text-sm font-medium ${accountCredentialTone === "error" ? "text-rose-700" : accountCredentialTone === "success" ? "text-emerald-700" : "text-slate-700"}`}>
+                        {accountCredentialMessage}
+                      </div>
+                    ) : null}
+                  </div>
+                </details>
+              ) : null}
+
+              <details className="overflow-hidden rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6" open>
+                <summary className="cursor-pointer list-none">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xl font-semibold">{accountText.orderHistory}</h3>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  </div>
+                </summary>
+                <div className="mt-2 flex items-center justify-end gap-3">
                   {recentBuyerOrders.length > 3 ? (
                     <button
                       type="button"
@@ -11334,17 +12543,49 @@ export function AccountPage({
                   {recentBuyerOrders.length === 0 ? (
                     <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("purchaseHistoryHelp")}</div>
                   ) : visibleOrderHistory.map((order) => (
-                    <div key={`${order.id}-history`} className="grid gap-3 rounded-2xl border border-rose-100 p-4 md:grid-cols-[1.3fr_0.9fr_0.8fr_0.8fr]">
+                    <div key={`${order.id}-history`} className="grid gap-3 rounded-2xl border border-rose-100 p-4 md:grid-cols-[1.3fr_0.9fr_0.8fr_1fr]">
                       <div>
                         <div className="font-semibold">{order.id}</div>
                         <div className="mt-1 text-sm text-slate-500">{order.items.length} {tx("items")}</div>
                       </div>
                       <div className="text-sm text-slate-600">{new Date(order.createdAt || Date.now()).toLocaleDateString()}</div>
                       <div className="text-sm text-slate-600">{localizePaymentStatus(order.paymentStatus)}</div>
-                      <div className="text-sm font-semibold text-rose-700">{formatPriceTHB(order.total)}</div>
+                      <div className="flex items-center justify-between gap-2 md:justify-end">
+                        <div className="text-sm font-semibold text-rose-700">{formatPriceTHB(order.total)}</div>
+                        {(() => {
+                          const cooldownRemainingSeconds = Math.max(
+                            0,
+                            Math.ceil((Number(receiptCooldownByOrderId[order.id] || 0) - receiptCooldownNow) / 1000)
+                          );
+                          const cooldownActive = cooldownRemainingSeconds > 0;
+                          return (
+                        <button
+                          type="button"
+                          onClick={() => handleResendReceipt(order)}
+                          disabled={resendingReceiptOrderId === order.id || cooldownActive}
+                          className={`rounded-xl border px-2.5 py-1 text-xs font-semibold ${
+                            (resendingReceiptOrderId === order.id || cooldownActive)
+                              ? "cursor-not-allowed border-slate-200 text-slate-400"
+                              : "border-rose-200 text-rose-700 hover:bg-rose-50"
+                          }`}
+                        >
+                          {resendingReceiptOrderId === order.id
+                            ? tx("resendingReceipt")
+                            : cooldownActive
+                              ? `${tx("receiptRecentlySent")} (${cooldownRemainingSeconds}s)`
+                              : tx("resendReceipt")}
+                        </button>
+                          );
+                        })()}
+                      </div>
                     </div>
                   ))}
                 </div>
+                {receiptActionMessage ? (
+                  <div className={`mt-3 text-sm font-medium ${receiptActionTone === "success" ? "text-emerald-700" : receiptActionTone === "error" ? "text-rose-700" : "text-slate-700"}`}>
+                    {receiptActionMessage}
+                  </div>
+                ) : null}
                 {showAllOrderHistory && recentBuyerOrders.length > detailPageSize ? (
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <button
@@ -11366,11 +12607,16 @@ export function AccountPage({
                     </button>
                   </div>
                 ) : null}
-              </div>
+              </details>
 
-              <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-semibold">{accountText.billingLedger}</h3>
+              <details className="overflow-hidden rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6" open>
+                <summary className="cursor-pointer list-none">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xl font-semibold">{accountText.billingLedger}</h3>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  </div>
+                </summary>
+                <div className="mt-2 flex items-center justify-end gap-3">
                   <div className="flex items-center gap-3">
                     {buyerLedger.length > 3 ? (
                       <button
@@ -11421,9 +12667,25 @@ export function AccountPage({
                     </button>
                   </div>
                 ) : null}
-              </div>
+              </details>
 
           </div>
+          {showCheckoutTopUpSuccessPopup ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4">
+              <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-rose-100">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-0.5 h-6 w-6 text-emerald-600" />
+                  <div>
+                    <h4 className="text-lg font-semibold text-slate-900">Top-up successful</h4>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Added <span className="font-semibold text-slate-900">{formatPriceTHB(topUpAmount)}</span> to your wallet.
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">Returning to checkout...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
           {currentUser.role === "buyer" ? (
             <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
               <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">

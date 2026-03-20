@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Armchair,
   Beer,
@@ -456,43 +456,43 @@ const BAR_PROFILE_TEXT_PRESET_OPTIONS = {
   ],
   specials: [
     {
-      id: 'happy-hour',
-      label: { en: 'Happy hour', th: 'แฮปปี้อาวร์', my: 'happy hour', ru: 'Счастливые часы' },
+      id: 'buy-2-get-1',
+      label: { en: 'Buy 2 get 1 free', th: 'ซื้อ 2 แถม 1', my: '2 ခုဝယ် 1 ခုအခမဲ့', ru: 'Купи 2 — 1 бесплатно' },
       text: {
-        en: 'Happy hour from 17:00-19:00 on selected cocktails.',
-        th: 'แฮปปี้อาวร์ 17:00-19:00 สำหรับค็อกเทลที่ร่วมรายการ',
-        my: 'ရွေးချယ်ထားသော cocktails များအတွက် 17:00-19:00 happy hour',
-        ru: 'Счастливые часы с 17:00 до 19:00 на выбранные коктейли.',
+        en: 'Buy 2 cocktails, get 1 free from 20:00-22:00 tonight.',
+        th: 'คืนนี้ 20:00-22:00 ซื้อค็อกเทล 2 แก้ว รับฟรี 1 แก้ว',
+        my: 'ဒီည 20:00-22:00 cocktail 2 ခွက်ဝယ်လျှင် 1 ခွက်အခမဲ့',
+        ru: 'Сегодня с 20:00 до 22:00: купи 2 коктейля, получи 1 бесплатно.',
       },
     },
     {
-      id: 'live-music',
-      label: { en: 'Live music nights', th: 'คืนดนตรีสด', my: 'live music ည', ru: 'Вечера живой музыки' },
+      id: 'bucket-deal',
+      label: { en: 'Beer bucket deal', th: 'โปรถังเบียร์', my: 'ဘီယာ bucket deal', ru: 'Акция на ведро пива' },
       text: {
-        en: 'Live music nights every weekend with guest performers.',
-        th: 'คืนดนตรีสดทุกสุดสัปดาห์ พร้อมศิลปินรับเชิญ',
-        my: 'တနင်္ဂနွေအပတ်စဉ်တိုင်း guest performers များနှင့် live music ည',
-        ru: 'Вечера живой музыки каждые выходные с приглашенными артистами.',
+        en: 'Beer bucket deal: 5 bottles for the price of 4.',
+        th: 'โปรถังเบียร์: 5 ขวด จ่ายราคา 4 ขวด',
+        my: 'ဘီယာ bucket deal: 5 ပုလင်းကို 4 ပုလင်းစျေးဖြင့်',
+        ru: 'Акция на ведро пива: 5 бутылок по цене 4.',
       },
     },
     {
-      id: 'games-deals',
-      label: { en: 'Darts & pool deals', th: 'โปรดาร์ตและพูล', my: 'darts & pool အစီအစဉ်', ru: 'Акции на дартс и бильярд' },
+      id: 'ladies-free-entry',
+      label: { en: 'Ladies free entry', th: 'ผู้หญิงเข้าฟรี', my: 'အမျိုးသမီးဝင်ခွင့်အခမဲ့', ru: 'Бесплатный вход для девушек' },
       text: {
-        en: 'Darts and pool table promotions available throughout the week.',
-        th: 'มีโปรดาร์ตและโต๊ะพูลตลอดทั้งสัปดาห์',
-        my: 'အပတ်လုံး darts နှင့် pool table promotions ရရှိနိုင်ပါသည်',
-        ru: 'Акции на дартс и бильярд доступны в течение всей недели.',
+        en: 'Ladies free entry before 22:00 plus welcome shot.',
+        th: 'ผู้หญิงเข้าฟรีก่อน 22:00 พร้อมช็อตต้อนรับ',
+        my: '22:00 မတိုင်မီ အမျိုးသမီးဝင်ခွင့်အခမဲ့ + welcome shot',
+        ru: 'Для девушек бесплатный вход до 22:00 и welcome-shot.',
       },
     },
     {
-      id: 'ladies-night',
-      label: { en: 'Ladies night', th: 'เลดี้ส์ไนท์', my: 'ladies night', ru: 'Женский вечер' },
+      id: 'shot-combo',
+      label: { en: 'Shot combo', th: 'โปรช็อตคอมโบ', my: 'shot combo', ru: 'Комбо шотов' },
       text: {
-        en: 'Ladies night every Thursday with drink specials.',
-        th: 'เลดี้ส์ไนท์ทุกวันพฤหัส พร้อมเครื่องดื่มราคาพิเศษ',
-        my: 'ကြာသပတေးနေ့တိုင်း drink specials နှင့် ladies night',
-        ru: 'Женский вечер каждый четверг со специальными предложениями на напитки.',
+        en: 'Shot combo: 3 shots for 299 THB all night.',
+        th: 'โปรช็อตคอมโบ: 3 ช็อต 299 บาท ตลอดคืน',
+        my: 'shot combo: တစ်ညလုံး 3 shots ကို 299 ဘတ်',
+        ru: 'Комбо шотов: 3 шота за 299 THB всю ночь.',
       },
     },
   ],
@@ -1271,6 +1271,10 @@ const REGISTER_I18N = {
     showPassword: 'Show password',
     hidePassword: 'Hide password',
     passwordRequirementsHint: 'Use at least 8 characters with 1 number and 1 symbol.',
+    passwordRuleMinLength: 'At least 8 characters',
+    passwordRuleNumber: 'Contains at least 1 number',
+    passwordRuleSymbol: 'Contains at least 1 symbol',
+    passwordRuleMatch: 'Passwords match',
     passwordPolicyError: 'Password must be at least 8 characters and include at least 1 number and 1 symbol.',
     passwordMismatchError: 'Passwords do not match.',
     accountTypePlaceholder: 'Select account type',
@@ -1287,12 +1291,16 @@ const REGISTER_I18N = {
     sellerRequiredError: 'Seller registration requires name, email, password, city, and country.',
     barRequiredError: 'Bar registration requires bar name, email, password, city, and country.',
     buyerRequiredError: 'Name, email, and password are required.',
-    buyerTermsRequiredError: 'Buyer signup requires accepting respectful behavior and no-refund terms.',
+    sellerTermsRequiredError: 'Seller signup requires accepting respectful conduct and wrong-item reship/refund responsibility terms.',
+    buyerTermsRequiredError: 'Buyer signup requires accepting respectful behavior and final-sale terms (wrong-item exception applies).',
     buyerTermsTitle: 'Buyer terms acceptance',
+    sellerTermsTitle: 'Seller terms acceptance',
     viewCommunityStandards: 'View Community Standards',
     viewRefundPolicy: 'View Refund Policy',
     buyerRespectfulCheckbox: 'I agree to be respectful in messages and interactions.',
-    buyerNoRefundCheckbox: 'I understand and accept that all purchases are final (no refunds).',
+    buyerNoRefundCheckbox: 'I understand purchases are final, except wrong-item orders may be eligible for correction or refund review.',
+    sellerRespectfulCheckbox: 'I agree to be respectful in messages and interactions.',
+    sellerWrongItemPolicyCheckbox: 'I understand that if I ship the wrong item, I must reship the correct item at my own expense, or the buyer may be refunded and my commission may be deducted.',
     emailExistsError: 'This email is already registered.',
     sellerPendingSuccess: 'Seller application submitted. We will notify you after review.',
     buyerSuccess: 'Account created. You can now login.',
@@ -1309,6 +1317,10 @@ const REGISTER_I18N = {
     showPassword: 'แสดงรหัสผ่าน',
     hidePassword: 'ซ่อนรหัสผ่าน',
     passwordRequirementsHint: 'ใช้รหัสผ่านอย่างน้อย 8 ตัวอักษร และต้องมีตัวเลข 1 ตัวกับสัญลักษณ์ 1 ตัว',
+    passwordRuleMinLength: 'อย่างน้อย 8 ตัวอักษร',
+    passwordRuleNumber: 'มีตัวเลขอย่างน้อย 1 ตัว',
+    passwordRuleSymbol: 'มีสัญลักษณ์อย่างน้อย 1 ตัว',
+    passwordRuleMatch: 'รหัสผ่านตรงกัน',
     passwordPolicyError: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร และมีตัวเลขอย่างน้อย 1 ตัวกับสัญลักษณ์อย่างน้อย 1 ตัว',
     passwordMismatchError: 'รหัสผ่านทั้งสองช่องไม่ตรงกัน',
     accountTypePlaceholder: 'เลือกประเภทบัญชี',
@@ -1325,12 +1337,16 @@ const REGISTER_I18N = {
     sellerRequiredError: 'การสมัครผู้ขายต้องมีชื่อ อีเมล รหัสผ่าน เมือง และประเทศ',
     barRequiredError: 'การสมัครบัญชีบาร์ต้องมีชื่อบาร์ อีเมล รหัสผ่าน เมือง และประเทศ',
     buyerRequiredError: 'ต้องกรอกชื่อ อีเมล และรหัสผ่าน',
-    buyerTermsRequiredError: 'การสมัครผู้ซื้อต้องยอมรับข้อกำหนดเรื่องความสุภาพและไม่มีการคืนเงิน',
+    sellerTermsRequiredError: 'การสมัครผู้ขายต้องยอมรับเงื่อนไขเรื่องความสุภาพและความรับผิดชอบกรณีส่งสินค้าผิด (ส่งใหม่ด้วยค่าใช้จ่ายของตนเอง/อาจถูกหักค่าคอมมิชชั่นหากมีการคืนเงิน)',
+    buyerTermsRequiredError: 'การสมัครผู้ซื้อต้องยอมรับข้อกำหนดเรื่องความสุภาพและเงื่อนไขการขายขาด (ยกเว้นกรณีได้รับสินค้าผิด)',
     buyerTermsTitle: 'การยอมรับข้อกำหนดสำหรับผู้ซื้อ',
+    sellerTermsTitle: 'การยอมรับข้อกำหนดสำหรับผู้ขาย',
     viewCommunityStandards: 'ดูมาตรฐานชุมชน',
     viewRefundPolicy: 'ดูนโยบายการคืนเงิน',
     buyerRespectfulCheckbox: 'ฉันยินยอมที่จะสื่อสารอย่างสุภาพและให้เกียรติ',
-    buyerNoRefundCheckbox: 'ฉันเข้าใจและยอมรับว่ายอดซื้อทั้งหมดไม่สามารถขอคืนเงินได้',
+    buyerNoRefundCheckbox: 'ฉันเข้าใจว่าการซื้อเป็นแบบขายขาด ยกเว้นกรณีได้รับสินค้าผิดซึ่งอาจมีสิทธิ์แก้ไขการจัดส่งหรือพิจารณาคืนเงิน',
+    sellerRespectfulCheckbox: 'ฉันยินยอมที่จะสื่อสารอย่างสุภาพและให้เกียรติ',
+    sellerWrongItemPolicyCheckbox: 'ฉันเข้าใจว่าหากส่งสินค้าผิด ฉันต้องส่งสินค้าที่ถูกต้องใหม่โดยรับผิดชอบค่าใช้จ่ายเอง มิฉะนั้นผู้ซื้ออาจได้รับเงินคืนและค่าคอมมิชชั่นของฉันอาจถูกหัก',
     emailExistsError: 'อีเมลนี้ถูกใช้งานแล้ว',
     sellerPendingSuccess: 'ส่งคำขอผู้ขายแล้ว เราจะแจ้งผลหลังการตรวจสอบ',
     buyerSuccess: 'สร้างบัญชีเรียบร้อยแล้ว สามารถเข้าสู่ระบบได้',
@@ -1347,6 +1363,10 @@ const REGISTER_I18N = {
     showPassword: 'စကားဝှက် ပြရန်',
     hidePassword: 'စကားဝှက် ဝှက်ရန်',
     passwordRequirementsHint: 'အနည်းဆုံး စာလုံး 8 လုံးနှင့် နံပါတ် 1 လုံး၊ သင်္ကေတ 1 လုံး ပါဝင်ရမည်',
+    passwordRuleMinLength: 'အနည်းဆုံး စာလုံး 8 လုံး',
+    passwordRuleNumber: 'နံပါတ် အနည်းဆုံး 1 လုံး ပါဝင်ရမည်',
+    passwordRuleSymbol: 'သင်္ကေတ အနည်းဆုံး 1 လုံး ပါဝင်ရမည်',
+    passwordRuleMatch: 'စကားဝှက်နှစ်ခု ကိုက်ညီသည်',
     passwordPolicyError: 'စကားဝှက်မှာ အနည်းဆုံး 8 လုံးရှိပြီး နံပါတ် 1 လုံးနှင့် သင်္ကေတ 1 လုံး ပါဝင်ရမည်',
     passwordMismatchError: 'စကားဝှက်နှစ်ခု မကိုက်ညီပါ',
     accountTypePlaceholder: 'အကောင့်အမျိုးအစားရွေးပါ',
@@ -1363,12 +1383,16 @@ const REGISTER_I18N = {
     sellerRequiredError: 'seller စာရင်းသွင်းရန် အမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     barRequiredError: 'bar စာရင်းသွင်းရန် ဘားအမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     buyerRequiredError: 'အမည်၊ အီးမေးလ်နှင့် စကားဝှက် လိုအပ်သည်',
-    buyerTermsRequiredError: 'buyer စာရင်းသွင်းရန် လေးစားသောဆက်သွယ်ရေးနှင့် no-refund စည်းကမ်းများကို လက်ခံရန် လိုအပ်သည်',
+    sellerTermsRequiredError: 'seller စာရင်းသွင်းရန် လေးစားသောဆက်သွယ်ရေးနှင့် wrong-item ပို့မှားပါက seller ကုန်ကျစရိတ်ဖြင့် ပြန်ပို့/မပြန်ပို့ပါက refund + commission ဖြတ်တောက်နိုင်ခြင်း စည်းကမ်းများကို လက်ခံရန် လိုအပ်သည်',
+    buyerTermsRequiredError: 'buyer စာရင်းသွင်းရန် လေးစားသောဆက်သွယ်ရေးနှင့် final-sale စည်းကမ်း (wrong-item exception ပါဝင်) ကို လက်ခံရန် လိုအပ်သည်',
     buyerTermsTitle: 'buyer စည်းကမ်း လက်ခံမှု',
+    sellerTermsTitle: 'seller စည်းကမ်း လက်ခံမှု',
     viewCommunityStandards: 'Community Standards ကြည့်ရန်',
     viewRefundPolicy: 'Refund Policy ကြည့်ရန်',
     buyerRespectfulCheckbox: 'မက်ဆေ့ချ်နှင့် ဆက်ဆံမှုများတွင် လေးစားစွာ ပြုမူမည်ဟု လက်ခံပါသည်',
-    buyerNoRefundCheckbox: 'ဝယ်ယူမှုအားလုံးမှာ အပြီးသတ်ဖြစ်ပြီး ပြန်အမ်းမရှိကြောင်း နားလည်လက်ခံပါသည်',
+    buyerNoRefundCheckbox: 'ဝယ်ယူမှုများသည် final sale ဖြစ်ကြောင်း နားလည်ပါသည်။ သို့သော် wrong-item order ဖြစ်ပါက ပြန်ပို့ပြင်ဆင်ခြင်း သို့မဟုတ် refund review အတွက် အရည်အချင်းရှိနိုင်ပါသည်',
+    sellerRespectfulCheckbox: 'မက်ဆေ့ချ်နှင့် ဆက်ဆံမှုများတွင် လေးစားစွာ ပြုမူမည်ဟု လက်ခံပါသည်',
+    sellerWrongItemPolicyCheckbox: 'wrong-item ပို့မိပါက မှန်ကန်သော item ကို seller ကိုယ်ပိုင်ကုန်ကျစရိတ်ဖြင့် ပြန်ပို့ရမည်ကို နားလည်ပါသည်။ မဆောင်ရွက်ပါက buyer ကို refund ပေးနိုင်ပြီး seller commission ဖြတ်တောက်နိုင်ပါသည်',
     emailExistsError: 'ဤအီးမေးလ်ကို အသုံးပြုပြီးဖြစ်သည်',
     sellerPendingSuccess: 'seller လျှောက်လွှာ ပို့ပြီးပါပြီ၊ စစ်ဆေးပြီးနောက် အသိပေးပါမည်',
     buyerSuccess: 'အကောင့်ဖန်တီးပြီးပါပြီ၊ ယခု ဝင်နိုင်ပါပြီ',
@@ -1385,6 +1409,10 @@ const REGISTER_I18N = {
     showPassword: 'Показать пароль',
     hidePassword: 'Скрыть пароль',
     passwordRequirementsHint: 'Используйте не менее 8 символов, включая 1 цифру и 1 спецсимвол.',
+    passwordRuleMinLength: 'Не менее 8 символов',
+    passwordRuleNumber: 'Содержит минимум 1 цифру',
+    passwordRuleSymbol: 'Содержит минимум 1 спецсимвол',
+    passwordRuleMatch: 'Пароли совпадают',
     passwordPolicyError: 'Пароль должен содержать минимум 8 символов, включая хотя бы 1 цифру и 1 спецсимвол.',
     passwordMismatchError: 'Пароли не совпадают.',
     accountTypePlaceholder: 'Выберите тип аккаунта',
@@ -1401,12 +1429,16 @@ const REGISTER_I18N = {
     sellerRequiredError: 'Для регистрации продавца нужны имя, email, пароль, город и страна.',
     barRequiredError: 'Для регистрации бара нужны название, email, пароль, город и страна.',
     buyerRequiredError: 'Имя, email и пароль обязательны.',
-    buyerTermsRequiredError: 'Для регистрации покупателя нужно принять условия уважительного общения и отсутствия возвратов.',
+    sellerTermsRequiredError: 'Для регистрации продавца нужно принять условия уважительного общения и ответственности за wrong-item (пересылка за свой счет или удержание комиссии при возврате).',
+    buyerTermsRequiredError: 'Для регистрации покупателя нужно принять условия уважительного общения и окончательной продажи (с исключением для wrong-item).',
     buyerTermsTitle: 'Принятие условий для покупателя',
+    sellerTermsTitle: 'Принятие условий для продавца',
     viewCommunityStandards: 'Открыть стандарты сообщества',
     viewRefundPolicy: 'Открыть политику возвратов',
     buyerRespectfulCheckbox: 'Я согласен(на) соблюдать уважительное общение в сообщениях и взаимодействиях.',
-    buyerNoRefundCheckbox: 'Я понимаю и принимаю, что все покупки окончательные (без возврата).',
+    buyerNoRefundCheckbox: 'Я понимаю, что покупки являются окончательными, кроме случаев wrong-item, где возможна корректирующая отправка или рассмотрение возврата.',
+    sellerRespectfulCheckbox: 'Я согласен(на) соблюдать уважительное общение в сообщениях и взаимодействиях.',
+    sellerWrongItemPolicyCheckbox: 'Я понимаю, что если отправлю не тот товар, я обязан переслать правильный товар за свой счет, иначе покупателю может быть оформлен возврат с удержанием моей комиссии.',
     emailExistsError: 'Этот email уже зарегистрирован.',
     sellerPendingSuccess: 'Заявка продавца отправлена. Мы сообщим после проверки.',
     buyerSuccess: 'Аккаунт создан. Теперь вы можете войти.',
@@ -1455,8 +1487,8 @@ const LOGIN_I18N = {
     homeCtaBarLine: 'Own a venue? Join as a bar account to post events and connect with sellers.',
     homeCtaBarButton: 'Register a bar account',
     barLoginRequiredTitle: 'Bar login required',
-    barLoginProfileSubtitle: 'Use a bar account to manage bar profile details and photo posts.',
-    barLoginFeedSubtitle: 'Use a bar account to create and manage bar feed posts.',
+    barLoginProfileSubtitle: 'Please log in with a bar account to continue.',
+    barLoginFeedSubtitle: 'Please log in with a bar account to continue.',
     loginBuyerToMessage: 'Please login as a buyer to send messages.',
     loginBuyerToCustomRequest: 'Please login as a buyer to send custom requests.',
     loginBuyerToRefundEvidence: 'Please login as a buyer to submit refund evidence.',
@@ -2044,28 +2076,28 @@ const SEED_DB = {
       accountStatus: 'active',
     },
     {
-      id: 'seller-8',
-      name: 'Dao P.',
-      email: 'dao@example.com',
-      phone: '+66 88 888 8888',
+      id: 'seller-1',
+      name: 'Nina B.',
+      email: 'nina@example.com',
+      phone: '+66 88 888 8899',
       country: 'Thailand',
       city: 'Bangkok',
       address: 'Sathon, Bangkok',
       walletBalance: 0,
       role: 'seller',
-      sellerId: 'dao-p',
+      sellerId: 'nina-b',
       password: SEED_DEMO_PASSWORD,
       accountStatus: 'active',
     },
     {
-      id: 'buyer-2',
-      name: 'Steve M.',
-      email: 'steve@example.com',
-      phone: '+1 206 555 0188',
+      id: 'buyer-1',
+      name: 'Alex T.',
+      email: 'alex@example.com',
+      phone: '+1 206 555 0101',
       country: 'United States',
       city: 'Portland',
-      address: '77 NW Market Street',
-      walletBalance: 20,
+      address: '88 NW Alder Street',
+      walletBalance: 50,
       role: 'buyer',
       password: SEED_DEMO_PASSWORD,
       accountStatus: 'active',
@@ -2308,6 +2340,72 @@ const SEED_DB = {
       imageName: 'blush-cotton-bikini.jpg',
       status: 'Published',
       publishedAt: '2026-03-08',
+    },
+    {
+      id: 'product-nina-lace-bra-midnight',
+      title: 'Nina Midnight Lace Bra',
+      slug: 'nina-midnight-lace-bra',
+      sellerId: 'nina-b',
+      price: 1590,
+      size: '34B',
+      color: 'Black',
+      style: 'Bra',
+      fabric: 'Lace Blend',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Lace bra with soft support and elegant finish.',
+      features: ['Lace blend', 'Supportive fit', 'Discreet shipping'],
+      image: 'https://placehold.co/900x1200/d4d4d8/111827?text=Nina+Lace+Bra',
+      imageName: 'nina-lace-bra.jpg',
+      isBundle: false,
+      bundleItemIds: [],
+      status: 'Published',
+      publishedAt: '2026-03-20',
+    },
+    {
+      id: 'product-nina-soft-panty-rose',
+      title: 'Nina Soft Rose Panty',
+      slug: 'nina-soft-rose-panty',
+      sellerId: 'nina-b',
+      price: 1210,
+      size: 'M',
+      color: 'Pink',
+      style: 'Briefs',
+      fabric: 'Cotton',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Soft everyday panty with stretch comfort.',
+      features: ['Comfort fit', 'Cotton feel', 'Discreet packaging'],
+      image: 'https://placehold.co/900x1200/fbcfe8/9d174d?text=Nina+Soft+Panty',
+      imageName: 'nina-soft-panty.jpg',
+      isBundle: false,
+      bundleItemIds: [],
+      status: 'Published',
+      publishedAt: '2026-03-20',
+    },
+    {
+      id: 'product-set-nina-bra-panty-bundle',
+      title: 'Nina Bra + Panty Bundle',
+      slug: 'nina-bra-panty-bundle',
+      sellerId: 'nina-b',
+      price: 2590,
+      size: 'M',
+      color: 'Mixed',
+      style: 'Bra and Panty Set',
+      fabric: 'Mixed',
+      daysWorn: '1-3 days',
+      shipping: 'Worldwide',
+      condition: 'Excellent',
+      description: 'Bundle set featuring Nina Midnight Lace Bra and Nina Soft Rose Panty.',
+      features: ['2-item bundle', 'Bra + panty set', 'Bundle savings'],
+      image: 'https://placehold.co/900x1200/f5d0fe/7e22ce?text=Nina+Bundle+Set',
+      imageName: 'nina-bra-panty-bundle.jpg',
+      isBundle: true,
+      bundleItemIds: ['product-nina-lace-bra-midnight', 'product-nina-soft-panty-rose'],
+      status: 'Published',
+      publishedAt: '2026-03-20',
     },
     {
       id: 'product-lace-briefs-indigo',
@@ -2923,6 +3021,7 @@ const SEED_DB = {
   sellerPostComments: [],
   sellerFollows: [],
   barFollows: [],
+  productWatches: [],
   sellerSavedPosts: [],
   orders: [],
   walletTransactions: [
@@ -3047,6 +3146,7 @@ function resolveApiBaseUrl() {
 const API_BASE_URL = resolveApiBaseUrl();
 const STYLE_SCHEMA = `enum<${STYLE_OPTIONS.join('|')}>`;
 const DB_STORAGE_VERSION = '2026-03-11-seller-feed-v1';
+const APP_MODE_STORAGE_KEY = 'tlm-app-mode';
 const SHIPPING_COUNTRY_RATES = {
   thailand: { label: 'Thailand', standard: 6, express: 10 },
   singapore: { label: 'Singapore', standard: 14, express: 24 },
@@ -3480,7 +3580,7 @@ function normalizeCustomRequestImageAttachments(imageAttachments) {
 }
 
 function normalizeNotificationPreferences(preferences, role = '') {
-  const pushDefaultEnabled = role === 'seller' || role === 'bar' || role === 'admin';
+  const pushDefaultEnabled = false;
   const base = {
     message: preferences?.message !== false,
     engagement: preferences?.engagement !== false,
@@ -3490,7 +3590,7 @@ function normalizeNotificationPreferences(preferences, role = '') {
     engagement: typeof preferences?.push?.engagement === 'boolean' ? preferences.push.engagement : pushDefaultEnabled,
   };
   if (role === 'admin') {
-    push.adminOps = preferences?.push?.adminOps !== false;
+    push.adminOps = typeof preferences?.push?.adminOps === 'boolean' ? preferences.push.adminOps : false;
   }
   return {
     ...base,
@@ -3505,9 +3605,8 @@ function normalizeSiteSettings(siteSettings) {
   };
 }
 
-const LEGACY_DEMO_USER_IDS_TO_REMOVE = new Set([
+const DEMO_USER_IDS_TO_REMOVE = new Set([
   'admin-1',
-  'seller-1',
   'seller-2',
   'seller-3',
   'seller-4',
@@ -3517,22 +3616,206 @@ const LEGACY_DEMO_USER_IDS_TO_REMOVE = new Set([
   'seller-9',
   'seller-10',
   'seller-11',
-  'buyer-1',
+  'seller-8',
+  'buyer-2',
 ]);
-const REQUIRED_DEMO_USER_IDS = new Set(['admin-2', 'seller-8', 'buyer-2', 'bar-1']);
+const DEMO_SELLER_IDS_TO_REMOVE = new Set([
+  'mali-k',
+  'prae-s',
+  'lila-r',
+  'anya-v',
+  'sora-p',
+  'kiko-n',
+  'dao-p',
+  'lina-cm',
+  'try-cm',
+  'noi-na-cm',
+]);
+const DEMO_BAR_IDS_TO_REMOVE = new Set([
+  'north-lantern-chiang-mai',
+  'phuket-moon-lounge',
+  'riverlight-social-bkk',
+]);
+const REQUIRED_SYSTEM_USER_IDS = new Set(['admin-2', 'buyer-1', 'seller-1', 'bar-1']);
+const REQUIRED_SELLER_IDS = new Set(['nina-b']);
+const REQUIRED_BAR_IDS = new Set(['small-world-chiang-mai']);
+const REQUIRED_PRODUCT_IDS = new Set([
+  'product-nina-lace-bra-midnight',
+  'product-nina-soft-panty-rose',
+  'product-set-nina-bra-panty-bundle',
+]);
+
+function normalizeAppMode(modeValue) {
+  return String(modeValue || '').trim().toLowerCase() === 'test' ? 'test' : 'live';
+}
+
+function pruneDemoMarketplaceData(dbState) {
+  if (!dbState || typeof dbState !== 'object') return dbState;
+  const users = Array.isArray(dbState.users)
+    ? dbState.users.filter((user) => !DEMO_USER_IDS_TO_REMOVE.has(String(user?.id || '')))
+    : [];
+  const userIds = new Set(users.map((user) => String(user?.id || '')));
+  const sellers = Array.isArray(dbState.sellers)
+    ? dbState.sellers.filter((seller) => !DEMO_SELLER_IDS_TO_REMOVE.has(String(seller?.id || '')))
+    : [];
+  const sellerIds = new Set(sellers.map((seller) => String(seller?.id || '')));
+  const bars = Array.isArray(dbState.bars)
+    ? dbState.bars.filter((bar) => !DEMO_BAR_IDS_TO_REMOVE.has(String(bar?.id || '')))
+    : [];
+  const barIds = new Set(bars.map((bar) => String(bar?.id || '')));
+  const hasUser = (id) => userIds.has(String(id || ''));
+  const hasSeller = (id) => sellerIds.has(String(id || ''));
+  const hasBar = (id) => barIds.has(String(id || ''));
+
+  const products = Array.isArray(dbState.products)
+    ? dbState.products.filter((product) => hasSeller(product?.sellerId))
+    : [];
+  const productIds = new Set(products.map((product) => String(product?.id || '')));
+  const sellerPosts = Array.isArray(dbState.sellerPosts)
+    ? dbState.sellerPosts.filter((post) => hasSeller(post?.sellerId))
+    : [];
+  const sellerPostIds = new Set(sellerPosts.map((post) => String(post?.id || '')));
+
+  const customRequests = Array.isArray(dbState.customRequests)
+    ? dbState.customRequests.filter((request) => hasUser(request?.buyerId) && hasSeller(request?.sellerId))
+    : [];
+  const customRequestIds = new Set(customRequests.map((request) => String(request?.id || '')));
+
+  return {
+    ...dbState,
+    users,
+    sellers,
+    bars,
+    products,
+    sellerPosts,
+    barPosts: Array.isArray(dbState.barPosts) ? dbState.barPosts.filter((post) => hasBar(post?.barId)) : [],
+    postReports: Array.isArray(dbState.postReports)
+      ? dbState.postReports.filter((report) => hasUser(report?.targetUserId) && hasUser(report?.reporterUserId) && sellerPostIds.has(String(report?.postId || report?.contentId || '')))
+      : [],
+    commentReports: Array.isArray(dbState.commentReports)
+      ? dbState.commentReports.filter((report) => hasUser(report?.targetUserId) && hasUser(report?.reporterUserId))
+      : [],
+    messageReports: Array.isArray(dbState.messageReports)
+      ? dbState.messageReports.filter((report) => hasUser(report?.targetUserId) && hasUser(report?.reporterUserId))
+      : [],
+    userStrikes: Array.isArray(dbState.userStrikes) ? dbState.userStrikes.filter((strike) => hasUser(strike?.userId)) : [],
+    userAppeals: Array.isArray(dbState.userAppeals) ? dbState.userAppeals.filter((appeal) => hasUser(appeal?.userId)) : [],
+    sellerPostLikes: Array.isArray(dbState.sellerPostLikes)
+      ? dbState.sellerPostLikes.filter((entry) => hasUser(entry?.userId) && sellerPostIds.has(String(entry?.postId || '')))
+      : [],
+    sellerPostComments: Array.isArray(dbState.sellerPostComments)
+      ? dbState.sellerPostComments.filter((entry) => hasUser(entry?.userId) && sellerPostIds.has(String(entry?.postId || '')))
+      : [],
+    sellerFollows: Array.isArray(dbState.sellerFollows)
+      ? dbState.sellerFollows.filter((entry) => hasUser(entry?.userId) && hasSeller(entry?.sellerId))
+      : [],
+    barFollows: Array.isArray(dbState.barFollows)
+      ? dbState.barFollows.filter((entry) => hasUser(entry?.userId) && hasBar(entry?.barId))
+      : [],
+    productWatches: Array.isArray(dbState.productWatches)
+      ? dbState.productWatches.filter((entry) => hasUser(entry?.userId) && productIds.has(String(entry?.productId || '')))
+      : [],
+    sellerSavedPosts: Array.isArray(dbState.sellerSavedPosts)
+      ? dbState.sellerSavedPosts.filter((entry) => hasUser(entry?.userId) && sellerPostIds.has(String(entry?.postId || '')))
+      : [],
+    orders: Array.isArray(dbState.orders)
+      ? dbState.orders.filter((order) => hasUser(order?.buyerId))
+      : [],
+    walletTransactions: Array.isArray(dbState.walletTransactions)
+      ? dbState.walletTransactions.filter((txn) => hasUser(txn?.userId))
+      : [],
+    messages: Array.isArray(dbState.messages)
+      ? dbState.messages.filter((message) => (
+          hasUser(message?.senderId)
+          && (!message?.buyerId || hasUser(message?.buyerId))
+          && (!message?.sellerId || hasSeller(message?.sellerId))
+          && (!message?.barId || hasBar(message?.barId))
+        ))
+      : [],
+    notifications: Array.isArray(dbState.notifications)
+      ? dbState.notifications.filter((notification) => hasUser(notification?.userId))
+      : [],
+    customRequests,
+    customRequestMessages: Array.isArray(dbState.customRequestMessages)
+      ? dbState.customRequestMessages.filter((message) => (
+          hasUser(message?.senderId)
+          && (!message?.buyerId || hasUser(message?.buyerId))
+          && (!message?.sellerId || hasSeller(message?.sellerId))
+          && (!message?.requestId || customRequestIds.has(String(message?.requestId || '')))
+        ))
+      : [],
+    refundClaims: Array.isArray(dbState.refundClaims)
+      ? dbState.refundClaims.filter((claim) => hasUser(claim?.buyerId))
+      : [],
+    orderHelpRequests: Array.isArray(dbState.orderHelpRequests)
+      ? dbState.orderHelpRequests.filter((request) => hasUser(request?.buyerId))
+      : [],
+    safetyReports: Array.isArray(dbState.safetyReports)
+      ? dbState.safetyReports.filter((report) => hasUser(report?.reporterUserId))
+      : [],
+    barAffiliationRequests: Array.isArray(dbState.barAffiliationRequests)
+      ? dbState.barAffiliationRequests.filter((request) => hasSeller(request?.sellerId) && hasBar(request?.barId))
+      : [],
+    blocks: Array.isArray(dbState.blocks)
+      ? dbState.blocks.filter((entry) => hasUser(entry?.blockedUserId) && hasUser(entry?.blockedByUserId))
+      : [],
+  };
+}
+const CLEAN_SEED_DB = pruneDemoMarketplaceData(SEED_DB);
+const OFFICIAL_TEST_MODE_DB = {
+  ...structuredClone(CLEAN_SEED_DB),
+  users: (CLEAN_SEED_DB.users || []).filter((user) => REQUIRED_SYSTEM_USER_IDS.has(String(user?.id || ''))),
+  sellers: (CLEAN_SEED_DB.sellers || []).filter((seller) => REQUIRED_SELLER_IDS.has(String(seller?.id || ''))),
+  bars: (CLEAN_SEED_DB.bars || []).filter((bar) => REQUIRED_BAR_IDS.has(String(bar?.id || ''))),
+  products: (CLEAN_SEED_DB.products || []).filter((product) => REQUIRED_PRODUCT_IDS.has(String(product?.id || ''))),
+  sellerPosts: [],
+  barPosts: [],
+  postReports: [],
+  commentReports: [],
+  messageReports: [],
+  userStrikes: [],
+  userAppeals: [],
+  sellerPostLikes: [],
+  sellerPostComments: [],
+  sellerFollows: [],
+  barFollows: [],
+  productWatches: [],
+  sellerSavedPosts: [],
+  orders: [],
+  walletTransactions: [],
+  messages: [],
+  notifications: [],
+  customRequests: [],
+  customRequestMessages: [],
+  refundClaims: [],
+  orderHelpRequests: [],
+  safetyReports: [],
+  barAffiliationRequests: [],
+  blocks: [],
+  adminInboxReviews: [],
+  adminInboxFilterPresets: [],
+  adminNotes: [],
+  adminDisputeCases: [],
+  adminActions: [],
+  adminEmailThreads: [],
+  adminEmailMessages: [],
+  payoutRuns: [],
+  payoutItems: [],
+  payoutEvents: [],
+};
 
 function normalizeDbState(nextDb) {
   if (!nextDb || typeof nextDb !== 'object') {
-    return structuredClone(SEED_DB);
+    return structuredClone(CLEAN_SEED_DB);
   }
 
-  return {
-    ...structuredClone(SEED_DB),
+  const normalized = {
+    ...structuredClone(CLEAN_SEED_DB),
     ...nextDb,
     users: Array.isArray(nextDb.users)
       ? (() => {
           const normalizedUsers = nextDb.users
-            .filter((user) => !LEGACY_DEMO_USER_IDS_TO_REMOVE.has(String(user?.id || '')))
+            .filter((user) => !DEMO_USER_IDS_TO_REMOVE.has(String(user?.id || '')))
             .map((user) => ({
               ...user,
               postalCode: String(user?.postalCode || ''),
@@ -3542,8 +3825,8 @@ function normalizeDbState(nextDb) {
               notificationPreferences: normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
             }));
           const existingIds = new Set(normalizedUsers.map((user) => String(user?.id || '')));
-          const requiredUsers = (SEED_DB.users || [])
-            .filter((user) => REQUIRED_DEMO_USER_IDS.has(String(user?.id || '')) && !existingIds.has(String(user?.id || '')))
+          const requiredUsers = (CLEAN_SEED_DB.users || [])
+            .filter((user) => REQUIRED_SYSTEM_USER_IDS.has(String(user?.id || '')) && !existingIds.has(String(user?.id || '')))
             .map((user) => ({
               ...user,
               postalCode: String(user?.postalCode || ''),
@@ -3554,34 +3837,72 @@ function normalizeDbState(nextDb) {
             }));
           return [...normalizedUsers, ...requiredUsers];
         })()
-      : structuredClone(SEED_DB.users),
+      : structuredClone(CLEAN_SEED_DB.users),
     sellers: Array.isArray(nextDb.sellers)
-      ? nextDb.sellers.map((seller) => ({
-          ...seller,
-          isOnline: Boolean(seller?.isOnline),
-          feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
-          affiliatedBarId: String(seller?.affiliatedBarId || ''),
-          locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
-          specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
-          shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
-          turnaroundI18n: normalizeLocalizedMap(seller?.turnaroundI18n, seller?.turnaround),
-          bioI18n: normalizeLocalizedMap(seller?.bioI18n, seller?.bio),
-        }))
-      : structuredClone(SEED_DB.sellers),
+      ? (() => {
+          const normalizedSellers = nextDb.sellers.map((seller) => ({
+            ...seller,
+            isOnline: Boolean(seller?.isOnline),
+            feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
+            affiliatedBarId: String(seller?.affiliatedBarId || ''),
+            locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
+            specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
+            shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
+            turnaroundI18n: normalizeLocalizedMap(seller?.turnaroundI18n, seller?.turnaround),
+            bioI18n: normalizeLocalizedMap(seller?.bioI18n, seller?.bio),
+          }));
+          const existingSellerIds = new Set(normalizedSellers.map((seller) => String(seller?.id || '')));
+          const requiredSellers = (CLEAN_SEED_DB.sellers || [])
+            .filter((seller) => REQUIRED_SELLER_IDS.has(String(seller?.id || '')) && !existingSellerIds.has(String(seller?.id || '')))
+            .map((seller) => ({
+              ...seller,
+              isOnline: Boolean(seller?.isOnline),
+              feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
+              affiliatedBarId: String(seller?.affiliatedBarId || ''),
+              locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
+              specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
+              shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
+              turnaroundI18n: normalizeLocalizedMap(seller?.turnaroundI18n, seller?.turnaround),
+              bioI18n: normalizeLocalizedMap(seller?.bioI18n, seller?.bio),
+            }));
+          return [...normalizedSellers, ...requiredSellers];
+        })()
+      : structuredClone(CLEAN_SEED_DB.sellers),
     bars: Array.isArray(nextDb.bars)
-      ? nextDb.bars.map((bar) => ({
-          ...bar,
-          aboutI18n: normalizeLocalizedMap(bar?.aboutI18n, bar?.about),
-          specialsI18n: normalizeLocalizedMap(bar?.specialsI18n, bar?.specials),
-        }))
-      : structuredClone(SEED_DB.bars || []),
-    barPosts: Array.isArray(nextDb.barPosts) ? nextDb.barPosts : structuredClone(SEED_DB.barPosts || []),
+      ? (() => {
+          const normalizedBars = nextDb.bars.map((bar) => ({
+            ...bar,
+            aboutI18n: normalizeLocalizedMap(bar?.aboutI18n, bar?.about),
+            specialsI18n: normalizeLocalizedMap(bar?.specialsI18n, bar?.specials),
+          }));
+          const existingBarIds = new Set(normalizedBars.map((bar) => String(bar?.id || '')));
+          const requiredBars = (CLEAN_SEED_DB.bars || [])
+            .filter((bar) => REQUIRED_BAR_IDS.has(String(bar?.id || '')) && !existingBarIds.has(String(bar?.id || '')))
+            .map((bar) => ({
+              ...bar,
+              aboutI18n: normalizeLocalizedMap(bar?.aboutI18n, bar?.about),
+              specialsI18n: normalizeLocalizedMap(bar?.specialsI18n, bar?.specials),
+            }));
+          return [...normalizedBars, ...requiredBars];
+        })()
+      : structuredClone(CLEAN_SEED_DB.bars || []),
+    barPosts: Array.isArray(nextDb.barPosts) ? nextDb.barPosts : structuredClone(CLEAN_SEED_DB.barPosts || []),
     products: Array.isArray(nextDb.products)
-      ? nextDb.products.map((product) => ({
-          ...product,
-          price: Math.max(MIN_SELLER_PRICE_THB, Number(product?.price || MIN_SELLER_PRICE_THB)),
-        }))
-      : structuredClone(SEED_DB.products),
+      ? (() => {
+          const normalizedProducts = nextDb.products.map((product) => ({
+            ...product,
+            price: Math.max(MIN_SELLER_PRICE_THB, Number(product?.price || MIN_SELLER_PRICE_THB)),
+          }));
+          const existingProductIds = new Set(normalizedProducts.map((product) => String(product?.id || '')));
+          const requiredProducts = (CLEAN_SEED_DB.products || [])
+            .filter((product) => REQUIRED_PRODUCT_IDS.has(String(product?.id || '')) && !existingProductIds.has(String(product?.id || '')))
+            .map((product) => ({
+              ...product,
+              price: Math.max(MIN_SELLER_PRICE_THB, Number(product?.price || MIN_SELLER_PRICE_THB)),
+            }));
+          return [...normalizedProducts, ...requiredProducts];
+        })()
+      : structuredClone(CLEAN_SEED_DB.products),
     sellerPosts: Array.isArray(nextDb.sellerPosts)
       ? nextDb.sellerPosts.map((post) => ({
           ...post,
@@ -3589,7 +3910,7 @@ function normalizeDbState(nextDb) {
           accessPriceUsd: Math.max(MIN_FEED_UNLOCK_PRICE_THB, Number(post?.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)),
           scheduledFor: typeof post?.scheduledFor === 'string' ? post.scheduledFor : '',
         }))
-      : structuredClone(SEED_DB.sellerPosts),
+      : structuredClone(CLEAN_SEED_DB.sellerPosts),
     postReports: Array.isArray(nextDb.postReports) ? nextDb.postReports : [],
     commentReports: Array.isArray(nextDb.commentReports) ? nextDb.commentReports : [],
     messageReports: Array.isArray(nextDb.messageReports) ? nextDb.messageReports : [],
@@ -3600,6 +3921,7 @@ function normalizeDbState(nextDb) {
     sellerPostComments: Array.isArray(nextDb.sellerPostComments) ? nextDb.sellerPostComments : [],
     sellerFollows: Array.isArray(nextDb.sellerFollows) ? nextDb.sellerFollows : [],
     barFollows: Array.isArray(nextDb.barFollows) ? nextDb.barFollows : [],
+    productWatches: Array.isArray(nextDb.productWatches) ? nextDb.productWatches : [],
     sellerSavedPosts: Array.isArray(nextDb.sellerSavedPosts)
       ? nextDb.sellerSavedPosts
         .map((entry) => ({
@@ -3665,6 +3987,7 @@ function normalizeDbState(nextDb) {
     adminEmailMessages: Array.isArray(nextDb.adminEmailMessages) ? nextDb.adminEmailMessages : [],
     siteSettings: normalizeSiteSettings(nextDb.siteSettings),
   };
+  return pruneDemoMarketplaceData(normalized);
 }
 
 function shouldSendNotificationForType(user, type) {
@@ -3737,6 +4060,44 @@ function appendLowBalanceEmailIfNeeded(prev, { userId, beforeBalance, afterBalan
     vars: {
       walletBalance: formatPriceTHB(after),
       threshold: formatPriceTHB(LOW_WALLET_BALANCE_THB),
+      actionPath: '/account',
+    },
+    fallbackPath: '/account',
+  });
+}
+
+function ensureOrderPlacedEmailQueued(prev, { userId, orderId, itemCount, shippingFee, total }) {
+  const normalizedOrderId = String(orderId || '').trim();
+  if (!normalizedOrderId) return prev;
+  const alreadyQueued = (prev.emailDeliveryLog || []).some((entry) => (
+    entry?.templateKey === 'order_placed'
+    && String(entry?.userId || '') === String(userId || '')
+    && String(entry?.subject || '').includes(normalizedOrderId)
+  ));
+  if (alreadyQueued) return prev;
+  return appendTemplatedEmail(prev, {
+    templateKey: 'order_placed',
+    userId,
+    vars: {
+      orderId: normalizedOrderId,
+      itemCount,
+      shippingFee: formatPriceTHB(shippingFee),
+      orderTotal: formatPriceTHB(total),
+      actionPath: '/account',
+    },
+    fallbackPath: '/account',
+  });
+}
+
+function queueOrderPlacedEmail(prev, { userId, orderId, itemCount, shippingFee, total }) {
+  return appendTemplatedEmail(prev, {
+    templateKey: 'order_placed',
+    userId,
+    vars: {
+      orderId: String(orderId || '').trim(),
+      itemCount: Number(itemCount || 0),
+      shippingFee: formatPriceTHB(shippingFee),
+      orderTotal: formatPriceTHB(total),
       actionPath: '/account',
     },
     fallbackPath: '/account',
@@ -3950,10 +4311,20 @@ const MALI_BUNDLE_PRODUCT_ID_SET = new Set([
 function ensureMaliBundleSeedProducts(products) {
   const currentProducts = Array.isArray(products) ? products : [];
   const existingIds = new Set(currentProducts.map((product) => product?.id).filter(Boolean));
-  const missingSeedProducts = (SEED_DB.products || []).filter(
+  const missingSeedProducts = (CLEAN_SEED_DB.products || []).filter(
     (product) => MALI_BUNDLE_PRODUCT_ID_SET.has(product?.id) && !existingIds.has(product.id),
   );
   return missingSeedProducts.length > 0 ? [...currentProducts, ...missingSeedProducts] : currentProducts;
+}
+
+function buildRuntimeDbState(sourceDb, modeValue = 'live') {
+  const normalized = normalizeDbState(sourceDb);
+  const appMode = normalizeAppMode(modeValue);
+  const baseProducts = Array.isArray(normalized.products) ? normalized.products : [];
+  return {
+    ...normalized,
+    products: appMode === 'test' ? baseProducts : ensureMaliBundleSeedProducts(baseProducts),
+  };
 }
 
 function applyStrikeAndAutoFreeze(prev, { targetUserId, reason, sourceType, sourceId, reportId, adminUserId }) {
@@ -4047,12 +4418,12 @@ export default function ThailandPantiesMarketSite() {
   const accountMenuRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [appMode, setAppMode] = useState(() => normalizeAppMode(readStore(APP_MODE_STORAGE_KEY, 'live')));
   const [db, setDb] = useState(() => {
-    const normalized = normalizeDbState(readStore('tlm-db', SEED_DB));
-    return {
-      ...normalized,
-      products: ensureMaliBundleSeedProducts(normalized.products || []),
-    };
+    if (appMode === 'test') {
+      return buildRuntimeDbState(OFFICIAL_TEST_MODE_DB, 'test');
+    }
+    return buildRuntimeDbState(readStore('tlm-db', CLEAN_SEED_DB), 'live');
   });
   const [cart, setCart] = useState(() => readStore('tlm-cart', []));
   const [cartNotice, setCartNotice] = useState('');
@@ -4146,6 +4517,32 @@ export default function ThailandPantiesMarketSite() {
   const [accountCredentialTone, setAccountCredentialTone] = useState('neutral');
   const [accountSearchQuery, setAccountSearchQuery] = useState('');
   const [adminUserSearch, setAdminUserSearch] = useState(() => String(readStore('tlm-admin-user-search', '') || ''));
+  const switchAppMode = useCallback((nextMode) => {
+    const normalizedMode = normalizeAppMode(nextMode);
+    if (normalizedMode === appMode) return;
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(APP_MODE_STORAGE_KEY, JSON.stringify(normalizedMode));
+      window.localStorage.removeItem('tlm-db');
+      window.localStorage.removeItem('tlm-cart');
+      window.localStorage.removeItem('tlm-checkout-step');
+      window.localStorage.removeItem('tlm-checkout-buyer-email');
+      window.localStorage.removeItem('tlm-checkout-form');
+      window.localStorage.removeItem('tlm-session');
+      window.localStorage.removeItem('tlm-api-token');
+    }
+    setAppMode(normalizedMode);
+    setDb(buildRuntimeDbState(normalizedMode === 'test' ? OFFICIAL_TEST_MODE_DB : CLEAN_SEED_DB, normalizedMode));
+    setCart([]);
+    setCheckoutStep(1);
+    setBuyerEmail('');
+    setCheckoutForm(normalizeCheckoutFormDraft(null));
+    setSession({ userId: null });
+    setApiAuthToken('');
+    setAuthError('');
+    setAuthSuccess('');
+    setCheckoutAuthModalOpen(false);
+    setBackendStatus('idle');
+  }, [appMode]);
   useEffect(() => {
     if (!accountMenuOpen) return undefined;
     const closeOnOutsideClick = (event) => {
@@ -4224,6 +4621,14 @@ export default function ThailandPantiesMarketSite() {
     imageName: '',
   });
   const [barInviteSellerId, setBarInviteSellerId] = useState('');
+  const [barNotificationCompactMode, setBarNotificationCompactMode] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(`tlm-bar-notification-density-${session?.userId || 'anon'}`) === 'compact';
+  });
+  const [barDiscreetNotificationText, setBarDiscreetNotificationText] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(`tlm-bar-discreet-notifications-${session?.userId || 'anon'}`) === '1';
+  });
   const [creatingBarPost, setCreatingBarPost] = useState(false);
   const [savingBarProfile, setSavingBarProfile] = useState(false);
   const [deletingBarPostId, setDeletingBarPostId] = useState(null);
@@ -4254,6 +4659,7 @@ export default function ThailandPantiesMarketSite() {
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [lastFrozenPopupUserId, setLastFrozenPopupUserId] = useState(null);
   const [checkoutError, setCheckoutError] = useState('');
+  const [checkoutSuccessPopup, setCheckoutSuccessPopup] = useState(null);
   const [cartPulse, setCartPulse] = useState(false);
   const cartNoticeTimerRef = useRef(null);
   const cartPulseTimerRef = useRef(null);
@@ -4337,6 +4743,19 @@ export default function ThailandPantiesMarketSite() {
   const bars = db.bars || [];
   const barPosts = db.barPosts || [];
   const currentUser = users.find((u) => u.id === session.userId) || null;
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setBarNotificationCompactMode(window.localStorage.getItem(`tlm-bar-notification-density-${currentUser?.id || 'anon'}`) === 'compact');
+    setBarDiscreetNotificationText(window.localStorage.getItem(`tlm-bar-discreet-notifications-${currentUser?.id || 'anon'}`) === '1');
+  }, [currentUser?.id]);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(`tlm-bar-notification-density-${currentUser?.id || 'anon'}`, barNotificationCompactMode ? 'compact' : 'comfort');
+  }, [barNotificationCompactMode, currentUser?.id]);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(`tlm-bar-discreet-notifications-${currentUser?.id || 'anon'}`, barDiscreetNotificationText ? '1' : '0');
+  }, [barDiscreetNotificationText, currentUser?.id]);
   const uiLanguage = ['en', 'th', 'my', 'ru'].includes(currentUser?.preferredLanguage)
     ? currentUser.preferredLanguage
     : authLanguage;
@@ -4372,6 +4791,7 @@ export default function ThailandPantiesMarketSite() {
   const sellerPostComments = db.sellerPostComments || [];
   const sellerFollows = db.sellerFollows || [];
   const barFollows = db.barFollows || [];
+  const productWatches = db.productWatches || [];
   const sellerSavedPosts = db.sellerSavedPosts || [];
   const sellerFollowerCountById = useMemo(() => {
     const counts = {};
@@ -4399,6 +4819,25 @@ export default function ThailandPantiesMarketSite() {
   const payoutEvents = db.payoutEvents || [];
   const messages = db.messages || [];
   const notifications = db.notifications || [];
+  const watchedProductIds = useMemo(
+    () => new Set(
+      (productWatches || [])
+        .filter((entry) => entry?.userId === currentUser?.id && entry?.productId)
+        .map((entry) => entry.productId)
+    ),
+    [productWatches, currentUser?.id]
+  );
+  const watchedProducts = useMemo(() => {
+    if (!currentUser?.id) return [];
+    return (productWatches || [])
+      .filter((entry) => entry?.userId === currentUser.id && entry?.productId)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .map((entry) => {
+        const product = products.find((candidate) => candidate.id === entry.productId);
+        return product ? { ...product, watchedAt: entry.createdAt || "" } : null;
+      })
+      .filter(Boolean);
+  }, [productWatches, currentUser?.id, products]);
   const blocks = db.blocks || [];
   const adminActions = db.adminActions || [];
   const stripeEvents = db.stripeEvents;
@@ -4442,6 +4881,30 @@ export default function ThailandPantiesMarketSite() {
   };
   const loginText = LOGIN_I18N[authLanguage] || LOGIN_I18N.en;
   const registerText = REGISTER_I18N[authLanguage] || REGISTER_I18N.en;
+  const registerPasswordValue = String(registerForm.password || '');
+  const registerConfirmPasswordValue = String(registerForm.confirmPassword || '');
+  const registerPasswordChecks = [
+    {
+      key: 'length',
+      label: registerText.passwordRuleMinLength || 'At least 8 characters',
+      passed: registerPasswordValue.length >= 8,
+    },
+    {
+      key: 'number',
+      label: registerText.passwordRuleNumber || 'Contains at least 1 number',
+      passed: /\d/.test(registerPasswordValue),
+    },
+    {
+      key: 'symbol',
+      label: registerText.passwordRuleSymbol || 'Contains at least 1 symbol',
+      passed: /[^A-Za-z0-9]/.test(registerPasswordValue),
+    },
+    {
+      key: 'match',
+      label: registerText.passwordRuleMatch || 'Passwords match',
+      passed: registerConfirmPasswordValue.length > 0 && registerPasswordValue === registerConfirmPasswordValue,
+    },
+  ];
   const localizeSellerApiError = (apiErrorMessage, fallbackKey) => {
     const normalized = String(apiErrorMessage || '').trim();
     const keyByApiError = {
@@ -4802,6 +5265,10 @@ export default function ThailandPantiesMarketSite() {
     () => (selectedSeller ? sortProductsNewestFirst(availableProducts.filter((product) => product.sellerId === selectedSeller.id)) : []),
     [availableProducts, selectedSeller],
   );
+  const productsById = useMemo(
+    () => Object.fromEntries((products || []).map((product) => [String(product.id || ''), product])),
+    [products],
+  );
   const selectedProduct = routeInfo.name === 'product' ? products.find((product) => product.slug === routeInfo.slug) || null : null;
   const bundlesByItemId = useMemo(() => {
     const map = {};
@@ -4820,6 +5287,21 @@ export default function ThailandPantiesMarketSite() {
     return bundlesByItemId[selectedProduct.id] || [];
   }, [selectedProduct, bundlesByItemId]);
   const selectedProductPrimaryBundle = selectedProductRelatedBundles[0] || null;
+  const cartBundleCoveredItemIds = useMemo(() => {
+    const coveredIds = new Set();
+    (cart || []).forEach((productId) => {
+      const product = productsById[String(productId || '')];
+      if (!product?.isBundle) return;
+      const bundleItemIds = Array.isArray(product.bundleItemIds) ? product.bundleItemIds : [];
+      bundleItemIds.forEach((itemId) => coveredIds.add(String(itemId || '')));
+    });
+    return coveredIds;
+  }, [cart, productsById]);
+  const selectedProductCoveredByBundleInCart = Boolean(
+    selectedProduct
+    && !selectedProduct.isBundle
+    && cartBundleCoveredItemIds.has(String(selectedProduct.id || ''))
+  );
   const getPrimaryBundleForProduct = (productId) => {
     if (!productId) return null;
     const matches = bundlesByItemId[productId] || [];
@@ -4900,7 +5382,7 @@ export default function ThailandPantiesMarketSite() {
           [seller.name, seller.location, seller.specialty, seller.bio].some((value) => (value || '').toLowerCase().includes(query)),
         )
       : Object.values(sellerMap);
-    return source.slice(0, 6);
+    return source.slice(0, query ? 6 : 4);
   }, [sellerMap, accountSearchQuery]);
   const quickProductResults = useMemo(() => {
     const query = accountSearchQuery.trim().toLowerCase();
@@ -4912,8 +5394,17 @@ export default function ThailandPantiesMarketSite() {
           );
         })
       : products;
-    return source.slice(0, 8);
+    return source.slice(0, query ? 8 : 5);
   }, [products, sellerMap, accountSearchQuery]);
+  const quickBarResults = useMemo(() => {
+    const query = accountSearchQuery.trim().toLowerCase();
+    const source = query
+      ? Object.values(barMap).filter((bar) =>
+          [bar.name, bar.location, bar.about, bar.specials].some((value) => (value || '').toLowerCase().includes(query)),
+        )
+      : Object.values(barMap);
+    return source.slice(0, query ? 6 : 4);
+  }, [barMap, accountSearchQuery]);
   const buyerMessageSellerResults = useMemo(() => {
     const query = buyerMessageSellerSearch.trim().toLowerCase();
     if (!query) return buyerSellerDirectory.slice(0, 8);
@@ -5235,7 +5726,11 @@ export default function ThailandPantiesMarketSite() {
   const sellerInbox = useMemo(() => {
     if (!currentUser || currentUser.role !== 'seller') return [];
     const grouped = {};
-    messages.filter((message) => message.sellerId === currentUser.sellerId).forEach((message) => {
+    (messages || []).filter((message) => (
+      message
+      && typeof message === 'object'
+      && message.sellerId === currentUser.sellerId
+    )).forEach((message) => {
       if (!grouped[message.conversationId]) grouped[message.conversationId] = [];
       grouped[message.conversationId].push(message);
     });
@@ -5254,8 +5749,8 @@ export default function ThailandPantiesMarketSite() {
   }, [messages, currentUser]);
   const sellerMessageHistory = useMemo(() => {
     if (!currentUser || currentUser.role !== 'seller') return [];
-    return [...messages]
-      .filter((message) => message.sellerId === currentUser.sellerId)
+    return [...(messages || [])]
+      .filter((message) => message && typeof message === 'object' && message.sellerId === currentUser.sellerId)
       .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [messages, currentUser]);
   const sellerCustomRequests = useMemo(() => {
@@ -5401,6 +5896,11 @@ export default function ThailandPantiesMarketSite() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    window.localStorage.setItem(APP_MODE_STORAGE_KEY, JSON.stringify(appMode));
+  }, [appMode]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     const storedVersion = window.localStorage.getItem('tlm-db-version');
     if (storedVersion === DB_STORAGE_VERSION) return;
     if (IS_PRODUCTION_BUILD && !ENABLE_PROD_DATA_MIGRATION_RESET) {
@@ -5418,16 +5918,20 @@ export default function ThailandPantiesMarketSite() {
     window.localStorage.removeItem('tlm-checkout-form');
     window.localStorage.removeItem('tlm-session');
     window.localStorage.removeItem('tlm-api-token');
-    setDb(structuredClone(SEED_DB));
+    setDb(buildRuntimeDbState(appMode === 'test' ? OFFICIAL_TEST_MODE_DB : CLEAN_SEED_DB, appMode));
     setCart([]);
     setCheckoutStep(1);
     setBuyerEmail('');
     setCheckoutForm(normalizeCheckoutFormDraft(null));
     setSession({ userId: null });
-  }, []);
+  }, [appMode]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (appMode === 'test') {
+      setBackendStatus('offline');
+      return;
+    }
 
     const loadBootstrap = async () => {
       try {
@@ -5439,7 +5943,7 @@ export default function ThailandPantiesMarketSite() {
         const payload = await response.json();
         const hasLocalDb = !!window.localStorage.getItem('tlm-db');
         if (!hasLocalDb && payload?.db) {
-          setDb(normalizeDbState(payload.db));
+          setDb(buildRuntimeDbState(payload.db, appMode));
         }
         setBackendStatus('connected');
       } catch {
@@ -5448,7 +5952,7 @@ export default function ThailandPantiesMarketSite() {
     };
 
     loadBootstrap();
-  }, []);
+  }, [appMode]);
 
   useEffect(() => {
     if (backendStatus !== 'connected') return;
@@ -5825,6 +6329,51 @@ export default function ThailandPantiesMarketSite() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const chunkRecoveryKey = 'tlm-chunk-recovery-at';
+    const shouldRecoverFromMessage = (message) => {
+      const normalized = String(message || '');
+      return /ChunkLoadError|Loading chunk|Failed to fetch dynamically imported module|Importing a module script failed|Failed to load module script/i.test(normalized);
+    };
+    const recoverFromStaleClient = async () => {
+      const attemptedAt = Number(window.sessionStorage.getItem(chunkRecoveryKey) || 0);
+      if (Date.now() - attemptedAt < 120000) return;
+      window.sessionStorage.setItem(chunkRecoveryKey, String(Date.now()));
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map((registration) => registration.unregister().catch(() => {})));
+        }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((key) => caches.delete(key).catch(() => {})));
+        }
+      } finally {
+        window.location.reload();
+      }
+    };
+    const onWindowError = (event) => {
+      const message = String(event?.message || event?.error?.message || '');
+      if (!shouldRecoverFromMessage(message)) return;
+      event?.preventDefault?.();
+      recoverFromStaleClient().catch(() => {});
+    };
+    const onUnhandledRejection = (event) => {
+      const reason = event?.reason;
+      const message = String(reason?.message || reason || '');
+      if (!shouldRecoverFromMessage(message)) return;
+      event?.preventDefault?.();
+      recoverFromStaleClient().catch(() => {});
+    };
+    window.addEventListener('error', onWindowError);
+    window.addEventListener('unhandledrejection', onUnhandledRejection);
+    return () => {
+      window.removeEventListener('error', onWindowError);
+      window.removeEventListener('unhandledrejection', onUnhandledRejection);
+    };
+  }, []);
+
+  useEffect(() => {
     fetchPushConfig().catch(() => {});
   }, [backendStatus]);
 
@@ -6044,7 +6593,7 @@ export default function ThailandPantiesMarketSite() {
     () => ({
       size: ['All', ...new Set([...SIZE_OPTIONS, ...availableProducts.map((p) => p.size || 'Not specified')])],
       color: ['All', ...new Set([...COLOR_OPTIONS, ...availableProducts.map((p) => p.color || 'Not specified')])],
-      style: ['All', ...new Set(availableProducts.map((p) => p.style || 'Not specified'))],
+      style: ['All', ...new Set([...STYLE_OPTIONS, ...availableProducts.map((p) => p.style || 'Not specified')])],
       fabric: ['All', ...new Set([...FABRIC_OPTIONS, ...availableProducts.map((p) => p.fabric || 'Not specified')])],
       daysWorn: ['All', ...new Set([...DAYS_WORN_OPTIONS, ...availableProducts.map((p) => p.daysWorn || 'Not specified')])],
       condition: ['All', ...new Set([...CONDITION_OPTIONS, ...availableProducts.map((p) => p.condition || 'Not specified')])],
@@ -6238,9 +6787,15 @@ export default function ThailandPantiesMarketSite() {
     const unlockCount = unlockedRows.length;
     const unlockRevenue = unlockedRows.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
     const sellerUserId = users.find((user) => user.sellerId === currentSellerId)?.id;
+    const sellerPayoutRatio = String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim() ? 0.7 : 0.8;
     const messageRevenue = (walletTransactions || [])
       .filter((entry) => entry.userId === sellerUserId && entry.type === 'message_fee' && Number(entry.amount || 0) > 0)
       .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+    const orderRevenue = (walletTransactions || [])
+      .filter((entry) => entry.userId === sellerUserId && entry.type === 'order_sale_earning' && Number(entry.amount || 0) > 0)
+      .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+    const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
+    const grossOrderSalesRevenue = Number((orderRevenue / sellerPayoutRatio).toFixed(2));
     const unlocksByPost = {};
     unlockedRows.forEach((entry) => {
       unlocksByPost[entry.postId] = (unlocksByPost[entry.postId] || 0) + 1;
@@ -6283,7 +6838,9 @@ export default function ThailandPantiesMarketSite() {
       unlockCount,
       unlockRevenue,
       messageRevenue,
-      totalRevenue: Number((unlockRevenue + messageRevenue).toFixed(2)),
+      orderRevenue,
+      totalRevenue: Number((unlockRevenue + messageRevenue + orderRevenue).toFixed(2)),
+      totalGrossRevenue: Number((unlockRevenue + grossMessageFees + grossOrderSalesRevenue).toFixed(2)),
       topPostTitle: topPost?.caption?.slice(0, 60) || topPost?.id || 'No unlocked posts yet',
       topPostUnlocks: topUnlocks,
       likeCount: sellerLikeRows.length,
@@ -6292,7 +6849,7 @@ export default function ThailandPantiesMarketSite() {
       recentEngagement,
       engagementTrendPct,
     };
-  }, [sellerDashboardPosts, postUnlocks, sellerPosts, currentSellerId, sellerPostLikes, sellerPostComments, sellerFollowerCountById, walletTransactions, users, feedNow]);
+  }, [sellerDashboardPosts, postUnlocks, sellerPosts, currentSellerId, sellerPostLikes, sellerPostComments, sellerFollowerCountById, walletTransactions, users, sellerMap, feedNow]);
   const cartItems = cart.map((id) => products.find((product) => product.id === id)).filter(Boolean);
   const checkoutBundleSuggestion = useMemo(() => {
     if (cartItems.length !== 1) return null;
@@ -6332,6 +6889,8 @@ export default function ThailandPantiesMarketSite() {
   function openWalletTopUpForFlow(shortfallAmount, returnTo = '/checkout', source = 'checkout') {
     const normalizedShortfall = Math.max(0, Number(shortfallAmount || 0));
     const requiredTopUp = getRequiredTopUpAmount(normalizedShortfall);
+    // Prevent immediate bounce-back to checkout if a previous top-up left success state active.
+    setWalletStatus('idle');
     setWalletTopUpContext({
       source,
       topupRequired: requiredTopUp,
@@ -6373,6 +6932,12 @@ export default function ThailandPantiesMarketSite() {
   function addToCart(productId) {
     if (currentUser?.role === 'bar') {
       if (typeof window !== 'undefined') window.alert(loginText.barAccountMarketplaceBlocked || 'Bar accounts cannot buy or sell marketplace products.');
+      return;
+    }
+    if (cartBundleCoveredItemIds.has(String(productId || ''))) {
+      setCartNotice('This item is already included in a bundle in your cart.');
+      if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
+      cartNoticeTimerRef.current = setTimeout(() => setCartNotice(''), 1800);
       return;
     }
     let itemWasAdded = false;
@@ -6476,15 +7041,6 @@ export default function ThailandPantiesMarketSite() {
         return;
       }
       if (user.role === 'seller') {
-        const sellerUnreadConversationCount = (messages || []).filter((message) => (
-          String(message?.sellerId || '').trim() === String(user?.sellerId || '').trim()
-          && message.senderRole === 'buyer'
-          && !message.readBySeller
-        )).length;
-        if (sellerUnreadConversationCount > 0) {
-          navigate('/seller-messages');
-          return;
-        }
         navigate('/account');
         return;
       }
@@ -6692,6 +7248,11 @@ export default function ThailandPantiesMarketSite() {
       setAuthSuccess('');
       return;
     }
+    if (role === 'seller' && (!registerForm.acceptedRespectfulConduct || !registerForm.acceptedNoRefunds)) {
+      setAuthError(registerText.sellerTermsRequiredError || registerText.sellerRequiredError);
+      setAuthSuccess('');
+      return;
+    }
     if (role === 'bar' && (!name || !email || !password || !city || !country)) {
       setAuthError(registerText.barRequiredError || registerText.sellerRequiredError);
       setAuthSuccess('');
@@ -6865,6 +7426,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function approveSellerAccount(userId) {
+    const approvedUser = (users || []).find((candidate) => candidate.id === userId && candidate.role === 'seller');
     setDb((prev) => {
       const user = prev.users.find((candidate) => candidate.id === userId);
       if (!user || user.role !== 'seller' || (user.accountStatus !== 'pending' && user.accountStatus !== 'rejected')) return prev;
@@ -6935,6 +7497,29 @@ export default function ThailandPantiesMarketSite() {
       });
     });
     setAdminAuthActionMessage(adminActionText('sellerApproved'));
+    if (approvedUser?.id) {
+      Promise.resolve(dispatchManagedNotification({
+        recipientUserIds: [approvedUser.id],
+        preferenceType: 'engagement',
+        route: '/seller-dashboard',
+        titleByLang: {
+          en: 'Seller application approved',
+          th: 'อนุมัติใบสมัครผู้ขายแล้ว',
+          my: 'Seller application ကို အတည်ပြုပြီးပါပြီ',
+          ru: 'Заявка продавца одобрена',
+        },
+        bodyByLang: {
+          en: 'Your seller account has been approved. You can now start selling.',
+          th: 'บัญชีผู้ขายของคุณได้รับการอนุมัติแล้ว เริ่มขายได้เลย',
+          my: 'သင့် seller account ကို အတည်ပြုပြီးပါပြီ။ ယခု စတင်ရောင်းချနိုင်ပါပြီ။',
+          ru: 'Ваш аккаунт продавца одобрен. Теперь вы можете начать продажи.',
+        },
+        sendEmail: true,
+        emailSubject: 'Seller account approved',
+        emailText: 'Your seller account has been approved. Open your seller dashboard to get started.',
+        kind: 'seller_application_approved',
+      })).catch(() => {});
+    }
   }
 
   function approveAllPendingSellers() {
@@ -7032,6 +7617,14 @@ export default function ThailandPantiesMarketSite() {
     const normalizedBarId = String(barId || '').trim();
     const barExists = !normalizedBarId || (bars || []).some((bar) => bar.id === normalizedBarId);
     if (!barExists) return { ok: false, error: 'The selected bar does not exist.' };
+    const targetSellerUser = (users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
+    const targetBarUser = normalizedBarId
+      ? (users || []).find((user) => user.role === 'bar' && user.barId === normalizedBarId)
+      : null;
+    const adminRecipients = (users || [])
+      .filter((user) => hasAdminPanelAccess(user))
+      .map((user) => user.id)
+      .filter(Boolean);
     const now = new Date().toISOString();
     setDb((prev) => {
       const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
@@ -7086,6 +7679,70 @@ export default function ThailandPantiesMarketSite() {
       };
     });
     setAdminAuthActionMessage(normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent'));
+    Promise.resolve(dispatchManagedNotification({
+      recipientUserIds: adminRecipients,
+      preferenceType: 'adminOps',
+      route: '/admin?tab=users',
+      titleByLang: {
+        en: normalizedBarId ? 'Seller added to bar' : 'Seller removed from bar',
+        th: normalizedBarId ? 'เพิ่มผู้ขายเข้าบาร์แล้ว' : 'นำผู้ขายออกจากบาร์แล้ว',
+        my: normalizedBarId ? 'Seller ကို bar သို့ ထည့်ပြီးပါပြီ' : 'Seller ကို bar မှ ဖယ်ရှားပြီးပါပြီ',
+        ru: normalizedBarId ? 'Продавец добавлен в бар' : 'Продавец удален из бара',
+      },
+      bodyByLang: {
+        en: normalizedBarId ? 'A seller affiliation was updated by admin.' : 'A seller was set to independent by admin.',
+        th: normalizedBarId ? 'มีการอัปเดตความสังกัดผู้ขายโดยแอดมิน' : 'แอดมินตั้งผู้ขายเป็นอิสระแล้ว',
+        my: normalizedBarId ? 'Admin မှ seller affiliation ကို အပ်ဒိတ်လုပ်ခဲ့သည်။' : 'Admin မှ seller ကို independent အဖြစ် ပြောင်းခဲ့သည်။',
+        ru: normalizedBarId ? 'Администратор обновил привязку продавца.' : 'Администратор сделал продавца независимым.',
+      },
+      kind: normalizedBarId ? 'seller_added_to_bar' : 'seller_removed_from_bar',
+    })).catch(() => {});
+    if (targetSellerUser?.id) {
+      Promise.resolve(dispatchManagedNotification({
+        recipientUserIds: [targetSellerUser.id],
+        preferenceType: 'engagement',
+        route: '/account',
+        titleByLang: {
+          en: normalizedBarId ? 'Bar affiliation updated' : 'Bar affiliation removed',
+          th: normalizedBarId ? 'อัปเดตความสังกัดบาร์แล้ว' : 'ยกเลิกความสังกัดบาร์แล้ว',
+          my: normalizedBarId ? 'Bar affiliation အပ်ဒိတ်လုပ်ပြီးပါပြီ' : 'Bar affiliation ဖယ်ရှားပြီးပါပြီ',
+          ru: normalizedBarId ? 'Привязка к бару обновлена' : 'Привязка к бару удалена',
+        },
+        bodyByLang: {
+          en: normalizedBarId ? 'Admin updated your bar affiliation.' : 'Admin removed your bar affiliation.',
+          th: normalizedBarId ? 'แอดมินอัปเดตความสังกัดบาร์ของคุณแล้ว' : 'แอดมินยกเลิกความสังกัดบาร์ของคุณแล้ว',
+          my: normalizedBarId ? 'Admin မှ သင့် bar affiliation ကို အပ်ဒိတ်လုပ်ခဲ့သည်။' : 'Admin မှ သင့် bar affiliation ကို ဖယ်ရှားခဲ့သည်။',
+          ru: normalizedBarId ? 'Администратор обновил вашу привязку к бару.' : 'Администратор удалил вашу привязку к бару.',
+        },
+        sendEmail: true,
+        emailSubject: normalizedBarId ? 'Bar affiliation updated' : 'Bar affiliation removed',
+        emailText: normalizedBarId ? 'Admin updated your bar affiliation.' : 'Admin removed your bar affiliation.',
+        kind: normalizedBarId ? 'seller_added_to_bar' : 'seller_removed_from_bar',
+      })).catch(() => {});
+    }
+    if (targetBarUser?.id) {
+      Promise.resolve(dispatchManagedNotification({
+        recipientUserIds: [targetBarUser.id],
+        preferenceType: 'engagement',
+        route: '/bar-dashboard',
+        titleByLang: {
+          en: 'Seller affiliation updated',
+          th: 'อัปเดตความสังกัดผู้ขายแล้ว',
+          my: 'Seller affiliation ကို အပ်ဒိတ်လုပ်ပြီးပါပြီ',
+          ru: 'Привязка продавца обновлена',
+        },
+        bodyByLang: {
+          en: 'Admin added or updated a seller affiliation for your bar.',
+          th: 'แอดมินได้เพิ่มหรืออัปเดตความสังกัดผู้ขายให้บาร์ของคุณ',
+          my: 'Admin သည် သင့် bar အတွက် seller affiliation ကို အပ်ဒိတ်လုပ်ခဲ့သည်။',
+          ru: 'Администратор добавил или обновил привязку продавца для вашего бара.',
+        },
+        sendEmail: true,
+        emailSubject: 'Seller affiliation updated',
+        emailText: 'Admin added or updated a seller affiliation for your bar.',
+        kind: 'seller_added_to_bar',
+      })).catch(() => {});
+    }
     return { ok: true, message: normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent') };
   }
 
@@ -7129,6 +7786,10 @@ export default function ThailandPantiesMarketSite() {
       return { ok: false, error: 'Add a short reason (at least 8 characters) before confirming this action.' };
     }
     const now = new Date().toISOString();
+    const adminRecipients = (users || [])
+      .filter((user) => hasAdminPanelAccess(user))
+      .map((user) => user.id)
+      .filter(Boolean);
     setDb((prev) => ({
       ...prev,
       users: prev.users.map((user) => {
@@ -7182,6 +7843,24 @@ export default function ThailandPantiesMarketSite() {
         },
       ],
     }));
+    Promise.resolve(dispatchManagedNotification({
+      recipientUserIds: adminRecipients,
+      preferenceType: 'adminOps',
+      route: '/admin?tab=users',
+      titleByLang: {
+        en: isBlocked ? 'User unblocked' : 'User blocked',
+        th: isBlocked ? 'ปลดบล็อกผู้ใช้แล้ว' : 'บล็อกผู้ใช้แล้ว',
+        my: isBlocked ? 'User ကို unblock လုပ်ပြီးပါပြီ' : 'User ကို block လုပ်ပြီးပါပြီ',
+        ru: isBlocked ? 'Пользователь разблокирован' : 'Пользователь заблокирован',
+      },
+      bodyByLang: {
+        en: isBlocked ? 'An account was unblocked by admin.' : 'An account was blocked by admin.',
+        th: isBlocked ? 'แอดมินปลดบล็อกบัญชีแล้ว' : 'แอดมินบล็อกบัญชีแล้ว',
+        my: isBlocked ? 'Admin က account တစ်ခုကို unblock လုပ်ခဲ့သည်။' : 'Admin က account တစ်ခုကို block လုပ်ခဲ့သည်။',
+        ru: isBlocked ? 'Администратор разблокировал аккаунт.' : 'Администратор заблокировал аккаунт.',
+      },
+      kind: isBlocked ? 'user_unblocked' : 'user_blocked',
+    })).catch(() => {});
     return { ok: true, message: isBlocked ? 'User unblocked.' : 'User blocked.' };
   }
 
@@ -8434,6 +9113,40 @@ export default function ThailandPantiesMarketSite() {
                 createdAt,
               },
               ...follows,
+            ],
+      };
+    });
+    return true;
+  }
+
+  function toggleProductWatch(productId) {
+    const normalizedProductId = String(productId || "").trim();
+    if (!normalizedProductId) return false;
+    if (!currentUser || currentUser.role !== "buyer") {
+      navigate("/login");
+      return false;
+    }
+    const product = products.find((entry) => entry.id === normalizedProductId);
+    if (!product) return false;
+    const alreadyWatching = productWatches.some((entry) => (
+      entry.productId === normalizedProductId
+      && entry.userId === currentUser.id
+    ));
+    const createdAt = new Date().toISOString();
+    setDb((prev) => {
+      const rows = prev.productWatches || [];
+      return {
+        ...prev,
+        productWatches: alreadyWatching
+          ? rows.filter((entry) => !(entry.productId === normalizedProductId && entry.userId === currentUser.id))
+          : [
+              {
+                id: `product_watch_${Date.now()}`,
+                productId: normalizedProductId,
+                userId: currentUser.id,
+                createdAt,
+              },
+              ...rows,
             ],
       };
     });
@@ -10596,29 +11309,32 @@ export default function ThailandPantiesMarketSite() {
   async function updatePushNotificationPreference(type, enabled) {
     if (!currentUser || !['message', 'engagement', 'adminOps'].includes(type)) return;
     if (type === 'adminOps' && currentUser.role !== 'admin') return;
-    setDb((prev) => ({
-      ...prev,
-      users: (prev.users || []).map((user) =>
-        user.id === currentUser.id
-          ? {
-              ...user,
-              notificationPreferences: {
-                ...normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
-                push: {
-                  ...normalizeNotificationPreferences(user?.notificationPreferences, user?.role).push,
-                  [type]: Boolean(enabled),
+    const applyPushPreference = (nextEnabled) => {
+      setDb((prev) => ({
+        ...prev,
+        users: (prev.users || []).map((user) =>
+          user.id === currentUser.id
+            ? {
+                ...user,
+                notificationPreferences: {
+                  ...normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
+                  push: {
+                    ...normalizeNotificationPreferences(user?.notificationPreferences, user?.role).push,
+                    [type]: Boolean(nextEnabled),
+                  }
                 }
               }
-            }
-          : user
-      )
-    }));
+            : user
+        )
+      }));
+    };
 
-    if (backendStatus === 'connected' && apiAuthToken) {
+    const syncPushPreferenceToApi = async (nextEnabled) => {
+      if (!(backendStatus === 'connected' && apiAuthToken)) return;
       const preferences = normalizeNotificationPreferences(currentUser.notificationPreferences, currentUser.role);
       const payload = {
         ...preferences.push,
-        [type]: Boolean(enabled),
+        [type]: Boolean(nextEnabled),
       };
       await apiRequestJson('/api/push/preferences', {
         method: 'POST',
@@ -10626,20 +11342,105 @@ export default function ThailandPantiesMarketSite() {
           push: payload
         }
       }).catch(() => {});
-    }
+    };
 
     if (enabled) {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        let permission = Notification.permission;
+        if (permission !== 'granted') {
+          permission = await Notification.requestPermission();
+          setPushPermission(permission);
+        }
+        if (permission !== 'granted') {
+          applyPushPreference(false);
+          await syncPushPreferenceToApi(false);
+          return;
+        }
+      }
+      applyPushPreference(true);
+      await syncPushPreferenceToApi(true);
       await subscribeToPushIfEnabled().catch(() => {});
       return;
     }
+
+    applyPushPreference(false);
+    await syncPushPreferenceToApi(false);
     const latest = normalizeNotificationPreferences(currentUser.notificationPreferences, currentUser.role).push;
     const nextPush = {
       ...latest,
-      [type]: Boolean(enabled),
+      [type]: false,
     };
     const anyEnabled = Object.values(nextPush).some((value) => value !== false);
     if (!anyEnabled) {
       await unsubscribeFromPush().catch(() => {});
+    }
+  }
+
+  async function sendTestBrowserNotification() {
+    try {
+      if (typeof window === 'undefined' || typeof Notification === 'undefined') {
+        return { ok: false, error: 'Browser notifications are not supported in this environment.' };
+      }
+
+      let permission = pushPermission;
+      if (permission !== 'granted') {
+        permission = await Notification.requestPermission();
+        setPushPermission(permission);
+      }
+      if (permission !== 'granted') {
+        return { ok: false, error: 'Browser notifications are blocked. Enable them in browser settings.' };
+      }
+
+      const title = 'Test notification';
+      const body = `Notifications are working for ${currentUser?.name || 'your account'}.`;
+      const isAndroid = /Android/i.test(String(window.navigator?.userAgent || ''));
+      let delivered = false;
+
+      const registration = await getPushRegistration();
+      if (registration && typeof registration.showNotification === 'function') {
+        try {
+          await registration.showNotification(title, {
+            body,
+            tag: 'tp-test-notification',
+            renotify: true,
+            requireInteraction: false,
+            silent: false,
+            vibrate: [200, 100, 200],
+            icon: '/favicon.svg',
+            badge: '/favicon.svg',
+          });
+          delivered = true;
+        } catch {
+          delivered = false;
+        }
+      }
+
+      // Fallback for browsers where service-worker notifications are flaky.
+      if (!delivered) {
+        try {
+          const notification = new Notification(title, {
+            body,
+            icon: '/favicon.svg',
+            tag: 'tp-test-notification-inline',
+          });
+          notification.onclick = () => {
+            if (typeof window !== 'undefined') window.focus();
+          };
+          delivered = true;
+        } catch {
+          delivered = false;
+        }
+      }
+
+      if (!delivered) {
+        return { ok: false, error: 'Could not send browser notification. Check OS notification settings and Do Not Disturb.' };
+      }
+      if (isAndroid) {
+        return { ok: true, message: 'Test notification sent.' };
+      }
+      return { ok: true, message: 'Test notification sent.' };
+    } catch {
+      return { ok: false, error: 'Could not send test notification right now.' };
     }
   }
 
@@ -10733,7 +11534,7 @@ export default function ThailandPantiesMarketSite() {
     return { ok: true, thread: payload?.thread || null, messages: Array.isArray(payload?.messages) ? payload.messages : [] };
   }
 
-  async function sendAdminEmailThreadReply(threadId, { mailbox = 'admin', toEmail = '', toName = '', subject = '', body = '' } = {}) {
+  async function sendAdminEmailThreadReply(threadId, { mailbox = 'admin', toEmail = '', toName = '', subject = '', body = '', attachments = [] } = {}) {
     if (!currentUser || currentUser.role !== 'admin') {
       return { ok: false, error: 'Admin access required.' };
     }
@@ -10756,6 +11557,7 @@ export default function ThailandPantiesMarketSite() {
           toName: String(toName || '').trim(),
           subject: String(subject || '').trim(),
           body: nextBody,
+          attachments: Array.isArray(attachments) ? attachments : [],
         },
       }
     );
@@ -10779,7 +11581,7 @@ export default function ThailandPantiesMarketSite() {
     };
   }
 
-  async function sendAdminEmailInboxMessage({ mailbox = 'admin', toEmail = '', toName = '', subject = '', body = '' } = {}) {
+  async function sendAdminEmailInboxMessage({ mailbox = 'admin', toEmail = '', toName = '', subject = '', body = '', attachments = [] } = {}) {
     if (!currentUser || currentUser.role !== 'admin') {
       return { ok: false, error: 'Admin access required.' };
     }
@@ -10794,15 +11596,17 @@ export default function ThailandPantiesMarketSite() {
     }
     const selectedMailbox = String(mailbox || 'admin').toLowerCase() === 'support' ? 'support' : 'admin';
     const { ok, payload } = await apiRequestJson(
-      '/api/notifications/platform-email',
+      '/api/admin/email-inbox/send',
       {
         method: 'POST',
         idempotencyScope: `admin_email_send_${nextToEmail}`,
         body: {
+          mailbox: selectedMailbox,
           toEmail: nextToEmail,
           toName: String(toName || '').trim(),
           subject: nextSubject,
-          text: nextBody,
+          body: nextBody,
+          attachments: Array.isArray(attachments) ? attachments : [],
         },
       }
     );
@@ -10815,46 +11619,18 @@ export default function ThailandPantiesMarketSite() {
         error: `Email was accepted but not delivered (${payload?.email?.reason || payload?.email?.mode || 'unknown'}).`,
       };
     }
-    const now = new Date().toISOString();
-    const nextThreadId = `email_thread_local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-    const nextThread = {
-      id: nextThreadId,
-      mailbox: selectedMailbox,
-      participantEmail: nextToEmail,
-      participantName: String(toName || '').trim() || nextToEmail,
-      status: 'pending_customer',
-      unreadCount: 0,
-      createdAt: now,
-      updatedAt: now,
-      lastMessageAt: now,
-      lastMessageDirection: 'outbound',
-      lastSubject: nextSubject,
-      lastSnippet: nextBody.replace(/\s+/g, ' ').trim().slice(0, 240),
-    };
-    const nextMessage = {
-      id: `email_msg_local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      threadId: nextThreadId,
-      mailbox: selectedMailbox,
-      direction: 'outbound',
-      fromEmail: mailboxAddress,
-      fromName: 'Admin Team',
-      toEmail: nextToEmail,
-      toName: String(toName || '').trim(),
-      subject: nextSubject,
-      text: nextBody,
-      html: '',
-      externalMessageId: '',
-      externalInReplyTo: '',
-      createdAt: now,
-    };
     setDb((prev) => ({
       ...prev,
-      adminEmailThreads: [nextThread, ...(prev.adminEmailThreads || []).filter((entry) => entry.id !== nextThread.id)],
-      adminEmailMessages: [...(prev.adminEmailMessages || []), nextMessage],
+      adminEmailThreads: payload?.thread
+        ? [payload.thread, ...(prev.adminEmailThreads || []).filter((entry) => entry.id !== payload.thread.id)]
+        : (prev.adminEmailThreads || []),
+      adminEmailMessages: payload?.message
+        ? [...(prev.adminEmailMessages || []), payload.message]
+        : (prev.adminEmailMessages || []),
     }));
     return {
       ok: true,
-      thread: nextThread,
+      thread: payload?.thread || null,
       message: `Email delivered to ${(payload?.email?.recipients || [nextToEmail]).join(', ')}.`,
     };
   }
@@ -10888,6 +11664,188 @@ export default function ThailandPantiesMarketSite() {
         : (prev.adminEmailThreads || []),
     }));
     return { ok: true, thread: payload?.thread || null };
+  }
+
+  async function deleteAdminEmailThread(threadId) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    const safeThreadId = String(threadId || '').trim();
+    if (!safeThreadId) {
+      return { ok: false, error: 'Thread id is required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const { ok, payload } = await apiRequestJson(
+      `/api/admin/email-inbox/threads/${encodeURIComponent(safeThreadId)}`,
+      {
+        method: 'DELETE',
+        idempotencyScope: `admin_email_delete_${safeThreadId}`,
+      }
+    );
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not delete thread.') };
+    }
+    setDb((prev) => ({
+      ...prev,
+      adminEmailThreads: (prev.adminEmailThreads || []).filter((entry) => entry.id !== safeThreadId),
+      adminEmailMessages: (prev.adminEmailMessages || []).filter((entry) => entry.threadId !== safeThreadId),
+    }));
+    return { ok: true, deletedThreadId: safeThreadId };
+  }
+
+  async function getAdminEmailInboxHealth() {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const { ok, payload } = await apiRequestJson('/api/admin/email-inbox/health');
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not load inbox health.') };
+    }
+    return { ok: true, health: payload?.webhook || null };
+  }
+
+  async function listAdminEmailSuppressions() {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const { ok, payload } = await apiRequestJson('/api/admin/email-inbox/suppressions');
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not load suppressions.') };
+    }
+    return { ok: true, suppressions: Array.isArray(payload?.suppressions) ? payload.suppressions : [] };
+  }
+
+  async function addAdminEmailSuppression(email, reason = '') {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const safeEmail = String(email || '').trim().toLowerCase();
+    if (!safeEmail || !safeEmail.includes('@')) {
+      return { ok: false, error: 'Valid email is required.' };
+    }
+    const { ok, payload } = await apiRequestJson('/api/admin/email-inbox/suppressions', {
+      method: 'POST',
+      body: { email: safeEmail, reason: String(reason || '').trim() },
+    });
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not add suppression.') };
+    }
+    return { ok: true, suppression: payload?.suppression || null };
+  }
+
+  async function removeAdminEmailSuppression(email) {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const safeEmail = String(email || '').trim().toLowerCase();
+    if (!safeEmail || !safeEmail.includes('@')) {
+      return { ok: false, error: 'Valid email is required.' };
+    }
+    const { ok, payload } = await apiRequestJson(`/api/admin/email-inbox/suppressions/${encodeURIComponent(safeEmail)}`, {
+      method: 'DELETE',
+    });
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not remove suppression.') };
+    }
+    return { ok: true, removedEmail: payload?.removedEmail || safeEmail };
+  }
+
+  async function dispatchManagedNotification({
+    recipientUserIds = [],
+    preferenceType = 'engagement',
+    route = '/account',
+    titleByLang = {},
+    bodyByLang = {},
+    sendEmail = false,
+    emailSubject = '',
+    emailText = '',
+    kind = 'managed_notification',
+  } = {}) {
+    if (!currentUser || !hasAdminPanelAccess(currentUser)) {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend notifications are unavailable while API is offline.' };
+    }
+    const normalizedRecipientUserIds = Array.isArray(recipientUserIds)
+      ? [...new Set(recipientUserIds.map((entry) => String(entry || '').trim()).filter(Boolean))]
+      : [];
+    if (normalizedRecipientUserIds.length === 0) {
+      return { ok: false, error: 'At least one recipient is required.' };
+    }
+    const { ok, payload } = await apiRequestJson('/api/notifications/dispatch', {
+      method: 'POST',
+      body: {
+        recipientUserIds: normalizedRecipientUserIds,
+        preferenceType: String(preferenceType || 'engagement').trim(),
+        route: String(route || '/account').trim() || '/account',
+        titleByLang: (titleByLang && typeof titleByLang === 'object') ? titleByLang : {},
+        bodyByLang: (bodyByLang && typeof bodyByLang === 'object') ? bodyByLang : {},
+        sendEmail: Boolean(sendEmail),
+        emailSubject: String(emailSubject || '').trim(),
+        emailText: String(emailText || '').trim(),
+        kind: String(kind || 'managed_notification').trim() || 'managed_notification',
+      },
+    });
+    if (!ok) {
+      return { ok: false, error: String(payload?.error || 'Could not dispatch notification.') };
+    }
+    return { ok: true, result: payload?.result || null };
+  }
+
+  async function downloadAdminEmailAttachment(threadId, messageId, attachmentId, fallbackFilename = "attachment") {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return { ok: false, error: 'Admin access required.' };
+    }
+    if (!(backendStatus === 'connected' && apiAuthToken)) {
+      return { ok: false, error: 'Backend inbox is unavailable while API is offline.' };
+    }
+    const safeThreadId = String(threadId || '').trim();
+    const safeMessageId = String(messageId || '').trim();
+    const safeAttachmentId = String(attachmentId || '').trim();
+    if (!safeThreadId || !safeMessageId || !safeAttachmentId) {
+      return { ok: false, error: 'Thread, message, and attachment ids are required.' };
+    }
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/email-inbox/threads/${encodeURIComponent(safeThreadId)}/messages/${encodeURIComponent(safeMessageId)}/attachments/${encodeURIComponent(safeAttachmentId)}`,
+      {
+        method: 'GET',
+        headers: getApiHeaders({}),
+      }
+    );
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      return { ok: false, error: String(payload?.error || 'Could not download attachment.') };
+    }
+    const blob = await response.blob();
+    const objectUrl = window.URL.createObjectURL(blob);
+    const downloadName = String(
+      response.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1]
+      || fallbackFilename
+      || 'attachment'
+    ).trim() || 'attachment';
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = downloadName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.URL.revokeObjectURL(objectUrl);
+    return { ok: true };
   }
 
   async function updatePromptPayReceiverMobile(nextMobileValue) {
@@ -11557,9 +12515,24 @@ export default function ThailandPantiesMarketSite() {
           stableIdempotency: true,
         });
         if (ok) {
+          const apiOrderId = String(payload?.order?.id || payload?.orderId || '').trim();
+          const resolvedOrderId = apiOrderId || `order_${Date.now()}`;
           if (payload?.db) {
-            setDb(normalizeDbState(payload.db));
+            setDb((prev) => ensureOrderPlacedEmailQueued(
+              normalizeDbState(payload.db),
+              {
+                userId: currentUser.id,
+                orderId: resolvedOrderId,
+                itemCount: requestItemIds.length,
+                shippingFee,
+                total,
+              }
+            ));
           }
+          setCheckoutSuccessPopup({
+            orderId: resolvedOrderId,
+            receiptEmail: (buyerEmail || currentUser.email || '').trim(),
+          });
           setCart([]);
           setCheckoutError('');
           navigate('/checkout/success');
@@ -11733,17 +12706,12 @@ export default function ThailandPantiesMarketSite() {
           ...(prev.walletTransactions || []),
         ],
       };
-      const withOrderEmail = appendTemplatedEmail(base, {
-        templateKey: 'order_placed',
+      const withOrderEmail = ensureOrderPlacedEmailQueued(base, {
         userId: currentUser.id,
-        vars: {
-          orderId,
-          itemCount: purchasedItemIds.length,
-          shippingFee: formatPriceTHB(shippingFee),
-          orderTotal: formatPriceTHB(total),
-          actionPath: '/account',
-        },
-        fallbackPath: '/account',
+        orderId,
+        itemCount: purchasedItemIds.length,
+        shippingFee,
+        total,
       });
       return appendLowBalanceEmailIfNeeded(withOrderEmail, {
         userId: currentUser.id,
@@ -11751,9 +12719,38 @@ export default function ThailandPantiesMarketSite() {
         afterBalance,
       });
     });
+    setCheckoutSuccessPopup({
+      orderId,
+      receiptEmail: (buyerEmail || currentUser.email || '').trim(),
+    });
     setCart([]);
     setCheckoutError('');
     navigate('/checkout/success');
+  }
+
+  async function resendOrderReceipt(orderId) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      return { ok: false, error: 'Buyer login is required to resend receipts.' };
+    }
+    const normalizedOrderId = String(orderId || '').trim();
+    if (!normalizedOrderId) {
+      return { ok: false, error: 'Order ID is required.' };
+    }
+    const order = (orders || []).find((entry) => (
+      String(entry?.id || '') === normalizedOrderId
+      && String(entry?.buyerUserId || entry?.buyerId || '') === String(currentUser.id || '')
+    ));
+    if (!order) {
+      return { ok: false, error: 'Order not found for this account.' };
+    }
+    setDb((prev) => queueOrderPlacedEmail(prev, {
+      userId: currentUser.id,
+      orderId: normalizedOrderId,
+      itemCount: Array.isArray(order.items) ? order.items.length : 0,
+      shippingFee: Number(order.shippingFee || 0),
+      total: Number(order.total || 0),
+    }));
+    return { ok: true };
   }
 
   function handleUploadFile(event) {
@@ -12885,6 +13882,13 @@ export default function ThailandPantiesMarketSite() {
     if (updatingOrderId === orderId) return;
     setUpdatingOrderId(orderId);
     try {
+      const targetOrderCurrent = (orders || []).find((entry) => entry.id === orderId);
+      const buyerCurrent = targetOrderCurrent
+        ? (users || []).find((user) => (
+          (targetOrderCurrent.buyerUserId && user.id === targetOrderCurrent.buyerUserId)
+          || (!targetOrderCurrent.buyerUserId && targetOrderCurrent.buyerEmail && user.email === targetOrderCurrent.buyerEmail)
+        ))
+        : null;
       const normalizedTrackingNumber = String(nextTrackingNumber || '').trim();
       const normalizedTrackingCarrier = String(nextTrackingCarrier || '').trim();
       const now = new Date().toISOString();
@@ -12966,6 +13970,34 @@ export default function ThailandPantiesMarketSite() {
           fallbackPath: '/account',
         });
       });
+      if (nextFulfillmentStatus === 'shipped' && buyerCurrent?.id) {
+        Promise.resolve(dispatchManagedNotification({
+          recipientUserIds: [buyerCurrent.id],
+          preferenceType: 'engagement',
+          route: '/account',
+          titleByLang: {
+            en: 'Order shipped',
+            th: 'คำสั่งซื้อถูกจัดส่งแล้ว',
+            my: 'Order ကို ပို့ဆောင်လိုက်ပြီ',
+            ru: 'Заказ отправлен',
+          },
+          bodyByLang: {
+            en: normalizedTrackingNumber
+              ? `Your order ${orderId} has shipped. Tracking: ${normalizedTrackingNumber}.`
+              : `Your order ${orderId} has shipped.`,
+            th: normalizedTrackingNumber
+              ? `คำสั่งซื้อ ${orderId} ของคุณถูกจัดส่งแล้ว ติดตาม: ${normalizedTrackingNumber}`
+              : `คำสั่งซื้อ ${orderId} ของคุณถูกจัดส่งแล้ว`,
+            my: normalizedTrackingNumber
+              ? `သင့် order ${orderId} ကို ပို့ဆောင်ပြီးပါပြီ။ Tracking: ${normalizedTrackingNumber}`
+              : `သင့် order ${orderId} ကို ပို့ဆောင်ပြီးပါပြီ။`,
+            ru: normalizedTrackingNumber
+              ? `Ваш заказ ${orderId} отправлен. Трек: ${normalizedTrackingNumber}.`
+              : `Ваш заказ ${orderId} отправлен.`,
+          },
+          kind: 'buyer_order_shipped',
+        })).catch(() => {});
+      }
     } finally {
       setUpdatingOrderId(null);
     }
@@ -13173,6 +14205,10 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.DISPUTES_REVIEW)) return;
     if (!caseKey || !['new', 'investigating', 'pending_refund', 'resolved', 'rejected'].includes(status)) return;
     const updatedAt = new Date().toISOString();
+    const adminRecipients = (users || [])
+      .filter((user) => hasAdminPanelAccess(user))
+      .map((user) => user.id)
+      .filter(Boolean);
     setDb((prev) => {
       const existing = (prev.adminDisputeCases || []).find((entry) => entry.caseKey === caseKey);
       const nextEntry = existing
@@ -13197,6 +14233,24 @@ export default function ThailandPantiesMarketSite() {
         adminDisputeCases: [nextEntry, ...rest].slice(0, 1000),
       };
     });
+    Promise.resolve(dispatchManagedNotification({
+      recipientUserIds: adminRecipients,
+      preferenceType: 'adminOps',
+      route: '/admin?tab=disputes',
+      titleByLang: {
+        en: 'Dispute updated',
+        th: 'อัปเดตข้อพิพาทแล้ว',
+        my: 'Dispute ကို အပ်ဒိတ်လုပ်ပြီးပါပြီ',
+        ru: 'Спор обновлен',
+      },
+      bodyByLang: {
+        en: `Dispute case ${caseKey} moved to ${status}.`,
+        th: `เคสข้อพิพาท ${caseKey} อัปเดตเป็น ${status}`,
+        my: `Dispute case ${caseKey} ကို ${status} သို့ ပြောင်းခဲ့သည်။`,
+        ru: `Статус спора ${caseKey} изменен на ${status}.`,
+      },
+      kind: 'dispute_updated',
+    })).catch(() => {});
   }
 
   const footerGroups = [
@@ -13383,7 +14437,12 @@ export default function ThailandPantiesMarketSite() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-pink-50 text-slate-800">
-      <header className="sticky top-0 z-40 border-b border-rose-100 bg-white/90 backdrop-blur">
+      <header className={`sticky top-0 z-40 border-b backdrop-blur ${appMode === 'test' ? 'border-amber-200 bg-amber-50/90' : 'border-rose-100 bg-white/90'}`}>
+        {appMode === 'test' ? (
+          <div className="border-b border-amber-200 bg-amber-100/90 px-4 py-2 text-center text-xs font-extrabold uppercase tracking-[0.14em] text-amber-900">
+            Test Mode Active · Using Alex / Nina / Small World QA dataset
+          </div>
+        ) : null}
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 md:px-6">
           <div className="shrink-0">
             <button onClick={() => navigate('/')} className="flex items-center gap-3 text-left text-lg font-bold tracking-tight text-rose-700 lg:text-2xl">
@@ -13419,6 +14478,26 @@ export default function ThailandPantiesMarketSite() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2">
+            {currentUser?.role === 'admin' ? (
+              <div className="hidden items-center gap-1 rounded-2xl border border-slate-200 bg-white/80 p-1 lg:flex">
+                <button
+                  type="button"
+                  onClick={() => switchAppMode('live')}
+                  disabled={appMode === 'live'}
+                  className={`rounded-xl px-2.5 py-1.5 text-xs font-semibold ${appMode === 'live' ? 'cursor-not-allowed bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+                >
+                  Live
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchAppMode('test')}
+                  disabled={appMode === 'test'}
+                  className={`rounded-xl px-2.5 py-1.5 text-xs font-semibold ${appMode === 'test' ? 'cursor-not-allowed bg-amber-600 text-white' : 'text-amber-700 hover:bg-amber-100'}`}
+                >
+                  Test
+                </button>
+              </div>
+            ) : null}
             <div ref={accountMenuRef} className="relative hidden lg:block">
               <button
                 onClick={() => setAccountMenuOpen((prev) => !prev)}
@@ -13468,6 +14547,26 @@ export default function ThailandPantiesMarketSite() {
 
         {mobileMenuOpen ? (
           <div className="border-t border-rose-100 bg-white px-4 py-4 xl:hidden">
+            {currentUser?.role === 'admin' ? (
+              <div className="mb-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => switchAppMode('live')}
+                  disabled={appMode === 'live'}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold ${appMode === 'live' ? 'cursor-not-allowed bg-slate-900 text-white' : 'border border-slate-200 text-slate-700'}`}
+                >
+                  Live mode
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchAppMode('test')}
+                  disabled={appMode === 'test'}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold ${appMode === 'test' ? 'cursor-not-allowed bg-amber-600 text-white' : 'border border-amber-300 text-amber-700'}`}
+                >
+                  Test mode
+                </button>
+              </div>
+            ) : null}
             <div className="flex flex-col gap-3 text-sm font-medium">
               <button onClick={() => navigate('/')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.home}</button>
               <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.sellers}</button>
@@ -13536,7 +14635,7 @@ export default function ThailandPantiesMarketSite() {
                 </select>
               </div>
             </section>
-            <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.2fr_0.8fr] md:py-24">
+            <section className="mx-auto grid max-w-7xl gap-10 px-6 pb-16 pt-8 md:grid-cols-[1.2fr_0.8fr] md:pb-24 md:pt-12">
               <div className="flex flex-col justify-center">
                 <h1 className="max-w-xl text-4xl font-bold tracking-tight text-slate-900 md:text-6xl">
                   {publicText.heroTitle}
@@ -13646,11 +14745,32 @@ export default function ThailandPantiesMarketSite() {
                     <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input value={filters.search} onChange={(e) => updateFilter('search', e.target.value)} placeholder={publicText.searchStylesSellersColors} className="w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 outline-none focus:border-rose-300" />
                   </label>
-                  {['size', 'color', 'style', 'fabric', 'daysWorn', 'condition', 'scentLevel', 'price'].map((key) => (
-                    <select key={key} value={filters[key]} onChange={(e) => updateFilter(key, e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-rose-300">
-                      {filterOptions[key].map((option) => <option key={option} value={option}>{({ daysWorn: 'Days worn', scentLevel: 'Scent level' }[key] || key.charAt(0).toUpperCase() + key.slice(1))}: {localizeOptionLabel(option, uiLanguage)}</option>)}
-                    </select>
-                  ))}
+                  {['size', 'color', 'style', 'fabric', 'daysWorn', 'condition', 'scentLevel', 'price'].map((key) => {
+                    const fieldLabel = ({
+                      size: 'Size',
+                      color: 'Color',
+                      style: 'Style',
+                      fabric: 'Fabric',
+                      daysWorn: 'Days worn',
+                      condition: 'Condition',
+                      scentLevel: 'Scent level',
+                      price: 'Price',
+                    }[key] || key);
+                    return (
+                      <label key={key} className="flex flex-col gap-1">
+                        <span className="px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                          {fieldLabel}
+                        </span>
+                        <select value={filters[key]} onChange={(e) => updateFilter(key, e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-rose-300">
+                          {filterOptions[key].map((option) => (
+                            <option key={option} value={option}>
+                              {localizeOptionLabel(option, uiLanguage)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    );
+                  })}
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button onClick={resetFilters} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">{publicText.resetFilters}</button>
@@ -13731,6 +14851,15 @@ export default function ThailandPantiesMarketSite() {
                           className={`rounded-2xl border px-4 py-3 font-semibold ${cart.includes(product.id) ? 'cursor-not-allowed border-slate-200 text-slate-500' : 'border-rose-200 text-rose-700'}`}
                         >
                           {cart.includes(product.id) ? publicText.inCartLabel : publicText.add}
+                        </button>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            toggleProductWatch(product.id);
+                          }}
+                          className={`rounded-2xl border px-4 py-3 font-semibold ${watchedProductIds.has(product.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                        >
+                          {watchedProductIds.has(product.id) ? "Liked" : "Like"}
                         </button>
                       </div>
                     </div>
@@ -14172,6 +15301,7 @@ export default function ThailandPantiesMarketSite() {
                   ) : null}
                   {selectedSellerAvailableProducts.map((product) => {
                     const bundleOption = product.isBundle ? null : getPrimaryBundleForProduct(product.id);
+                    const bundleCoveredInCart = !product.isBundle && cartBundleCoveredItemIds.has(String(product.id || ''));
                     return (
                     <div key={product.id} className="rounded-3xl border border-rose-100 p-4">
                       <button onClick={() => navigate(`/product/${product.slug}`)} className="h-40 w-full"><ProductImage src={product.image} label={product.imageName || product.title} /></button>
@@ -14195,12 +15325,27 @@ export default function ThailandPantiesMarketSite() {
                           </button>
                         </div>
                       ) : null}
+                      {bundleCoveredInCart ? (
+                        <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+                          Included via bundle in cart
+                        </div>
+                      ) : null}
                       <button
                         onClick={() => addToCart(product.id)}
-                        disabled={cart.includes(product.id)}
-                        className={`mt-4 w-full rounded-2xl px-4 py-3 font-semibold text-white ${cart.includes(product.id) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
+                        disabled={cart.includes(product.id) || bundleCoveredInCart}
+                        className={`mt-4 w-full rounded-2xl px-4 py-3 font-semibold text-white ${(cart.includes(product.id) || bundleCoveredInCart) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
                       >
-                        {cart.includes(product.id) ? publicText.inCartLabel : publicText.addToCart}
+                        {cart.includes(product.id)
+                          ? publicText.inCartLabel
+                          : bundleCoveredInCart
+                            ? 'Included in bundle'
+                            : publicText.addToCart}
+                      </button>
+                      <button
+                        onClick={() => toggleProductWatch(product.id)}
+                        className={`mt-2 w-full rounded-2xl border px-4 py-2.5 text-sm font-semibold ${watchedProductIds.has(product.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                      >
+                        {watchedProductIds.has(product.id) ? "Liked" : "Like"}
                       </button>
                     </div>
                   )})}
@@ -14449,17 +15594,29 @@ export default function ThailandPantiesMarketSite() {
                   ) : (
                     <button
                       onClick={() => addToCart(selectedProduct.id)}
-                      disabled={cart.includes(selectedProduct.id)}
-                      className={`rounded-2xl px-6 py-3 font-semibold text-white ${cart.includes(selectedProduct.id) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
+                      disabled={cart.includes(selectedProduct.id) || selectedProductCoveredByBundleInCart}
+                      className={`rounded-2xl px-6 py-3 font-semibold text-white ${(cart.includes(selectedProduct.id) || selectedProductCoveredByBundleInCart) ? 'cursor-not-allowed bg-slate-400' : 'bg-rose-600'}`}
                     >
-                      {cart.includes(selectedProduct.id) ? publicText.inCartLabel : publicText.addToCart}
+                      {cart.includes(selectedProduct.id)
+                        ? publicText.inCartLabel
+                        : selectedProductCoveredByBundleInCart
+                          ? 'Included in bundle'
+                          : publicText.addToCart}
                     </button>
                   )}
                   <button onClick={() => navigate(`/seller/${selectedProduct.sellerId}`)} className="rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">{publicText.viewSellerProfile}</button>
+                  <button
+                    onClick={() => toggleProductWatch(selectedProduct.id)}
+                    className={`rounded-2xl border px-6 py-3 font-semibold ${watchedProductIds.has(selectedProduct.id) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                  >
+                    {watchedProductIds.has(selectedProduct.id) ? "Liked" : "Like"}
+                  </button>
                 </div>
-                {cart.includes(selectedProduct.id) ? (
+                {cart.includes(selectedProduct.id) || selectedProductCoveredByBundleInCart ? (
                   <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
-                    <div className="text-sm font-semibold text-emerald-800">Added to cart. Ready to continue?</div>
+                    <div className="text-sm font-semibold text-emerald-800">
+                      {selectedProductCoveredByBundleInCart ? 'Included via bundle in cart. Ready to continue?' : 'Added to cart. Ready to continue?'}
+                    </div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <button
                         onClick={() => {
@@ -14497,7 +15654,14 @@ export default function ThailandPantiesMarketSite() {
               <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
                 <Lock className="mx-auto h-10 w-10 text-rose-600" />
                 <h2 className="mt-4 text-2xl font-bold">{loginText.barLoginRequiredTitle || 'Bar login required'}</h2>
-                <p className="mt-2 text-slate-600">{loginText.barLoginProfileSubtitle || 'Use a bar account to manage bar profile details and photo posts.'}</p>
+                <p className="mt-2 text-slate-600">{loginText.barLoginProfileSubtitle || 'Please log in with a bar account to continue.'}</p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
+                >
+                  Go to login
+                </button>
               </div>
             ) : (
               <>
@@ -14547,63 +15711,40 @@ export default function ThailandPantiesMarketSite() {
                     </select>
                   </label>
                 </div>
-                <div className="mb-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                  <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
-                  <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
-                  <div className="mt-4 grid gap-3 md:grid-cols-2">
-                    <input
-                      type="password"
-                      value={accountCredentialForm.currentPassword}
-                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                      placeholder="Current password"
-                    />
-                    <input
-                      type="email"
-                      value={accountCredentialForm.newEmail}
-                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                      placeholder="New email"
-                    />
-                    <input
-                      type="password"
-                      value={accountCredentialForm.newPassword}
-                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                      placeholder="New password"
-                    />
-                    <input
-                      type="password"
-                      value={accountCredentialForm.confirmNewPassword}
-                      onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                      placeholder={registerText.confirmPassword || 'Confirm password'}
-                    />
-                  </div>
-                  <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                <div className="mb-4 rounded-3xl border border-rose-100 bg-white p-4 shadow-sm">
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Notification display</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={submitAccountCredentialChanges}
-                      disabled={accountCredentialSaving}
-                      className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
+                      onClick={() => setBarDiscreetNotificationText((prev) => !prev)}
+                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${barDiscreetNotificationText ? 'bg-slate-800 text-white' : 'border border-slate-200 text-slate-700'}`}
                     >
-                      {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
+                      Discreet Messages: {barDiscreetNotificationText ? 'On' : 'Off'}
                     </button>
-                    {accountCredentialMessage ? (
-                      <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
-                        {accountCredentialMessage}
-                      </div>
-                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => setBarNotificationCompactMode((prev) => !prev)}
+                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${barNotificationCompactMode ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-700'}`}
+                    >
+                      View: {barNotificationCompactMode ? 'Compact' : 'Comfort'}
+                    </button>
                   </div>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).
+                  </p>
                 </div>
                 {currentBarProfile ? (
                   <div className="mt-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                     <BarQrCard bar={currentBarProfile} />
                   </div>
                 ) : null}
-                <div id="bar-earnings" className="mt-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                  <h3 className="text-xl font-semibold">Affiliate earnings</h3>
+                <details id="bar-earnings" className="mt-6 overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
+                  <summary className="cursor-pointer list-none">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-xl font-semibold">Affiliate earnings</h3>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    </div>
+                  </summary>
                   <p className="mt-1 text-sm text-slate-600">Track the money your bar earns from affiliated seller sales and paid buyer interactions.</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="rounded-2xl bg-emerald-50 p-4">
@@ -14657,10 +15798,15 @@ export default function ThailandPantiesMarketSite() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </details>
                 <div className="mt-6 space-y-8">
-                  <div id="bar-profile" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}</h3>
+                  <details id="bar-profile" className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
+                    <summary className="cursor-pointer list-none">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}</h3>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      </div>
+                    </summary>
                     <div className="mt-4 h-48">
                       <ProductImage
                         src={barProfileDraft.profileImage || currentBarProfile?.profileImage}
@@ -14695,22 +15841,22 @@ export default function ThailandPantiesMarketSite() {
                           ))}
                         </div>
                       </div>
-                      <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).specialsPlaceholder} />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Specials text presets</div>
-                        <div className="mt-2 flex flex-wrap gap-2">
+                        <div className="mt-2 flex flex-nowrap gap-2 overflow-x-auto pb-1">
                           {BAR_PROFILE_TEXT_PRESET_OPTIONS.specials.map((preset) => (
                             <button
                               key={preset.id}
                               type="button"
                               onClick={() => appendBarProfilePresetText('specials', preset.text[uiLanguage] || preset.text.en)}
-                              className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                              className="shrink-0 rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
                             >
                               {preset.label[uiLanguage] || preset.label.en}
                             </button>
                           ))}
                         </div>
                       </div>
+                      <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).specialsPlaceholder} />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).quickPicksTitle}</div>
                         <p className="mt-2 text-xs text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).quickPicksHelp}</p>
@@ -14786,11 +15932,16 @@ export default function ThailandPantiesMarketSite() {
                         </div>
                       ) : null}
                     </div>
-                  </div>
+                  </details>
                 </div>
                 <div className="mt-8 space-y-6">
-                  <div id="bar-affiliations" className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}</h3>
+                  <details id="bar-affiliations" className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
+                    <summary className="cursor-pointer list-none">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}</h3>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      </div>
+                    </summary>
                     <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsSubtitle}</p>
                     <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
                       <div className="text-sm font-semibold text-slate-800">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).pendingRequestsTitle}</div>
@@ -14887,9 +16038,14 @@ export default function ThailandPantiesMarketSite() {
                         ))}
                       </div>
                     </div>
-                  </div>
-                  <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                    <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsTitle}</h3>
+                  </details>
+                  <details className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
+                    <summary className="cursor-pointer list-none">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsTitle}</h3>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      </div>
+                    </summary>
                     <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsSubtitle}</p>
                     <div className="mt-4 space-y-3">
                       {barDashboardNotifications.length === 0 ? (
@@ -14901,7 +16057,62 @@ export default function ThailandPantiesMarketSite() {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </details>
+                  <details className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
+                    <summary className="cursor-pointer list-none">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      </div>
+                    </summary>
+                    <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <input
+                        type="password"
+                        value={accountCredentialForm.currentPassword}
+                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        placeholder="Current password"
+                      />
+                      <input
+                        type="email"
+                        value={accountCredentialForm.newEmail}
+                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        placeholder="New email"
+                      />
+                      <input
+                        type="password"
+                        value={accountCredentialForm.newPassword}
+                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        placeholder="New password"
+                      />
+                      <input
+                        type="password"
+                        value={accountCredentialForm.confirmNewPassword}
+                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        placeholder={registerText.confirmPassword || 'Confirm password'}
+                      />
+                    </div>
+                    <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={submitAccountCredentialChanges}
+                        disabled={accountCredentialSaving}
+                        className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
+                      >
+                        {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
+                      </button>
+                      {accountCredentialMessage ? (
+                        <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
+                          {accountCredentialMessage}
+                        </div>
+                      ) : null}
+                    </div>
+                  </details>
                 </div>
               </>
             )}
@@ -14910,58 +16121,6 @@ export default function ThailandPantiesMarketSite() {
 
         {routeInfo.name === 'account' && currentUser?.role === 'seller' ? (
           <>
-            <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
-                <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <input
-                    type="password"
-                    value={accountCredentialForm.currentPassword}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="Current password"
-                  />
-                  <input
-                    type="email"
-                    value={accountCredentialForm.newEmail}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="New email"
-                  />
-                  <input
-                    type="password"
-                    value={accountCredentialForm.newPassword}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="New password"
-                  />
-                  <input
-                    type="password"
-                    value={accountCredentialForm.confirmNewPassword}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder={registerText.confirmPassword || 'Confirm password'}
-                  />
-                </div>
-                <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={submitAccountCredentialChanges}
-                    disabled={accountCredentialSaving}
-                    className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
-                  >
-                    {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
-                  </button>
-                  {accountCredentialMessage ? (
-                    <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
-                      {accountCredentialMessage}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </section>
             <SellerDashboardPage
             isSeller={isSeller}
             isPendingSeller={isPendingSeller}
@@ -15035,6 +16194,12 @@ export default function ThailandPantiesMarketSite() {
             respondToCustomRequestCounter={respondToCustomRequestCounter}
             toggleCustomRequestBuyerImageUpload={toggleCustomRequestBuyerImageUpload}
             sendCustomRequestMessage={sendCustomRequestMessage}
+            accountCredentialForm={accountCredentialForm}
+            setAccountCredentialForm={setAccountCredentialForm}
+            submitAccountCredentialChanges={submitAccountCredentialChanges}
+            accountCredentialSaving={accountCredentialSaving}
+            accountCredentialMessage={accountCredentialMessage}
+            accountCredentialTone={accountCredentialTone}
             navigate={navigate}
           />
           </>
@@ -15141,7 +16306,14 @@ export default function ThailandPantiesMarketSite() {
               <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
                 <Lock className="mx-auto h-10 w-10 text-rose-600" />
                 <h2 className="mt-4 text-2xl font-bold">{loginText.barLoginRequiredTitle || 'Bar login required'}</h2>
-                <p className="mt-2 text-slate-600">{loginText.barLoginFeedSubtitle || 'Use a bar account to create and manage bar feed posts.'}</p>
+                <p className="mt-2 text-slate-600">{loginText.barLoginFeedSubtitle || 'Please log in with a bar account to continue.'}</p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
+                >
+                  Go to login
+                </button>
               </div>
             ) : (
               <>
@@ -15326,8 +16498,15 @@ export default function ThailandPantiesMarketSite() {
             sendAdminEmailThreadReply={sendAdminEmailThreadReply}
             sendAdminEmailInboxMessage={sendAdminEmailInboxMessage}
             updateAdminEmailThreadStatus={updateAdminEmailThreadStatus}
+            deleteAdminEmailThread={deleteAdminEmailThread}
+            getAdminEmailInboxHealth={getAdminEmailInboxHealth}
+            listAdminEmailSuppressions={listAdminEmailSuppressions}
+            addAdminEmailSuppression={addAdminEmailSuppression}
+            removeAdminEmailSuppression={removeAdminEmailSuppression}
+            downloadAdminEmailAttachment={downloadAdminEmailAttachment}
             sellerMap={sellerMap}
             currentUser={currentUser}
+            sendTestBrowserNotification={sendTestBrowserNotification}
             navigate={navigate}
             CMS_SCHEMA={CMS_SCHEMA}
             NEXTJS_EXPORT_BLUEPRINT={NEXTJS_EXPORT_BLUEPRINT}
@@ -15340,6 +16519,8 @@ export default function ThailandPantiesMarketSite() {
             createMonthlyPayoutRun={createMonthlyPayoutRun}
             markPayoutItemSent={markPayoutItemSent}
             markPayoutItemFailed={markPayoutItemFailed}
+            appMode={appMode}
+            switchAppMode={switchAppMode}
           />
         ) : null}
 
@@ -15382,6 +16563,46 @@ export default function ThailandPantiesMarketSite() {
 
         {routeInfo.name === 'checkout-success' ? (
           <section className="mx-auto max-w-4xl px-6 py-16">
+            {checkoutSuccessPopup ? (
+              <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/45 px-4">
+                <div className="w-full max-w-lg rounded-3xl bg-white p-6 text-slate-800 shadow-2xl ring-1 ring-rose-100">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="mt-0.5 h-6 w-6 text-emerald-600" />
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold tracking-tight">Payment successful</h3>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Your order <span className="font-semibold text-slate-800">{checkoutSuccessPopup.orderId}</span> has been placed.
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Confirmation email: <span className="font-semibold text-slate-800">{checkoutSuccessPopup.receiptEmail || 'saved account email'}</span>
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        We will notify you when your order ships, including your tracking number and carrier details.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-5 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCheckoutSuccessPopup(null);
+                        navigate(accountRoute);
+                      }}
+                      className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+                    >
+                      View account
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCheckoutSuccessPopup(null)}
+                      className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
             <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
               <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
               <h2 className="mt-5 text-3xl font-bold tracking-tight">Order placed</h2>
@@ -15561,7 +16782,18 @@ export default function ThailandPantiesMarketSite() {
               >
                 {showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
               </button>
-              <div className="text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+                  {registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}
+                </div>
+                <div className="mt-2 space-y-1.5 text-xs">
+                  {registerPasswordChecks.map((check) => (
+                    <div key={check.key} className={check.passed ? 'text-emerald-700' : 'text-rose-700'}>
+                      {check.passed ? '✓' : '✕'} {check.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
               {registerForm.role === 'seller' || registerForm.role === 'bar' ? (
                 <>
                   <input
@@ -15581,9 +16813,13 @@ export default function ThailandPantiesMarketSite() {
                   </div>
                 </>
               ) : null}
-              {registerForm.role === 'buyer' ? (
+              {registerForm.role === 'buyer' || registerForm.role === 'seller' ? (
                 <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
-                  <div className="mb-2 text-sm font-semibold text-rose-800">{registerText.buyerTermsTitle || 'Buyer terms acceptance'}</div>
+                  <div className="mb-2 text-sm font-semibold text-rose-800">
+                    {registerForm.role === 'seller'
+                      ? (registerText.sellerTermsTitle || 'Seller terms acceptance')
+                      : (registerText.buyerTermsTitle || 'Buyer terms acceptance')}
+                  </div>
                   <div className="mb-3 flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -15607,7 +16843,11 @@ export default function ThailandPantiesMarketSite() {
                       onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedRespectfulConduct: event.target.checked }))}
                       className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
                     />
-                    <span>{registerText.buyerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.'}</span>
+                    <span>
+                      {registerForm.role === 'seller'
+                        ? (registerText.sellerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.')
+                        : (registerText.buyerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.')}
+                    </span>
                   </label>
                   <label className="flex items-start gap-2 text-sm text-slate-700">
                     <input
@@ -15616,7 +16856,11 @@ export default function ThailandPantiesMarketSite() {
                       onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedNoRefunds: event.target.checked }))}
                       className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
                     />
-                    <span>{registerText.buyerNoRefundCheckbox || 'I understand and accept that all purchases are final (no refunds).'}</span>
+                    <span>
+                      {registerForm.role === 'seller'
+                        ? (registerText.sellerWrongItemPolicyCheckbox || 'I understand that if I ship the wrong item, I must reship the correct item at my own expense, or the buyer may be refunded and my commission may be deducted.')
+                        : (registerText.buyerNoRefundCheckbox || 'I understand purchases are final, except wrong-item orders may be eligible for correction or refund review.')}
+                    </span>
                   </label>
                 </div>
               ) : null}
@@ -15630,58 +16874,6 @@ export default function ThailandPantiesMarketSite() {
 
         {routeInfo.name === 'account' && currentUser?.role !== 'seller' && currentUser?.role !== 'bar' ? (
           <>
-            <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
-                <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <input
-                    type="password"
-                    value={accountCredentialForm.currentPassword}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="Current password"
-                  />
-                  <input
-                    type="email"
-                    value={accountCredentialForm.newEmail}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="New email"
-                  />
-                  <input
-                    type="password"
-                    value={accountCredentialForm.newPassword}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="New password"
-                  />
-                  <input
-                    type="password"
-                    value={accountCredentialForm.confirmNewPassword}
-                    onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder={registerText.confirmPassword || 'Confirm password'}
-                  />
-                </div>
-                <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={submitAccountCredentialChanges}
-                    disabled={accountCredentialSaving}
-                    className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
-                  >
-                    {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
-                  </button>
-                  {accountCredentialMessage ? (
-                    <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
-                      {accountCredentialMessage}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </section>
             <AccountPage
             currentUser={currentUser}
             buyerOrders={buyerOrders}
@@ -15707,12 +16899,16 @@ export default function ThailandPantiesMarketSite() {
             walletTopUpContext={walletTopUpContext}
             clearWalletTopUpContext={() => setWalletTopUpContext(null)}
             markAllNotificationsRead={markAllNotificationsRead}
+            markNotificationRead={markNotificationRead}
             buyerLedger={buyerLedger}
             buyerSellerDirectory={buyerSellerDirectory}
             accountSearchQuery={accountSearchQuery}
             setAccountSearchQuery={setAccountSearchQuery}
             quickSellerResults={quickSellerResults}
             quickProductResults={quickProductResults}
+            quickBarResults={quickBarResults}
+            watchedProducts={watchedProducts}
+            toggleProductWatch={toggleProductWatch}
             buyerMessageSellerSearch={buyerMessageSellerSearch}
             setBuyerMessageSellerSearch={setBuyerMessageSellerSearch}
             buyerMessageSellerResults={buyerMessageSellerResults}
@@ -15737,6 +16933,13 @@ export default function ThailandPantiesMarketSite() {
             pushPermission={pushPermission}
             pushSupported={pushSupport.serviceWorker && pushSupport.notification && pushSupport.pushManager}
             promptPayReceiverMobile={promptPayReceiverMobile}
+            accountCredentialForm={accountCredentialForm}
+            setAccountCredentialForm={setAccountCredentialForm}
+            submitAccountCredentialChanges={submitAccountCredentialChanges}
+            accountCredentialSaving={accountCredentialSaving}
+            accountCredentialMessage={accountCredentialMessage}
+            accountCredentialTone={accountCredentialTone}
+            resendOrderReceipt={resendOrderReceipt}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />
