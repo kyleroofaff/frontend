@@ -14677,6 +14677,12 @@ export default function ThailandPantiesMarketSite() {
           if (barId) ids.add(barId);
         });
       }
+      if (ids.size === 0) {
+        const defaultSmallWorldBar = (bars || []).find((bar) => String(bar?.id || '').trim() === 'small-world-chiang-mai');
+        if (defaultSmallWorldBar?.id) {
+          ids.add(String(defaultSmallWorldBar.id).trim());
+        }
+      }
     }
     return ids;
   })();
@@ -14878,6 +14884,8 @@ export default function ThailandPantiesMarketSite() {
       email === 'smallworld.cm@example.com'
       || explicitBarId === 'small-world-chiang-mai'
       || name.includes('small world')
+      || email.includes('demo')
+      || email.startsWith('bar@')
     );
   })();
   const currentBarAffiliatedSellers = (sellers || [])
