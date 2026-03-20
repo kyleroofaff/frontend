@@ -8439,18 +8439,38 @@ export default function ThailandPantiesMarketSite() {
       const recoveryNotification = !existingRequest
         ? (prev.notifications || []).find((notification) => {
             const notificationRequestId = String(notification?.affiliationRequestId || notification?.id || '').trim();
+            const notificationText = String(notification?.text || '').toLowerCase();
             return (
-              notificationRequestId === String(requestId || '').trim()
-              && String(notification?.affiliationEvent || '').trim() === 'seller_requested_join'
+              (
+                notificationRequestId === String(requestId || '').trim()
+                || /requested to join|join request|applied to join/.test(notificationText)
+              )
+              && (
+                String(notification?.affiliationEvent || '').trim() === 'seller_requested_join'
+                || /requested to join|join request|applied to join/.test(notificationText)
+              )
             );
           })
         : null;
+      const recoveryText = String(recoveryNotification?.text || '');
+      const inferredSellerIdFromText = String(
+        (prev.sellers || []).find((entry) => (
+          String(entry?.name || '').trim()
+          && recoveryText.toLowerCase().includes(String(entry?.name || '').trim().toLowerCase())
+        ))?.id || ''
+      ).trim();
+      const inferredBarIdFromText = String(
+        (prev.bars || []).find((entry) => (
+          String(entry?.name || '').trim()
+          && recoveryText.toLowerCase().includes(String(entry?.name || '').trim().toLowerCase())
+        ))?.id || ''
+      ).trim();
       const recoveredRequest = (!existingRequest && recoveryNotification)
         ? {
             id: String(recoveryNotification?.affiliationRequestId || requestId || '').trim(),
             direction: 'seller_to_bar',
-            sellerId: String(recoveryNotification?.sellerId || '').trim(),
-            barId: String(recoveryNotification?.barId || currentBarId || currentUser?.barId || '').trim(),
+            sellerId: String(recoveryNotification?.sellerId || inferredSellerIdFromText || '').trim(),
+            barId: String(recoveryNotification?.barId || inferredBarIdFromText || currentBarId || currentUser?.barId || '').trim(),
             targetBarUserIds: Array.isArray(recoveryNotification?.targetBarUserIds)
               ? recoveryNotification.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
               : [String(currentUser?.id || '').trim()].filter(Boolean),
@@ -14661,6 +14681,33 @@ export default function ThailandPantiesMarketSite() {
         return false;
       })()
     );
+  const persistedBarDashboardNotifications = (notifications || [])
+    .filter((notification) => currentUser?.role === 'bar' && (
+      notification.userId === currentUser.id
+      || (
+        notification?.category === 'bar_affiliation'
+        && (
+          resolvedBarIdsForCurrentUser.has(String(notification?.barId || '').trim())
+          || namesLikelyMatch(currentUser?.name, barMap?.[String(notification?.barId || '').trim()]?.name || '')
+          || (
+            Array.isArray(notification?.targetBarUserIds)
+            && notification.targetBarUserIds.map((id) => String(id || '').trim()).includes(String(currentUser?.id || '').trim())
+          )
+        )
+      )
+      || (
+        currentUser?.role === 'bar'
+        && notification?.category === 'bar_affiliation'
+      )
+    ))
+    .filter((notification) => (
+      notification?.category === 'bar_affiliation'
+      || Boolean(notification?.affiliationEvent)
+      || resolvedBarIdsForCurrentUser.has(String(notification?.barId || '').trim())
+      || namesLikelyMatch(currentUser?.name, barMap?.[String(notification?.barId || '').trim()]?.name || '')
+      || /affiliat|bar|seller|join|request|invite|approved|declined|removed|cancelled|pending/i.test(String(notification.text || ''))
+    ))
+    .map((notification) => ({ ...notification, _source: 'persisted' }));
   const fallbackBarIncomingAffiliationRequests = (barAffiliationRequests || []).filter((request) => (
     request.status === 'pending'
     && request.direction === 'seller_to_bar'
@@ -14670,19 +14717,39 @@ export default function ThailandPantiesMarketSite() {
     )
   ));
   const recoveredPendingAffiliationRequestsFromNotifications = persistedBarDashboardNotifications
-    .filter((notification) => String(notification?.affiliationEvent || '').trim() === 'seller_requested_join')
+    .filter((notification) => {
+      const event = String(notification?.affiliationEvent || '').trim();
+      const text = String(notification?.text || '').toLowerCase();
+      return event === 'seller_requested_join' || /requested to join|join request|applied to join/.test(text);
+    })
     .map((notification) => {
+      const notificationText = String(notification?.text || '');
       const notificationRequestId = String(notification?.affiliationRequestId || notification?.id || '').trim();
-      const notificationSellerId = String(notification?.sellerId || '').trim();
-      const notificationBarId = String(notification?.barId || currentBarId || currentUser?.barId || '').trim();
+      const directSellerId = String(notification?.sellerId || '').trim();
+      const directBarId = String(notification?.barId || '').trim();
+      const inferredSellerId = directSellerId || String(
+        (sellers || []).find((seller) => (
+          String(seller?.name || '').trim()
+          && notificationText.toLowerCase().includes(String(seller?.name || '').trim().toLowerCase())
+        ))?.id || ''
+      ).trim();
+      const inferredBarId = directBarId || String(
+        (bars || []).find((bar) => (
+          String(bar?.name || '').trim()
+          && notificationText.toLowerCase().includes(String(bar?.name || '').trim().toLowerCase())
+        ))?.id
+          || currentBarId
+          || currentUser?.barId
+          || ''
+      ).trim();
       const targetBarUserIds = Array.isArray(notification?.targetBarUserIds)
         ? notification.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
         : [];
       return {
         id: notificationRequestId,
         direction: 'seller_to_bar',
-        sellerId: notificationSellerId,
-        barId: notificationBarId,
+        sellerId: inferredSellerId,
+        barId: inferredBarId,
         targetBarUserIds,
         status: 'pending',
         createdAt: notification?.createdAt || Date.now(),
@@ -14812,33 +14879,6 @@ export default function ThailandPantiesMarketSite() {
       bySellerFromOrders,
     };
   }, [currentBarId, currentUser, walletTransactions, orders]);
-  const persistedBarDashboardNotifications = (notifications || [])
-    .filter((notification) => currentUser?.role === 'bar' && (
-      notification.userId === currentUser.id
-      || (
-        notification?.category === 'bar_affiliation'
-        && (
-          resolvedBarIdsForCurrentUser.has(String(notification?.barId || '').trim())
-          || namesLikelyMatch(currentUser?.name, barMap?.[String(notification?.barId || '').trim()]?.name || '')
-          || (
-            Array.isArray(notification?.targetBarUserIds)
-            && notification.targetBarUserIds.map((id) => String(id || '').trim()).includes(String(currentUser?.id || '').trim())
-          )
-        )
-      )
-      || (
-        currentUser?.role === 'bar'
-        && notification?.category === 'bar_affiliation'
-      )
-    ))
-    .filter((notification) => (
-      notification?.category === 'bar_affiliation'
-      || Boolean(notification?.affiliationEvent)
-      || resolvedBarIdsForCurrentUser.has(String(notification?.barId || '').trim())
-      || namesLikelyMatch(currentUser?.name, barMap?.[String(notification?.barId || '').trim()]?.name || '')
-      || /affiliat|bar|seller|join|request|invite|approved|declined|removed|cancelled|pending/i.test(String(notification.text || ''))
-    ))
-    .map((notification) => ({ ...notification, _source: 'persisted' }));
   const pendingRequestNotifications = (barIncomingAffiliationRequests || []).map((request) => ({
     id: `pending_affiliation_${request.id}`,
     userId: currentUser?.id,
