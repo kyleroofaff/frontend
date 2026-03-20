@@ -999,6 +999,7 @@ const SELLER_WORLDWIDE_SHIPPING_BY_LOCALE = {
   my: "ထိုင်းနိုင်ငံမှ ကမ္ဘာတစ်ဝန်းပို့ဆောင်",
   ru: "Доставка по всему миру из Таиланда",
 };
+const BLOCKED_SELLER_SPECIALTY_PATTERNS = [/premium used panties/i];
 
 const SELLER_WRITING_PRESETS_I18N = {
   en: {
@@ -1027,7 +1028,7 @@ const SELLER_WRITING_PRESETS_I18N = {
       {
         label: "Professional",
         presets: [
-          "I offer premium used panties with clear listing details, discreet shipping, and respectful communication.",
+          "I offer carefully curated listings with clear details, discreet shipping, and respectful communication.",
           "I focus on everyday and sporty styles, quick replies, and consistent quality."
         ],
       },
@@ -1151,7 +1152,7 @@ const SELLER_WRITING_PRESETS_I18N = {
       {
         label: "Professional",
         presets: [
-          "ကျွန်မ/ကျွန်တော်သည် premium used panties များကို အသေးစိတ်ဖော်ပြချက်၊ discreet shipping နှင့် လေးစားသောဆက်သွယ်ရေးဖြင့် ပေးပါသည်။",
+          "ကျွန်မ/ကျွန်တော်သည် အသေးစိတ်ဖော်ပြချက်ရှင်းလင်းပြီး discreet shipping နှင့် လေးစားသောဆက်သွယ်ရေးဖြင့် listing များကို ပေးပါသည်။",
           "Everyday နှင့် sporty style များကို အဓိကထားပြီး မြန်မြန်ပြန်လည်တုံ့ပြန်ကာ အရည်အသွေးကို တည်ငြိမ်စွာ ထိန်းသိမ်းပါသည်။"
         ],
       },
@@ -1986,7 +1987,11 @@ export function SellerDashboardPage({
   const currentAffiliatedBar = currentSellerProfile?.affiliatedBarId
     ? (barMap?.[currentSellerProfile.affiliatedBarId] || null)
     : null;
-  const sellerSpecialties = Array.isArray(sellerProfileDraft.specialties) ? sellerProfileDraft.specialties : [];
+  const sellerSpecialties = useMemo(
+    () => (Array.isArray(sellerProfileDraft.specialties) ? sellerProfileDraft.specialties : [])
+      .filter((value) => !BLOCKED_SELLER_SPECIALTY_PATTERNS.some((pattern) => pattern.test(String(value || "").trim()))),
+    [sellerProfileDraft.specialties],
+  );
   const specialtyChipOptions = useMemo(
     () => [
       ...SELLER_SPECIALTY_OPTIONS,
@@ -2450,7 +2455,7 @@ export function SellerDashboardPage({
                   <div className="mt-0.5 text-sm text-slate-600">Change your email/password only when needed.</div>
                 </div>
                 <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
-                  {sellerSectionOpen.credentials ? "Collapse" : "Expand"}
+                  {sellerSectionOpen.credentials ? "Close" : "Open"}
                 </span>
               </div>
             </summary>
@@ -2677,7 +2682,7 @@ export function SellerDashboardPage({
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold">{t("profileChecklist")}</h3>
-                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.profile ? "Close" : "Open"}</span>
                 </div>
               </summary>
               <div className="mt-1 text-sm text-slate-500">Profile: {currentSellerProfile?.name || "Seller profile"}</div>
@@ -2790,75 +2795,6 @@ export function SellerDashboardPage({
                       })}
                     </div>
                   </label>
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("barAffiliation")}</span>
-                    <select
-                      value={sellerProfileDraft.affiliatedBarId || ""}
-                      onChange={(event) => updateSellerProfileField("affiliatedBarId", event.target.value)}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    >
-                      <option value="">{localizeOptionLabel("Independent", locale)}</option>
-                      {barOptions.map((bar) => (
-                        <option key={bar.id} value={bar.id}>{bar.name}</option>
-                      ))}
-                    </select>
-                    <span className="text-xs text-slate-500">{t("barAffiliationHelp")}</span>
-                    {currentAffiliatedBar ? (
-                      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
-                        {t("currentlyAffiliatedWith")} <span className="font-semibold">{currentAffiliatedBar.name}</span>.
-                        <button
-                          type="button"
-                          onClick={removeSellerFromCurrentBarBySeller}
-                          className="ml-2 rounded-lg border border-indigo-200 px-2 py-0.5 font-semibold text-indigo-700"
-                        >
-                          {t("removeAffiliation")}
-                        </button>
-                      </div>
-                    ) : null}
-                    {(sellerOutgoingAffiliationRequests || []).length > 0 ? (
-                      <div className="space-y-2 rounded-2xl border border-amber-100 bg-amber-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">{t("pendingBarRequests")}</div>
-                        {(sellerOutgoingAffiliationRequests || []).map((request) => (
-                          <div key={request.id} className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-amber-100">
-                            <span>{barMap?.[request.barId]?.name || request.barId}</span>
-                            <button
-                              type="button"
-                              onClick={() => cancelBarAffiliationRequest?.(request.id)}
-                              className="rounded-lg border border-slate-200 px-2 py-0.5 font-semibold text-slate-700"
-                            >
-                              {t("cancel")}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-                    {(sellerIncomingAffiliationRequests || []).length > 0 ? (
-                      <div className="space-y-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{t("barInvitesAwaitingApproval")}</div>
-                        {(sellerIncomingAffiliationRequests || []).map((request) => (
-                          <div key={request.id} className="rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-emerald-100">
-                            <div className="font-semibold">{barMap?.[request.barId]?.name || request.barId}</div>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() => respondToBarAffiliationRequest?.(request.id, "approved")}
-                                className="rounded-lg border border-emerald-200 px-2 py-1 font-semibold text-emerald-700"
-                              >
-                                {t("approve")}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => respondToBarAffiliationRequest?.(request.id, "rejected")}
-                                className="rounded-lg border border-rose-200 px-2 py-1 font-semibold text-rose-700"
-                              >
-                                {t("reject")}
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-                  </label>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
@@ -2906,6 +2842,77 @@ export function SellerDashboardPage({
                 <button onClick={saveSellerProfile} className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">{t("saveProfile")}</button>
                 {sellerProfileMessage ? <div className="text-sm font-medium text-rose-700">{sellerProfileMessage}</div> : null}
               </div>
+              <div className="mt-5 rounded-2xl border border-rose-100 bg-slate-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("barAffiliation")}</div>
+                <div className="mt-3 space-y-3">
+                  <select
+                    value={sellerProfileDraft.affiliatedBarId || ""}
+                    onChange={(event) => updateSellerProfileField("affiliatedBarId", event.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  >
+                    <option value="">{localizeOptionLabel("Independent", locale)}</option>
+                    {barOptions.map((bar) => (
+                      <option key={bar.id} value={bar.id}>{bar.name}</option>
+                    ))}
+                  </select>
+                  <span className="text-xs text-slate-500">{t("barAffiliationHelp")}</span>
+                  {currentAffiliatedBar ? (
+                    <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
+                      {t("currentlyAffiliatedWith")} <span className="font-semibold">{currentAffiliatedBar.name}</span>.
+                      <button
+                        type="button"
+                        onClick={removeSellerFromCurrentBarBySeller}
+                        className="ml-2 rounded-lg border border-indigo-200 px-2 py-0.5 font-semibold text-indigo-700"
+                      >
+                        {t("removeAffiliation")}
+                      </button>
+                    </div>
+                  ) : null}
+                  {(sellerOutgoingAffiliationRequests || []).length > 0 ? (
+                    <div className="space-y-2 rounded-2xl border border-amber-100 bg-amber-50 p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">{t("pendingBarRequests")}</div>
+                      {(sellerOutgoingAffiliationRequests || []).map((request) => (
+                        <div key={request.id} className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-amber-100">
+                          <span>{barMap?.[request.barId]?.name || request.barId}</span>
+                          <button
+                            type="button"
+                            onClick={() => cancelBarAffiliationRequest?.(request.id)}
+                            className="rounded-lg border border-slate-200 px-2 py-0.5 font-semibold text-slate-700"
+                          >
+                            {t("cancel")}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  {(sellerIncomingAffiliationRequests || []).length > 0 ? (
+                    <div className="space-y-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{t("barInvitesAwaitingApproval")}</div>
+                      {(sellerIncomingAffiliationRequests || []).map((request) => (
+                        <div key={request.id} className="rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-emerald-100">
+                          <div className="font-semibold">{barMap?.[request.barId]?.name || request.barId}</div>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => respondToBarAffiliationRequest?.(request.id, "approved")}
+                              className="rounded-lg border border-emerald-200 px-2 py-1 font-semibold text-emerald-700"
+                            >
+                              {t("approve")}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => respondToBarAffiliationRequest?.(request.id, "rejected")}
+                              className="rounded-lg border border-rose-200 px-2 py-1 font-semibold text-rose-700"
+                            >
+                              {t("reject")}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </details>
 
               <details
@@ -2923,7 +2930,7 @@ export function SellerDashboardPage({
                       <Upload className="h-5 w-5 text-rose-600" />
                       <h3 className="text-xl font-semibold">{t("mediaUpload")}</h3>
                     </div>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.upload ? "Close" : "Open"}</span>
                   </div>
                 </summary>
                 <p className="mt-3 text-sm leading-7 text-slate-600">{t("mediaUploadHelp")}</p>
@@ -3177,7 +3184,7 @@ export function SellerDashboardPage({
                 <h3 className="text-xl font-semibold">{t("listingLibrary")}</h3>
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-slate-500">{sellerDashboardProducts.length} {t("items")}</div>
-                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.listings ? "Close" : "Open"}</span>
                 </div>
               </div>
             </summary>
@@ -3332,7 +3339,7 @@ export function SellerFeedWorkspacePage({
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold">{t("createFeedPost")}</h3>
-                  <span className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  <span className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                 </div>
               </summary>
               <div className="mt-5 grid gap-4">
@@ -3421,7 +3428,7 @@ export function SellerFeedWorkspacePage({
                   <h3 className="text-xl font-semibold">{t("yourFeedPosts")}</h3>
                   <div className="flex items-center gap-2">
                     <div className="text-sm text-slate-500">{sellerDashboardPosts.length} post(s)</div>
-                    <span className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    <span className="rounded-full border border-rose-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                   </div>
                 </div>
               </summary>
@@ -11679,7 +11686,7 @@ export function AccountPage({
             <summary className="cursor-pointer list-none">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold">Notification preferences</h3>
-                <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
               </div>
             </summary>
             <div className="mt-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
@@ -11723,7 +11730,7 @@ export function AccountPage({
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-lg font-semibold">{tx("notifications")}</h3>
-                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                 </div>
               </summary>
               <p className="mt-2 text-sm text-slate-600">{tx("notificationsHelp")}</p>
@@ -11856,7 +11863,7 @@ export function AccountPage({
                       <Wallet className="h-5 w-5 text-rose-600" />
                       <h3 className="text-xl font-semibold">{accountText.accountBalance}</h3>
                     </div>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                   </div>
                 </summary>
                 <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">
@@ -12196,7 +12203,7 @@ export function AccountPage({
                         <Bookmark className="h-5 w-5 text-rose-600" />
                         <h3 className="text-xl font-semibold">{accountText.favoriteSellers}</h3>
                       </div>
-                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                     </div>
                   </summary>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{tx("favoritesHelp")}</p>
@@ -12270,7 +12277,7 @@ export function AccountPage({
                   <summary className="cursor-pointer list-none">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-xl font-semibold">{accountText.watchedProducts || "Liked Products"}</h3>
-                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                     </div>
                   </summary>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{tx("watchedProductsHelp")}</p>
@@ -12302,7 +12309,7 @@ export function AccountPage({
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-xl font-semibold">{accountText.quickFinder}</h3>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                   </div>
                 </summary>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{tx("quickFinderHelp")}</p>
@@ -12437,7 +12444,7 @@ export function AccountPage({
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-xl font-semibold">{accountText.contactDetails}</h3>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                   </div>
                 </summary>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{tx("updateContactHelp")}</p>
@@ -12475,7 +12482,7 @@ export function AccountPage({
                   <summary className="cursor-pointer list-none">
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-lg font-semibold text-slate-900">Login credentials</div>
-                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                     </div>
                   </summary>
                   <p className="mt-2 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
@@ -12532,7 +12539,7 @@ export function AccountPage({
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-xl font-semibold">{accountText.orderHistory}</h3>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                   </div>
                 </summary>
                 <div className="mt-2 flex items-center justify-end gap-3">
@@ -12624,7 +12631,7 @@ export function AccountPage({
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-xl font-semibold">{accountText.billingLedger}</h3>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                   </div>
                 </summary>
                 <div className="mt-2 flex items-center justify-end gap-3">

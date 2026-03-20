@@ -5300,6 +5300,10 @@ export default function ThailandPantiesMarketSite() {
     [products],
   );
   const selectedProduct = routeInfo.name === 'product' ? products.find((product) => product.slug === routeInfo.slug) || null : null;
+  const selectedProductIsSold = Boolean(
+    selectedProduct
+    && (soldProductIdSet.has(String(selectedProduct.id || '')) || String(selectedProduct.status || '').toLowerCase() === 'sold')
+  );
   const bundlesByItemId = useMemo(() => {
     const map = {};
     (products || []).forEach((product) => {
@@ -6960,6 +6964,12 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function addToCart(productId) {
+    if (soldProductIdSet.has(String(productId || ''))) {
+      setCartNotice('This listing is sold. Create a new listing to sell again.');
+      if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
+      cartNoticeTimerRef.current = setTimeout(() => setCartNotice(''), 2200);
+      return;
+    }
     if (currentUser?.role === 'bar') {
       if (typeof window !== 'undefined') window.alert(loginText.barAccountMarketplaceBlocked || 'Bar accounts cannot buy or sell marketplace products.');
       return;
@@ -15642,7 +15652,11 @@ export default function ThailandPantiesMarketSite() {
                   </div>
                 ) : null}
                 <div className="mt-8 flex flex-wrap gap-3">
-                  {buyerHasProcessingOrderForSelectedProduct ? (
+                  {selectedProductIsSold ? (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-3 text-sm font-semibold text-emerald-800">
+                      This listing is sold. Seller needs to create a new listing for the next sale.
+                    </div>
+                  ) : buyerHasProcessingOrderForSelectedProduct ? (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 px-6 py-3 text-sm font-semibold text-amber-800">
                       This order is being processed. You will receive it soon.
                     </div>
@@ -15667,7 +15681,7 @@ export default function ThailandPantiesMarketSite() {
                     {watchedProductIds.has(selectedProduct.id) ? "Liked" : "Like"}
                   </button>
                 </div>
-                {cart.includes(selectedProduct.id) || selectedProductCoveredByBundleInCart ? (
+                {(cart.includes(selectedProduct.id) || selectedProductCoveredByBundleInCart) && !selectedProductIsSold ? (
                   <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
                     <div className="text-sm font-semibold text-emerald-800">
                       {selectedProductCoveredByBundleInCart ? 'Included via bundle in cart. Ready to continue?' : 'Added to cart. Ready to continue?'}
@@ -15797,7 +15811,7 @@ export default function ThailandPantiesMarketSite() {
                   <summary className="cursor-pointer list-none">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-xl font-semibold">Affiliate earnings</h3>
-                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                     </div>
                   </summary>
                   <p className="mt-1 text-sm text-slate-600">Track the money your bar earns from affiliated seller sales and paid buyer interactions.</p>
@@ -15859,7 +15873,7 @@ export default function ThailandPantiesMarketSite() {
                     <summary className="cursor-pointer list-none">
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                       </div>
                     </summary>
                     <div className="mt-4 h-48">
@@ -15994,7 +16008,7 @@ export default function ThailandPantiesMarketSite() {
                     <summary className="cursor-pointer list-none">
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                       </div>
                     </summary>
                     <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsSubtitle}</p>
@@ -16098,7 +16112,7 @@ export default function ThailandPantiesMarketSite() {
                     <summary className="cursor-pointer list-none">
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsTitle}</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                       </div>
                     </summary>
                     <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsSubtitle}</p>
@@ -16117,7 +16131,7 @@ export default function ThailandPantiesMarketSite() {
                     <summary className="cursor-pointer list-none">
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Collapse</span>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
                       </div>
                     </summary>
                     <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
