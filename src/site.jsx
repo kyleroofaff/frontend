@@ -14648,6 +14648,10 @@ export default function ThailandPantiesMarketSite() {
     if (normalizedCurrentBarId) ids.add(normalizedCurrentBarId);
     const explicitUserBarId = String(currentUser?.barId || '').trim();
     if (explicitUserBarId) ids.add(explicitUserBarId);
+    const normalizedCurrentUserEmail = String(currentUser?.email || '').trim().toLowerCase();
+    if (currentUser?.role === 'bar' && normalizedCurrentUserEmail === 'smallworld.cm@example.com') {
+      ids.add('small-world-chiang-mai');
+    }
     if (currentUser?.role === 'bar') {
       const byName = (bars || [])
         .filter((bar) => namesLikelyMatch(currentUser?.name, bar?.name))
