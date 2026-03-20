@@ -213,6 +213,9 @@ const BAR_DASHBOARD_I18N = {
     affiliationsSubtitle: 'Review seller applications and remove affiliations when needed.',
     pendingRequestsTitle: 'Pending seller requests',
     noPendingRequests: 'No pending seller requests.',
+    pendingRequestsTopAlert: 'You have pending seller applications to review.',
+    pendingRequestsTopAlertCount: 'Pending applications',
+    reviewApplicationsNow: 'Review now',
     requestedPrefix: 'Requested',
     approve: 'Approve',
     reject: 'Reject',
@@ -260,6 +263,9 @@ const BAR_DASHBOARD_I18N = {
     affiliationsSubtitle: 'ตรวจสอบคำขอของผู้ขาย และยกเลิกการสังกัดได้เมื่อจำเป็น',
     pendingRequestsTitle: 'คำขอผู้ขายที่รออนุมัติ',
     noPendingRequests: 'ไม่มีคำขอผู้ขายที่รออนุมัติ',
+    pendingRequestsTopAlert: 'คุณมีคำขอสมัครผู้ขายที่รอการตรวจสอบ',
+    pendingRequestsTopAlertCount: 'คำขอที่รอ',
+    reviewApplicationsNow: 'ตรวจสอบตอนนี้',
     requestedPrefix: 'ส่งคำขอเมื่อ',
     approve: 'อนุมัติ',
     reject: 'ปฏิเสธ',
@@ -307,6 +313,9 @@ const BAR_DASHBOARD_I18N = {
     affiliationsSubtitle: 'seller request များကို approve လုပ်ပြီး လိုအပ်သည့်အခါ affiliation ဖယ်ရှားပါ။',
     pendingRequestsTitle: 'စောင့်ဆိုင်းနေသော seller requests',
     noPendingRequests: 'စောင့်ဆိုင်းနေသော seller request မရှိပါ။',
+    pendingRequestsTopAlert: 'စစ်ဆေးရန် စောင့်ဆိုင်းနေသော seller application များရှိသည်',
+    pendingRequestsTopAlertCount: 'စောင့်ဆိုင်းနေသော လျှောက်လွှာများ',
+    reviewApplicationsNow: 'ယခုစစ်ဆေးမည်',
     requestedPrefix: 'Requested',
     approve: 'Approve',
     reject: 'Reject',
@@ -354,6 +363,9 @@ const BAR_DASHBOARD_I18N = {
     affiliationsSubtitle: 'Одобряйте заявки продавцов и удаляйте привязки при необходимости.',
     pendingRequestsTitle: 'Ожидающие заявки продавцов',
     noPendingRequests: 'Нет ожидающих заявок продавцов.',
+    pendingRequestsTopAlert: 'У вас есть заявки продавцов, ожидающие проверки.',
+    pendingRequestsTopAlertCount: 'Заявки в ожидании',
+    reviewApplicationsNow: 'Проверить сейчас',
     requestedPrefix: 'Запрошено',
     approve: 'Одобрить',
     reject: 'Отклонить',
@@ -16027,6 +16039,28 @@ export default function ThailandPantiesMarketSite() {
                   title={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).title}
                   subtitle={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).subtitle}
                 />
+                {barIncomingAffiliationRequests.length > 0 ? (
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                    <div className="text-sm font-semibold text-amber-900">
+                      {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).pendingRequestsTopAlert}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-amber-600 px-2.5 py-1 text-xs font-bold text-white">
+                        {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).pendingRequestsTopAlertCount}: {barIncomingAffiliationRequests.length}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const affiliationsSection = typeof document !== 'undefined' ? document.getElementById('bar-affiliations') : null;
+                          affiliationsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }}
+                        className="rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
+                      >
+                        {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).reviewApplicationsNow}
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
                   <button
                     type="button"
