@@ -226,6 +226,7 @@ const BAR_DASHBOARD_I18N = {
     cancelInvite: 'Cancel invite',
     affiliatedSellersTitle: 'Affiliated sellers',
     noAffiliatedSellers: 'No affiliated sellers yet.',
+    viewProfile: 'View profile',
     removeFromBar: 'Remove from bar',
     affiliationNotificationsTitle: 'Affiliation notifications',
     affiliationNotificationsSubtitle: 'Recent updates for add/remove and approval activity.',
@@ -276,6 +277,7 @@ const BAR_DASHBOARD_I18N = {
     cancelInvite: 'ยกเลิกคำเชิญ',
     affiliatedSellersTitle: 'ผู้ขายที่สังกัด',
     noAffiliatedSellers: 'ยังไม่มีผู้ขายที่สังกัด',
+    viewProfile: 'ดูโปรไฟล์',
     removeFromBar: 'นำออกจากบาร์',
     affiliationNotificationsTitle: 'การแจ้งเตือนการสังกัด',
     affiliationNotificationsSubtitle: 'อัปเดตล่าสุดเกี่ยวกับการเพิ่ม/ลบและการอนุมัติ',
@@ -326,6 +328,7 @@ const BAR_DASHBOARD_I18N = {
     cancelInvite: 'invite ပယ်ဖျက်မည်',
     affiliatedSellersTitle: 'Affiliated sellers',
     noAffiliatedSellers: 'Affiliated sellers မရှိသေးပါ။',
+    viewProfile: 'ပရိုဖိုင်ကြည့်မည်',
     removeFromBar: 'bar မှ ဖယ်ရှားမည်',
     affiliationNotificationsTitle: 'Affiliation notifications',
     affiliationNotificationsSubtitle: 'add/remove နှင့် approval activity အပ်ဒိတ်များ',
@@ -376,6 +379,7 @@ const BAR_DASHBOARD_I18N = {
     cancelInvite: 'Отменить приглашение',
     affiliatedSellersTitle: 'Привязанные продавцы',
     noAffiliatedSellers: 'Привязанных продавцов пока нет.',
+    viewProfile: 'Открыть профиль',
     removeFromBar: 'Удалить из бара',
     affiliationNotificationsTitle: 'Уведомления о привязках',
     affiliationNotificationsSubtitle: 'Последние обновления по добавлению/удалению и одобрениям.',
@@ -16617,12 +16621,20 @@ export default function ThailandPantiesMarketSite() {
                         ) : currentBarAffiliatedSellers.map((seller) => (
                           <div key={seller.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
                             <div className="text-sm font-semibold text-slate-800">{seller.name}</div>
-                            <button
-                              onClick={() => removeSellerFromCurrentBarByBar(seller.id)}
-                              className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
-                            >
-                              {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).removeFromBar}
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => navigate(`/seller/${seller.id}`)}
+                                className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"
+                              >
+                                {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).viewProfile}
+                              </button>
+                              <button
+                                onClick={() => removeSellerFromCurrentBarByBar(seller.id)}
+                                className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
+                              >
+                                {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).removeFromBar}
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
