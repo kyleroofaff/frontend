@@ -2141,7 +2141,7 @@ const SEED_DB = {
       turnaround: 'Ships in 2–4 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: '',
+      affiliatedBarId: 'small-world-chiang-mai',
       languages: ['Thai', 'English'],
       highlights: ['Premium used pairs', 'Discreet shipping', 'Professional communication'],
     },
@@ -3856,7 +3856,11 @@ function normalizeDbState(nextDb) {
             ...seller,
             isOnline: Boolean(seller?.isOnline),
             feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
-            affiliatedBarId: String(seller?.affiliatedBarId || '').trim(),
+            affiliatedBarId: String(
+              seller?.id === 'nina-b'
+                ? (seller?.affiliatedBarId || 'small-world-chiang-mai')
+                : (seller?.affiliatedBarId || '')
+            ).trim(),
             locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
             specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
             shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
@@ -3870,7 +3874,11 @@ function normalizeDbState(nextDb) {
               ...seller,
               isOnline: Boolean(seller?.isOnline),
               feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
-              affiliatedBarId: String(seller?.affiliatedBarId || '').trim(),
+              affiliatedBarId: String(
+                seller?.id === 'nina-b'
+                  ? (seller?.affiliatedBarId || 'small-world-chiang-mai')
+                  : (seller?.affiliatedBarId || '')
+              ).trim(),
               locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
               specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
               shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
