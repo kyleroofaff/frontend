@@ -2141,7 +2141,7 @@ const SEED_DB = {
       turnaround: 'Ships in 2–4 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: 'small-world-chiang-mai',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Premium used pairs', 'Discreet shipping', 'Professional communication'],
     },
@@ -3856,11 +3856,7 @@ function normalizeDbState(nextDb) {
             ...seller,
             isOnline: Boolean(seller?.isOnline),
             feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
-            affiliatedBarId: String(
-              seller?.id === 'nina-b'
-                ? (seller?.affiliatedBarId || 'small-world-chiang-mai')
-                : (seller?.affiliatedBarId || '')
-            ).trim(),
+            affiliatedBarId: String(seller?.affiliatedBarId || '').trim(),
             locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
             specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
             shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
@@ -3874,11 +3870,7 @@ function normalizeDbState(nextDb) {
               ...seller,
               isOnline: Boolean(seller?.isOnline),
               feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
-              affiliatedBarId: String(
-                seller?.id === 'nina-b'
-                  ? (seller?.affiliatedBarId || 'small-world-chiang-mai')
-                  : (seller?.affiliatedBarId || '')
-              ).trim(),
+              affiliatedBarId: String(seller?.affiliatedBarId || '').trim(),
               locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
               specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
               shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
@@ -14648,10 +14640,6 @@ export default function ThailandPantiesMarketSite() {
     if (normalizedCurrentBarId) ids.add(normalizedCurrentBarId);
     const explicitUserBarId = String(currentUser?.barId || '').trim();
     if (explicitUserBarId) ids.add(explicitUserBarId);
-    const normalizedCurrentUserEmail = String(currentUser?.email || '').trim().toLowerCase();
-    if (currentUser?.role === 'bar' && normalizedCurrentUserEmail === 'smallworld.cm@example.com') {
-      ids.add('small-world-chiang-mai');
-    }
     if (currentUser?.role === 'bar') {
       const byName = (bars || [])
         .filter((bar) => namesLikelyMatch(currentUser?.name, bar?.name))
@@ -14676,12 +14664,6 @@ export default function ThailandPantiesMarketSite() {
           const barId = String(request?.barId || '').trim();
           if (barId) ids.add(barId);
         });
-      }
-      if (ids.size === 0) {
-        const defaultSmallWorldBar = (bars || []).find((bar) => String(bar?.id || '').trim() === 'small-world-chiang-mai');
-        if (defaultSmallWorldBar?.id) {
-          ids.add(String(defaultSmallWorldBar.id).trim());
-        }
       }
     }
     return ids;
@@ -14876,46 +14858,18 @@ export default function ThailandPantiesMarketSite() {
       .map((action) => String(action?.targetSellerId || '').trim())
       .filter(Boolean)
   );
-  const isSmallWorldSession = (() => {
-    const email = String(currentUser?.email || '').trim().toLowerCase();
-    const name = String(currentUser?.name || '').trim().toLowerCase();
-    const explicitBarId = String(currentUser?.barId || '').trim();
-    return (
-      email === 'smallworld.cm@example.com'
-      || explicitBarId === 'small-world-chiang-mai'
-      || name.includes('small world')
-      || email.includes('demo')
-      || email.startsWith('bar@')
-    );
-  })();
-  const computedBarAffiliatedSellers = (sellers || [])
+  const currentBarAffiliatedSellers = (sellers || [])
     .filter((seller) => {
       const sellerId = String(seller?.id || '').trim();
       const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
       return (
-        (isSmallWorldSession && sellerId === 'nina-b')
-        || (
         resolvedBarIdsForCurrentUser.has(affiliatedBarId)
         || approvedSellerIdsForCurrentBarUser.has(sellerId)
         || approvedSellerIdsFromNotifications.has(sellerId)
         || approvedSellerIdsFromAdminActions.has(sellerId)
-        )
       );
     })
     .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
-  const currentBarAffiliatedSellers = (() => {
-    const base = Array.isArray(computedBarAffiliatedSellers) ? computedBarAffiliatedSellers : [];
-    if (currentUser?.role !== 'bar') return base;
-    const hasNina = base.some((seller) => String(seller?.id || '').trim() === 'nina-b');
-    if (hasNina) return base;
-    const ninaFromSellerMap = sellerMap?.['nina-b'] || null;
-    const fallbackNina = ninaFromSellerMap || {
-      id: 'nina-b',
-      name: 'Nina B.',
-      affiliatedBarId: 'small-world-chiang-mai',
-    };
-    return [fallbackNina, ...base];
-  })();
   const barAffiliateEarnings = useMemo(() => {
     if (!currentBarId || !currentUser || currentUser.role !== 'bar') {
       return {
