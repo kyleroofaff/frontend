@@ -16,6 +16,18 @@ services:
       timeout: 3s
       retries: 20
 
+  clamav:
+    image: clamav/clamav:stable
+    container_name: tp-clamav-local
+    restart: unless-stopped
+    environment:
+      CLAMAV_NO_FRESHCLAMD: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "clamdscan /etc/hosts >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   backend:
     container_name: tp-backend-local
     build:
@@ -23,6 +35,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       db:
+        condition: service_healthy
+      clamav:
         condition: service_healthy
     environment:
       NODE_ENV: production
@@ -35,6 +49,11 @@ services:
       EMAIL_MODE: disabled
       ADMIN_EMAIL: admin@example.com
       ALLOW_LEGACY_PLAINTEXT_PASSWORDS: "true"
+      ATTACHMENT_SCAN_ENABLED: "true"
+      ATTACHMENT_SCAN_HOST: clamav
+      ATTACHMENT_SCAN_PORT: 3310
+      ATTACHMENT_SCAN_TIMEOUT_MS: 10000
+      ATTACHMENT_SCAN_BLOCK_ON_ERROR: "true"
     ports:
       - "4000:4000"
 
