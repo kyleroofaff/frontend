@@ -8435,7 +8435,36 @@ export default function ThailandPantiesMarketSite() {
     if (!currentUser || !['bar', 'seller', 'admin'].includes(currentUser.role)) return;
     const now = new Date().toISOString();
     setDb((prev) => {
-      const request = (prev.barAffiliationRequests || []).find((entry) => entry.id === requestId);
+      const existingRequest = (prev.barAffiliationRequests || []).find((entry) => entry.id === requestId);
+      const recoveryNotification = !existingRequest
+        ? (prev.notifications || []).find((notification) => {
+            const notificationRequestId = String(notification?.affiliationRequestId || notification?.id || '').trim();
+            return (
+              notificationRequestId === String(requestId || '').trim()
+              && String(notification?.affiliationEvent || '').trim() === 'seller_requested_join'
+            );
+          })
+        : null;
+      const recoveredRequest = (!existingRequest && recoveryNotification)
+        ? {
+            id: String(recoveryNotification?.affiliationRequestId || requestId || '').trim(),
+            direction: 'seller_to_bar',
+            sellerId: String(recoveryNotification?.sellerId || '').trim(),
+            barId: String(recoveryNotification?.barId || currentBarId || currentUser?.barId || '').trim(),
+            targetBarUserIds: Array.isArray(recoveryNotification?.targetBarUserIds)
+              ? recoveryNotification.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
+              : [String(currentUser?.id || '').trim()].filter(Boolean),
+            requestedByUserId: null,
+            requestedByRole: 'seller',
+            status: 'pending',
+            createdAt: recoveryNotification?.createdAt || now,
+            respondedAt: null,
+            respondedByUserId: null,
+            sellerMessage: String(recoveryNotification?.sellerMessage || ''),
+            sellerImages: Array.isArray(recoveryNotification?.sellerImages) ? recoveryNotification.sellerImages : [],
+          }
+        : null;
+      const request = existingRequest || recoveredRequest;
       if (!request || request.status !== 'pending') return prev;
       const seller = (prev.sellers || []).find((entry) => entry.id === request.sellerId);
       const resolvedRequestBarId = String(request?.barId || '').trim();
@@ -8465,17 +8494,20 @@ export default function ThailandPantiesMarketSite() {
       const previousBarId = String(seller.affiliatedBarId || '').trim();
       const nextNotifications = [...(prev.notifications || [])];
       const nextAdminActions = [...(prev.adminActions || [])];
-      const nextRequests = (prev.barAffiliationRequests || []).map((entry) => (
-        entry.id === requestId
-          ? {
-              ...entry,
-              barId: resolvedBarId || entry.barId,
-              status: decision,
-              respondedAt: now,
-              respondedByUserId: currentUser.id,
-            }
-          : entry
-      ));
+      const nextRequestRecord = {
+        ...request,
+        barId: resolvedBarId || request.barId,
+        status: decision,
+        respondedAt: now,
+        respondedByUserId: currentUser.id,
+      };
+      const nextRequests = existingRequest
+        ? (prev.barAffiliationRequests || []).map((entry) => (
+            entry.id === requestId
+              ? nextRequestRecord
+              : entry
+          ))
+        : [...(prev.barAffiliationRequests || []), nextRequestRecord];
 
       if (decision === 'approved') {
         if (sellerUser?.id) {
@@ -14629,16 +14661,65 @@ export default function ThailandPantiesMarketSite() {
         return false;
       })()
     );
-  const barIncomingAffiliationRequests = strictBarIncomingAffiliationRequests.length > 0
+  const fallbackBarIncomingAffiliationRequests = (barAffiliationRequests || []).filter((request) => (
+    request.status === 'pending'
+    && request.direction === 'seller_to_bar'
+    && (
+      (Array.isArray(request?.targetBarUserIds) && request.targetBarUserIds.map((id) => String(id || '').trim()).includes(String(currentUser?.id || '').trim()))
+      || currentUser?.role === 'bar'
+    )
+  ));
+  const recoveredPendingAffiliationRequestsFromNotifications = persistedBarDashboardNotifications
+    .filter((notification) => String(notification?.affiliationEvent || '').trim() === 'seller_requested_join')
+    .map((notification) => {
+      const notificationRequestId = String(notification?.affiliationRequestId || notification?.id || '').trim();
+      const notificationSellerId = String(notification?.sellerId || '').trim();
+      const notificationBarId = String(notification?.barId || currentBarId || currentUser?.barId || '').trim();
+      const targetBarUserIds = Array.isArray(notification?.targetBarUserIds)
+        ? notification.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
+        : [];
+      return {
+        id: notificationRequestId,
+        direction: 'seller_to_bar',
+        sellerId: notificationSellerId,
+        barId: notificationBarId,
+        targetBarUserIds,
+        status: 'pending',
+        createdAt: notification?.createdAt || Date.now(),
+        sellerMessage: String(notification?.sellerMessage || ''),
+        sellerImages: [],
+        _source: 'recovered_notification',
+      };
+    })
+    .filter((request) => request.id && request.sellerId)
+    .filter((request) => {
+      const normalizedSellerId = String(request?.sellerId || '').trim();
+      const normalizedBarId = String(request?.barId || '').trim();
+      const alreadyTracked = (barAffiliationRequests || []).some((entry) => {
+        const sameId = String(entry?.id || '').trim() === String(request.id || '').trim();
+        const samePendingPair = entry?.status === 'pending'
+          && entry?.direction === 'seller_to_bar'
+          && String(entry?.sellerId || '').trim() === normalizedSellerId
+          && String(entry?.barId || '').trim() === normalizedBarId;
+        return sameId || samePendingPair;
+      });
+      if (alreadyTracked) return false;
+      const targetIds = Array.isArray(request?.targetBarUserIds)
+        ? request.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
+        : [];
+      return (
+        targetIds.includes(String(currentUser?.id || '').trim())
+        || resolvedBarIdsForCurrentUser.has(normalizedBarId)
+        || currentUser?.role === 'bar'
+      );
+    });
+  const baseBarIncomingAffiliationRequests = strictBarIncomingAffiliationRequests.length > 0
     ? strictBarIncomingAffiliationRequests
-    : (barAffiliationRequests || []).filter((request) => (
-        request.status === 'pending'
-        && request.direction === 'seller_to_bar'
-        && (
-          (Array.isArray(request?.targetBarUserIds) && request.targetBarUserIds.map((id) => String(id || '').trim()).includes(String(currentUser?.id || '').trim()))
-          || currentUser?.role === 'bar'
-        )
-      ));
+    : fallbackBarIncomingAffiliationRequests;
+  const barIncomingAffiliationRequests = [...baseBarIncomingAffiliationRequests, ...recoveredPendingAffiliationRequestsFromNotifications]
+    .filter((request, index, arr) => (
+      arr.findIndex((entry) => String(entry?.id || '').trim() === String(request?.id || '').trim()) === index
+    ));
   const approvedSellerIdsForCurrentBarUser = new Set(
     (barAffiliationRequests || [])
       .filter((request) => request?.status === 'approved' && request?.direction === 'seller_to_bar')
