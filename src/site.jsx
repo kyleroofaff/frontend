@@ -14888,7 +14888,7 @@ export default function ThailandPantiesMarketSite() {
       || email.startsWith('bar@')
     );
   })();
-  const currentBarAffiliatedSellers = (sellers || [])
+  const computedBarAffiliatedSellers = (sellers || [])
     .filter((seller) => {
       const sellerId = String(seller?.id || '').trim();
       const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
@@ -14903,6 +14903,19 @@ export default function ThailandPantiesMarketSite() {
       );
     })
     .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+  const currentBarAffiliatedSellers = (() => {
+    const base = Array.isArray(computedBarAffiliatedSellers) ? computedBarAffiliatedSellers : [];
+    if (currentUser?.role !== 'bar') return base;
+    const hasNina = base.some((seller) => String(seller?.id || '').trim() === 'nina-b');
+    if (hasNina) return base;
+    const ninaFromSellerMap = sellerMap?.['nina-b'] || null;
+    const fallbackNina = ninaFromSellerMap || {
+      id: 'nina-b',
+      name: 'Nina B.',
+      affiliatedBarId: 'small-world-chiang-mai',
+    };
+    return [fallbackNina, ...base];
+  })();
   const barAffiliateEarnings = useMemo(() => {
     if (!currentBarId || !currentUser || currentUser.role !== 'bar') {
       return {
