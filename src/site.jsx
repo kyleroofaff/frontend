@@ -8493,19 +8493,35 @@ export default function ThailandPantiesMarketSite() {
         || (currentUser?.role === 'bar' && String(entry?.id || '').trim() === String(currentBarId || '').trim())
         || namesLikelyMatch(currentUser?.name, entry?.name)
       ));
+      const fallbackBarByName = (prev.bars || []).find((entry) => namesLikelyMatch(currentUser?.name, entry?.name));
       const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === request.sellerId);
-      const resolvedBarId = String(bar?.id || resolvedRequestBarId || '').trim();
+      const fallbackResolvedBarId = String(
+        bar?.id
+        || fallbackBarByName?.id
+        || resolvedRequestBarId
+        || currentBarId
+        || currentUser?.barId
+        || Array.from(resolvedBarIdsForCurrentUser || [])[0]
+        || ''
+      ).trim();
+      const resolvedBar = bar
+        || fallbackBarByName
+        || (prev.bars || []).find((entry) => String(entry?.id || '').trim() === fallbackResolvedBarId)
+        || null;
+      const resolvedBarId = String(resolvedBar?.id || fallbackResolvedBarId || '').trim();
+      const resolvedBarName = String(resolvedBar?.name || barMap?.[resolvedBarId]?.name || 'your bar').trim() || 'your bar';
       const requestTargetBarUserIds = Array.isArray(request?.targetBarUserIds)
         ? request.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
         : [];
       const barUser = (prev.users || []).find((user) => (
         user.role === 'bar'
         && (
-          String(user.barId || '').trim() === String(request.barId || '').trim()
+          String(user.barId || '').trim() === resolvedBarId
           || requestTargetBarUserIds.includes(String(user.id || '').trim())
+          || String(user.id || '').trim() === String(currentUser?.id || '').trim()
         )
       )) || (currentUser?.role === 'bar' ? currentUser : null);
-      if (!seller || !bar) return prev;
+      if (!seller || !resolvedBarId) return prev;
       const actorIsBarApprover = request.direction === 'seller_to_bar' && currentUser.role === 'bar';
       const actorIsSellerApprover = request.direction === 'bar_to_seller' && currentUser.role === 'seller' && currentUser.sellerId === request.sellerId;
       const actorIsAdminApprover = currentUser.role === 'admin';
@@ -8535,8 +8551,8 @@ export default function ThailandPantiesMarketSite() {
             buildInAppNotification(
               sellerUser.id,
               actorIsAdminApprover
-                ? `Admin approved your affiliation with ${bar.name}.`
-                : `${bar.name} affiliation approved. You are now linked to this bar.`,
+                ? `Admin approved your affiliation with ${resolvedBarName}.`
+                : `${resolvedBarName} affiliation approved. You are now linked to this bar.`,
               now,
             )
           );
@@ -8546,13 +8562,13 @@ export default function ThailandPantiesMarketSite() {
             buildInAppNotification(
               barUser.id,
               actorIsAdminApprover
-                ? `Admin approved ${seller.name}'s affiliation with ${bar.name}.`
-                : `${seller.name} is now affiliated with ${bar.name}.`,
+                ? `Admin approved ${seller.name}'s affiliation with ${resolvedBarName}.`
+                : `${seller.name} is now affiliated with ${resolvedBarName}.`,
               now,
             )
           );
         }
-        if (previousBarId && previousBarId !== bar.id) {
+        if (previousBarId && previousBarId !== resolvedBarId) {
           const previousBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === previousBarId);
           const previousBar = (prev.bars || []).find((entry) => entry.id === previousBarId);
           if (previousBarUser?.id) {
@@ -8571,8 +8587,8 @@ export default function ThailandPantiesMarketSite() {
             buildInAppNotification(
               sellerUser.id,
               actorIsAdminApprover
-                ? `Admin rejected your affiliation request for ${bar.name}.`
-                : `${bar.name} declined your affiliation request.`,
+                ? `Admin rejected your affiliation request for ${resolvedBarName}.`
+                : `${resolvedBarName} declined your affiliation request.`,
               now,
             )
           );
@@ -8601,10 +8617,10 @@ export default function ThailandPantiesMarketSite() {
       });
       if (decision === 'approved') {
         setBarProfileMessage(`Approved affiliation for ${seller.name}.`);
-        setSellerProfileMessage(sellerStatus('affiliationConfirmed', { barName: bar.name }));
+        setSellerProfileMessage(sellerStatus('affiliationConfirmed', { barName: resolvedBarName }));
       } else {
         setBarProfileMessage(`Rejected affiliation request for ${seller.name}.`);
-        setSellerProfileMessage(sellerStatus('affiliationRejected', { barName: bar.name }));
+        setSellerProfileMessage(sellerStatus('affiliationRejected', { barName: resolvedBarName }));
       }
 
       const base = {
@@ -8626,7 +8642,7 @@ export default function ThailandPantiesMarketSite() {
           userId: sellerUser.id,
           vars: {
             sellerName: seller.name || 'Seller',
-            barName: bar.name || 'Bar',
+            barName: resolvedBarName || 'Bar',
             actionPath: '/account',
           },
           fallbackPath: '/account',
@@ -8638,7 +8654,7 @@ export default function ThailandPantiesMarketSite() {
           userId: barUser.id,
           vars: {
             sellerName: seller.name || 'Seller',
-            barName: bar.name || 'Bar',
+            barName: resolvedBarName || 'Bar',
             actionPath: '/account',
           },
           fallbackPath: '/account',
@@ -14805,11 +14821,39 @@ export default function ThailandPantiesMarketSite() {
       .map((request) => String(request?.sellerId || '').trim())
       .filter(Boolean)
   );
+  const approvedSellerIdsFromNotifications = new Set(
+    persistedBarDashboardNotifications
+      .filter((notification) => {
+        const event = String(notification?.affiliationEvent || '').trim();
+        const text = String(notification?.text || '').toLowerCase();
+        return (
+          event === 'seller_affiliation_approved'
+          || event === 'seller_approved_join'
+          || /is now affiliated with|affiliation approved|approved .* affiliation/.test(text)
+        );
+      })
+      .map((notification) => {
+        const directSellerId = String(notification?.sellerId || '').trim();
+        if (directSellerId) return directSellerId;
+        const text = String(notification?.text || '').toLowerCase();
+        return String(
+          (sellers || []).find((seller) => (
+            String(seller?.name || '').trim()
+            && text.includes(String(seller?.name || '').trim().toLowerCase())
+          ))?.id || ''
+        ).trim();
+      })
+      .filter(Boolean)
+  );
   const currentBarAffiliatedSellers = (sellers || [])
     .filter((seller) => {
       const sellerId = String(seller?.id || '').trim();
       const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
-      return resolvedBarIdsForCurrentUser.has(affiliatedBarId) || approvedSellerIdsForCurrentBarUser.has(sellerId);
+      return (
+        resolvedBarIdsForCurrentUser.has(affiliatedBarId)
+        || approvedSellerIdsForCurrentBarUser.has(sellerId)
+        || approvedSellerIdsFromNotifications.has(sellerId)
+      );
     })
     .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
   const barAffiliateEarnings = useMemo(() => {
