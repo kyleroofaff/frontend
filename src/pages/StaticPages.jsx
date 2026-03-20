@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Globe, HeartHandshake, Shield } from "lucide-react";
 import { PageShell, ProductImage } from "../components/site/SitePrimitives.jsx";
-import { COLOR_OPTIONS, CONDITION_OPTIONS, CUSTOM_REQUEST_FEE_THB, DAYS_WORN_OPTIONS, FABRIC_OPTIONS, formatExchangeEstimates, formatPriceTHB, localizeOptionLabel, MESSAGE_FEE_THB, MIN_CUSTOM_REQUEST_PURCHASE_THB, SCENT_LEVEL_OPTIONS, SELLER_SPECIALTY_OPTIONS, SHARED_SIZE_OPTIONS, STYLE_FILTER_OPTIONS } from "../productOptions.js";
+import { COLOR_OPTIONS, CONDITION_OPTIONS, CUSTOM_REQUEST_FEE_THB, DAYS_WORN_OPTIONS, FABRIC_OPTIONS, formatPriceTHB, localizeOptionLabel, MESSAGE_FEE_THB, MIN_CUSTOM_REQUEST_PURCHASE_THB, SCENT_LEVEL_OPTIONS, SELLER_SPECIALTY_OPTIONS, SHARED_SIZE_OPTIONS, STYLE_FILTER_OPTIONS } from "../productOptions.js";
 import { formatDateTimeNoSeconds } from "../utils/timeFormat.js";
 import { getRequiredTopUpAmount } from "../utils/walletTopUp.js";
 
@@ -57,14 +57,16 @@ const HELP_I18N = {
       { q: "Is packaging discreet?", a: "Yes. External packaging is discreet with no identifying branding. We include a t-shirt, stickers, and a gift in each package, and customs forms are marked as apparel/promotional gift materials." },
       { q: "Is shipping legal in my country and what if customs confiscates my package?", a: "Our products are generally legal in many jurisdictions, and we do our best to ship in ways that meet international shipping requirements. However, buyers are responsible for knowing and complying with their local laws. If a package is flagged, held, or confiscated by customs/government authorities, Thailand Panties is not responsible and no refund will be issued for that seizure." },
       { q: "Who pays shipping costs?", a: "Buyers pay the exact shipping cost charged for their destination at checkout." },
-      { q: "Do you offer refunds or returns?", a: "All sales are final, except if you receive the wrong item. In wrong-item cases, we can issue a refund after you submit evidence through the refund evidence form for review." },
+      { q: "Do you offer refunds or returns?", a: "All sales are final, except wrong-item cases. If you receive the wrong item, submit evidence through the refund evidence form. We will first try to ship the correct item to you at no additional cost. If that is not possible, we will issue a refund after review." },
       { q: "What is your chargeback policy?", a: "We dispute all chargebacks and provide evidence that includes the buyer's agreement to the Terms of Service and relevant usage activity on the site." },
       { q: "What appears on my card statement?", a: "The card descriptor appears as Small World Chiang Mai." },
       { q: "What currency does the marketplace use?", a: "All listing, wallet, unlock, and message fees are charged in Thai baht (THB). Any non-THB values shown are approximate estimates only." },
       { q: "How do private seller feed posts work?", a: "Sellers can set posts as private and set a price. Buyers unlock private posts individually from wallet balance." },
-      { q: "Can buyers follow sellers and save posts?", a: "Yes. Buyers can follow sellers, use Following feed filters, and save posts for quick access." },
+      { q: "Can buyers follow sellers and like products?", a: "Yes. Buyers can follow sellers, use Following feed filters, and like products for quick access from their Liked Products section." },
+      { q: "Can sellers benefit from follows and likes?", a: "Yes. Seller visibility improves when buyers follow them and like products, and sellers can use this engagement to understand buyer interest." },
       { q: "Can sellers schedule posts?", a: "Yes. Sellers can schedule feed posts for future publish times and manage schedule from the seller dashboard." },
       { q: "Can sellers control notifications?", a: "Yes. Sellers can filter notifications and toggle message or engagement alerts on/off." },
+      { q: "What happens if a seller ships the wrong item?", a: "If a seller ships the wrong item, they must reship the correct item at their own cost. If reship is not completed, the buyer will be refunded and seller commissions for that order will be deducted." },
       { q: "How can sellers appeal strikes or a frozen account?", a: "Sellers can use the seller appeals process page and then submit directly in the appeals center. Include dates, IDs, and what happened so admin can review faster." },
       { q: "What does Independent seller mean?", a: "Independent means the seller is responsible for their own shipping and organization. Many buyers prefer sellers attached to a bar because bar-affiliated operations are often more structured and reliable." },
       { q: "How does the appeals process work?", a: "If your account is frozen or has active strikes, go to the appeals page and submit your explanation. Include relevant context (dates, order/request IDs, and what happened). Admin reviews appeals and posts decisions in your appeal history." },
@@ -149,13 +151,15 @@ const HELP_I18N = {
       { q: "แพ็กเกจเป็นความลับหรือไม่?", a: "ใช่ บรรจุภัณฑ์ภายนอกเป็นแบบไม่เปิดเผยตัวตนและไม่มีโลโก้ระบุตัวสินค้า ทุกพัสดุมีเสื้อยืด สติกเกอร์ และของขวัญ พร้อมระบุในเอกสารศุลกากรเป็นเสื้อผ้า/สื่อโปรโมชัน/ของขวัญ" },
       { q: "การจัดส่งถูกกฎหมายในประเทศของฉันไหม และถ้าศุลกากรยึดพัสดุจะเกิดอะไรขึ้น?", a: "สินค้าที่เราจัดส่งโดยทั่วไปถูกกฎหมายในหลายประเทศ และเราพยายามจัดส่งให้เป็นไปตามข้อกำหนดการขนส่งระหว่างประเทศ อย่างไรก็ตาม ผู้ซื้อมีหน้าที่ต้องตรวจสอบและปฏิบัติตามกฎหมายท้องถิ่นของตนเอง หากพัสดุถูกตรวจ ยึด หรืออายัดโดยศุลกากร/หน่วยงานรัฐ ทาง Thailand Panties จะไม่รับผิดชอบ และจะไม่มีการคืนเงินในกรณีที่ถูกยึดโดยภาครัฐ" },
       { q: "ใครเป็นผู้จ่ายค่าส่ง?", a: "ผู้ซื้อจ่ายค่าส่งตามจริงตามปลายทางในขั้นตอนเช็กเอาต์" },
-      { q: "คืนเงินหรือคืนสินค้าได้ไหม?", a: "ไม่ได้ สินค้าทุกชิ้นขายขาด ไม่มีการคืนเงิน" },
+      { q: "คืนเงินหรือคืนสินค้าได้ไหม?", a: "คำสั่งซื้อทั้งหมดเป็นแบบขายขาด ยกเว้นกรณีได้รับสินค้าผิด หากได้รับสินค้าผิด โปรดส่งหลักฐานผ่านแบบฟอร์มหลักฐานขอคืนเงิน เราจะพยายามส่งสินค้าที่ถูกต้องให้ใหม่โดยไม่มีค่าใช้จ่ายเพิ่มเติมก่อน หากทำไม่ได้จึงจะคืนเงินหลังการตรวจสอบ" },
       { q: "นโยบายเรื่องการปฏิเสธรายการชำระเงิน (chargeback) คืออะไร?", a: "เราจะโต้แย้ง chargeback ทุกกรณี และส่งหลักฐานที่เกี่ยวข้อง เช่น การยอมรับข้อกำหนดการให้บริการ (Terms of Service) และประวัติการใช้งานบนแพลตฟอร์ม" },
       { q: "ชื่อที่ขึ้นบัตรคืออะไร?", a: "ชื่อที่ขึ้นบัตรคือ Small World Chiang Mai" },
       { q: "โพสต์แบบ private ทำงานอย่างไร?", a: "ผู้ขายตั้งโพสต์ private และตั้งราคาได้ ผู้ซื้อปลดล็อกแต่ละโพสต์ด้วยเงินในกระเป๋า" },
-      { q: "ผู้ซื้อสามารถติดตามผู้ขายและบันทึกโพสต์ได้ไหม?", a: "ได้ ผู้ซื้อสามารถติดตามผู้ขายและบันทึกโพสต์ไว้ดูภายหลังได้" },
+      { q: "ผู้ซื้อสามารถติดตามผู้ขายและกดถูกใจสินค้าได้ไหม?", a: "ได้ ผู้ซื้อสามารถติดตามผู้ขาย ใช้ตัวกรองฟีด Following และกดถูกใจสินค้าเพื่อเข้าถึงได้จากส่วนสินค้าที่ถูกใจ" },
+      { q: "ผู้ขายได้ประโยชน์จากการติดตามและการกดถูกใจหรือไม่?", a: "ได้ การมองเห็นของผู้ขายดีขึ้นเมื่อผู้ซื้อติดตามและกดถูกใจสินค้า และผู้ขายยังใช้สัญญาณเหล่านี้เพื่อเข้าใจความสนใจของผู้ซื้อได้" },
       { q: "ผู้ขายตั้งเวลาโพสต์ได้ไหม?", a: "ได้ ผู้ขายตั้งเวลาโพสต์ล่วงหน้าและจัดการตารางในแดชบอร์ดได้" },
       { q: "ผู้ขายตั้งค่าการแจ้งเตือนได้ไหม?", a: "ได้ ผู้ขายกรองการแจ้งเตือนและเปิด/ปิดการแจ้งเตือนแต่ละประเภทได้" },
+      { q: "ถ้าผู้ขายส่งสินค้าผิดจะเกิดอะไรขึ้น?", a: "หากผู้ขายส่งสินค้าผิด ผู้ขายต้องส่งสินค้าที่ถูกต้องใหม่โดยรับผิดชอบค่าใช้จ่ายเอง หากไม่ดำเนินการ ผู้ซื้อจะได้รับเงินคืน และค่าคอมมิชชั่นของผู้ขายจากคำสั่งซื้อนั้นจะถูกหัก" },
       { q: "ผู้ขายจะอุทธรณ์สไตรก์หรือบัญชีถูกระงับได้อย่างไร?", a: "ผู้ขายสามารถอ่านหน้า Seller Appeals Process และส่งคำอุทธรณ์ผ่านศูนย์อุทธรณ์ได้โดยตรง โดยควรระบุวันที่ รหัสอ้างอิง และรายละเอียดเหตุการณ์เพื่อให้แอดมินตรวจสอบได้เร็วขึ้น" },
       { q: "กระบวนการอุทธรณ์ทำงานอย่างไร?", a: "หากบัญชีถูกระงับหรือมีสไตรก์ active ให้ไปที่หน้าอุทธรณ์เพื่อส่งคำชี้แจง พร้อมวันที่และรหัสอ้างอิงที่เกี่ยวข้อง แอดมินจะตรวจสอบและอัปเดตผลในประวัติอุทธรณ์" },
       { q: "นโยบายเรื่องคำพูดไม่เหมาะสมคืออะไร?", a: "เราไม่ยอมรับคำพูดคุกคามหรือไม่เหมาะสม และใช้นโยบายสองสไตรก์ (two-strikes)" },
@@ -240,12 +244,15 @@ const HELP_I18N = {
       { q: "ထုပ်ပိုးမှု လျှို့ဝှက်ပါသလား?", a: "ဟုတ်ကဲ့။ အပြင်ထုပ်ပိုးမှုမှာ ခွဲခြားသိနိုင်သော branding မပါဘဲ လျှို့ဝှက်ထားပါသည်။ package တိုင်းတွင် t-shirt, stickers နှင့် gift တစ်ခု ပါဝင်ပြီး customs form တွင် apparel/promotional gift materials အဖြစ် မှတ်သားပေးပါသည်။" },
       { q: "ကျွန်ုပ်နိုင်ငံမှာ တင်ပို့မှုတရားဝင်လား၊ customs က package ကို သိမ်းယူရင် ဘာဖြစ်မလဲ?", a: "ကျွန်ုပ်တို့ပစ္စည်းများသည် နိုင်ငံအများစုတွင် ယေဘုယျအားဖြင့် တရားဝင်ဖြစ်ပြီး နိုင်ငံတကာ ပို့ဆောင်ရေးလိုအပ်ချက်များနှင့် ကိုက်ညီစေရန် အကောင်းဆုံးကြိုးစားပို့ဆောင်ပါသည်။ သို့သော် ဝယ်သူက မိမိနိုင်ငံ/ဒေသဥပဒေများကို သိရှိလိုက်နာရန် တာဝန်ရှိသည်။ customs သို့မဟုတ် အစိုးရအာဏာပိုင်များမှ package ကို စစ်ဆေး၊ ထိန်းသိမ်း သို့မဟုတ် သိမ်းယူပါက Thailand Panties မှ တာဝန်မယူပါ။ အစိုးရသိမ်းယူမှုဖြစ်ပွားသည့် case များတွင် ငွေပြန်အမ်းမည်မဟုတ်ပါ။" },
       { q: "ပို့ဆောင်ခကို ဘယ်သူပေးမလဲ?", a: "ဝယ်သူက checkout တွင်ပြထားသည့် ပို့ဆောင်ခအတိုင်း ပေးဆောင်ပါသည်" },
-      { q: "ပြန်အမ်း/ပြန်လဲ ရနိုင်ပါသလား?", a: "မရနိုင်ပါ။ အရောင်းအားလုံး final sale ဖြစ်ပါသည်" },
+      { q: "ပြန်အမ်း/ပြန်လဲ ရနိုင်ပါသလား?", a: "Order အားလုံး final sale ဖြစ်ပါသည်။ သို့သော် wrong-item case တွင် refund evidence form မှတဆင့် သက်သေတင်နိုင်သည်။ ပထမဦးစွာ မှန်ကန်သော item ကို အပိုကုန်ကျစရိတ်မရှိဘဲ ပြန်ပို့ပေးရန် ကြိုးစားမည်ဖြစ်ပြီး မဖြစ်နိုင်ပါက စိစစ်ပြီးနောက် refund ပေးပါမည်။" },
       { q: "Chargeback မူဝါဒက ဘာလဲ?", a: "ကျွန်ုပ်တို့သည် chargeback အမှုများကို အမြဲအတိုက်အခံဖြေရှင်းပြီး Terms of Service ကို ဝယ်သူက သဘောတူထားမှုနှင့် platform အသုံးပြုမှုမှတ်တမ်းတို့အပါအဝင် သက်သေအထောက်အထားများကို တင်ပြပါသည်။" },
       { q: "Card statement ပေါ်မှာ ဘာနာမည်ပေါ်မလဲ?", a: "Card descriptor အဖြစ် Small World Chiang Mai လို့ပြသပါမည်။" },
       { q: "Private post တွေဘယ်လိုလုပ်သလဲ?", a: "Seller က private + စျေးနှုန်း သတ်မှတ်နိုင်ပြီး buyer က wallet ဖြင့် post တစ်ခုပြီးတစ်ခု unlock လုပ်နိုင်သည်" },
+      { q: "Buyer တွေက seller ကို follow လုပ်ပြီး product တွေကို Like လုပ်နိုင်လား?", a: "ရနိုင်ပါတယ်။ Buyer များသည် seller များကို follow လုပ်နိုင်ပြီး Following feed filter ကိုသုံးနိုင်သလို product များကို Like လုပ်ထားပြီး Liked Products section မှ ပြန်ဝင်ကြည့်နိုင်ပါသည်။" },
+      { q: "Seller တွေအတွက် follow နဲ့ like တွေက အကျိုးရှိလား?", a: "ရှိပါတယ်။ Buyer များက follow လုပ်ခြင်းနဲ့ product like လုပ်ခြင်းက seller visibility ကိုတိုးစေပြီး buyer စိတ်ဝင်စားမှုကို နားလည်ရန် အထောက်အကူပြုပါသည်။" },
       { q: "Seller တွေက post schedule လုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Seller dashboard မှာ post ကို အနာဂတ်အချိန်အတွက် schedule သတ်မှတ်နိုင်ပါတယ်။" },
       { q: "Seller တွေက notification ကိုထိန်းချုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Message/engagement notification များကို filter လုပ်ပြီး on/off ပြောင်းနိုင်ပါတယ်။" },
+      { q: "Seller က wrong item ပို့မိရင် ဘာဖြစ်မလဲ?", a: "Seller က wrong item ပို့မိပါက မှန်ကန်သော item ကို seller ကိုယ်ပိုင်ကုန်ကျစရိတ်ဖြင့် ပြန်ပို့ရပါမည်။ အဲဒီအတိုင်း မဆောင်ရွက်ပါက buyer ကို refund ပေးမည်ဖြစ်ပြီး အဆိုပါ order အတွက် seller commission ကို ဖြတ်တောက်မည်ဖြစ်သည်။" },
       { q: "Seller များ strike သို့မဟုတ် frozen account ကို ဘယ်လို appeal တင်မလဲ?", a: "Seller appeals process page ကိုအသုံးပြုပြီး appeals center မှ တိုက်ရိုက် appeal တင်နိုင်ပါသည်။ Admin စစ်ဆေးမြန်စေရန် date၊ ID နှင့် ဖြစ်ရပ်အသေးစိတ်ကို ထည့်သွင်းပါ။" },
       { q: "Appeals process က ဘယ်လိုအလုပ်လုပ်လဲ?", a: "Account frozen ဖြစ်ခြင်း သို့မဟုတ် active strike ရှိပါက appeals page မှ explanation တင်ပါ။ Date, order/request ID နှင့် ဖြစ်ရပ်ကိုထည့်ပါ။ Admin ကစိစစ်ပြီး appeal history ထဲတွင် ဆုံးဖြတ်ချက်ကိုပြသပါမည်။" },
       { q: "Abusive language policy ကဘာလဲ?", a: "အရှက်ကွဲစေသော သို့မဟုတ် အနိုင်ကျင့်သော စကားလုံးများကို လက်မခံပါ။ Two-strikes policy ကိုအသုံးပြုပါသည်။" },
@@ -331,12 +338,15 @@ const HELP_I18N = {
       { q: "Упаковка дискретная?", a: "Да. Внешняя упаковка нейтральная, без идентифицирующей маркировки. В каждую посылку добавляются футболка, стикеры и подарок, а в таможенных формах указывается категория «одежда/промо-материалы/подарок»." },
       { q: "Законна ли доставка в моей стране и что, если посылку конфискует таможня?", a: "Наши товары в целом законны во многих юрисдикциях, и мы стараемся отправлять заказы с соблюдением международных требований. Однако покупатель сам несет ответственность за знание и соблюдение законов своей страны. Если посылка помечена, задержана или конфискована таможней/госорганами, Thailand Panties не несет ответственности, и возврат средств за такую конфискацию не производится." },
       { q: "Кто оплачивает доставку?", a: "Покупатель оплачивает точную стоимость доставки по своему направлению." },
-      { q: "Есть ли возвраты?", a: "Нет, все продажи окончательные, возвраты не предусмотрены." },
+      { q: "Есть ли возвраты?", a: "Все продажи окончательные, кроме случаев wrong-item. Если вы получили не тот товар, отправьте доказательства через форму возврата. Сначала мы попробуем отправить правильный товар за наш счет без дополнительных расходов для покупателя. Если это невозможно, после проверки будет оформлен возврат." },
       { q: "Какая у вас политика по чарджбэкам (chargeback)?", a: "Мы оспариваем все чарджбэки и предоставляем доказательства, включая согласие покупателя с Terms of Service и релевантную активность на платформе." },
       { q: "Что отображается в выписке по карте?", a: "Дескриптор платежа отображается как Small World Chiang Mai." },
       { q: "Как работают private-посты?", a: "Продавец может сделать пост приватным и задать цену, покупатель разблокирует пост из баланса кошелька." },
+      { q: "Могут ли покупатели подписываться на продавцов и ставить Like товарам?", a: "Да. Покупатели могут подписываться на продавцов, использовать фильтры Following в ленте и ставить Like товарам для быстрого доступа в разделе «Понравившиеся товары»." },
+      { q: "Полезны ли продавцам подписки и лайки?", a: "Да. Видимость продавца растет, когда покупатели подписываются и ставят Like товарам, а сами продавцы могут использовать эти сигналы, чтобы лучше понимать интерес покупателей." },
       { q: "Могут ли продавцы планировать посты?", a: "Да. Продавцы могут заранее планировать публикации в панели продавца." },
       { q: "Могут ли продавцы управлять уведомлениями?", a: "Да. Продавцы могут фильтровать уведомления и включать/выключать типы оповещений." },
+      { q: "Что будет, если продавец отправил не тот товар?", a: "Если продавец отправил не тот товар, он обязан переслать правильный товар за свой счет. Если пересылка не выполнена, покупателю будет оформлен возврат, а комиссия продавца по этому заказу будет удержана." },
       { q: "Как продавцу подать апелляцию по страйкам или заморозке аккаунта?", a: "Продавец может открыть страницу процесса апелляции для продавцов и затем отправить апелляцию через центр апелляций. Укажите даты, ID и контекст для более быстрого рассмотрения админом." },
       { q: "Как работает общий процесс апелляции?", a: "Если аккаунт заморожен или есть активные страйки, откройте страницу апелляций и отправьте объяснение с датами и ID. Админ рассмотрит апелляцию и опубликует решение в истории." },
       { q: "Какова политика по оскорбительному языку?", a: "Оскорбительный или агрессивный язык недопустим. На платформе действует политика двух страйков." },
@@ -571,7 +581,9 @@ const SUPPORT_STATIC_I18N = {
     refundEvidenceSubtitle: "Submit wrong-item evidence for refund review.",
     termsPoints: [
       "Users must provide accurate account information and follow all marketplace policies for listing quality, communication, and safety.",
-      "All orders are final sale, except when the buyer receives the wrong item and provides reviewable evidence through the refund evidence form.",
+      "All orders are final sale, except wrong-item cases with reviewable evidence submitted through the refund evidence form.",
+      "For wrong-item cases, we first attempt to ship the correct item at no additional cost to the buyer. If that is not possible, a refund is issued after review.",
+      "If a seller ships the wrong item, the seller must reship the correct item at their own cost. If reship is not completed, the buyer is refunded and the seller commission for that order is deducted.",
       "All chargebacks are disputed. We submit evidence of the buyer's agreement to these Terms of Service and their usage activity on the site.",
       "All listed prices, wallet charges, unlock fees, and messaging fees are processed in Thai baht (THB). Any converted non-THB values shown on the site are estimates only and may vary by provider rates.",
       "Abusive or offensive language is prohibited. The platform enforces a two-strikes conduct policy and may suspend accounts for violations.",
@@ -612,6 +624,8 @@ const SUPPORT_STATIC_I18N = {
     termsPoints: [
       "ผู้ใช้ต้องให้ข้อมูลบัญชีที่ถูกต้องและปฏิบัติตามนโยบายของแพลตฟอร์มเรื่องคุณภาพสินค้า การสื่อสาร และความปลอดภัย",
       "คำสั่งซื้อทั้งหมดถือเป็นการขายขาด ยกเว้นกรณีได้รับสินค้าผิดและส่งหลักฐานที่ตรวจสอบได้ผ่านแบบฟอร์มหลักฐานขอคืนเงิน",
+      "กรณีได้รับสินค้าผิด เราจะพยายามส่งสินค้าที่ถูกต้องให้ใหม่โดยไม่มีค่าใช้จ่ายเพิ่มเติมสำหรับผู้ซื้อก่อน หากทำไม่ได้จึงจะคืนเงินหลังการตรวจสอบ",
+      "หากผู้ขายส่งสินค้าผิด ผู้ขายต้องส่งสินค้าที่ถูกต้องใหม่โดยรับผิดชอบค่าใช้จ่ายเอง หากไม่ดำเนินการ ผู้ซื้อจะได้รับเงินคืน และค่าคอมมิชชั่นของผู้ขายจากคำสั่งซื้อนั้นจะถูกหัก",
       "เราโต้แย้ง chargeback ทุกกรณี และส่งหลักฐานการยอมรับข้อกำหนดของผู้ซื้อรวมถึงกิจกรรมการใช้งานบนเว็บไซต์",
       "ราคา ค่ากระเป๋าเงิน ค่าปลดล็อก และค่าข้อความทั้งหมดคิดเป็นเงินบาท (THB) มูลค่าสกุลอื่นที่แสดงเป็นเพียงการประมาณการ",
       "ห้ามใช้ถ้อยคำคุกคามหรือไม่เหมาะสม แพลตฟอร์มใช้กฎสองสไตรก์และอาจระงับบัญชีเมื่อฝ่าฝืน",
@@ -652,6 +666,8 @@ const SUPPORT_STATIC_I18N = {
     termsPoints: [
       "အသုံးပြုသူများသည် account အချက်အလက်မှန်ကန်စွာပေးပြီး listing quality၊ ဆက်သွယ်မှု နှင့် safety policy များကို လိုက်နာရမည်။",
       "Order အားလုံး final sale ဖြစ်ပြီး wrong-item case တွင်သာ refund evidence form မှတဆင့် အထောက်အထားတင်ပြ၍ စိစစ်နိုင်သည်။",
+      "Wrong-item case တွင် buyer အတွက် အပိုကုန်ကျစရိတ်မရှိဘဲ မှန်ကန်သော item ကို ပထမဦးစွာ ပြန်ပို့ပေးရန် ကြိုးစားမည်ဖြစ်ပြီး မဖြစ်နိုင်ပါက စိစစ်ပြီးနောက် refund ပေးပါမည်။",
+      "Seller က wrong item ပို့မိပါက seller ကိုယ်ပိုင်ကုန်ကျစရိတ်ဖြင့် မှန်ကန်သော item ကို ပြန်ပို့ရပါမည်။ မဆောင်ရွက်ပါက buyer ကို refund ပေးမည်ဖြစ်ပြီး အဆိုပါ order အတွက် seller commission ကို ဖြတ်တောက်မည်ဖြစ်သည်။",
       "Chargeback များအားလုံးကို အပြန်အလှန်အငြင်းပွားတင်ပြပြီး Terms ကိုသဘောတူထားမှုနှင့် site usage activity အထောက်အထားများတင်ပြပါသည်။",
       "Listing price, wallet charge, unlock fee, message fee အားလုံးကို THB ဖြင့်တွက်ချက်ပြီး အခြားငွေကြေးတန်ဖိုးများမှာ ခန့်မှန်းတန်ဖိုးသာဖြစ်သည်။",
       "အပြောအဆိုအရိုင်းအမိုက် သို့မဟုတ် မလျော်ကန်သော language များကို ခွင့်မပြုပါ။ two-strike policy ဖြင့် အကောင့်ရပ်ဆိုင်းနိုင်သည်။",
@@ -692,6 +708,8 @@ const SUPPORT_STATIC_I18N = {
     termsPoints: [
       "Пользователи обязаны указывать корректные данные аккаунта и соблюдать правила площадки по качеству листингов, коммуникации и безопасности.",
       "Все заказы являются окончательной продажей, кроме случаев wrong-item при предоставлении проверяемых доказательств через форму возврата.",
+      "В случаях wrong-item мы сначала пытаемся отправить правильный товар без дополнительных расходов для покупателя. Если это невозможно, после проверки оформляется возврат.",
+      "Если продавец отправил не тот товар, он обязан переслать правильный товар за свой счет. Если пересылка не выполнена, покупателю оформляется возврат, а комиссия продавца по этому заказу удерживается.",
       "Все чарджбэки оспариваются. Мы предоставляем доказательства согласия покупателя с Условиями и его активности на сайте.",
       "Все цены, списания кошелька, разблокировки и комиссии сообщений рассчитываются в THB. Значения в других валютах являются ориентировочными.",
       "Оскорбительное и агрессивное общение запрещено. На платформе действует политика двух страйков, возможна блокировка аккаунта.",
@@ -875,7 +893,9 @@ export function RefundPolicyPage() {
     <PageShell eyebrow="Policy" title="Refund Policy" subtitle="Important purchase terms for all buyers.">
       <div className="space-y-4 rounded-3xl bg-white p-8 text-slate-600 shadow-md ring-1 ring-rose-100">
         <p className="font-semibold text-slate-900">All sales are final, except wrong-item deliveries with submitted evidence.</p>
-        <p>Due to the nature of products sold on the marketplace, we do not provide returns, exchanges, partial refunds, or cancellations after purchase, unless the delivered item is materially different from the order and evidence is submitted for review.</p>
+        <p>If you receive the wrong item, submit evidence through the refund evidence form so the case can be reviewed.</p>
+        <p>We first try to ship the correct item at no additional expense to the buyer. If that is not possible, we issue a refund after review.</p>
+        <p>If a seller ships the wrong item, the seller must reship the correct item at their own cost. If reship is not completed, the buyer is refunded and seller commission for that order is deducted.</p>
         <p>All chargebacks are disputed. We submit evidence of the buyer's agreement to the Terms of Service and their usage activity on the site.</p>
         <p>Buyers are responsible for reviewing listing details, shipping costs, and seller information before checkout.</p>
       </div>
@@ -945,7 +965,7 @@ export function RefundEvidencePage({ currentUser, submitRefundEvidence, navigate
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-slate-600">
-              Refunds are only reviewed for wrong-item deliveries. Include order details, clear evidence summary, and links/screenshots so admin can verify quickly.
+              Refunds are only reviewed for wrong-item deliveries with evidence. We first try to have the correct item shipped at no extra cost to you. If that is not possible, a refund is issued after review. Include order details, a clear evidence summary, and links/screenshots so admin can verify quickly.
             </p>
             <input
               value={form.orderId}
@@ -1161,7 +1181,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
     if (/(appeals|strike|frozen account|account frozen|อุทธรณ์|สไตรก์|ระงับบัญชี|အယူခံ|strike|frozen|апелляц|страйк|заморож)/i.test(raw)) add("/appeals");
     if (/(seller appeal|appeal.*seller|ผู้ขาย.*อุทธรณ์|seller.*အယူခံ|апелляц.*продав)/i.test(raw)) add("/seller-appeals");
     if (/(custom request|คำขอพิเศษ|စိတ်ကြိုက်|индивидуальн)/i.test(raw)) add("/custom-requests");
-    if (/(private.*post|unlock|following feed|save posts|seller feed|โพสต์.*private|ปลดล็อก|фид продавцов|private-пост)/i.test(raw)) add("/seller-feed");
+    if (/(private.*post|unlock|following feed|save posts|like products|liked products|seller feed|โพสต์.*private|ปลดล็อก|фид продавцов|private-пост)/i.test(raw)) add("/seller-feed");
     if (/(bar.*save|bars?.*save|follow.*bar|follow.*seller|บาร์.*บันทึกโพสต์|บาร์.*ติดตาม|bar.*follow|бар.*подпис)/i.test(raw)) add("/bars");
     if (/(bar.*message|eligible contact|affiliate seller|bulk messaging|บาร์.*ข้อความ|ผู้ติดต่อที่มีสิทธิ์|bar.*message|бар.*сообщен|аффили)/i.test(raw)) add("/bar-messages");
     if (/(schedule posts|notifications|seller dashboard|แดชบอร์ดผู้ขาย|панель продавца)/i.test(raw)) add("/seller-dashboard");
@@ -1280,7 +1300,7 @@ const CUSTOM_REQUESTS_I18N = {
   en: {
     eyebrow: "Marketplace",
     title: "Custom Requests",
-    subtitle: "A structured request flow for premium listing inquiries and seller availability.",
+    subtitle: "",
     submitFee: "Submitting a custom request costs",
     openFee: "Once opened, custom request messages cost",
     perMessageBoth: "per message for buyers. Sellers can reply for free.",
@@ -1312,12 +1332,70 @@ const CUSTOM_REQUESTS_I18N = {
     detailsPlaceholder: "Panty type, sizes, style, activities, or picture ideas",
     shippingCountry: "Shipping country",
     requestBodyPlaceholder: "Describe requested panties, potential pictures, and activity details",
+    buyerPromptTitle: "Quick buyer prompts",
+    buyerPrompts: [
+      "How are you?",
+      "What did you do today?",
+      "I'm great, thanks. How about you?"
+    ],
+    requestPresetTitle: "Custom request presets",
+    requestPresets: [
+      "Please share timeline, final price, and shipping estimate before we confirm.",
+      "I prefer a neutral background and clear close-up detail photos.",
+      "Can you turn image upload on for me?"
+    ],
+    buyerImageDisabledHelp: "Image upload is currently disabled. Please ask the seller to enable image uploads for this request.",
     customRequestSubmitted: "Custom request submitted.",
     sendRequest: "Send Request",
     needWalletSubmitPrefix: "You need at least",
     needWalletSubmitSuffix: "in your wallet to submit this request.",
     awaitingBuyerPayment: "awaiting buyer payment",
     sellerFeed: "Seller feed",
+  },
+  th: {
+    buyerPromptTitle: "ตัวอย่างข้อความคุยทั่วไป",
+    buyerPrompts: [
+      "สบายดีไหม?",
+      "วันนี้ทำอะไรมาบ้าง?",
+      "ฉันสบายดี ขอบคุณนะ แล้วคุณล่ะ?"
+    ],
+    requestPresetTitle: "ข้อความสำเร็จรูปสำหรับคำขอพิเศษ",
+    requestPresets: [
+      "ช่วยเปิดอัปโหลดรูปให้ฉันได้ไหม?",
+      "ขอไทม์ไลน์ ราคา final และค่าส่งก่อนยืนยันนะ",
+      "ฉันอยากได้ภาพพื้นหลังเรียบและภาพใกล้ที่เห็นรายละเอียดชัดเจน"
+    ],
+    buyerImageDisabledHelp: "ตอนนี้ยังอัปโหลดรูปไม่ได้จนกว่าผู้ขายจะเปิดให้ในคำขอนี้",
+  },
+  my: {
+    buyerPromptTitle: "ဝယ်သူအတွက် ပုံမှန်စာပို့ prompt များ",
+    buyerPrompts: [
+      "နေကောင်းလား?",
+      "ဒီနေ့ ဘာတွေလုပ်ခဲ့လဲ?",
+      "ကျွန်မ/ကျွန်တော် အဆင်ပြေပါတယ်၊ ကျေးဇူးတင်ပါတယ်။ သင်ကော?"
+    ],
+    requestPresetTitle: "Custom request preset များ",
+    requestPresets: [
+      "ကျွန်မ/ကျွန်တော်အတွက် image upload ကို ဖွင့်ပေးနိုင်မလား?",
+      "အတည်ပြုမလုပ်ခင် timeline, final price နဲ့ shipping estimate ကို မျှဝေပေးပါ။",
+      "ရိုးရှင်းတဲ့ background နဲ့ detail ကိုရှင်းရှင်းမြင်ရတဲ့ close-up ပုံများကို လိုချင်ပါတယ်။"
+    ],
+    buyerImageDisabledHelp: "ဒီ request မှာ seller က enable မလုပ်မချင်း image upload ကို အသုံးမပြုနိုင်သေးပါ။",
+  },
+  ru: {
+    buyerPromptTitle: "Быстрые разговорные фразы",
+    buyerPrompts: [
+      "Как ты?",
+      "Что ты делала сегодня?",
+      "У меня все отлично, спасибо. А у тебя?"
+    ],
+    requestPresetTitle: "Готовые шаблоны для запроса",
+    requestPresets: [
+      "Можешь включить загрузку изображений для меня?",
+      "Перед подтверждением отправь, пожалуйста, сроки, финальную цену и стоимость доставки.",
+      "Я предпочитаю нейтральный фон и четкие фото крупным планом."
+    ],
+    buyerImageDisabledHelp: "Загрузка изображений отключена, пока продавец не включит ее для этого запроса.",
   },
 };
 
@@ -1328,7 +1406,12 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
   const canAffordNewRequest = Number(currentUser?.walletBalance || 0) >= CUSTOM_REQUEST_FEE_THB;
   const canAffordMessageAction = isSellerView ? true : Number(currentUser?.walletBalance || 0) >= MESSAGE_FEE_THB;
   const visibleRequests = isSellerView ? (sellerCustomRequests || []) : (buyerCustomRequests || []);
-  const t = CUSTOM_REQUESTS_I18N[uiLanguage] || CUSTOM_REQUESTS_I18N.en;
+  const t = {
+    ...CUSTOM_REQUESTS_I18N.en,
+    ...(CUSTOM_REQUESTS_I18N[uiLanguage] || {}),
+  };
+  const buyerPrompts = t.buyerPrompts || CUSTOM_REQUESTS_I18N.en.buyerPrompts || [];
+  const requestPresets = t.requestPresets || CUSTOM_REQUESTS_I18N.en.requestPresets || [];
   const [requestForm, setRequestForm] = useState({
     sellerId: (sellers || [])[0]?.id || "",
     buyerName: currentUser?.name || "",
@@ -1403,7 +1486,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
       <div className="mb-8">
         <div className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-500">{t.eyebrow}</div>
         <h2 className="mt-2 text-3xl font-bold tracking-tight">{t.title}</h2>
-        <p className="mt-3 max-w-2xl text-slate-600">{t.subtitle}</p>
+        {t.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{t.subtitle}</p> : null}
       </div>
       {isSellerView ? (
         <div className="mb-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
@@ -1468,9 +1551,10 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
       ) : null}
       <div className="grid gap-8 md:grid-cols-2">
         <div className="rounded-3xl bg-white p-8 text-slate-600 shadow-md ring-1 ring-rose-100">
-          <p>{t.submitFee} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} from your wallet balance.</p>
-          <p className="mt-1 text-xs text-slate-500">{formatExchangeEstimates(CUSTOM_REQUEST_FEE_THB)}</p>
-          <p className="mt-4">{t.openFee} {formatPriceTHB(MESSAGE_FEE_THB)} {t.perMessageBoth}</p>
+          {isBuyerView ? (
+            <p>{t.submitFee} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)}.</p>
+          ) : null}
+          <p>{t.openFee} {formatPriceTHB(MESSAGE_FEE_THB)} {t.perMessageBoth}</p>
           {!canSubmitRequest && !isSellerView ? <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">{t.loginBuyer}</p> : null}
           {canSubmitRequest || isSellerView ? (
             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 ring-1 ring-rose-100">
@@ -1521,6 +1605,24 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                         ))}
                       </div>
                       <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                        {isBuyerView ? (
+                          <div className="flex flex-wrap items-center gap-1">
+                            {(requestPresets || []).slice(0, 3).map((preset) => (
+                              <button
+                                key={`${request.id}-${preset}`}
+                                type="button"
+                                onClick={() => setRequestReplyDraftById((prev) => {
+                                  const existing = String(prev[request.id] || "").trim();
+                                  const joined = existing ? `${existing} ${preset}` : preset;
+                                  return { ...prev, [request.id]: joined };
+                                })}
+                                className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-semibold text-rose-700"
+                              >
+                                + preset
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
                         <input
                           value={requestReplyDraftById[request.id] || ""}
                           onChange={(event) => setRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
@@ -1578,7 +1680,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                             ) : null}
                           </>
                         ) : (
-                          <div className="text-[11px] text-slate-500">Seller has not enabled buyer image uploads for this request yet.</div>
+                          <div className="text-[11px] text-slate-500">{t.buyerImageDisabledHelp || CUSTOM_REQUESTS_I18N.en.buyerImageDisabledHelp}</div>
                         )}
                       </div>
                       {!canAffordMessageAction && !isSellerView ? <div className="mt-2 text-[11px] text-amber-700">{t.addWalletToSend} {formatPriceTHB(MESSAGE_FEE_THB)} {t.toWalletSend}</div> : null}
@@ -1691,8 +1793,51 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
             <input value={requestForm.buyerName} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerName: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.yourName} />
             <input value={requestForm.buyerEmail} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerEmail: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.email} />
             <input value={requestForm.preferredDetails} onChange={(event) => setRequestForm((prev) => ({ ...prev, preferredDetails: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.detailsPlaceholder} />
+            {isBuyerView ? (
+              <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t.buyerPromptTitle || CUSTOM_REQUESTS_I18N.en.buyerPromptTitle}</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(buyerPrompts || []).slice(0, 3).map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => setRequestForm((prev) => {
+                        const existing = String(prev.preferredDetails || "").trim();
+                        return { ...prev, preferredDetails: existing ? `${existing} ${prompt}` : prompt };
+                      })}
+                      className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <input value={requestForm.shippingCountry} onChange={(event) => setRequestForm((prev) => ({ ...prev, shippingCountry: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.shippingCountry} />
             <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[140px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.requestBodyPlaceholder} />
+            {isBuyerView ? (
+              <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t.requestPresetTitle || CUSTOM_REQUESTS_I18N.en.requestPresetTitle}</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(requestPresets || []).slice(0, 3).map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setRequestForm((prev) => {
+                        const existing = String(prev.requestBody || "").trim();
+                        return { ...prev, requestBody: existing ? `${existing} ${preset}` : preset };
+                      })}
+                      className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-2 text-[11px] text-slate-500">
+                  Image upload is disabled until a seller enables it for your request.
+                </div>
+              </div>
+            ) : null}
             <button
               onClick={() => {
                 submitCustomRequest(

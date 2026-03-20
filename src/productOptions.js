@@ -33,23 +33,11 @@ export const PRIMARY_CURRENCY_SYMBOL = "฿";
 export const MIN_SELLER_PRICE_THB = 1000;
 export const MIN_FEED_UNLOCK_PRICE_THB = 50;
 export const MIN_CUSTOM_REQUEST_PURCHASE_THB = 1000;
-export const EXCHANGE_ESTIMATE_RATES = {
-  USD: 0.028,
-  EUR: 0.026,
-  GBP: 0.022,
-};
 export const MESSAGE_FEE_THB = 7;
 export const CUSTOM_REQUEST_FEE_THB = 7;
 export function formatPriceTHB(value) {
   const amount = Number(value || 0);
   return `${PRIMARY_CURRENCY_SYMBOL}${amount.toFixed(2)}`;
-}
-export function formatExchangeEstimates(valueThb) {
-  const amount = Number(valueThb || 0);
-  const usd = (amount * EXCHANGE_ESTIMATE_RATES.USD).toFixed(2);
-  const eur = (amount * EXCHANGE_ESTIMATE_RATES.EUR).toFixed(2);
-  const gbp = (amount * EXCHANGE_ESTIMATE_RATES.GBP).toFixed(2);
-  return `Approx: $${usd} USD / EUR ${eur} / GBP ${gbp} (estimate only)`;
 }
 export const COLOR_OPTIONS = [
   "Red",
