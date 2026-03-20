@@ -4513,6 +4513,7 @@ export default function ThailandPantiesMarketSite() {
   const [authError, setAuthError] = useState('');
   const [authErrorRefreshKey, setAuthErrorRefreshKey] = useState(0);
   const [authSuccess, setAuthSuccess] = useState('');
+  const [authSubmitting, setAuthSubmitting] = useState(false);
   const [authResendVerificationSending, setAuthResendVerificationSending] = useState(false);
   const [emailVerificationStatus, setEmailVerificationStatus] = useState({
     loading: false,
@@ -7080,6 +7081,8 @@ export default function ThailandPantiesMarketSite() {
   async function loginWithCredentials(event) {
     event.preventDefault();
     setAuthErrorRefreshKey((prev) => prev + 1);
+    setAuthSubmitting(true);
+    try {
     const email = loginForm.email.trim().toLowerCase();
     if (!email || !loginForm.password) {
       setAuthError(loginText.invalidCredentials);
@@ -7137,11 +7140,19 @@ export default function ThailandPantiesMarketSite() {
     const shouldTryApiLogin = backendStatus === 'connected' || REQUIRE_BACKEND_AUTH;
     if (shouldTryApiLogin) {
       try {
-        const authResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
+        const loginAbortController = new AbortController();
+        const loginTimeout = setTimeout(() => loginAbortController.abort(), 15000);
+        let authResponse = null;
+        try {
+          authResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            signal: loginAbortController.signal,
+          });
+        } finally {
+          clearTimeout(loginTimeout);
+        }
         let authPayload = null;
         try {
           authPayload = await authResponse.json();
@@ -7183,10 +7194,14 @@ export default function ThailandPantiesMarketSite() {
         });
         finalizeLogin(authUser);
         return;
-      } catch {
+      } catch (error) {
         if (REQUIRE_BACKEND_AUTH) {
           setApiAuthToken('');
-          setAuthError(loginText.loginOffline || 'Login is unavailable while API is offline. Please try again in a moment.');
+          if (error?.name === 'AbortError') {
+            setAuthError(loginText.loginOffline || 'Login timed out. Please try again.');
+          } else {
+            setAuthError(loginText.loginOffline || 'Login is unavailable while API is offline. Please try again in a moment.');
+          }
           setAuthSuccess('');
           return;
         }
@@ -7241,6 +7256,9 @@ export default function ThailandPantiesMarketSite() {
     }
     setApiAuthToken('');
     finalizeLogin(user);
+    } finally {
+      setAuthSubmitting(false);
+    }
   }
 
   async function resendVerificationEmailByAddress(rawEmail) {
@@ -17213,7 +17231,13 @@ export default function ThailandPantiesMarketSite() {
               </div>
               {authError ? <div key={authErrorRefreshKey} className="text-sm font-medium text-rose-700">{authError}</div> : null}
               {authSuccess ? <div className="text-sm font-medium text-emerald-700">{authSuccess}</div> : null}
-              <button type="submit" className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{loginText.submit}</button>
+              <button
+                type="submit"
+                disabled={authSubmitting}
+                className={`w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${authSubmitting ? 'cursor-not-allowed opacity-70' : ''}`}
+              >
+                {authSubmitting ? `${loginText.submit}...` : loginText.submit}
+              </button>
               <button type="button" onClick={() => navigate('/register')} className="w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{loginText.registerCta}</button>
             </form>
           </PageShell>
