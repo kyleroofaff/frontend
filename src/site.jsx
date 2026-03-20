@@ -14845,6 +14845,19 @@ export default function ThailandPantiesMarketSite() {
       })
       .filter(Boolean)
   );
+  const approvedSellerIdsFromAdminActions = new Set(
+    (adminActions || [])
+      .filter((action) => String(action?.type || '').trim() === 'approve_bar_affiliation_request')
+      .filter((action) => {
+        const actionBarId = String(action?.targetBarId || '').trim();
+        const actedByCurrentBarUser = String(action?.actorUserId || '').trim() === String(currentUser?.id || '').trim();
+        if (actedByCurrentBarUser) return true;
+        if (actionBarId && resolvedBarIdsForCurrentUser.has(actionBarId)) return true;
+        return currentUser?.role === 'bar' && !actionBarId;
+      })
+      .map((action) => String(action?.targetSellerId || '').trim())
+      .filter(Boolean)
+  );
   const currentBarAffiliatedSellers = (sellers || [])
     .filter((seller) => {
       const sellerId = String(seller?.id || '').trim();
@@ -14853,6 +14866,7 @@ export default function ThailandPantiesMarketSite() {
         resolvedBarIdsForCurrentUser.has(affiliatedBarId)
         || approvedSellerIdsForCurrentBarUser.has(sellerId)
         || approvedSellerIdsFromNotifications.has(sellerId)
+        || approvedSellerIdsFromAdminActions.has(sellerId)
       );
     })
     .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
