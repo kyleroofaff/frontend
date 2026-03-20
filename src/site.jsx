@@ -16595,6 +16595,12 @@ export default function ThailandPantiesMarketSite() {
                                 </div>
                                 <div className="flex gap-2">
                                   <button
+                                    onClick={() => navigate(`/seller/${request.sellerId}`)}
+                                    className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"
+                                  >
+                                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).viewProfile}
+                                  </button>
+                                  <button
                                     onClick={() => respondToBarAffiliationRequest(request.id, 'approved')}
                                     className="rounded-xl border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700"
                                   >
