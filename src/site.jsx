@@ -3264,7 +3264,7 @@ const CMS_SCHEMA = {
     features: 'string[]',
     image: 'asset',
     imageName: 'string',
-    status: 'enum<Draft|Published>',
+    status: 'enum<Draft|Published|Sold>',
     publishedAt: 'date',
   },
   Seller: {
@@ -3892,6 +3892,7 @@ function normalizeDbState(nextDb) {
           const normalizedProducts = nextDb.products.map((product) => ({
             ...product,
             price: Math.max(MIN_SELLER_PRICE_THB, Number(product?.price || MIN_SELLER_PRICE_THB)),
+            daysWorn: normalizeProductDaysWornValue(product?.daysWorn),
           }));
           const existingProductIds = new Set(normalizedProducts.map((product) => String(product?.id || '')));
           const requiredProducts = (CLEAN_SEED_DB.products || [])
@@ -3899,6 +3900,7 @@ function normalizeDbState(nextDb) {
             .map((product) => ({
               ...product,
               price: Math.max(MIN_SELLER_PRICE_THB, Number(product?.price || MIN_SELLER_PRICE_THB)),
+              daysWorn: normalizeProductDaysWornValue(product?.daysWorn),
             }));
           return [...normalizedProducts, ...requiredProducts];
         })()
@@ -4283,6 +4285,24 @@ function removeBundlesContainingSoldItems(products, soldProductIds) {
   });
 }
 
+const DAYS_WORN_CANONICAL_BY_NORMALIZED = Object.fromEntries(
+  (DAYS_WORN_OPTIONS || []).map((value) => [String(value || '').trim().toLowerCase(), value]),
+);
+function normalizeProductDaysWornValue(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return DAYS_WORN_OPTIONS[0];
+  const normalized = raw.toLowerCase();
+  if (DAYS_WORN_CANONICAL_BY_NORMALIZED[normalized]) {
+    return DAYS_WORN_CANONICAL_BY_NORMALIZED[normalized];
+  }
+  if (normalized.includes('1-3')) return '1 day';
+  if (normalized.includes('4-7')) return '6-7 days';
+  if (normalized.includes('2-4')) return '2 days';
+  if (normalized.includes('3-5')) return '3 days';
+  if (normalized.includes('5-7')) return '6-7 days';
+  return DAYS_WORN_OPTIONS[0];
+}
+
 function stableStringHash(value) {
   const source = String(value || "");
   let hash = 0;
@@ -4597,8 +4617,8 @@ export default function ThailandPantiesMarketSite() {
     specialties: [],
     languages: [],
     bio: '',
-    shipping: '',
-    turnaround: '',
+    shipping: 'Worldwide from Thailand',
+    turnaround: 'Ships in 1-3 days',
     affiliatedBarId: '',
     profileImage: '',
     profileImageName: '',
@@ -5240,9 +5260,19 @@ export default function ThailandPantiesMarketSite() {
   const routeInfo = parseRoute(route);
   const selectedBar = routeInfo.name === 'bar' ? localizedBarMap[routeInfo.id] || null : null;
   const reservedProductIdSet = useMemo(() => new Set(cart), [cart]);
+  const soldProductIdSet = useMemo(() => {
+    const soldIds = new Set();
+    (orders || []).forEach((order) => {
+      if (String(order?.paymentStatus || '').toLowerCase() !== 'paid') return;
+      (order?.items || []).forEach((itemId) => {
+        if (itemId) soldIds.add(String(itemId));
+      });
+    });
+    return soldIds;
+  }, [orders]);
   const availableProducts = useMemo(
-    () => products.filter((product) => !reservedProductIdSet.has(product.id)),
-    [products, reservedProductIdSet],
+    () => products.filter((product) => !reservedProductIdSet.has(product.id) && !soldProductIdSet.has(String(product?.id || ''))),
+    [products, reservedProductIdSet, soldProductIdSet],
   );
   const selectedBarAffiliatedSellers = useMemo(() => {
     if (!selectedBar) return [];
@@ -5832,8 +5862,8 @@ export default function ThailandPantiesMarketSite() {
         ? currentSellerProfile.languages.filter(Boolean)
         : [],
       bio: currentSellerProfile.bio || '',
-      shipping: currentSellerProfile.shipping || '',
-      turnaround: currentSellerProfile.turnaround || '',
+      shipping: currentSellerProfile.shipping || 'Worldwide from Thailand',
+      turnaround: currentSellerProfile.turnaround || 'Ships in 1-3 days',
       affiliatedBarId: currentSellerProfile.affiliatedBarId || '',
       profileImage: currentSellerProfile.profileImage || '',
       profileImageName: currentSellerProfile.profileImageName || '',
@@ -12639,7 +12669,11 @@ export default function ThailandPantiesMarketSite() {
                   ? { ...user, walletBalance: Number(((user.walletBalance || 0) + adminPayoutTotal).toFixed(2)) }
             : user,
         ),
-        products: removeBundlesContainingSoldItems(prev.products, purchasedItemIds),
+        products: removeBundlesContainingSoldItems(prev.products, purchasedItemIds).map((product) => (
+          purchasedItemIds.includes(product.id)
+            ? { ...product, status: 'Sold', soldAt: now }
+            : product
+        )),
         orders: [
           {
             id: orderId,
@@ -12905,7 +12939,7 @@ export default function ThailandPantiesMarketSite() {
       color: uploadDraft.color,
       style: uploadDraft.style,
       fabric: uploadDraft.fabric,
-      daysWorn: uploadDraft.daysWorn,
+      daysWorn: normalizeProductDaysWornValue(uploadDraft.daysWorn),
       scentLevel: uploadDraft.scentLevel,
       shipping: 'Worldwide',
       condition: uploadDraft.condition,
@@ -12981,7 +13015,7 @@ export default function ThailandPantiesMarketSite() {
       color: firstProduct?.color || 'Mixed',
       style: 'Custom Set',
       fabric: firstProduct?.fabric || 'Cotton',
-      daysWorn: firstProduct?.daysWorn || DAYS_WORN_OPTIONS[0],
+      daysWorn: normalizeProductDaysWornValue(firstProduct?.daysWorn || DAYS_WORN_OPTIONS[0]),
       scentLevel: firstProduct?.scentLevel || SCENT_LEVEL_OPTIONS[0],
       shipping: 'Worldwide',
       condition: firstProduct?.condition || CONDITION_OPTIONS[0],
@@ -13014,6 +13048,27 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function publishProduct(productId) {
+    const targetProduct = products.find((product) => product.id === productId);
+    if (!targetProduct) return;
+    if (soldProductIdSet.has(String(productId)) || String(targetProduct?.status || '').toLowerCase() === 'sold') {
+      setDb((prev) => ({
+        ...prev,
+        products: prev.products.map((product) => (
+          product.id === productId ? { ...product, status: 'Sold' } : product
+        )),
+      }));
+      setSellerProfileMessage('This listing is sold and cannot be republished. Create a new product listing to sell again.');
+      return;
+    }
+    const isPublished = String(targetProduct?.status || '').toLowerCase() === 'published';
+    if (isPublished) {
+      setDb((prev) => ({
+        ...prev,
+        products: prev.products.map((product) => (product.id === productId ? { ...product, status: 'Draft' } : product)),
+      }));
+      setSellerProfileMessage('Listing moved back to draft.');
+      return;
+    }
     if (sellerProfileChecklist.length > 0) {
       setSellerProfileMessage(sellerStatus('completeOnboarding', { items: sellerProfileChecklist.join(', ') }));
       return;
@@ -16164,6 +16219,7 @@ export default function ThailandPantiesMarketSite() {
             pushPermission={pushPermission}
             pushSupported={pushSupport.serviceWorker && pushSupport.notification && pushSupport.pushManager}
             sellerDashboardProducts={sellerDashboardProducts}
+            soldProductIds={Array.from(soldProductIdSet)}
             sellerDashboardPosts={sellerDashboardPosts}
             publishProduct={publishProduct}
             upsertBundleProduct={upsertBundleProduct}

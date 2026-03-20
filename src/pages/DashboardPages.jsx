@@ -993,6 +993,12 @@ const SELLER_PROFILE_SELECT_I18N = {
     turnaround: ["Отправка за 1-3 дня", "Отправка за 2-4 дня", "Отправка за 3-5 дней", "Отправка за 5-7 дней"],
   },
 };
+const SELLER_WORLDWIDE_SHIPPING_BY_LOCALE = {
+  en: "Worldwide from Thailand",
+  th: "จัดส่งทั่วโลกจากประเทศไทย",
+  my: "ထိုင်းနိုင်ငံမှ ကမ္ဘာတစ်ဝန်းပို့ဆောင်",
+  ru: "Доставка по всему миру из Таиланда",
+};
 
 const SELLER_WRITING_PRESETS_I18N = {
   en: {
@@ -1902,6 +1908,7 @@ export function SellerDashboardPage({
   pushPermission,
   pushSupported,
   sellerDashboardProducts,
+  soldProductIds,
   sellerDashboardPosts,
   publishProduct,
   upsertBundleProduct,
@@ -1956,14 +1963,22 @@ export function SellerDashboardPage({
     () => buildSellerSelectOptions(sellerProfileSelectText.locations, sellerProfileDraft.location),
     [sellerProfileSelectText, sellerProfileDraft.location],
   );
-  const shippingOptions = useMemo(
-    () => buildSellerSelectOptions(sellerProfileSelectText.shipping, sellerProfileDraft.shipping),
-    [sellerProfileSelectText, sellerProfileDraft.shipping],
-  );
   const turnaroundOptions = useMemo(
     () => buildSellerSelectOptions(sellerProfileSelectText.turnaround, sellerProfileDraft.turnaround),
     [sellerProfileSelectText, sellerProfileDraft.turnaround],
   );
+  const fixedShippingLabel = SELLER_WORLDWIDE_SHIPPING_BY_LOCALE[locale] || SELLER_WORLDWIDE_SHIPPING_BY_LOCALE.en;
+  const soldProductIdSet = useMemo(() => new Set((soldProductIds || []).map((id) => String(id || ""))), [soldProductIds]);
+  useEffect(() => {
+    if ((sellerProfileDraft.shipping || "") === fixedShippingLabel) return;
+    updateSellerProfileField("shipping", fixedShippingLabel);
+  }, [fixedShippingLabel, sellerProfileDraft.shipping, updateSellerProfileField]);
+  useEffect(() => {
+    if (String(sellerProfileDraft.turnaround || "").trim()) return;
+    const fallbackTurnaround = turnaroundOptions[0] || "";
+    if (!fallbackTurnaround) return;
+    updateSellerProfileField("turnaround", fallbackTurnaround);
+  }, [sellerProfileDraft.turnaround, turnaroundOptions, updateSellerProfileField]);
   const barOptions = useMemo(
     () => [...(bars || [])].sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || ''))),
     [bars],
@@ -2848,37 +2863,21 @@ export function SellerDashboardPage({
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("shipping")}</span>
-                    <select
-                      value={shippingOptions.includes(sellerProfileDraft.shipping || "") ? (sellerProfileDraft.shipping || "") : ""}
-                      onChange={(event) => updateSellerProfileField("shipping", event.target.value)}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                    >
-                      <option value="">{sellerProfileSelectText.shippingPlaceholder}</option>
-                      {shippingOptions.map((value) => <option key={value} value={value}>{value}</option>)}
-                    </select>
-                    <input
-                      value={sellerProfileDraft.shipping || ""}
-                      onChange={(event) => updateSellerProfileField("shipping", event.target.value)}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                      placeholder={sellerProfileSelectText.shippingPlaceholder}
-                    />
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
+                      {fixedShippingLabel}
+                    </div>
+                    <div className="text-xs text-slate-500">Shipping scope is fixed for all sellers.</div>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("turnaround")}</span>
                     <select
-                      value={turnaroundOptions.includes(sellerProfileDraft.turnaround || "") ? (sellerProfileDraft.turnaround || "") : ""}
+                      value={turnaroundOptions.includes(sellerProfileDraft.turnaround || "") ? (sellerProfileDraft.turnaround || "") : (turnaroundOptions[0] || "")}
                       onChange={(event) => updateSellerProfileField("turnaround", event.target.value)}
                       className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                     >
                       <option value="">{sellerProfileSelectText.turnaroundPlaceholder}</option>
                       {turnaroundOptions.map((value) => <option key={value} value={value}>{value}</option>)}
                     </select>
-                    <input
-                      value={sellerProfileDraft.turnaround || ""}
-                      onChange={(event) => updateSellerProfileField("turnaround", event.target.value)}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                      placeholder={sellerProfileSelectText.turnaroundPlaceholder}
-                    />
                   </label>
                 </div>
                 <textarea value={sellerProfileDraft.bio} onChange={(e) => updateSellerProfileField("bio", e.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("bio")} />
@@ -3192,23 +3191,34 @@ export function SellerDashboardPage({
                       Create your first listing
                     </button>
                   </div>
-                ) : sellerDashboardProducts.map((product) => (
-                  <div key={product.id} className="flex flex-col gap-4 rounded-2xl border border-rose-100 p-4 md:flex-row md:items-center md:justify-between">
+                ) : sellerDashboardProducts.map((product) => {
+                  const normalizedStatus = String(product?.status || "").toLowerCase();
+                  const isSold = soldProductIdSet.has(String(product?.id || "")) || normalizedStatus === "sold";
+                  const isPublished = normalizedStatus === "published";
+                  return (
+                  <div key={product.id} className={`flex flex-col gap-4 rounded-2xl border p-4 md:flex-row md:items-center md:justify-between ${isSold ? "border-emerald-200 bg-emerald-50/40" : "border-rose-100"}`}>
                     <div>
                       <div className="flex items-center gap-2">
                         <div className="font-semibold">{product.title}</div>
                         {product.isBundle ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">Set</span> : null}
+                        {isSold ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">Sold</span> : null}
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${isSellerOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
                           {isSellerOnline ? t("online") : t("offline")}
                         </span>
                       </div>
                       <div className="mt-1 text-sm text-slate-500">
-                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {product.status} · {t("worn")}: {product.daysWorn || t("notSpecified")} · {t("condition")}: {product.condition || t("notSpecified")}
+                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? "Sold" : (product.status || "Draft")} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)} · {t("condition")}: {product.condition || t("notSpecified")}
                         {product.isBundle ? ` · Includes ${(product.bundleItemIds || []).length} item(s)` : ""}
                       </div>
                     </div>
                     <div className="flex w-full flex-wrap gap-2 md:w-auto">
-                      <button onClick={() => publishProduct(product.id)} className="flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none">{t("publish")}</button>
+                      <button
+                        onClick={() => publishProduct(product.id)}
+                        disabled={isSold}
+                        className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold md:flex-none ${isSold ? "cursor-not-allowed border-emerald-200 bg-emerald-100 text-emerald-700" : "border-rose-200 text-rose-700"}`}
+                      >
+                        {isSold ? "Sold" : (isPublished ? "Unpublish" : t("publish"))}
+                      </button>
                       <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none">{t("viewListing")}</button>
                       <button
                         onClick={() => deleteProduct(product.id)}
@@ -3219,7 +3229,8 @@ export function SellerDashboardPage({
                       </button>
                     </div>
                   </div>
-                ))}
+                );
+                })}
           </div>
           </details>
           </div>
