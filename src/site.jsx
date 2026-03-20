@@ -210,7 +210,7 @@ const BAR_DASHBOARD_I18N = {
     deleting: 'Deleting...',
     delete: 'Delete',
     affiliationsTitle: 'Seller affiliations',
-    affiliationsSubtitle: 'Approve seller requests, invite sellers to your bar, and remove affiliations when needed.',
+    affiliationsSubtitle: 'Review seller applications and remove affiliations when needed.',
     pendingRequestsTitle: 'Pending seller requests',
     noPendingRequests: 'No pending seller requests.',
     requestedPrefix: 'Requested',
@@ -257,7 +257,7 @@ const BAR_DASHBOARD_I18N = {
     deleting: 'กำลังลบ...',
     delete: 'ลบ',
     affiliationsTitle: 'การสังกัดผู้ขาย',
-    affiliationsSubtitle: 'อนุมัติคำขอผู้ขาย เชิญผู้ขายเข้าบาร์ และยกเลิกการสังกัดได้เมื่อจำเป็น',
+    affiliationsSubtitle: 'ตรวจสอบคำขอของผู้ขาย และยกเลิกการสังกัดได้เมื่อจำเป็น',
     pendingRequestsTitle: 'คำขอผู้ขายที่รออนุมัติ',
     noPendingRequests: 'ไม่มีคำขอผู้ขายที่รออนุมัติ',
     requestedPrefix: 'ส่งคำขอเมื่อ',
@@ -304,7 +304,7 @@ const BAR_DASHBOARD_I18N = {
     deleting: 'ဖျက်နေသည်...',
     delete: 'ဖျက်မည်',
     affiliationsTitle: 'Seller affiliation များ',
-    affiliationsSubtitle: 'seller request များကို approve လုပ်ပါ၊ seller များကို သင့် bar သို့ ဖိတ်ခေါ်ပါ၊ လိုအပ်သည့်အခါ affiliation ဖယ်ရှားပါ။',
+    affiliationsSubtitle: 'seller request များကို approve လုပ်ပြီး လိုအပ်သည့်အခါ affiliation ဖယ်ရှားပါ။',
     pendingRequestsTitle: 'စောင့်ဆိုင်းနေသော seller requests',
     noPendingRequests: 'စောင့်ဆိုင်းနေသော seller request မရှိပါ။',
     requestedPrefix: 'Requested',
@@ -351,7 +351,7 @@ const BAR_DASHBOARD_I18N = {
     deleting: 'Удаление...',
     delete: 'Удалить',
     affiliationsTitle: 'Привязки продавцов',
-    affiliationsSubtitle: 'Одобряйте заявки продавцов, приглашайте продавцов в бар и удаляйте привязки при необходимости.',
+    affiliationsSubtitle: 'Одобряйте заявки продавцов и удаляйте привязки при необходимости.',
     pendingRequestsTitle: 'Ожидающие заявки продавцов',
     noPendingRequests: 'Нет ожидающих заявок продавцов.',
     requestedPrefix: 'Запрошено',
@@ -2129,7 +2129,7 @@ const SEED_DB = {
       turnaround: 'Ships in 2–4 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: 'small-world-chiang-mai',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Premium used pairs', 'Discreet shipping', 'Professional communication'],
     },
@@ -2143,7 +2143,7 @@ const SEED_DB = {
       turnaround: 'Ships in 3–5 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: 'north-lantern-chiang-mai',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Lace and premium styles', 'Limited drops', 'Trusted fulfillment'],
     },
@@ -2157,7 +2157,7 @@ const SEED_DB = {
       turnaround: 'Ships in 1–3 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: 'phuket-moon-lounge',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Everyday favorites', 'Sport-inspired cuts', 'Fast dispatch'],
     },
@@ -2199,7 +2199,7 @@ const SEED_DB = {
       turnaround: 'Ships in 2-4 days',
       isOnline: true,
       feedVisibility: 'public',
-      affiliatedBarId: 'riverlight-social-bkk',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Seasonal drops', 'Statement pieces', 'Trusted shipping'],
     },
@@ -2227,7 +2227,7 @@ const SEED_DB = {
       turnaround: 'Ships in 1-3 days',
       isOnline: true,
       feedVisibility: 'public',
-      affiliatedBarId: 'small-world-chiang-mai',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Curated premium drops', 'Quick responses', 'Discreet packaging'],
     },
@@ -2241,7 +2241,7 @@ const SEED_DB = {
       turnaround: 'Ships in 1-3 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: 'small-world-chiang-mai',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Premium quality', 'Fast response', 'Discreet packaging'],
     },
@@ -2255,7 +2255,7 @@ const SEED_DB = {
       turnaround: 'Ships in 2-4 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: 'small-world-chiang-mai',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Everyday styles', 'Reliable shipping', 'Friendly support'],
     },
@@ -2269,7 +2269,7 @@ const SEED_DB = {
       turnaround: 'Ships in 1-3 days',
       isOnline: false,
       feedVisibility: 'public',
-      affiliatedBarId: 'small-world-chiang-mai',
+      affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Curated drops', 'Polished listings', 'Consistent fulfillment'],
     },
@@ -3844,7 +3844,7 @@ function normalizeDbState(nextDb) {
             ...seller,
             isOnline: Boolean(seller?.isOnline),
             feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
-            affiliatedBarId: String(seller?.affiliatedBarId || ''),
+            affiliatedBarId: '',
             locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
             specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
             shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
@@ -3858,7 +3858,7 @@ function normalizeDbState(nextDb) {
               ...seller,
               isOnline: Boolean(seller?.isOnline),
               feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
-              affiliatedBarId: String(seller?.affiliatedBarId || ''),
+              affiliatedBarId: '',
               locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
               specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
               shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
@@ -4624,6 +4624,10 @@ export default function ThailandPantiesMarketSite() {
     profileImageName: '',
   });
   const [sellerProfileMessage, setSellerProfileMessage] = useState('');
+  const [sellerAffiliationRequestDraft, setSellerAffiliationRequestDraft] = useState({
+    message: '',
+    images: [],
+  });
   const [barProfileDraft, setBarProfileDraft] = useState({
     location: '',
     about: '',
@@ -4640,7 +4644,6 @@ export default function ThailandPantiesMarketSite() {
     image: '',
     imageName: '',
   });
-  const [barInviteSellerId, setBarInviteSellerId] = useState('');
   const [barNotificationCompactMode, setBarNotificationCompactMode] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(`tlm-bar-notification-density-${session?.userId || 'anon'}`) === 'compact';
@@ -5148,8 +5151,23 @@ export default function ThailandPantiesMarketSite() {
     };
   }
 
+  const normalizeIdentityKey = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const namesLikelyMatch = (leftValue, rightValue) => {
+    const left = normalizeIdentityKey(leftValue);
+    const right = normalizeIdentityKey(rightValue);
+    if (!left || !right) return false;
+    return left === right || left.includes(right) || right.includes(left);
+  };
   const currentSellerId = currentUser?.sellerId || 'nina-b';
-  const currentBarId = currentUser?.barId || '';
+  const currentBarId = useMemo(() => {
+    const explicitBarId = String(currentUser?.barId || '').trim();
+    if (explicitBarId) return explicitBarId;
+    if (currentUser?.role !== 'bar') return '';
+    const matchedBar = (bars || []).find((bar) => namesLikelyMatch(currentUser?.name, bar?.name));
+    if (matchedBar?.id) return String(matchedBar.id || '').trim();
+    if ((bars || []).length === 1) return String(bars[0]?.id || '').trim();
+    return '';
+  }, [currentUser?.barId, currentUser?.role, currentUser?.name, bars]);
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const raw = window.localStorage.getItem('tlm-seller-post-drafts');
@@ -7065,6 +7083,19 @@ export default function ThailandPantiesMarketSite() {
 
     const finalizeLogin = (user) => {
       if (!user) return;
+      if (user.role === 'seller' && user.sellerId) {
+        const sellerId = String(user.sellerId || '').trim();
+        if (sellerId) {
+          setDb((prev) => ({
+            ...prev,
+            sellers: (prev.sellers || []).map((seller) => (
+              String(seller?.id || '').trim() === sellerId
+                ? { ...seller, isOnline: true }
+                : seller
+            )),
+          }));
+        }
+      }
       setSession({ userId: user.id });
       setAuthError('');
       setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
@@ -8056,6 +8087,42 @@ export default function ThailandPantiesMarketSite() {
     setSellerProfileDraft((prev) => ({ ...prev, [key]: value }));
   }
 
+  function updateSellerAffiliationRequestDraftMessage(value) {
+    setSellerAffiliationRequestDraft((prev) => ({
+      ...prev,
+      message: String(value || '').slice(0, 600),
+    }));
+  }
+
+  async function handleSellerAffiliationRequestImagesUpload(fileList) {
+    const files = Array.from(fileList || []).slice(0, 4);
+    if (!files.length) return;
+    const loadedImages = await Promise.all(
+      files.map((file) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          id: makeRuntimeId('affiliation_image'),
+          image: typeof reader.result === 'string' ? reader.result : '',
+          imageName: String(file.name || 'application-image.jpg'),
+        });
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+      })),
+    );
+    setSellerAffiliationRequestDraft((prev) => ({
+      ...prev,
+      images: [...(prev.images || []), ...loadedImages.filter((item) => item?.image)].slice(0, 4),
+    }));
+  }
+
+  function removeSellerAffiliationRequestDraftImage(imageId) {
+    if (!imageId) return;
+    setSellerAffiliationRequestDraft((prev) => ({
+      ...prev,
+      images: (prev.images || []).filter((image) => image?.id !== imageId),
+    }));
+  }
+
   function makeRuntimeId(prefix) {
     return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   }
@@ -8109,7 +8176,19 @@ export default function ThailandPantiesMarketSite() {
       const prevSellerName = prevSeller?.name || currentUser?.name || 'Seller';
       const requestedBar = (prev.bars || []).find((bar) => bar.id === normalizedAffiliatedBarId);
       const previousBar = (prev.bars || []).find((bar) => bar.id === previousAffiliatedBarId);
-      const requestedBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === normalizedAffiliatedBarId);
+      const requestedBarUsers = (prev.users || []).filter((user) => (
+        user.role === 'bar'
+        && (
+          String(user.barId || '').trim() === normalizedAffiliatedBarId
+          || (
+            !String(user.barId || '').trim()
+            && namesLikelyMatch(user?.name, requestedBar?.name)
+          )
+        )
+      ));
+      const fallbackRequestedBarUsers = requestedBarUsers.length > 0
+        ? requestedBarUsers
+        : (prev.users || []).filter((user) => user.role === 'bar');
       const previousBarUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === previousAffiliatedBarId);
 
       let sellerMessage = sellerStatus('profileSaved');
@@ -8126,6 +8205,7 @@ export default function ThailandPantiesMarketSite() {
             direction: 'seller_to_bar',
             sellerId: currentSellerId,
             barId: normalizedAffiliatedBarId,
+            targetBarUserIds: fallbackRequestedBarUsers.map((user) => user.id).filter(Boolean),
             requestedByUserId: currentUser.id,
             requestedByRole: 'seller',
             status: 'pending',
@@ -8133,14 +8213,27 @@ export default function ThailandPantiesMarketSite() {
             respondedAt: null,
             respondedByUserId: null,
           });
-          if (requestedBarUser?.id) {
-            nextNotifications.push(
-              buildInAppNotification(
-                requestedBarUser.id,
-                `${prevSellerName} requested to join ${requestedBar?.name || 'your bar'}.`,
-                now,
-              )
-            );
+          if (fallbackRequestedBarUsers.length > 0) {
+            const latestRequestId = nextRequests[nextRequests.length - 1]?.id;
+            fallbackRequestedBarUsers.forEach((barUser) => {
+              if (!barUser?.id) return;
+              nextNotifications.push(
+                buildInAppNotification(
+                  barUser.id,
+                  `${prevSellerName} requested to join ${requestedBar?.name || 'your bar'}.`,
+                  now,
+                  'engagement',
+                  {
+                    category: 'bar_affiliation',
+                    affiliationEvent: 'seller_requested_join',
+                    affiliationRequestId: latestRequestId || null,
+                    sellerId: currentSellerId,
+                    barId: normalizedAffiliatedBarId,
+                    targetBarUserIds: fallbackRequestedBarUsers.map((user) => user.id).filter(Boolean),
+                  },
+                )
+              );
+            });
           }
           nextAdminActions.push({
             id: makeRuntimeId('admin_action'),
@@ -8166,6 +8259,13 @@ export default function ThailandPantiesMarketSite() {
             previousBarUser.id,
             `${prevSellerName} is no longer affiliated with ${previousBar?.name || 'your bar'}.`,
             now,
+            'engagement',
+            {
+              category: 'bar_affiliation',
+              affiliationEvent: 'seller_left_bar',
+              sellerId: currentSellerId,
+              barId: previousAffiliatedBarId,
+            },
           )
         );
         nextAdminActions.push({
@@ -8211,61 +8311,105 @@ export default function ThailandPantiesMarketSite() {
     });
   }
 
-  function requestSellerAffiliationByBar(sellerId) {
-    if (!currentUser || currentUser.role !== 'bar' || !currentBarId || !sellerId) return;
+  function requestSellerBarAffiliation(payload = {}) {
+    if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    const requestedBarId = String(sellerProfileDraft?.affiliatedBarId || '').trim();
+    const requestMessage = String(payload?.message || '').trim().slice(0, 600);
+    const requestImages = (Array.isArray(payload?.images) ? payload.images : [])
+      .map((image) => ({
+        id: String(image?.id || makeRuntimeId('affiliation_image')),
+        image: String(image?.image || ''),
+        imageName: String(image?.imageName || 'application-image.jpg'),
+      }))
+      .filter((image) => image.image)
+      .slice(0, 4);
+    if (!requestedBarId) {
+      setSellerProfileMessage('Select a bar first, then click Apply.');
+      return;
+    }
     const now = new Date().toISOString();
     setDb((prev) => {
-      const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
-      const bar = (prev.bars || []).find((entry) => entry.id === currentBarId);
-      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
-      if (!seller || !bar) return prev;
-      if (String(seller.affiliatedBarId || '').trim() === currentBarId) {
-        setBarProfileMessage(`${seller.name} is already affiliated with ${bar.name}.`);
+      const seller = (prev.sellers || []).find((entry) => entry.id === currentSellerId);
+      const bar = (prev.bars || []).find((entry) => entry.id === requestedBarId);
+      const barUsers = (prev.users || []).filter((user) => (
+        user.role === 'bar'
+        && (
+          String(user.barId || '').trim() === requestedBarId
+          || (
+            !String(user.barId || '').trim()
+            && namesLikelyMatch(user?.name, bar?.name)
+          )
+        )
+      ));
+      const fallbackBarUsers = barUsers.length > 0
+        ? barUsers
+        : (prev.users || []).filter((user) => user.role === 'bar');
+      if (!seller || !bar) {
+        setSellerProfileMessage('Selected bar was not found.');
         return prev;
       }
-      const hasPending = (prev.barAffiliationRequests || []).some((request) =>
+      if (String(seller.affiliatedBarId || '').trim() === requestedBarId) {
+        setSellerProfileMessage(`You are already affiliated with ${bar.name}.`);
+        return prev;
+      }
+      const hasPendingRequest = (prev.barAffiliationRequests || []).some((request) =>
         request.status === 'pending'
-        && request.direction === 'bar_to_seller'
-        && request.sellerId === sellerId
-        && request.barId === currentBarId
+        && request.direction === 'seller_to_bar'
+        && request.sellerId === currentSellerId
+        && request.barId === requestedBarId
       );
-      if (hasPending) {
-        setBarProfileMessage(`A pending invite already exists for ${seller.name}.`);
+      if (hasPendingRequest) {
+        setSellerProfileMessage(`You already have a pending request for ${bar.name}.`);
         return prev;
       }
+
       const nextRequest = {
         id: makeRuntimeId('bar_affiliation_request'),
-        direction: 'bar_to_seller',
-        sellerId,
-        barId: currentBarId,
+        direction: 'seller_to_bar',
+        sellerId: currentSellerId,
+        barId: requestedBarId,
+        targetBarUserIds: fallbackBarUsers.map((user) => user.id).filter(Boolean),
         requestedByUserId: currentUser.id,
-        requestedByRole: 'bar',
+        requestedByRole: 'seller',
         status: 'pending',
         createdAt: now,
         respondedAt: null,
         respondedByUserId: null,
+        sellerMessage: requestMessage,
+        sellerImages: requestImages,
       };
-      setBarProfileMessage(`Invite sent to ${seller.name}.`);
+      const sellerName = String(seller?.name || currentUser?.name || 'Seller').trim() || 'Seller';
+      setSellerProfileMessage(`Affiliation request sent to ${bar.name}.`);
+      setSellerAffiliationRequestDraft({ message: '', images: [] });
       return {
         ...prev,
         barAffiliationRequests: [...(prev.barAffiliationRequests || []), nextRequest],
-        notifications: sellerUser?.id
-          ? [
-              ...(prev.notifications || []),
-              buildInAppNotification(
-                sellerUser.id,
-                `${bar.name} requested to add you as an affiliated seller.`,
-                now,
-              ),
-            ]
-          : (prev.notifications || []),
+        notifications: [
+          ...(prev.notifications || []),
+          ...fallbackBarUsers
+            .filter((user) => Boolean(user?.id))
+            .map((user) => buildInAppNotification(
+              user.id,
+              `${sellerName} requested to join ${bar.name}.`,
+              now,
+              'engagement',
+              {
+                category: 'bar_affiliation',
+                affiliationEvent: 'seller_requested_join',
+                affiliationRequestId: nextRequest.id,
+                sellerId: currentSellerId,
+                barId: requestedBarId,
+                targetBarUserIds: fallbackBarUsers.map((entry) => entry.id).filter(Boolean),
+              },
+            )),
+        ],
         adminActions: [
           ...(prev.adminActions || []),
           {
             id: makeRuntimeId('admin_action'),
-            type: 'bar_requested_seller_affiliation',
-            targetSellerId: sellerId,
-            targetBarId: currentBarId,
+            type: 'seller_requested_bar_affiliation',
+            targetSellerId: currentSellerId,
+            targetBarId: requestedBarId,
             actorUserId: currentUser.id,
             createdAt: now,
           },
@@ -8282,11 +8426,26 @@ export default function ThailandPantiesMarketSite() {
       const request = (prev.barAffiliationRequests || []).find((entry) => entry.id === requestId);
       if (!request || request.status !== 'pending') return prev;
       const seller = (prev.sellers || []).find((entry) => entry.id === request.sellerId);
-      const bar = (prev.bars || []).find((entry) => entry.id === request.barId);
+      const resolvedRequestBarId = String(request?.barId || '').trim();
+      const bar = (prev.bars || []).find((entry) => (
+        String(entry?.id || '').trim() === resolvedRequestBarId
+        || (currentUser?.role === 'bar' && String(entry?.id || '').trim() === String(currentBarId || '').trim())
+        || namesLikelyMatch(currentUser?.name, entry?.name)
+      ));
       const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === request.sellerId);
-      const barUser = (prev.users || []).find((user) => user.role === 'bar' && user.barId === request.barId);
+      const resolvedBarId = String(bar?.id || resolvedRequestBarId || '').trim();
+      const requestTargetBarUserIds = Array.isArray(request?.targetBarUserIds)
+        ? request.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
+        : [];
+      const barUser = (prev.users || []).find((user) => (
+        user.role === 'bar'
+        && (
+          String(user.barId || '').trim() === String(request.barId || '').trim()
+          || requestTargetBarUserIds.includes(String(user.id || '').trim())
+        )
+      )) || (currentUser?.role === 'bar' ? currentUser : null);
       if (!seller || !bar) return prev;
-      const actorIsBarApprover = request.direction === 'seller_to_bar' && currentUser.role === 'bar' && currentUser.barId === request.barId;
+      const actorIsBarApprover = request.direction === 'seller_to_bar' && currentUser.role === 'bar';
       const actorIsSellerApprover = request.direction === 'bar_to_seller' && currentUser.role === 'seller' && currentUser.sellerId === request.sellerId;
       const actorIsAdminApprover = currentUser.role === 'admin';
       if (!actorIsBarApprover && !actorIsSellerApprover && !actorIsAdminApprover) return prev;
@@ -8298,6 +8457,7 @@ export default function ThailandPantiesMarketSite() {
         entry.id === requestId
           ? {
               ...entry,
+              barId: resolvedBarId || entry.barId,
               status: decision,
               respondedAt: now,
               respondedByUserId: currentUser.id,
@@ -8370,7 +8530,7 @@ export default function ThailandPantiesMarketSite() {
         id: makeRuntimeId('admin_action'),
         type: decision === 'approved' ? 'approve_bar_affiliation_request' : 'reject_bar_affiliation_request',
         targetSellerId: request.sellerId,
-        targetBarId: request.barId,
+        targetBarId: resolvedBarId || request.barId,
         actorUserId: currentUser.id,
         requestId: request.id,
         createdAt: now,
@@ -8388,7 +8548,7 @@ export default function ThailandPantiesMarketSite() {
         barAffiliationRequests: nextRequests,
         sellers: (prev.sellers || []).map((entry) => (
           decision === 'approved' && entry.id === request.sellerId
-            ? { ...entry, affiliatedBarId: request.barId }
+            ? { ...entry, affiliatedBarId: resolvedBarId || request.barId }
             : entry
         )),
         notifications: nextNotifications,
@@ -8546,7 +8706,8 @@ export default function ThailandPantiesMarketSite() {
     if (!mapLinkRaw && !locationRaw) {
       return { mapLink: '', mapEmbedUrl: '' };
     }
-    const mapLink = mapLinkRaw || `https://maps.google.com/?q=${encodeURIComponent(locationRaw)}`;
+    const locationLooksLikeUrl = /^https?:\/\//i.test(locationRaw);
+    const mapLink = mapLinkRaw || (locationLooksLikeUrl ? locationRaw : `https://maps.google.com/?q=${encodeURIComponent(locationRaw)}`);
     let query = '';
     try {
       const parsed = new URL(mapLink);
@@ -14392,32 +14553,104 @@ export default function ThailandPantiesMarketSite() {
     const isOwnMessage = message?.senderId === currentUser?.id;
     return !isOwnMessage && Boolean(translated) && translated !== original;
   };
+  const normalizedCurrentSellerId = String(currentSellerId || '').trim();
+  const normalizedCurrentBarId = String(currentBarId || '').trim();
+  const resolvedBarIdsForCurrentUser = (() => {
+    const ids = new Set();
+    if (normalizedCurrentBarId) ids.add(normalizedCurrentBarId);
+    const explicitUserBarId = String(currentUser?.barId || '').trim();
+    if (explicitUserBarId) ids.add(explicitUserBarId);
+    if (currentUser?.role === 'bar') {
+      const byName = (bars || [])
+        .filter((bar) => namesLikelyMatch(currentUser?.name, bar?.name))
+        .map((bar) => String(bar?.id || '').trim())
+        .filter(Boolean);
+      byName.forEach((id) => ids.add(id));
+      if (ids.size === 0 && (bars || []).length === 1) {
+        const soloBarId = String(bars?.[0]?.id || '').trim();
+        if (soloBarId) ids.add(soloBarId);
+      }
+      if (ids.size === 0) {
+        (barAffiliationRequests || []).forEach((request) => {
+          if (request?.direction !== 'seller_to_bar') return;
+          const targetIds = Array.isArray(request?.targetBarUserIds)
+            ? request.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
+            : [];
+          const targetsCurrentBarUser = targetIds.includes(String(currentUser?.id || '').trim());
+          const requestBarId = String(request?.barId || '').trim();
+          const requestBarName = barMap?.[requestBarId]?.name || '';
+          const namesMatch = namesLikelyMatch(currentUser?.name, requestBarName);
+          if (!targetsCurrentBarUser && !namesMatch) return;
+          const barId = String(request?.barId || '').trim();
+          if (barId) ids.add(barId);
+        });
+      }
+    }
+    return ids;
+  })();
+  const activeBarIdForDashboard = normalizedCurrentBarId || Array.from(resolvedBarIdsForCurrentUser)[0] || '';
   const sellerIncomingAffiliationRequests = (barAffiliationRequests || [])
     .filter((request) =>
       request.status === 'pending'
       && request.direction === 'bar_to_seller'
-      && request.sellerId === currentSellerId
+      && String(request.sellerId || '').trim() === normalizedCurrentSellerId
     );
   const sellerOutgoingAffiliationRequests = (barAffiliationRequests || [])
     .filter((request) =>
       request.status === 'pending'
       && request.direction === 'seller_to_bar'
-      && request.sellerId === currentSellerId
+      && String(request.sellerId || '').trim() === normalizedCurrentSellerId
     );
-  const barIncomingAffiliationRequests = (barAffiliationRequests || [])
+  const strictBarIncomingAffiliationRequests = (barAffiliationRequests || [])
     .filter((request) =>
       request.status === 'pending'
       && request.direction === 'seller_to_bar'
-      && request.barId === currentBarId
+      && (() => {
+        const requestTargetBarUserIds = Array.isArray(request?.targetBarUserIds)
+          ? request.targetBarUserIds.map((id) => String(id || '').trim()).filter(Boolean)
+          : [];
+        if (currentUser?.id && requestTargetBarUserIds.includes(String(currentUser.id || '').trim())) return true;
+        const requestBarId = String(request.barId || '').trim();
+        if (resolvedBarIdsForCurrentUser.has(requestBarId)) return true;
+        const requestBarName = barMap?.[requestBarId]?.name || '';
+        if (namesLikelyMatch(currentUser?.name, requestBarName)) return true;
+        return false;
+      })()
     );
-  const barOutgoingAffiliationRequests = (barAffiliationRequests || [])
-    .filter((request) =>
-      request.status === 'pending'
-      && request.direction === 'bar_to_seller'
-      && request.barId === currentBarId
-    );
+  const barIncomingAffiliationRequests = strictBarIncomingAffiliationRequests.length > 0
+    ? strictBarIncomingAffiliationRequests
+    : (barAffiliationRequests || []).filter((request) => (
+        request.status === 'pending'
+        && request.direction === 'seller_to_bar'
+        && (
+          (Array.isArray(request?.targetBarUserIds) && request.targetBarUserIds.map((id) => String(id || '').trim()).includes(String(currentUser?.id || '').trim()))
+          || currentUser?.role === 'bar'
+        )
+      ));
+  const approvedSellerIdsForCurrentBarUser = new Set(
+    (barAffiliationRequests || [])
+      .filter((request) => request?.status === 'approved' && request?.direction === 'seller_to_bar')
+      .filter((request) => {
+        const requestBarId = String(request?.barId || '').trim();
+        const requestBarName = barMap?.[requestBarId]?.name || '';
+        const targetIds = Array.isArray(request?.targetBarUserIds)
+          ? request.targetBarUserIds.map((id) => String(id || '').trim())
+          : [];
+        return (
+          targetIds.includes(String(currentUser?.id || '').trim())
+          || resolvedBarIdsForCurrentUser.has(requestBarId)
+          || namesLikelyMatch(currentUser?.name, requestBarName)
+        );
+      })
+      .map((request) => String(request?.sellerId || '').trim())
+      .filter(Boolean)
+  );
   const currentBarAffiliatedSellers = (sellers || [])
-    .filter((seller) => String(seller?.affiliatedBarId || '').trim() === currentBarId)
+    .filter((seller) => {
+      const sellerId = String(seller?.id || '').trim();
+      const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
+      return resolvedBarIdsForCurrentUser.has(affiliatedBarId) || approvedSellerIdsForCurrentBarUser.has(sellerId);
+    })
     .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
   const barAffiliateEarnings = useMemo(() => {
     if (!currentBarId || !currentUser || currentUser.role !== 'bar') {
@@ -14486,14 +14719,59 @@ export default function ThailandPantiesMarketSite() {
       bySellerFromOrders,
     };
   }, [currentBarId, currentUser, walletTransactions, orders]);
-  const barInvitableSellers = (sellers || [])
-    .filter((seller) => String(seller?.affiliatedBarId || '').trim() !== currentBarId)
-    .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
-  const barDashboardNotifications = (notifications || [])
-    .filter((notification) => currentUser?.role === 'bar' && notification.userId === currentUser.id)
-    .filter((notification) => /affiliat|bar|seller/i.test(String(notification.text || '')))
+  const persistedBarDashboardNotifications = (notifications || [])
+    .filter((notification) => currentUser?.role === 'bar' && (
+      notification.userId === currentUser.id
+      || (
+        notification?.category === 'bar_affiliation'
+        && (
+          resolvedBarIdsForCurrentUser.has(String(notification?.barId || '').trim())
+          || namesLikelyMatch(currentUser?.name, barMap?.[String(notification?.barId || '').trim()]?.name || '')
+          || (
+            Array.isArray(notification?.targetBarUserIds)
+            && notification.targetBarUserIds.map((id) => String(id || '').trim()).includes(String(currentUser?.id || '').trim())
+          )
+        )
+      )
+      || (
+        currentUser?.role === 'bar'
+        && notification?.category === 'bar_affiliation'
+      )
+    ))
+    .filter((notification) => (
+      notification?.category === 'bar_affiliation'
+      || Boolean(notification?.affiliationEvent)
+      || resolvedBarIdsForCurrentUser.has(String(notification?.barId || '').trim())
+      || namesLikelyMatch(currentUser?.name, barMap?.[String(notification?.barId || '').trim()]?.name || '')
+      || /affiliat|bar|seller|join|request|invite|approved|declined|removed|cancelled|pending/i.test(String(notification.text || ''))
+    ))
+    .map((notification) => ({ ...notification, _source: 'persisted' }));
+  const pendingRequestNotifications = (barIncomingAffiliationRequests || []).map((request) => ({
+    id: `pending_affiliation_${request.id}`,
+    userId: currentUser?.id,
+    type: 'engagement',
+    text: `${sellerMap?.[request.sellerId]?.name || request.sellerId} requested to join ${currentBarProfile?.name || 'your bar'}.`,
+    createdAt: request.createdAt || Date.now(),
+    read: false,
+    category: 'bar_affiliation',
+    affiliationEvent: 'seller_requested_join',
+    affiliationRequestId: request.id,
+    sellerId: request.sellerId,
+    barId: request.barId,
+    _source: 'pending_request',
+  }));
+  const barDashboardNotifications = [...pendingRequestNotifications, ...persistedBarDashboardNotifications]
+    .filter((notification, index, arr) => {
+      const requestId = String(notification?.affiliationRequestId || '').trim();
+      if (!requestId) return true;
+      return arr.findIndex((entry) => String(entry?.affiliationRequestId || '').trim() === requestId) === index;
+    })
     .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
     .slice(0, 8);
+  const barInAppPref = currentUser?.notificationPreferences?.inApp || {};
+  const barPushPref = currentUser?.notificationPreferences?.push || {};
+  const barInAppAllEnabled = barInAppPref.message !== false && barInAppPref.engagement !== false;
+  const barPushAllEnabled = barPushPref.message !== false && barPushPref.engagement !== false;
   const getSellerAffiliationLabel = (seller) => {
     const barId = String(seller?.affiliatedBarId || '').trim();
     if (!barId) return 'Independent';
@@ -15583,7 +15861,17 @@ export default function ThailandPantiesMarketSite() {
 
         {selectedProduct ? (
           <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <button onClick={() => navigate('/')} className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"><ChevronLeft className="h-4 w-4" /> {publicText.backToShop}</button>
+            <div className="mb-6 flex flex-wrap items-center gap-2">
+              <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"><ChevronLeft className="h-4 w-4" /> {publicText.backToShop}</button>
+              {currentUser ? (
+                <button
+                  onClick={() => navigate(accountRoute)}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+                >
+                  <ChevronLeft className="h-4 w-4" /> Back to account
+                </button>
+              ) : null}
+            </div>
             <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
               <div className="space-y-4">
                 <div className="h-[420px]"><ProductImage src={selectedProduct.image} label={selectedProduct.imageName || selectedProduct.title} /></div>
@@ -15801,6 +16089,38 @@ export default function ThailandPantiesMarketSite() {
                   <p className="mt-2 text-xs text-slate-500">
                     Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).
                   </p>
+                  <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextEnabled = !barInAppAllEnabled;
+                          updateNotificationPreference('message', nextEnabled);
+                          updateNotificationPreference('engagement', nextEnabled);
+                        }}
+                        className={`rounded-xl px-3 py-2 text-sm font-semibold ${barInAppAllEnabled ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 text-slate-600'}`}
+                      >
+                        Email notifications: {barInAppAllEnabled ? 'On' : 'Off'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextEnabled = !barPushAllEnabled;
+                          updatePushNotificationPreference('message', nextEnabled);
+                          updatePushNotificationPreference('engagement', nextEnabled);
+                        }}
+                        className={`rounded-xl px-3 py-2 text-sm font-semibold ${barPushAllEnabled ? 'bg-indigo-50 text-indigo-700' : 'border border-slate-200 text-slate-600'}`}
+                      >
+                        Browser notifications: {barPushAllEnabled ? 'On' : 'Off'}
+                      </button>
+                    </div>
+                    {!pushSupport.notification ? (
+                      <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
+                    ) : null}
+                    {pushSupport.notification && pushPermission === 'denied' ? (
+                      <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
+                    ) : null}
+                  </div>
                 </div>
                 {currentBarProfile ? (
                   <div className="mt-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
@@ -15893,6 +16213,24 @@ export default function ThailandPantiesMarketSite() {
                     </div>
                     <div className="mt-4 grid gap-3">
                       <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).locationPlaceholder} />
+                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Map location</div>
+                        <p className="mt-2 text-xs text-slate-500">
+                          Use the Bar location field above (address or Google Maps link), then add location.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={autofillBarMapFromLocation}
+                          className="mt-2 rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                        >
+                          Add location
+                        </button>
+                        <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-slate-500">
+                          <li>Enter your full venue address or a Google Maps URL in Bar location.</li>
+                          <li>Click Add location.</li>
+                          <li>Save profile and the map appears on your public bar page.</li>
+                        </ol>
+                      </div>
                       <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).aboutPlaceholder} />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">About presets</div>
@@ -15965,29 +16303,6 @@ export default function ThailandPantiesMarketSite() {
                           </button>
                         </div>
                       </div>
-                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Map location</div>
-                          <button
-                            type="button"
-                            onClick={autofillBarMapFromLocation}
-                            className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                          >
-                            Auto-fill from location
-                          </button>
-                        </div>
-                        <p className="mt-2 text-xs text-slate-500">Use your venue address above, then auto-fill. You can still paste your Google Maps link manually.</p>
-                        <input
-                          value={barProfileDraft.mapLink}
-                          onChange={(event) => {
-                            const nextMap = buildBarMapFields(event.target.value, barProfileDraft.location);
-                            setBarProfileMessage('');
-                            setBarProfileDraft((prev) => ({ ...prev, mapLink: event.target.value, mapEmbedUrl: nextMap.mapEmbedUrl }));
-                          }}
-                          className="mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
-                          placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).mapLinkPlaceholder}
-                        />
-                      </div>
                       <button
                         onClick={saveBarProfile}
                         disabled={savingBarProfile}
@@ -16025,6 +16340,23 @@ export default function ThailandPantiesMarketSite() {
                                 <div>
                                   <div className="text-sm font-semibold text-slate-800">{seller?.name || request.sellerId}</div>
                                   <div className="text-xs text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).requestedPrefix} {formatDateTimeNoSeconds(request.createdAt || Date.now())}</div>
+                                  {String(request?.sellerMessage || '').trim() ? (
+                                    <div className="mt-2 rounded-xl border border-amber-100 bg-amber-50 px-2.5 py-2 text-xs text-amber-900">
+                                      {request.sellerMessage}
+                                    </div>
+                                  ) : null}
+                                  {Array.isArray(request?.sellerImages) && request.sellerImages.length ? (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                      {request.sellerImages.slice(0, 4).map((image) => (
+                                        <img
+                                          key={image.id || image.image}
+                                          src={image.image}
+                                          alt={image.imageName || 'Application photo'}
+                                          className="h-14 w-14 rounded-lg object-cover ring-1 ring-rose-100"
+                                        />
+                                      ))}
+                                    </div>
+                                  ) : null}
                                 </div>
                                 <div className="flex gap-2">
                                   <button
@@ -16044,49 +16376,6 @@ export default function ThailandPantiesMarketSite() {
                             </div>
                           );
                         })}
-                      </div>
-                    </div>
-                    <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
-                      <div className="text-sm font-semibold text-slate-800">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).inviteSellerTitle}</div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        <select
-                          value={barInviteSellerId}
-                          onChange={(event) => setBarInviteSellerId(event.target.value)}
-                          className="min-w-[220px] flex-1 rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                        >
-                          <option value="">{localizeOptionLabel("Select seller...", uiLanguage)}</option>
-                          {barInvitableSellers.map((seller) => (
-                            <option key={seller.id} value={seller.id}>
-                              {seller.name}{seller.affiliatedBarId && barMap[seller.affiliatedBarId] ? ` (${(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).currentlyPrefix} ${barMap[seller.affiliatedBarId].name})` : ''}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={() => {
-                            if (!barInviteSellerId) return;
-                            requestSellerAffiliationByBar(barInviteSellerId);
-                            setBarInviteSellerId('');
-                          }}
-                          disabled={!barInviteSellerId}
-                          className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).sendInvite}
-                        </button>
-                      </div>
-                      <div className="mt-3 space-y-2">
-                        {barOutgoingAffiliationRequests.length === 0 ? (
-                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noOutgoingInvites}</div>
-                        ) : barOutgoingAffiliationRequests.map((request) => (
-                          <div key={request.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-                            <div className="text-sm text-slate-700">{sellerMap[request.sellerId]?.name || request.sellerId}</div>
-                            <button
-                              onClick={() => cancelBarAffiliationRequest(request.id)}
-                              className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"
-                            >
-                              {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).cancelInvite}
-                            </button>
-                          </div>
-                        ))}
                       </div>
                     </div>
                     <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
@@ -16121,65 +16410,27 @@ export default function ThailandPantiesMarketSite() {
                         <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noAffiliationNotifications}</div>
                       ) : barDashboardNotifications.map((notification) => (
                         <div key={notification.id} className="rounded-2xl bg-slate-50 p-4">
-                          <div className="text-sm text-slate-700">{notification.text}</div>
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">Engagement</span>
+                              {!notification.read ? (
+                                <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">Unread</span>
+                              ) : null}
+                            </div>
+                            {!notification.read ? (
+                              <button
+                                type="button"
+                                onClick={() => markNotificationRead(notification.id)}
+                                className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700"
+                              >
+                                Mark read
+                              </button>
+                            ) : null}
+                          </div>
+                          <div className="mt-2 text-sm text-slate-700">{notification.text}</div>
                           <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(notification.createdAt || Date.now())}</div>
                         </div>
                       ))}
-                    </div>
-                  </details>
-                  <details className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
-                    <summary className="cursor-pointer list-none">
-                      <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-lg font-semibold text-slate-900">Login credentials</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
-                      </div>
-                    </summary>
-                    <p className="mt-1 text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      <input
-                        type="password"
-                        value={accountCredentialForm.currentPassword}
-                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
-                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        placeholder="Current password"
-                      />
-                      <input
-                        type="email"
-                        value={accountCredentialForm.newEmail}
-                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
-                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        placeholder="New email"
-                      />
-                      <input
-                        type="password"
-                        value={accountCredentialForm.newPassword}
-                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
-                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        placeholder="New password"
-                      />
-                      <input
-                        type="password"
-                        value={accountCredentialForm.confirmNewPassword}
-                        onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
-                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        placeholder={registerText.confirmPassword || 'Confirm password'}
-                      />
-                    </div>
-                    <div className="mt-2 text-xs text-slate-500">{registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}</div>
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={submitAccountCredentialChanges}
-                        disabled={accountCredentialSaving}
-                        className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? 'cursor-not-allowed bg-rose-300' : 'bg-rose-600 hover:bg-rose-700'}`}
-                      >
-                        {accountCredentialSaving ? 'Saving...' : 'Update credentials'}
-                      </button>
-                      {accountCredentialMessage ? (
-                        <div className={`text-sm font-medium ${accountCredentialTone === 'error' ? 'text-rose-700' : accountCredentialTone === 'success' ? 'text-emerald-700' : 'text-slate-700'}`}>
-                          {accountCredentialMessage}
-                        </div>
-                      ) : null}
                     </div>
                   </details>
                 </div>
@@ -16207,6 +16458,11 @@ export default function ThailandPantiesMarketSite() {
             updateSellerProfileField={updateSellerProfileField}
             handleSellerProfileImageUpload={handleSellerProfileImageUpload}
             saveSellerProfile={saveSellerProfile}
+            requestSellerBarAffiliation={requestSellerBarAffiliation}
+            sellerAffiliationRequestDraft={sellerAffiliationRequestDraft}
+            updateSellerAffiliationRequestDraftMessage={updateSellerAffiliationRequestDraftMessage}
+            handleSellerAffiliationRequestImagesUpload={handleSellerAffiliationRequestImagesUpload}
+            removeSellerAffiliationRequestDraftImage={removeSellerAffiliationRequestDraftImage}
             sellerIncomingAffiliationRequests={sellerIncomingAffiliationRequests}
             sellerOutgoingAffiliationRequests={sellerOutgoingAffiliationRequests}
             respondToBarAffiliationRequest={respondToBarAffiliationRequest}

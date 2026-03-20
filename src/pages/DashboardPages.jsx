@@ -1481,7 +1481,94 @@ const SELLER_I18N = {
     chooseFile: "Choose file",
     chooseFiles: "Choose files",
     noFileChosen: "No file chosen",
-    filesSelected: "file(s) selected"
+    filesSelected: "file(s) selected",
+    allLabel: "All",
+    unreadLabel: "Unread",
+    messagesLabel: "Messages",
+    engagementLabel: "Engagement",
+    adminLabel: "Admin",
+    updateLabel: "Update",
+    notificationDiscreetMode: "Discreet Messages",
+    viewModeLabel: "View",
+    compactLabel: "Compact",
+    comfortLabel: "Comfort",
+    onLabel: "On",
+    offLabel: "Off",
+    discreetMessagesHelp: "Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).",
+    emailNotifications: "Email notifications",
+    browserNotifications: "Browser notifications",
+    pushNotSupported: "Push notifications are not supported by this browser.",
+    pushBlockedEnableSettings: "Browser notifications are blocked. Enable notifications in browser settings.",
+    markRead: "Mark read",
+    openThread: "Open thread",
+    appealNow: "Appeal now",
+    newBuyerMessagesWaiting: "New buyer messages waiting",
+    youHave: "You have",
+    openInboxReplyQuickly: "Open inbox to reply quickly.",
+    viewUnreadMessages: "View unread messages",
+    quickActionsLabel: "Quick actions",
+    quickActionsHelp: "Use these shortcuts to post listings, reply quickly, and manage incoming work.",
+    openMessages: "Open messages",
+    loginCredentialsTitle: "Login credentials",
+    loginCredentialsSubtitle: "Change your email/password only when needed.",
+    credentialsHelp: "Update your account email or password. Enter your current password to confirm.",
+    currentPasswordPlaceholder: "Current password",
+    newEmailPlaceholder: "New email",
+    newPasswordPlaceholder: "New password",
+    confirmPasswordPlaceholder: "Confirm password",
+    passwordPolicyHelp: "Use at least 8 characters with 1 number and 1 symbol.",
+    savingLabel: "Saving...",
+    updateCredentials: "Update credentials",
+    sellerApplicationUnderReviewTitle: "Seller application under review",
+    sellerApplicationUnderReviewHelp: "Your application has been submitted and is currently being reviewed. Seller tools unlock as soon as you are approved.",
+    submittedLabel: "Submitted",
+    recentlyLabel: "Recently",
+    typicalReviewTimeHelp: "Typical review time: within 24-48 hours.",
+    contactSupport: "Contact support",
+    sellerApplicationRejectedTitle: "Seller application rejected",
+    sellerApplicationRejectedHelp: "Your previous application was not approved. Update your details and submit a new registration.",
+    reapplyAsSeller: "Reapply as Seller",
+    sellerLoginRequiredHelp: "Please log in with a seller account to continue.",
+    goToLogin: "Go to login",
+    accountFrozenAfterStrikes: "Account frozen after two moderation strikes",
+    moderationStrikesOnAccount: "Moderation strikes on account",
+    sellerAccountFrozenAppealHelp: "Your seller account is frozen. Submit an appeal to request review.",
+    reviewStrikesAndAppealHelp: "Please review your strike details and submit an appeal if you want admin review.",
+    openAppeals: "Open appeals",
+    closeLabel: "Close",
+    openLabel: "Open",
+    profileLabel: "Profile",
+    sellerProfileFallback: "Seller profile",
+    profileImageLabel: "Profile image",
+    sellerProfileImageFallback: "Seller profile image",
+    profileImageHelp: "If you skip this, buyers will see your seller name on a default image.",
+    shippingScopeFixedHelp: "Shipping scope is fixed for all sellers.",
+    addSpecialtyAriaLabel: "Add specialty",
+    stepTwoLabel: "Step 2",
+    setBuilderTitle: "Set builder",
+    setBuilderHelp: "Create combo products (for example bra + panties, top + skirt, or 4-piece sets) while keeping individual items listed separately.",
+    cancelEdit: "Cancel edit",
+    setTitleLabel: "Set title",
+    setTitlePlaceholder: "Example: Bra + Panty Matching Set",
+    combinedSetPriceLabel: "Combined set price (THB)",
+    setPricePlaceholder: "Set price",
+    selectProductsToInclude: "Select products to include (2 or more)",
+    createIndividualProductsFirst: "Create individual products first, then build sets from them.",
+    setSaved: "Set saved.",
+    setSaveFailed: "Could not save set.",
+    updateSetProduct: "Update set product",
+    createSetProduct: "Create set product",
+    existingSetProducts: "Existing set products",
+    editSet: "Edit set",
+    noListingsYet: "No listings yet.",
+    noListingsYetHelp: "Create your first listing so buyers can discover and message you.",
+    createFirstListing: "Create your first listing",
+    setBadgeLabel: "Set",
+    soldLabel: "Sold",
+    draftStatusLabel: "Draft",
+    includesLabel: "Includes",
+    unpublishLabel: "Unpublish",
+    applyToBar: "Apply to selected bar"
   },
   th: {
     sectionTitle: "จัดการหน้าร้านของคุณ", sectionSubtitle: "อัปเดตโปรไฟล์ เผยแพร่สินค้า และแชร์โพสต์ไลฟ์สไตล์ให้ผู้ซื้อเห็น",
@@ -1608,7 +1695,93 @@ const SELLER_I18N = {
     chooseFile: "เลือกรูปไฟล์",
     chooseFiles: "เลือกหลายไฟล์",
     noFileChosen: "ยังไม่ได้เลือกไฟล์",
-    filesSelected: "ไฟล์ที่เลือก"
+    filesSelected: "ไฟล์ที่เลือก",
+    allLabel: "ทั้งหมด",
+    unreadLabel: "ยังไม่อ่าน",
+    messagesLabel: "ข้อความ",
+    engagementLabel: "กิจกรรม",
+    adminLabel: "แอดมิน",
+    updateLabel: "อัปเดต",
+    notificationDiscreetMode: "ข้อความแบบเป็นส่วนตัว",
+    viewModeLabel: "มุมมอง",
+    compactLabel: "กระชับ",
+    comfortLabel: "สบายตา",
+    onLabel: "เปิด",
+    offLabel: "ปิด",
+    discreetMessagesHelp: "ข้อความแบบเป็นส่วนตัวจะซ่อนถ้อยคำที่ละเอียดอ่อนในพรีวิวการแจ้งเตือน มุมมองช่วยสลับระหว่างการ์ดแบบอ่านสบาย (สบายตา) และแบบแน่นขึ้น (กระชับ).",
+    emailNotifications: "การแจ้งเตือนอีเมล",
+    browserNotifications: "การแจ้งเตือนเบราว์เซอร์",
+    pushNotSupported: "เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือนแบบพุช",
+    pushBlockedEnableSettings: "เบราว์เซอร์บล็อกการแจ้งเตือนอยู่ โปรดเปิดใช้งานในการตั้งค่าเบราว์เซอร์",
+    markRead: "ทำเครื่องหมายว่าอ่านแล้ว",
+    openThread: "เปิดบทสนทนา",
+    appealNow: "ยื่นอุทธรณ์",
+    newBuyerMessagesWaiting: "มีข้อความใหม่จากผู้ซื้อ",
+    youHave: "คุณมี",
+    openInboxReplyQuickly: "เปิดกล่องข้อความเพื่อตอบได้ทันที",
+    viewUnreadMessages: "ดูข้อความที่ยังไม่อ่าน",
+    quickActionsLabel: "ทางลัดด่วน",
+    quickActionsHelp: "ใช้ปุ่มลัดเหล่านี้เพื่อโพสต์สินค้า ตอบกลับเร็ว และจัดการงานที่เข้ามา",
+    openMessages: "เปิดข้อความ",
+    loginCredentialsTitle: "ข้อมูลเข้าสู่ระบบ",
+    loginCredentialsSubtitle: "เปลี่ยนอีเมล/รหัสผ่านเมื่อจำเป็นเท่านั้น",
+    credentialsHelp: "อัปเดตอีเมลหรือรหัสผ่านของบัญชี โปรดใส่รหัสผ่านปัจจุบันเพื่อยืนยัน",
+    currentPasswordPlaceholder: "รหัสผ่านปัจจุบัน",
+    newEmailPlaceholder: "อีเมลใหม่",
+    newPasswordPlaceholder: "รหัสผ่านใหม่",
+    confirmPasswordPlaceholder: "ยืนยันรหัสผ่าน",
+    passwordPolicyHelp: "ใช้อย่างน้อย 8 ตัวอักษร พร้อมตัวเลข 1 ตัวและสัญลักษณ์ 1 ตัว",
+    savingLabel: "กำลังบันทึก...",
+    updateCredentials: "อัปเดตข้อมูลเข้าสู่ระบบ",
+    sellerApplicationUnderReviewTitle: "ใบสมัครผู้ขายอยู่ระหว่างการตรวจสอบ",
+    sellerApplicationUnderReviewHelp: "เราได้รับใบสมัครของคุณแล้วและกำลังตรวจสอบอยู่ ฟีเจอร์ผู้ขายจะเปิดใช้งานทันทีเมื่ออนุมัติ",
+    submittedLabel: "ส่งเมื่อ",
+    recentlyLabel: "เมื่อไม่นานนี้",
+    typicalReviewTimeHelp: "เวลาตรวจสอบโดยทั่วไป: ภายใน 24-48 ชั่วโมง",
+    contactSupport: "ติดต่อซัพพอร์ต",
+    sellerApplicationRejectedTitle: "ใบสมัครผู้ขายถูกปฏิเสธ",
+    sellerApplicationRejectedHelp: "ใบสมัครครั้งก่อนของคุณไม่ได้รับการอนุมัติ โปรดอัปเดตรายละเอียดและส่งสมัครใหม่",
+    reapplyAsSeller: "สมัครผู้ขายใหม่",
+    sellerLoginRequiredHelp: "โปรดเข้าสู่ระบบด้วยบัญชีผู้ขายเพื่อดำเนินการต่อ",
+    goToLogin: "ไปหน้าเข้าสู่ระบบ",
+    accountFrozenAfterStrikes: "บัญชีถูกระงับหลังได้รับการเตือนจากการดูแล 2 ครั้ง",
+    moderationStrikesOnAccount: "จำนวนการเตือนการดูแลบัญชี",
+    sellerAccountFrozenAppealHelp: "บัญชีผู้ขายของคุณถูกระงับ โปรดยื่นอุทธรณ์เพื่อขอให้ตรวจสอบ",
+    reviewStrikesAndAppealHelp: "โปรดตรวจสอบรายละเอียดการเตือน และยื่นอุทธรณ์หากต้องการให้แอดมินตรวจสอบ",
+    openAppeals: "เปิดหน้าคำอุทธรณ์",
+    closeLabel: "ปิด",
+    openLabel: "เปิด",
+    profileLabel: "โปรไฟล์",
+    sellerProfileFallback: "โปรไฟล์ผู้ขาย",
+    profileImageLabel: "รูปโปรไฟล์",
+    sellerProfileImageFallback: "รูปโปรไฟล์ผู้ขาย",
+    profileImageHelp: "หากไม่อัปโหลด ผู้ซื้อจะเห็นชื่อผู้ขายของคุณบนรูปเริ่มต้น",
+    shippingScopeFixedHelp: "ขอบเขตการจัดส่งถูกกำหนดคงที่สำหรับผู้ขายทุกคน",
+    addSpecialtyAriaLabel: "เพิ่มความถนัด",
+    stepTwoLabel: "ขั้นตอนที่ 2",
+    setBuilderTitle: "ตัวสร้างเซ็ตสินค้า",
+    setBuilderHelp: "สร้างสินค้าชุด (เช่น บรา + กางเกงใน, เสื้อ + กระโปรง หรือชุด 4 ชิ้น) โดยยังคงแสดงสินค้ารายชิ้นแยกกันได้",
+    cancelEdit: "ยกเลิกการแก้ไข",
+    setTitleLabel: "ชื่อเซ็ต",
+    setTitlePlaceholder: "ตัวอย่าง: เซ็ตบราคู่กางเกงใน",
+    combinedSetPriceLabel: "ราคารวมเซ็ต (THB)",
+    setPricePlaceholder: "ราคาเซ็ต",
+    selectProductsToInclude: "เลือกสินค้าที่จะรวมในเซ็ต (2 ชิ้นขึ้นไป)",
+    createIndividualProductsFirst: "ให้สร้างสินค้ารายชิ้นก่อน แล้วค่อยสร้างเซ็ตจากสินค้านั้น",
+    setSaved: "บันทึกเซ็ตแล้ว",
+    setSaveFailed: "ไม่สามารถบันทึกเซ็ตได้",
+    updateSetProduct: "อัปเดตสินค้าเซ็ต",
+    createSetProduct: "สร้างสินค้าเซ็ต",
+    existingSetProducts: "สินค้าเซ็ตที่มีอยู่",
+    editSet: "แก้ไขเซ็ต",
+    noListingsYet: "ยังไม่มีรายการสินค้า",
+    noListingsYetHelp: "สร้างรายการแรกของคุณเพื่อให้ผู้ซื้อค้นพบและทักข้อความได้",
+    createFirstListing: "สร้างรายการแรกของคุณ",
+    setBadgeLabel: "เซ็ต",
+    soldLabel: "ขายแล้ว",
+    draftStatusLabel: "ฉบับร่าง",
+    includesLabel: "มี",
+    unpublishLabel: "ยกเลิกเผยแพร่"
   },
   my: {
     sectionTitle: "သင့်စတိုးကို စီမံပါ", sectionSubtitle: "ပရိုဖိုင်ပြင်ဆင်ခြင်း၊ စာရင်းထုတ်ခြင်းနှင့် lifestyle post များကို မျှဝေပါ",
@@ -1735,7 +1908,93 @@ const SELLER_I18N = {
     chooseFile: "ဖိုင်ရွေးမည်",
     chooseFiles: "ဖိုင်များရွေးမည်",
     noFileChosen: "ဖိုင်မရွေးရသေးပါ",
-    filesSelected: "ဖိုင်ရွေးထားသည်"
+    filesSelected: "ဖိုင်ရွေးထားသည်",
+    allLabel: "အားလုံး",
+    unreadLabel: "မဖတ်ရသေး",
+    messagesLabel: "မက်ဆေ့ချ်များ",
+    engagementLabel: "လှုပ်ရှားမှု",
+    adminLabel: "အက်မင်",
+    updateLabel: "အပ်ဒိတ်",
+    notificationDiscreetMode: "လျှို့ဝှက် မက်ဆေ့ချ်",
+    viewModeLabel: "မြင်ကွင်း",
+    compactLabel: "ကျစ်လစ်",
+    comfortLabel: "ဖတ်ရလွယ်",
+    onLabel: "ဖွင့်",
+    offLabel: "ပိတ်",
+    discreetMessagesHelp: "လျှို့ဝှက် မက်ဆေ့ချ် ကိုဖွင့်ထားလျှင် အသိပေးချက် preview တွင် အာရုံခံစာသားများကို ဖုံးကွယ်ပေးသည်။ View သည် ဖတ်ရလွယ် (Comfort) နှင့် ကျစ်လစ် (Compact) ကိုပြောင်းနိုင်သည်။",
+    emailNotifications: "အီးမေးလ် အသိပေးချက်",
+    browserNotifications: "ဘရောက်ဇာ အသိပေးချက်",
+    pushNotSupported: "ဤဘရောက်ဇာတွင် push notification မပံ့ပိုးပါ",
+    pushBlockedEnableSettings: "ဘရောက်ဇာ notification များကို ပိတ်ထားသည်။ ဘရောက်ဇာ setting တွင် ဖွင့်ပေးပါ",
+    markRead: "ဖတ်ပြီးဟုမှတ်မည်",
+    openThread: "စကားဝိုင်းဖွင့်မည်",
+    appealNow: "အယူခံတင်မည်",
+    newBuyerMessagesWaiting: "ဝယ်သူအသစ်မက်ဆေ့ချ်များ ရှိနေသည်",
+    youHave: "သင့်တွင်",
+    openInboxReplyQuickly: "မြန်မြန်ပြန်ရန် inbox ကိုဖွင့်ပါ",
+    viewUnreadMessages: "မဖတ်ရသေးသော မက်ဆေ့ချ်များကြည့်မည်",
+    quickActionsLabel: "အမြန်လုပ်ဆောင်ချက်များ",
+    quickActionsHelp: "စာရင်းတင်ခြင်း၊ မြန်မြန်ပြန်ခြင်းနှင့် ဝင်လာသောအလုပ်များကို စီမံရန် shortcut များ",
+    openMessages: "မက်ဆေ့ချ်ဖွင့်မည်",
+    loginCredentialsTitle: "ဝင်ရောက်မှု အချက်အလက်",
+    loginCredentialsSubtitle: "လိုအပ်သည့်အခါမှသာ email/password ကို ပြောင်းပါ",
+    credentialsHelp: "သင့်အကောင့် email သို့မဟုတ် password ကို update လုပ်ရန် လက်ရှိ password ကိုထည့်ပြီး အတည်ပြုပါ",
+    currentPasswordPlaceholder: "လက်ရှိ password",
+    newEmailPlaceholder: "email အသစ်",
+    newPasswordPlaceholder: "password အသစ်",
+    confirmPasswordPlaceholder: "password အတည်ပြု",
+    passwordPolicyHelp: "အနည်းဆုံး စာလုံး 8 လုံး၊ နံပါတ် 1 လုံးနှင့် သင်္ကေတ 1 လုံး ပါဝင်ရမည်",
+    savingLabel: "သိမ်းနေသည်...",
+    updateCredentials: "ဝင်ရောက်မှုအချက်အလက် အပ်ဒိတ်",
+    sellerApplicationUnderReviewTitle: "ရောင်းသူလျှောက်လွှာ စိစစ်နေသည်",
+    sellerApplicationUnderReviewHelp: "သင့်လျှောက်လွှာကို လက်ခံရရှိပြီး စိစစ်နေပါသည်။ အတည်ပြုပြီးသည်နှင့် seller tools ဖွင့်ပေးမည်။",
+    submittedLabel: "တင်သွင်းချိန်",
+    recentlyLabel: "မကြာသေးမီ",
+    typicalReviewTimeHelp: "ပုံမှန်စိစစ်ချိန်: 24-48 နာရီအတွင်း",
+    contactSupport: "အကူအညီကို ဆက်သွယ်ရန်",
+    sellerApplicationRejectedTitle: "ရောင်းသူလျှောက်လွှာ ပယ်ချခံရသည်",
+    sellerApplicationRejectedHelp: "ယခင်လျှောက်လွှာကို အတည်မပြုခဲ့ပါ။ အသေးစိတ်ပြင်ဆင်ပြီး ပြန်လည်လျှောက်ထားပါ။",
+    reapplyAsSeller: "Seller အဖြစ် ပြန်လည်လျှောက်ထားရန်",
+    sellerLoginRequiredHelp: "ဆက်လုပ်ရန် seller အကောင့်ဖြင့် ဝင်ရောက်ပါ။",
+    goToLogin: "ဝင်ရောက်ရန် သွားမည်",
+    accountFrozenAfterStrikes: "moderation strike 2 ကြိမ်ပြီးနောက် အကောင့်ပိတ်ထားသည်",
+    moderationStrikesOnAccount: "အကောင့်ရှိ moderation strikes",
+    sellerAccountFrozenAppealHelp: "သင့် seller အကောင့်ပိတ်ထားသည်။ ပြန်လည်စိစစ်ရန် appeal တင်ပါ။",
+    reviewStrikesAndAppealHelp: "strike အသေးစိတ်ကို စစ်ဆေးပြီး admin စိစစ်လိုပါက appeal တင်ပါ။",
+    openAppeals: "Appeals ဖွင့်မည်",
+    closeLabel: "ပိတ်",
+    openLabel: "ဖွင့်",
+    profileLabel: "ပရိုဖိုင်",
+    sellerProfileFallback: "seller ပရိုဖိုင်",
+    profileImageLabel: "ပရိုဖိုင်ပုံ",
+    sellerProfileImageFallback: "seller ပရိုဖိုင်ပုံ",
+    profileImageHelp: "ဤနေရာကိုကျော်ခဲ့လျှင် ဝယ်သူများသည် မူလပုံပေါ်တွင် သင့် seller နာမည်ကိုမြင်ရမည်။",
+    shippingScopeFixedHelp: "shipping scope ကို seller အားလုံးအတွက် တစ်မျိုးတည်း သတ်မှတ်ထားသည်။",
+    addSpecialtyAriaLabel: "specialty ထည့်ရန်",
+    stepTwoLabel: "အဆင့် 2",
+    setBuilderTitle: "Set builder",
+    setBuilderHelp: "ပစ္စည်းတစ်ခုချင်းစာရင်းကို ထိန်းထားပြီး combo set များ (ဥပမာ bra + panties, top + skirt, 4-piece sets) ဖန်တီးနိုင်သည်။",
+    cancelEdit: "တည်းဖြတ်ခြင်း ပယ်ဖျက်",
+    setTitleLabel: "Set ခေါင်းစဉ်",
+    setTitlePlaceholder: "ဥပမာ: Bra + Panty Matching Set",
+    combinedSetPriceLabel: "Set စုပေါင်းဈေး (THB)",
+    setPricePlaceholder: "Set ဈေး",
+    selectProductsToInclude: "ထည့်မည့်ပစ္စည်းများရွေးပါ (2 ခုနှင့်အထက်)",
+    createIndividualProductsFirst: "ပထမဦးစွာ တစ်ခုချင်းပစ္စည်းများဖန်တီးပြီးနောက် set တည်ဆောက်ပါ။",
+    setSaved: "Set သိမ်းပြီးပါပြီ။",
+    setSaveFailed: "Set ကို မသိမ်းနိုင်ပါ။",
+    updateSetProduct: "Set product ကို အပ်ဒိတ်",
+    createSetProduct: "Set product ဖန်တီးရန်",
+    existingSetProducts: "ရှိပြီးသော set products",
+    editSet: "Set တည်းဖြတ်",
+    noListingsYet: "စာရင်းမရှိသေးပါ။",
+    noListingsYetHelp: "ဝယ်သူများရှာတွေ့ပြီး message ပို့နိုင်ရန် ပထမစာရင်းကို ဖန်တီးပါ။",
+    createFirstListing: "ပထမစာရင်း ဖန်တီးရန်",
+    setBadgeLabel: "Set",
+    soldLabel: "ရောင်းပြီး",
+    draftStatusLabel: "Draft",
+    includesLabel: "ပါဝင်သည်",
+    unpublishLabel: "Unpublish"
   },
   ru: {
     sectionTitle: "Управление витриной", sectionSubtitle: "Обновляйте профиль, публикуйте объявления и делитесь постами.",
@@ -1862,7 +2121,93 @@ const SELLER_I18N = {
     chooseFile: "Выбрать файл",
     chooseFiles: "Выбрать файлы",
     noFileChosen: "Файл не выбран",
-    filesSelected: "файл(ов) выбрано"
+    filesSelected: "файл(ов) выбрано",
+    allLabel: "Все",
+    unreadLabel: "Непрочитано",
+    messagesLabel: "Сообщения",
+    engagementLabel: "Активность",
+    adminLabel: "Админ",
+    updateLabel: "Обновление",
+    notificationDiscreetMode: "Дискретные сообщения",
+    viewModeLabel: "Вид",
+    compactLabel: "Компактный",
+    comfortLabel: "Комфортный",
+    onLabel: "Вкл",
+    offLabel: "Выкл",
+    discreetMessagesHelp: "Дискретные сообщения скрывают чувствительные формулировки в превью уведомлений. Вид переключает между более просторными карточками (Комфортный) и плотными строками (Компактный).",
+    emailNotifications: "Email-уведомления",
+    browserNotifications: "Уведомления браузера",
+    pushNotSupported: "Push-уведомления не поддерживаются этим браузером.",
+    pushBlockedEnableSettings: "Уведомления браузера заблокированы. Включите их в настройках браузера.",
+    markRead: "Отметить прочитанным",
+    openThread: "Открыть диалог",
+    appealNow: "Подать апелляцию",
+    newBuyerMessagesWaiting: "Есть новые сообщения от покупателей",
+    youHave: "У вас",
+    openInboxReplyQuickly: "Откройте входящие, чтобы ответить быстрее.",
+    viewUnreadMessages: "Смотреть непрочитанные",
+    quickActionsLabel: "Быстрые действия",
+    quickActionsHelp: "Используйте эти кнопки для публикации объявлений, быстрых ответов и управления входящими задачами.",
+    openMessages: "Открыть сообщения",
+    loginCredentialsTitle: "Данные для входа",
+    loginCredentialsSubtitle: "Меняйте email/пароль только при необходимости.",
+    credentialsHelp: "Обновите email или пароль аккаунта. Для подтверждения введите текущий пароль.",
+    currentPasswordPlaceholder: "Текущий пароль",
+    newEmailPlaceholder: "Новый email",
+    newPasswordPlaceholder: "Новый пароль",
+    confirmPasswordPlaceholder: "Подтвердите пароль",
+    passwordPolicyHelp: "Используйте не менее 8 символов, включая 1 цифру и 1 спецсимвол.",
+    savingLabel: "Сохранение...",
+    updateCredentials: "Обновить данные входа",
+    sellerApplicationUnderReviewTitle: "Заявка продавца на рассмотрении",
+    sellerApplicationUnderReviewHelp: "Ваша заявка отправлена и сейчас проверяется. Инструменты продавца откроются сразу после одобрения.",
+    submittedLabel: "Отправлено",
+    recentlyLabel: "Недавно",
+    typicalReviewTimeHelp: "Обычно проверка занимает 24-48 часов.",
+    contactSupport: "Связаться с поддержкой",
+    sellerApplicationRejectedTitle: "Заявка продавца отклонена",
+    sellerApplicationRejectedHelp: "Ваша предыдущая заявка не была одобрена. Обновите данные и подайте новую регистрацию.",
+    reapplyAsSeller: "Подать заново как продавец",
+    sellerLoginRequiredHelp: "Войдите в аккаунт продавца, чтобы продолжить.",
+    goToLogin: "Перейти ко входу",
+    accountFrozenAfterStrikes: "Аккаунт заморожен после двух модерационных страйков",
+    moderationStrikesOnAccount: "Модерационные страйки на аккаунте",
+    sellerAccountFrozenAppealHelp: "Ваш аккаунт продавца заморожен. Отправьте апелляцию для пересмотра.",
+    reviewStrikesAndAppealHelp: "Проверьте детали страйков и отправьте апелляцию, если хотите проверку админом.",
+    openAppeals: "Открыть апелляции",
+    closeLabel: "Закрыть",
+    openLabel: "Открыть",
+    profileLabel: "Профиль",
+    sellerProfileFallback: "Профиль продавца",
+    profileImageLabel: "Фото профиля",
+    sellerProfileImageFallback: "Фото профиля продавца",
+    profileImageHelp: "Если пропустить, покупатели увидят имя продавца на стандартном изображении.",
+    shippingScopeFixedHelp: "Область доставки фиксирована для всех продавцов.",
+    addSpecialtyAriaLabel: "Добавить специализацию",
+    stepTwoLabel: "Шаг 2",
+    setBuilderTitle: "Конструктор наборов",
+    setBuilderHelp: "Создавайте комбинированные товары (например, бюстгальтер + трусики, топ + юбка или наборы из 4 предметов), сохраняя отдельные позиции в каталоге.",
+    cancelEdit: "Отменить редактирование",
+    setTitleLabel: "Название набора",
+    setTitlePlaceholder: "Пример: Сочетающийся набор бюстгальтер + трусики",
+    combinedSetPriceLabel: "Общая цена набора (THB)",
+    setPricePlaceholder: "Цена набора",
+    selectProductsToInclude: "Выберите товары для набора (2 и более)",
+    createIndividualProductsFirst: "Сначала создайте отдельные товары, затем собирайте из них наборы.",
+    setSaved: "Набор сохранен.",
+    setSaveFailed: "Не удалось сохранить набор.",
+    updateSetProduct: "Обновить набор",
+    createSetProduct: "Создать набор",
+    existingSetProducts: "Существующие наборы",
+    editSet: "Редактировать набор",
+    noListingsYet: "Объявлений пока нет.",
+    noListingsYetHelp: "Создайте первое объявление, чтобы покупатели могли вас найти и написать.",
+    createFirstListing: "Создать первое объявление",
+    setBadgeLabel: "Набор",
+    soldLabel: "Продано",
+    draftStatusLabel: "Черновик",
+    includesLabel: "Включает",
+    unpublishLabel: "Снять с публикации"
   }
 };
 
@@ -1883,6 +2228,11 @@ export function SellerDashboardPage({
   updateSellerProfileField,
   handleSellerProfileImageUpload,
   saveSellerProfile,
+  requestSellerBarAffiliation,
+  sellerAffiliationRequestDraft,
+  updateSellerAffiliationRequestDraftMessage,
+  handleSellerAffiliationRequestImagesUpload,
+  removeSellerAffiliationRequestDraftImage,
   sellerIncomingAffiliationRequests,
   sellerOutgoingAffiliationRequests,
   respondToBarAffiliationRequest,
@@ -1987,6 +2337,18 @@ export function SellerDashboardPage({
   const currentAffiliatedBar = currentSellerProfile?.affiliatedBarId
     ? (barMap?.[currentSellerProfile.affiliatedBarId] || null)
     : null;
+  const selectedAffiliatedBarId = String(sellerProfileDraft.affiliatedBarId || "").trim();
+  const currentAffiliatedBarId = String(currentSellerProfile?.affiliatedBarId || "").trim();
+  const hasPendingSelectedBarRequest = (sellerOutgoingAffiliationRequests || []).some(
+    (request) => String(request?.barId || "").trim() === selectedAffiliatedBarId
+  );
+  const canApplyToSelectedBar = Boolean(
+    selectedAffiliatedBarId
+    && selectedAffiliatedBarId !== currentAffiliatedBarId
+    && !hasPendingSelectedBarRequest
+    && typeof requestSellerBarAffiliation === "function"
+  );
+  const selectedBarName = barMap?.[selectedAffiliatedBarId]?.name || selectedAffiliatedBarId;
   const sellerSpecialties = useMemo(
     () => (Array.isArray(sellerProfileDraft.specialties) ? sellerProfileDraft.specialties : [])
       .filter((value) => !BLOCKED_SELLER_SPECIALTY_PATTERNS.some((pattern) => pattern.test(String(value || "").trim()))),
@@ -2121,7 +2483,7 @@ export function SellerDashboardPage({
     const normalizedType = String(notificationType || "").toLowerCase();
     if (normalizedType === "message") {
       return {
-        label: "Message",
+        label: t("messagesLabel"),
         icon: MessageSquare,
         chipClassName: "border-emerald-200 bg-emerald-50 text-emerald-700",
         iconWrapClassName: "bg-emerald-50 text-emerald-700",
@@ -2129,7 +2491,7 @@ export function SellerDashboardPage({
     }
     if (normalizedType === "engagement") {
       return {
-        label: "Activity",
+        label: t("engagementLabel"),
         icon: Bell,
         chipClassName: "border-amber-200 bg-amber-50 text-amber-700",
         iconWrapClassName: "bg-amber-50 text-amber-700",
@@ -2137,14 +2499,14 @@ export function SellerDashboardPage({
     }
     if (normalizedType === "admin_ops") {
       return {
-        label: "Admin",
+        label: t("adminLabel"),
         icon: Shield,
         chipClassName: "border-indigo-200 bg-indigo-50 text-indigo-700",
         iconWrapClassName: "bg-indigo-50 text-indigo-700",
       };
     }
     return {
-      label: "Update",
+      label: t("updateLabel"),
       icon: Bell,
       chipClassName: "border-slate-200 bg-slate-50 text-slate-700",
       iconWrapClassName: "bg-slate-100 text-slate-700",
@@ -2278,30 +2640,30 @@ export function SellerDashboardPage({
       {isPendingSeller ? (
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
-          <h2 className="mt-4 text-2xl font-bold">Seller application under review</h2>
-          <p className="mt-2 text-slate-600">Your application has been submitted and is currently being reviewed. Seller tools unlock as soon as you are approved.</p>
-          <div className="mt-2 text-sm text-slate-500">Submitted: {currentUser?.sellerApplicationAt ? formatDateTimeNoSeconds(currentUser.sellerApplicationAt) : "Recently"}</div>
-          <div className="mt-1 text-sm text-slate-500">Typical review time: within 24-48 hours.</div>
-          <button onClick={() => navigate("/contact")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">Contact support</button>
+          <h2 className="mt-4 text-2xl font-bold">{t("sellerApplicationUnderReviewTitle")}</h2>
+          <p className="mt-2 text-slate-600">{t("sellerApplicationUnderReviewHelp")}</p>
+          <div className="mt-2 text-sm text-slate-500">{t("submittedLabel")}: {currentUser?.sellerApplicationAt ? formatDateTimeNoSeconds(currentUser.sellerApplicationAt) : t("recentlyLabel")}</div>
+          <div className="mt-1 text-sm text-slate-500">{t("typicalReviewTimeHelp")}</div>
+          <button onClick={() => navigate("/contact")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">{t("contactSupport")}</button>
         </div>
       ) : isRejectedSeller ? (
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
-          <h2 className="mt-4 text-2xl font-bold">Seller application rejected</h2>
-          <p className="mt-2 text-slate-600">Your previous application was not approved. Update your details and submit a new registration.</p>
-          <button onClick={() => navigate("/register")} className="mt-5 rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white">Reapply as Seller</button>
+          <h2 className="mt-4 text-2xl font-bold">{t("sellerApplicationRejectedTitle")}</h2>
+          <p className="mt-2 text-slate-600">{t("sellerApplicationRejectedHelp")}</p>
+          <button onClick={() => navigate("/register")} className="mt-5 rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white">{t("reapplyAsSeller")}</button>
         </div>
       ) : !isSeller ? (
         <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
           <Lock className="mx-auto h-10 w-10 text-rose-600" />
           <h2 className="mt-4 text-2xl font-bold">{t("loginRequired")}</h2>
-          <p className="mt-2 text-slate-600">Please log in with a seller account to continue.</p>
+          <p className="mt-2 text-slate-600">{t("sellerLoginRequiredHelp")}</p>
           <button
             type="button"
             onClick={() => navigate("/login")}
             className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
           >
-            Go to login
+            {t("goToLogin")}
           </button>
         </div>
       ) : (
@@ -2313,13 +2675,13 @@ export function SellerDashboardPage({
                 <div>
                   <div className={`text-sm font-semibold ${currentUser?.accountStatus === "frozen" ? "text-rose-900" : "text-amber-900"}`}>
                     {currentUser?.accountStatus === "frozen"
-                      ? "Account frozen after two moderation strikes"
-                      : `Moderation strikes on account: ${sellerActiveStrikes.length}/2`}
+                      ? t("accountFrozenAfterStrikes")
+                      : `${t("moderationStrikesOnAccount")}: ${sellerActiveStrikes.length}/2`}
                   </div>
                   <div className={`mt-1 text-sm ${currentUser?.accountStatus === "frozen" ? "text-rose-800" : "text-amber-800"}`}>
                     {currentUser?.accountStatus === "frozen"
-                      ? "Your seller account is frozen. Submit an appeal to request review."
-                      : "Please review your strike details and submit an appeal if you want admin review."}
+                      ? t("sellerAccountFrozenAppealHelp")
+                      : t("reviewStrikesAndAppealHelp")}
                   </div>
                 </div>
                 <button
@@ -2327,7 +2689,7 @@ export function SellerDashboardPage({
                   onClick={() => navigate("/appeals")}
                   className={`rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold ${currentUser?.accountStatus === "frozen" ? "border-rose-300 text-rose-800" : "border-amber-300 text-amber-800"}`}
                 >
-                  Open appeals
+                  {t("openAppeals")}
                 </button>
               </div>
             </div>
@@ -2336,9 +2698,9 @@ export function SellerDashboardPage({
             <div className="mb-4 rounded-3xl border border-amber-200 bg-amber-50 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-amber-900">New buyer messages waiting</div>
+                  <div className="text-sm font-semibold text-amber-900">{t("newBuyerMessagesWaiting")}</div>
                   <div className="mt-1 text-sm text-amber-800">
-                    You have {sellerUnreadConversationCount} unread conversation{sellerUnreadConversationCount > 1 ? "s" : ""}. Open inbox to reply quickly.
+                    {t("youHave")} {sellerUnreadConversationCount} {t("unreadChatsCount")}. {t("openInboxReplyQuickly")}
                   </div>
                 </div>
                 <button
@@ -2351,14 +2713,14 @@ export function SellerDashboardPage({
                   }}
                   className="rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-800"
                 >
-                  View unread messages
+                  {t("viewUnreadMessages")}
                 </button>
               </div>
             </div>
           ) : null}
           <div className="mb-4 rounded-3xl border border-rose-100 bg-white p-4 shadow-sm">
-            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Quick actions</div>
-            <p className="mt-1 text-sm text-slate-600">Use these shortcuts to post listings, reply quickly, and manage incoming work.</p>
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("quickActionsLabel")}</div>
+            <p className="mt-1 text-sm text-slate-600">{t("quickActionsHelp")}</p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <button
                 type="button"
@@ -2372,7 +2734,7 @@ export function SellerDashboardPage({
                 onClick={() => navigate("/seller-messages")}
                 className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
               >
-                Open messages {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}
+                {t("openMessages")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}
               </button>
               <button
                 type="button"
@@ -2439,76 +2801,6 @@ export function SellerDashboardPage({
               </label>
             </div>
           </div>
-          <details
-            id="seller-credentials"
-            open={sellerSectionOpen.credentials}
-            onToggle={(event) => {
-              const isOpen = Boolean(event.currentTarget?.open);
-              setSellerSectionOpen((prev) => ({ ...prev, credentials: isOpen }));
-            }}
-            className="mb-6 overflow-hidden rounded-3xl border border-rose-100 bg-white shadow-sm ring-1 ring-rose-100"
-          >
-            <summary className="cursor-pointer list-none px-5 py-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-lg font-semibold text-slate-900">Login credentials</div>
-                  <div className="mt-0.5 text-sm text-slate-600">Change your email/password only when needed.</div>
-                </div>
-                <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
-                  {sellerSectionOpen.credentials ? "Close" : "Open"}
-                </span>
-              </div>
-            </summary>
-            <div className="border-t border-rose-100 px-5 pb-5 pt-4">
-              <p className="text-sm text-slate-600">Update your account email or password. Enter your current password to confirm.</p>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <input
-                  type="password"
-                  value={accountCredentialForm.currentPassword}
-                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
-                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  placeholder="Current password"
-                />
-                <input
-                  type="email"
-                  value={accountCredentialForm.newEmail}
-                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
-                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  placeholder="New email"
-                />
-                <input
-                  type="password"
-                  value={accountCredentialForm.newPassword}
-                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
-                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  placeholder="New password"
-                />
-                <input
-                  type="password"
-                  value={accountCredentialForm.confirmNewPassword}
-                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
-                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  placeholder="Confirm password"
-                />
-              </div>
-              <div className="mt-2 text-xs text-slate-500">Use at least 8 characters with 1 number and 1 symbol.</div>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={submitAccountCredentialChanges}
-                  disabled={accountCredentialSaving}
-                  className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? "cursor-not-allowed bg-rose-300" : "bg-rose-600 hover:bg-rose-700"}`}
-                >
-                  {accountCredentialSaving ? "Saving..." : "Update credentials"}
-                </button>
-                {accountCredentialMessage ? (
-                  <div className={`text-sm font-medium ${accountCredentialTone === "error" ? "text-rose-700" : accountCredentialTone === "success" ? "text-emerald-700" : "text-slate-700"}`}>
-                    {accountCredentialMessage}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          </details>
           <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
             <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -2538,25 +2830,25 @@ export function SellerDashboardPage({
               <button onClick={markAllNotificationsRead} className="text-sm font-semibold text-rose-700">{t("markAllRead")}</button>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button onClick={() => setNotificationFilter("all")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>All ({sellerNotifications.length})</button>
-              <button onClick={() => setNotificationFilter("unread")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Unread ({unreadNotificationCount})</button>
-              <button onClick={() => setNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Messages</button>
-              <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Engagement</button>
+              <button onClick={() => setNotificationFilter("all")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("allLabel")} ({sellerNotifications.length})</button>
+              <button onClick={() => setNotificationFilter("unread")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("unreadLabel")} ({unreadNotificationCount})</button>
+              <button onClick={() => setNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("messagesLabel")}</button>
+              <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("engagementLabel")}</button>
               <button
                 onClick={() => setSellerDiscreetNotificationText((prev) => !prev)}
                 className={`rounded-xl px-3 py-2 text-sm font-semibold ${sellerDiscreetNotificationText ? "bg-slate-800 text-white" : "border border-slate-200 text-slate-700"}`}
               >
-                Discreet Messages: {sellerDiscreetNotificationText ? "On" : "Off"}
+                {t("notificationDiscreetMode")}: {sellerDiscreetNotificationText ? t("onLabel") : t("offLabel")}
               </button>
               <button
                 onClick={() => setSellerNotificationCompactMode((prev) => !prev)}
                 className={`rounded-xl px-3 py-2 text-sm font-semibold ${sellerNotificationCompactMode ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}
               >
-                View: {sellerNotificationCompactMode ? "Compact" : "Comfort"}
+                {t("viewModeLabel")}: {sellerNotificationCompactMode ? t("compactLabel") : t("comfortLabel")}
               </button>
             </div>
             <p className="mt-2 text-xs text-slate-500">
-              Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).
+              {t("discreetMessagesHelp")}
             </p>
             <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
               <div className="flex flex-wrap gap-2">
@@ -2568,7 +2860,7 @@ export function SellerDashboardPage({
                   }}
                   className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
                 >
-                  Email notifications: {inAppAllEnabled ? "On" : "Off"}
+                  {t("emailNotifications")}: {inAppAllEnabled ? t("onLabel") : t("offLabel")}
                 </button>
                 <button
                   onClick={() => {
@@ -2581,15 +2873,15 @@ export function SellerDashboardPage({
                   }}
                   className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
                 >
-                  Browser notifications: {pushAllEnabled ? "On" : "Off"}
+                  {t("browserNotifications")}: {pushAllEnabled ? t("onLabel") : t("offLabel")}
                 </button>
               </div>
             </div>
             {!pushSupported ? (
-              <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
+              <div className="mt-2 text-xs text-amber-700">{t("pushNotSupported")}</div>
             ) : null}
             {pushSupported && pushPermission === "denied" ? (
-              <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
+              <div className="mt-2 text-xs text-amber-700">{t("pushBlockedEnableSettings")}</div>
             ) : null}
             <div className="mt-4 space-y-4">
               {groupedSellerNotifications.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noNotifications")}</div> : groupedSellerNotifications.map((group) => (
@@ -2615,7 +2907,7 @@ export function SellerDashboardPage({
                                   const meta = sellerNotificationTypeMeta(notification.type);
                                   return <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${meta.chipClassName}`}>{meta.label}</span>;
                                 })()}
-                                {!notification.read ? <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">Unread</span> : null}
+                                {!notification.read ? <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">{t("unreadLabel")}</span> : null}
                               </div>
                               <div className="text-[11px] text-slate-500" title={formatDateTimeNoSeconds(notification.createdAt || Date.now())}>
                                 {formatRelativeTimeLabel(notification.createdAt || Date.now())}
@@ -2629,7 +2921,7 @@ export function SellerDashboardPage({
                         <div className={`${sellerNotificationCompactMode ? "mt-2.5" : "mt-3"} flex flex-wrap items-center justify-end gap-2`}>
                           <div className="flex flex-wrap gap-2">
                             {!notification.read ? (
-                              <button onClick={() => markNotificationRead(notification.id)} className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700">Mark read</button>
+                              <button onClick={() => markNotificationRead(notification.id)} className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700">{t("markRead")}</button>
                             ) : null}
                             {resolveNotificationActionPath(notification) ? (
                               <button
@@ -2642,7 +2934,7 @@ export function SellerDashboardPage({
                                 }}
                                 className="rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-amber-800"
                               >
-                                {notification.actionLabel || "Appeal now"}
+                                {notification.actionLabel || t("appealNow")}
                               </button>
                             ) : null}
                             {notification.conversationId ? (
@@ -2654,7 +2946,7 @@ export function SellerDashboardPage({
                                 }}
                                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-slate-700"
                               >
-                                Open thread
+                                {t("openThread")}
                               </button>
                             ) : null}
                           </div>
@@ -2682,10 +2974,10 @@ export function SellerDashboardPage({
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold">{t("profileChecklist")}</h3>
-                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.profile ? "Close" : "Open"}</span>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.profile ? t("closeLabel") : t("openLabel")}</span>
                 </div>
               </summary>
-              <div className="mt-1 text-sm text-slate-500">Profile: {currentSellerProfile?.name || "Seller profile"}</div>
+              <div className="mt-1 text-sm text-slate-500">{t("profileLabel")}: {currentSellerProfile?.name || t("sellerProfileFallback")}</div>
               <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("sellerPresence")}</div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -2707,11 +2999,11 @@ export function SellerDashboardPage({
               </div>
               <div className="mt-5 grid gap-3">
                 <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Profile image</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("profileImageLabel")}</div>
                   <div className="mt-3 h-40">
                     <ProductImage
                       src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
-                      label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || "Seller profile image"}
+                      label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
                     />
                   </div>
                   <input
@@ -2727,7 +3019,7 @@ export function SellerDashboardPage({
                     </label>
                     <span className="text-xs text-slate-600">{sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("noFileChosen")}</span>
                   </div>
-                  <div className="mt-2 text-xs text-slate-500">If you skip this, buyers will see your seller name on a default image.</div>
+                  <div className="mt-2 text-xs text-slate-500">{t("profileImageHelp")}</div>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
@@ -2771,7 +3063,7 @@ export function SellerDashboardPage({
                         type="button"
                         onClick={addCustomSpecialty}
                         className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
-                        aria-label="Add specialty"
+                        aria-label={t("addSpecialtyAriaLabel")}
                       >
                         +
                       </button>
@@ -2796,14 +3088,7 @@ export function SellerDashboardPage({
                     </div>
                   </label>
                 </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("shipping")}</span>
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
-                      {fixedShippingLabel}
-                    </div>
-                    <div className="text-xs text-slate-500">Shipping scope is fixed for all sellers.</div>
-                  </label>
+                <div className="grid grid-cols-1 gap-3">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("turnaround")}</span>
                     <select
@@ -2855,6 +3140,62 @@ export function SellerDashboardPage({
                       <option key={bar.id} value={bar.id}>{bar.name}</option>
                     ))}
                   </select>
+                  <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Application message (optional)</div>
+                    <textarea
+                      value={sellerAffiliationRequestDraft?.message || ""}
+                      onChange={(event) => updateSellerAffiliationRequestDraftMessage?.(event.target.value)}
+                      className="mt-2 min-h-[84px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                      placeholder="Tell the bar about you and why you want to join."
+                    />
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => requestSellerBarAffiliation?.({
+                          message: sellerAffiliationRequestDraft?.message || "",
+                          images: sellerAffiliationRequestDraft?.images || [],
+                        })}
+                        disabled={!canApplyToSelectedBar}
+                        className={`rounded-xl border px-3 py-2 text-xs font-semibold ${canApplyToSelectedBar ? "border-rose-200 text-rose-700" : "cursor-not-allowed border-slate-200 text-slate-400"}`}
+                      >
+                        {t("applyToBar")}
+                      </button>
+                      <label className="inline-flex cursor-pointer items-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(event) => {
+                            handleSellerAffiliationRequestImagesUpload?.(event.target.files);
+                            event.currentTarget.value = "";
+                          }}
+                          className="hidden"
+                        />
+                        Upload photos (up to 4)
+                      </label>
+                    </div>
+                    {(sellerAffiliationRequestDraft?.images || []).length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {(sellerAffiliationRequestDraft?.images || []).map((image) => (
+                          <div key={image.id || image.image} className="relative">
+                            <img src={image.image} alt={image.imageName || "Application"} className="h-14 w-14 rounded-lg object-cover ring-1 ring-rose-100" />
+                            <button
+                              type="button"
+                              onClick={() => removeSellerAffiliationRequestDraftImage?.(image.id)}
+                              className="absolute -right-1 -top-1 rounded-full border border-rose-200 bg-white px-1 text-[10px] font-semibold text-rose-700"
+                            >
+                              x
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                  {hasPendingSelectedBarRequest && selectedAffiliatedBarId ? (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                      Application pending with {selectedBarName}.
+                    </div>
+                  ) : null}
                   <span className="text-xs text-slate-500">{t("barAffiliationHelp")}</span>
                   {currentAffiliatedBar ? (
                     <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
@@ -2930,7 +3271,7 @@ export function SellerDashboardPage({
                       <Upload className="h-5 w-5 text-rose-600" />
                       <h3 className="text-xl font-semibold">{t("mediaUpload")}</h3>
                     </div>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.upload ? "Close" : "Open"}</span>
+                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.upload ? t("closeLabel") : t("openLabel")}</span>
                   </div>
                 </summary>
                 <p className="mt-3 text-sm leading-7 text-slate-600">{t("mediaUploadHelp")}</p>
@@ -3034,9 +3375,9 @@ export function SellerDashboardPage({
               <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">Step 2</div>
-                    <h4 className="text-lg font-semibold">Set builder</h4>
-                    <p className="mt-1 text-sm text-slate-600">Create combo products (for example bra + panties, top + skirt, or 4-piece sets) while keeping individual items listed separately.</p>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{t("stepTwoLabel")}</div>
+                    <h4 className="text-lg font-semibold">{t("setBuilderTitle")}</h4>
+                    <p className="mt-1 text-sm text-slate-600">{t("setBuilderHelp")}</p>
                   </div>
                   {editingBundleId ? (
                     <button
@@ -3048,13 +3389,13 @@ export function SellerDashboardPage({
                       }}
                       className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"
                     >
-                      Cancel edit
+                      {t("cancelEdit")}
                     </button>
                   ) : null}
                 </div>
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Set title</span>
+                    <span className="font-medium">{t("setTitleLabel")}</span>
                     <input
                       value={bundleDraft.title}
                       onChange={(event) => {
@@ -3062,11 +3403,11 @@ export function SellerDashboardPage({
                         setBundleDraft((prev) => ({ ...prev, title: event.target.value }));
                       }}
                       className="rounded-2xl border border-slate-200 px-4 py-3"
-                      placeholder="Example: Bra + Panty Matching Set"
+                      placeholder={t("setTitlePlaceholder")}
                     />
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">Combined set price (THB)</span>
+                    <span className="font-medium">{t("combinedSetPriceLabel")}</span>
                     <input
                       type="number"
                       min={MIN_SELLER_PRICE_THB}
@@ -3077,15 +3418,15 @@ export function SellerDashboardPage({
                         setBundleDraft((prev) => ({ ...prev, price: event.target.value }));
                       }}
                       className="rounded-2xl border border-slate-200 px-4 py-3"
-                      placeholder="Set price"
+                      placeholder={t("setPricePlaceholder")}
                     />
                   </label>
                 </div>
                 <div className="mt-4">
-                  <div className="text-sm font-medium text-slate-700">Select products to include (2 or more)</div>
+                  <div className="text-sm font-medium text-slate-700">{t("selectProductsToInclude")}</div>
                   <div className="mt-2 max-h-56 space-y-2 overflow-y-auto rounded-2xl border border-rose-100 bg-white p-3">
                     {bundleSourceProducts.length === 0 ? (
-                      <div className="text-sm text-slate-500">Create individual products first, then build sets from them.</div>
+                      <div className="text-sm text-slate-500">{t("createIndividualProductsFirst")}</div>
                     ) : bundleSourceProducts.map((product) => {
                       const selected = bundleDraft.selectedProductIds.includes(product.id);
                       return (
@@ -3124,28 +3465,28 @@ export function SellerDashboardPage({
                           selectedProductIds: bundleDraft.selectedProductIds,
                         },
                         (message) => {
-                          setBundleMessage(message || "Set saved.");
+                          setBundleMessage(message || t("setSaved"));
                           setEditingBundleId("");
                           setBundleDraft({ title: "", price: "", selectedProductIds: [] });
                         },
-                        (errorMessage) => setBundleMessage(errorMessage || "Could not save set."),
+                        (errorMessage) => setBundleMessage(errorMessage || t("setSaveFailed")),
                       );
                     }}
                     className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white"
                   >
-                    {editingBundleId ? "Update set product" : "Create set product"}
+                    {editingBundleId ? t("updateSetProduct") : t("createSetProduct")}
                   </button>
                   {bundleMessage ? <div className="text-sm font-medium text-rose-700">{bundleMessage}</div> : null}
                 </div>
                 {existingBundleProducts.length > 0 ? (
                   <div className="mt-5 space-y-2 rounded-2xl border border-rose-100 bg-white p-3">
-                    <div className="text-sm font-medium text-slate-700">Existing set products</div>
+                    <div className="text-sm font-medium text-slate-700">{t("existingSetProducts")}</div>
                     {existingBundleProducts.map((bundle) => (
                       <div key={bundle.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-100 px-3 py-2 text-sm">
                         <div>
                           <div className="font-medium">{bundle.title}</div>
                           <div className="text-xs text-slate-500">
-                            {(bundle.bundleItemIds || []).length} item(s) · {formatPriceTHB(bundle.price)}
+                            {(bundle.bundleItemIds || []).length} {t("items")} · {formatPriceTHB(bundle.price)}
                           </div>
                         </div>
                         <button
@@ -3161,7 +3502,7 @@ export function SellerDashboardPage({
                           }}
                           className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700"
                         >
-                          Edit set
+                          {t("editSet")}
                         </button>
                       </div>
                     ))}
@@ -3184,7 +3525,7 @@ export function SellerDashboardPage({
                 <h3 className="text-xl font-semibold">{t("listingLibrary")}</h3>
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-slate-500">{sellerDashboardProducts.length} {t("items")}</div>
-                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.listings ? "Close" : "Open"}</span>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.listings ? t("closeLabel") : t("openLabel")}</span>
                 </div>
               </div>
             </summary>
@@ -3192,10 +3533,10 @@ export function SellerDashboardPage({
           <div className="mt-5 space-y-4">
                 {sellerDashboardProducts.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/40 p-4 text-sm text-slate-700">
-                    <div className="font-semibold text-slate-900">No listings yet.</div>
-                    <div className="mt-1">Create your first listing so buyers can discover and message you.</div>
+                    <div className="font-semibold text-slate-900">{t("noListingsYet")}</div>
+                    <div className="mt-1">{t("noListingsYetHelp")}</div>
                     <button onClick={() => scrollToSection("seller-upload")} className="mt-3 rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white">
-                      Create your first listing
+                      {t("createFirstListing")}
                     </button>
                   </div>
                 ) : sellerDashboardProducts.map((product) => {
@@ -3207,15 +3548,15 @@ export function SellerDashboardPage({
                     <div>
                       <div className="flex items-center gap-2">
                         <div className="font-semibold">{product.title}</div>
-                        {product.isBundle ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">Set</span> : null}
-                        {isSold ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">Sold</span> : null}
+                        {product.isBundle ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">{t("setBadgeLabel")}</span> : null}
+                        {isSold ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">{t("soldLabel")}</span> : null}
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${isSellerOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
                           {isSellerOnline ? t("online") : t("offline")}
                         </span>
                       </div>
                       <div className="mt-1 text-sm text-slate-500">
-                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? "Sold" : (product.status || "Draft")} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)} · {t("condition")}: {product.condition || t("notSpecified")}
-                        {product.isBundle ? ` · Includes ${(product.bundleItemIds || []).length} item(s)` : ""}
+                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? t("soldLabel") : (product.status || t("draftStatusLabel"))} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)} · {t("condition")}: {product.condition || t("notSpecified")}
+                        {product.isBundle ? ` · ${t("includesLabel")} ${(product.bundleItemIds || []).length} ${t("items")}` : ""}
                       </div>
                     </div>
                     <div className="flex w-full flex-wrap gap-2 md:w-auto">
@@ -3224,7 +3565,7 @@ export function SellerDashboardPage({
                         disabled={isSold}
                         className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold md:flex-none ${isSold ? "cursor-not-allowed border-emerald-200 bg-emerald-100 text-emerald-700" : "border-rose-200 text-rose-700"}`}
                       >
-                        {isSold ? "Sold" : (isPublished ? "Unpublish" : t("publish"))}
+                        {isSold ? t("soldLabel") : (isPublished ? t("unpublishLabel") : t("publish"))}
                       </button>
                       <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none">{t("viewListing")}</button>
                       <button
@@ -3241,6 +3582,76 @@ export function SellerDashboardPage({
           </div>
           </details>
           </div>
+          <details
+            id="seller-credentials"
+            open={sellerSectionOpen.credentials}
+            onToggle={(event) => {
+              const isOpen = Boolean(event.currentTarget?.open);
+              setSellerSectionOpen((prev) => ({ ...prev, credentials: isOpen }));
+            }}
+            className="mt-8 overflow-hidden rounded-3xl border border-rose-100 bg-white shadow-sm ring-1 ring-rose-100"
+          >
+            <summary className="cursor-pointer list-none px-5 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-lg font-semibold text-slate-900">{t("loginCredentialsTitle")}</div>
+                  <div className="mt-0.5 text-sm text-slate-600">{t("loginCredentialsSubtitle")}</div>
+                </div>
+                <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
+                  {sellerSectionOpen.credentials ? t("closeLabel") : t("openLabel")}
+                </span>
+              </div>
+            </summary>
+            <div className="border-t border-rose-100 px-5 pb-5 pt-4">
+              <p className="text-sm text-slate-600">{t("credentialsHelp")}</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <input
+                  type="password"
+                  value={accountCredentialForm.currentPassword}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder={t("currentPasswordPlaceholder")}
+                />
+                <input
+                  type="email"
+                  value={accountCredentialForm.newEmail}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newEmail: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder={t("newEmailPlaceholder")}
+                />
+                <input
+                  type="password"
+                  value={accountCredentialForm.newPassword}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder={t("newPasswordPlaceholder")}
+                />
+                <input
+                  type="password"
+                  value={accountCredentialForm.confirmNewPassword}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, confirmNewPassword: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder={t("confirmPasswordPlaceholder")}
+                />
+              </div>
+              <div className="mt-2 text-xs text-slate-500">{t("passwordPolicyHelp")}</div>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={submitAccountCredentialChanges}
+                  disabled={accountCredentialSaving}
+                  className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${accountCredentialSaving ? "cursor-not-allowed bg-rose-300" : "bg-rose-600 hover:bg-rose-700"}`}
+                >
+                  {accountCredentialSaving ? t("savingLabel") : t("updateCredentials")}
+                </button>
+                {accountCredentialMessage ? (
+                  <div className={`text-sm font-medium ${accountCredentialTone === "error" ? "text-rose-700" : accountCredentialTone === "success" ? "text-emerald-700" : "text-slate-700"}`}>
+                    {accountCredentialMessage}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </details>
         </>
       )}
     </section>
