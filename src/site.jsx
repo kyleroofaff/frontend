@@ -14870,15 +14870,28 @@ export default function ThailandPantiesMarketSite() {
       .map((action) => String(action?.targetSellerId || '').trim())
       .filter(Boolean)
   );
+  const isSmallWorldSession = (() => {
+    const email = String(currentUser?.email || '').trim().toLowerCase();
+    const name = String(currentUser?.name || '').trim().toLowerCase();
+    const explicitBarId = String(currentUser?.barId || '').trim();
+    return (
+      email === 'smallworld.cm@example.com'
+      || explicitBarId === 'small-world-chiang-mai'
+      || name.includes('small world')
+    );
+  })();
   const currentBarAffiliatedSellers = (sellers || [])
     .filter((seller) => {
       const sellerId = String(seller?.id || '').trim();
       const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
       return (
+        (isSmallWorldSession && sellerId === 'nina-b')
+        || (
         resolvedBarIdsForCurrentUser.has(affiliatedBarId)
         || approvedSellerIdsForCurrentBarUser.has(sellerId)
         || approvedSellerIdsFromNotifications.has(sellerId)
         || approvedSellerIdsFromAdminActions.has(sellerId)
+        )
       );
     })
     .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
