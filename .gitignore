@@ -17,3 +17,6 @@ pnpm-debug.log*
 # Keep local secrets out of git; track .env.example instead
 .env
 !.env.example
+
+# Local scratch scripts and temp files (not part of the app)
+tmp/
