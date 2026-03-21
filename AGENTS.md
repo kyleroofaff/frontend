@@ -19,6 +19,8 @@ This file is the **canonical place** to reload project context between sessions.
 
 **Quick check:** View source on production for **`<!-- build:`** or **`app-build`** — if missing, that deploy never got the **`frontend`** `index.html` / `vite.config` updates.
 
+**Keep `thp` in sync:** From **`Desktop\frontend`**, run **`powershell -ExecutionPolicy Bypass -File ./scripts/sync-to-tp.ps1`**, then in **`Desktop\tp`**: **`git add client`**, **`git commit`**, **`git push`** so production (if it builds from **`thp`**) gets the same code as **`frontend`**.
+
 ### Windows / PowerShell
 
 If **`npm` fails** with *“npm.ps1 cannot be loaded because running scripts is disabled”*, allow scripts for your user (once):
