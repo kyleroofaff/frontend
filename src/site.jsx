@@ -19,6 +19,7 @@ import {
   Target,
   Trees,
   Tv,
+  User,
   UtensilsCrossed,
   UserCog
 } from 'lucide-react';
@@ -605,6 +606,7 @@ const PUBLIC_SITE_I18N = {
     weeklySpecials: 'Weekly specials',
     partnerSellers: 'Partner sellers',
     backToSellers: 'Back to Sellers',
+    myAccount: 'My Account',
     followersLabel: 'Followers',
     messageSellerTitle: 'Message seller',
     buyerMessagesCostPrefix: 'Buyer messages cost',
@@ -739,6 +741,7 @@ const PUBLIC_SITE_I18N = {
     weeklySpecials: 'โปรประจำสัปดาห์',
     partnerSellers: 'ผู้ขายพาร์ทเนอร์',
     backToSellers: 'กลับไปหน้าผู้ขาย',
+    myAccount: 'บัญชีของฉัน',
     followersLabel: 'ผู้ติดตาม',
     messageSellerTitle: 'ส่งข้อความหาผู้ขาย',
     buyerMessagesCostPrefix: 'ข้อความจากผู้ซื้อมีค่าใช้จ่าย',
@@ -873,6 +876,7 @@ const PUBLIC_SITE_I18N = {
     weeklySpecials: 'အပတ်စဉ် special များ',
     partnerSellers: 'Partner sellers',
     backToSellers: 'Sellers သို့ ပြန်ရန်',
+    myAccount: 'ကျွန်ုပ်၏အကောင့်',
     followersLabel: 'Followers',
     messageSellerTitle: 'Seller သို့ message ပို့ရန်',
     buyerMessagesCostPrefix: 'Buyer message တစ်ခုလျှင်',
@@ -1007,6 +1011,7 @@ const PUBLIC_SITE_I18N = {
     weeklySpecials: 'Недельные акции',
     partnerSellers: 'Партнерские продавцы',
     backToSellers: 'Назад к продавцам',
+    myAccount: 'Мой аккаунт',
     followersLabel: 'Подписчики',
     messageSellerTitle: 'Написать продавцу',
     buyerMessagesCostPrefix: 'Сообщения покупателя стоят',
@@ -15845,6 +15850,16 @@ export default function ThailandPantiesMarketSite() {
               >
                 <ChevronLeft className="h-4 w-4" /> {publicText.backToSellers}
               </button>
+              {currentUser ? (
+                <button
+                  type="button"
+                  onClick={() => navigate(accountRoute)}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm"
+                >
+                  <User className="h-4 w-4" />
+                  {publicText.myAccount}
+                </button>
+              ) : null}
             </div>
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
               <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{publicText.sellerFallback}</div>
