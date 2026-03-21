@@ -38,22 +38,36 @@ This file is the **canonical place** to reload project context between sessions.
 
 ## Deploy (DigitalOcean Droplet + Docker)
 
-### On the Droplet
+### On the Droplet (IP: 178.128.199.206)
 
 ```
-/opt/thailandpanties/
+/opt/tp/
   frontend/          ← clone of kyleroofaff/frontend
   backend/           ← clone of kyleroofaff/backend
-  docker-compose.yml ← orchestrates both + postgres
+  deploy/            ← docker-compose.yml + Dockerfiles + env files
+  data/postgres/     ← Postgres data volume
+  ops/               ← operational scripts
+  backups/           ← database backups
+```
+
+### SSH access
+
+```bash
+ssh -i ~/.ssh/id_ed25519_github root@178.128.199.206
 ```
 
 ### Redeploy after push
 
 ```bash
-cd /opt/thailandpanties
-git -C frontend pull origin main
-git -C backend pull origin main
-docker compose up -d --build
+cd /opt/tp/frontend && git pull origin main
+cd /opt/tp/deploy && docker compose up -d --build frontend
+```
+
+For backend changes too:
+
+```bash
+cd /opt/tp/backend && git pull origin main
+cd /opt/tp/deploy && docker compose up -d --build
 ```
 
 ### Required backend env vars (names only — set values in .env on server, never commit)
