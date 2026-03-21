@@ -8773,8 +8773,7 @@ export default function ThailandPantiesMarketSite() {
 
   function removeSellerFromCurrentBarByBar(sellerId, forcedBarId) {
     if (!currentUser || currentUser.role !== 'bar' || !sellerId) return;
-    const effectiveBarId = String(forcedBarId || currentBarId || '').trim();
-    if (!effectiveBarId) return;
+    const outerBarId = String(forcedBarId || currentBarId || '').trim();
     const now = new Date().toISOString();
     let removedSellerName = '';
     let removedBarName = '';
@@ -8782,17 +8781,19 @@ export default function ThailandPantiesMarketSite() {
       const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
       if (!seller) return prev;
       const sellerBarId = String(seller.affiliatedBarId || '').trim();
-      const barIdMatches = !sellerBarId || sellerBarId === effectiveBarId || resolvedBarIdsForCurrentUser.has(sellerBarId);
-      if (!barIdMatches) return prev;
+      const effectiveBarId = outerBarId || sellerBarId || Array.from(resolvedBarIdsForCurrentUser)[0] || '';
       const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
       const bar = (prev.bars || []).find((entry) => entry.id === effectiveBarId)
         || (sellerBarId ? (prev.bars || []).find((entry) => entry.id === sellerBarId) : null);
       removedSellerName = seller.name;
       removedBarName = bar?.name || 'your bar';
-      const cancelBarIds = new Set([effectiveBarId, ...resolvedBarIdsForCurrentUser]);
+      const cancelBarIds = new Set(
+        [effectiveBarId, sellerBarId, ...resolvedBarIdsForCurrentUser].filter(Boolean)
+      );
       const nextBarAffiliationRequests = (prev.barAffiliationRequests || []).map((req) => {
         if (String(req.sellerId || '').trim() !== String(sellerId).trim()) return req;
-        if (!cancelBarIds.has(String(req.barId || '').trim())) return req;
+        const reqBarId = String(req.barId || '').trim();
+        if (reqBarId && !cancelBarIds.has(reqBarId)) return req;
         if (req.status !== 'approved') return req;
         return { ...req, status: 'cancelled_by_bar', cancelledAt: now };
       });
@@ -14912,7 +14913,11 @@ export default function ThailandPantiesMarketSite() {
   const removedBarAffiliationSellerIdsForCurrentBar = new Set(
     (adminActions || [])
       .filter((action) => String(action?.type || '').trim() === 'bar_removed_seller_affiliation')
-      .filter((action) => resolvedBarIdsForCurrentUser.has(String(action?.targetBarId || '').trim()))
+      .filter((action) => {
+        const actionBarId = String(action?.targetBarId || '').trim();
+        if (actionBarId && resolvedBarIdsForCurrentUser.has(actionBarId)) return true;
+        return String(action?.actorUserId || '').trim() === String(currentUser?.id || '').trim();
+      })
       .map((action) => String(action?.targetSellerId || '').trim())
       .filter(Boolean)
   );
