@@ -7499,7 +7499,7 @@ export function AdminPage({
         </div>
       ) : (
         <div className="text-[15px] leading-6 text-slate-800">
-          <SectionTitle eyebrow="Admin dashboard" title="Operations center" subtitle="Manage seller approvals, users, listings, payments, and social moderation from one workspace." />
+          <SectionTitle eyebrow="Admin dashboard" title="Operations center!" subtitle="Manage seller approvals, users, listings, payments, and social moderation from one workspace." />
           <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5">
             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">Current workspace</div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
