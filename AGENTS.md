@@ -8,9 +8,16 @@ This file is the **canonical place** to reload project context between sessions.
 
 | Path | Role |
 |------|------|
-| `Desktop/frontend/` | **This repo** — React + Vite app (`src/site.jsx` is the main shell). Git remote: `github.com/kyleroofaff/frontend`. |
+| `Desktop/frontend/` | **This repo** — React + Vite app (`src/site.jsx` is the main shell). Git remote: **`github.com/kyleroofaff/frontend`**. **Cursor work and most fixes land here.** |
 | `Desktop/backend/` | Express API (`npm run dev` → `node --watch src/server.js`), Postgres via `DATABASE_URL`. |
-| `Desktop/tp/` | **Fullstack monorepo** (`client/` + `server/`) with the same split; README documents DigitalOcean deploy. May differ slightly from `frontend/` + `backend/` — confirm which copy you deploy from. |
+| `Desktop/tp/` | **Different Git repo:** **`github.com/kyleroofaff/thp`** (monorepo: `client/` + `server/`). If you run **`npm run build` here** and deploy that `dist/`, production will **not** show commits that exist only on **`frontend`** until you **merge/sync** or **point deploy at `frontend`**. |
+
+### Two repos — why the live site can “lag” forever
+
+- Pushes to **`kyleroofaff/frontend`** do **nothing** to **`kyleroofaff/thp`** automatically.
+- If your server or App Platform builds from **`thp`**, you must either: **(1)** configure deploy to use **`kyleroofaff/frontend`** + root build → `dist`, or **(2)** regularly **copy/merge** `frontend` → `thp/client` and push **`thp`**, or **(3)** work only in one repo.
+
+**Quick check:** View source on production for **`<!-- build:`** or **`app-build`** — if missing, that deploy never got the **`frontend`** `index.html` / `vite.config` updates.
 
 ### Windows / PowerShell
 
