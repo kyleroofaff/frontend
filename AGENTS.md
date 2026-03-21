@@ -25,6 +25,24 @@ This file is the **canonical place** to reload project context between sessions.
 - **Backend:** `npm install && npm start`, `PORT`, **`CLIENT_ORIGIN`**, **`JWT_SECRET`**, **`DATABASE_URL`**, etc. (see `server/.env.example` in monorepo).
 - **No GitHub Actions** were found under `frontend/`; deploy is **not** automatically implied by `git push` unless configured on the host (e.g. DigitalOcean App Platform).
 
+### DigitalOcean (fill in from dashboard or API)
+
+**Never commit Personal Access Tokens, SSH private keys, or env secrets** — only non-secret metadata below.
+
+| Field | Value (fill in) |
+|--------|------------------|
+| DO account / team | |
+| App Platform app name(s) | |
+| Git repo + branch hooked to deploy | |
+| Frontend build command | e.g. `npm ci && npm run build` |
+| Frontend output directory | `dist` |
+| Production site URL | `https://thailandpanties.com` (confirm) |
+| API URL | `https://api.thailandpanties.com` (confirm) |
+
+**API note (one-time local check):** `GET https://api.digitalocean.com/v2/apps` with a token set only in your terminal returned **pagination metadata** in the captured output; an **`apps`** list was **not** present in that capture — either **no App Platform apps** exist on the account yet, or the full JSON wasn’t copied here. Re-run the request locally and paste **non-secret** app names/specs into the table above, or copy from **DigitalOcean → Apps** in the UI.
+
+**Security:** If a DO token was ever pasted into a chat, terminal command, or logged file, **revoke it in DigitalOcean → API → Tokens** and create a new one. Do not paste tokens into `AGENTS.md` or git.
+
 ## Ops scripts (in this repo)
 
 - `scripts/smoke.ps1` — smoke tests
