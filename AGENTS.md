@@ -1,88 +1,88 @@
-# Thailand Panties — frontend (AI / contributor context)
+# Thailand Panties — project context (AI / contributor)
 
 This file is the **canonical place** to reload project context between sessions. Update it when deployment or layout changes.
 
-**Cursor:** `.cursor/rules/project-context.mdc` is set to **always apply** so the agent is reminded to follow this doc every session.
+**Cursor:** `.cursor/rules/project-context.mdc` always applies so the agent reads this doc each session.
 
-## Repos / folders on this machine
+## Production repos (the only two that matter)
 
-| Path | Role |
-|------|------|
-| `Desktop/frontend/` | **This repo** — React + Vite app (`src/site.jsx` is the main shell). Git remote: **`github.com/kyleroofaff/frontend`**. **Cursor work and most fixes land here.** |
-| `Desktop/backend/` | Express API (`npm run dev` → `node --watch src/server.js`), Postgres via `DATABASE_URL`. |
-| `Desktop/tp/` | **Different Git repo:** **`github.com/kyleroofaff/thp`** (monorepo: `client/` + `server/`). If you run **`npm run build` here** and deploy that `dist/`, production will **not** show commits that exist only on **`frontend`** until you **merge/sync** or **point deploy at `frontend`**. |
+| Folder | Remote | Role |
+|--------|--------|------|
+| `Desktop/frontend/` | **`github.com/kyleroofaff/frontend`** | React + Vite SPA. `npm run build` → `dist/`. Served by nginx. |
+| `Desktop/backend/` | **`github.com/kyleroofaff/backend`** | Express API on :4000. Postgres, auth, push, email, etc. |
 
-### Two repos — why the live site can “lag” forever
+### Ignore for production
 
-- Pushes to **`kyleroofaff/frontend`** do **nothing** to **`kyleroofaff/thp`** automatically.
-- If your server or App Platform builds from **`thp`**, you must either: **(1)** configure deploy to use **`kyleroofaff/frontend`** + root build → `dist`, or **(2)** regularly **copy/merge** `frontend` → `thp/client` and push **`thp`**, or **(3)** work only in one repo.
+| Folder | Remote | Note |
+|--------|--------|------|
+| `Desktop/tp/` | `github.com/kyleroofaff/thp` | **Test/sandbox only.** Do not deploy from here. Do not sync to here. |
 
-**Quick check:** View source on production for **`<!-- build:`** or **`app-build`** — if missing, that deploy never got the **`frontend`** `index.html` / `vite.config` updates.
+## Architecture
 
-**Keep `thp` in sync:** From **`Desktop\frontend`**, run **`powershell -ExecutionPolicy Bypass -File ./scripts/sync-to-tp.ps1`**, then in **`Desktop\tp`**: **`git add client`**, **`git commit`**, **`git push`** so production (if it builds from **`thp`**) gets the same code as **`frontend`**.
+- **Frontend** (`frontend/`): Vite + React. Dev server :5173; `vite.config.js` proxies `/api` → `http://localhost:4000`.
+- **Backend** (`backend/`): Express on :4000. Postgres (`pg`), JWT auth, push (`web-push`), email (`nodemailer`), attachment scanning.
+- **Production domains:** `thailandpanties.com` (frontend), `api.thailandpanties.com` (backend API).
+- **Frontend → API:** `VITE_API_BASE_URL` baked at Vite build time. Code falls back to `https://api.thailandpanties.com` when host is `thailandpanties.com`.
 
-### Windows / PowerShell
+## Dockerfiles (both repos have one)
 
-If **`npm` fails** with *“npm.ps1 cannot be loaded because running scripts is disabled”*, allow scripts for your user (once):
+### Frontend (`frontend/Dockerfile`)
+- Multi-stage: node build → nginx runtime.
+- **Must pass `--build-arg VITE_API_BASE_URL=https://api.thailandpanties.com`** for production builds.
+- Serves on port **80** (nginx).
+
+### Backend (`backend/Dockerfile`)
+- Single stage: node:20-alpine, `npm ci --omit=dev`, `npm start`.
+- Serves on port **4000**.
+- Needs env vars at **runtime** (`DATABASE_URL`, `JWT_SECRET`, `CLIENT_ORIGIN`, etc.).
+
+## Deploy (DigitalOcean Droplet + Docker)
+
+### On the Droplet
+
+```
+/opt/thailandpanties/
+  frontend/          ← clone of kyleroofaff/frontend
+  backend/           ← clone of kyleroofaff/backend
+  docker-compose.yml ← orchestrates both + postgres
+```
+
+### Redeploy after push
+
+```bash
+cd /opt/thailandpanties
+git -C frontend pull origin main
+git -C backend pull origin main
+docker compose up -d --build
+```
+
+### Required backend env vars (names only — set values in .env on server, never commit)
+
+`DATABASE_URL`, `JWT_SECRET`, `CLIENT_ORIGIN`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `SMTP_*`, `EMAIL_MODE`, `ADMIN_EMAIL`, `TRUST_PROXY`, `INBOUND_WEBHOOK_TOKEN`, `ATTACHMENT_SCAN_*`
+
+See `backend/.env.example` for full list.
+
+## Windows / PowerShell
+
+If `npm` fails with *"npm.ps1 cannot be loaded because running scripts is disabled"*:
 
 `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`
 
-Then `npm run build` works. Alternative: use **Command Prompt** (`cmd.exe`) instead of PowerShell — it does not use `npm.ps1`.
+## Key files
 
-## Architecture (short)
+- `src/site.jsx` — main app shell, routing, API client.
+- `src/pages/DashboardPages.jsx` — dashboard surfaces.
+- `vite.config.js` — dev proxy, build stamp plugin.
+- `nginx.conf` — SPA cache rules (no-cache HTML, immutable /assets/).
+- `Dockerfile` — multi-stage frontend build.
 
-- **Frontend:** Vite + React. Dev server **:5173**; `vite.config.js` proxies **`/api` → `http://localhost:4000`**.
-- **Backend:** Express on **:4000** (see `backend/package.json`). Uses **PostgreSQL** (`pg`). Push, auth, bootstrap, state sync, etc.
-- **Production domains (from code):** `thailandpanties.com` / `www` → API default **`https://api.thailandpanties.com`** when host matches (`src/site.jsx` `resolveApiBaseUrl`). Override with **`VITE_API_BASE_URL`** at build time.
-- **Client env:** See **`.env.example`** (`VITE_API_BASE_URL`, `VITE_APP_BASE_URL`, seed admin for local/demo).
+## Troubleshooting: site not updating after push
 
-## Deploy (documented in `Desktop/tp/README.md`)
-
-- **Frontend:** Build from `client/` (here: `frontend/`): `npm install && npm run build` → output **`dist/`**. Set **`VITE_API_BASE_URL=https://<api-host>`** for production builds.
-- **Backend:** `npm install && npm start`, `PORT`, **`CLIENT_ORIGIN`**, **`JWT_SECRET`**, **`DATABASE_URL`**, etc. (see `server/.env.example` in monorepo).
-- **No GitHub Actions** were found under `frontend/`; deploy is **not** automatically implied by `git push` unless configured on the host (e.g. DigitalOcean App Platform).
-
-### DigitalOcean App Platform
-
-**Never commit Personal Access Tokens, SSH private keys, or env secrets** — only non-secret metadata below.
-
-A **second** App Platform app (`squid-app-wir4v…`) was created for `main` but **removed** — the domain **`thailandpanties.com`** was already attached to **another** app, so production traffic stays on **that** original app.
-
-| Field | Value (fill in the app that still has `thailandpanties.com`) |
-|--------|--------|
-| Production DO app name | *(e.g. open **Apps** → whichever lists **Domains → thailandpanties.com**)* |
-| Git repo + branch hooked to **that** app | Should be `kyleroofaff/frontend` → **`main`** if pushes should update the live site |
-| Frontend build command | `npm ci && npm run build` |
-| Frontend output directory | `dist` |
-| API URL (build-time) | `https://api.thailandpanties.com` via **`VITE_API_BASE_URL`** on the static site component |
-
-**After `git push` to `main`:** open the **production** app → **Deployments** — confirm a successful deploy for your commit. Edit **Settings → App-level / Components** if the wrong repo or branch is connected.
-
-**Security:** Do not paste tokens into chat or `AGENTS.md`. Revoke exposed tokens in **DigitalOcean → API → Tokens**.
-
-## Ops scripts (in this repo)
-
-- `scripts/smoke.ps1` — smoke tests
-- `scripts/ops-*.sh` — backup/monitor/restore/report (shell; likely run on server/CI)
-
-## What automated assistants **cannot** assume
-
-- SSH/Docker/VPS/DigitalOcean dashboard access, production env vars, or live deploy logs unless pasted or exposed in-repo.
-- That `git push` updated production — always verify **last deploy commit / build time** on the hosting provider.
-
-## If the live site does not show the latest `main` (after hard refresh)
-
-1. **Deploy pipeline** — `git push` only updates GitHub until something runs **`npm ci && npm run build`** and copies **`dist/`** to the server (Droplet or App Platform). Confirm that step on **every** release.
-2. **Stale `index.html`** — Vite outputs **hashed** JS under `/assets/`. If the **HTML shell** is cached (nginx, CDN, Cloudflare), browsers keep requesting **old** chunk filenames. **Fix:** nginx should **not** long-cache `index.html` or `/` HTML; see **`deploy/nginx-html-no-cache.conf.example`**. Purge Cloudflare cache if used.
-3. **Verify build** — View page source on production: look for **`<!-- build:... -->`** and **`<meta name="app-build" ...>`**. After a new deploy, that timestamp/commit should **change**. If it does not, the server is still serving an old `dist/`.
-4. **GitHub Actions** — Workflow **`.github/workflows/build.yml`** runs **`npm run build`** on each push to `main` (green check = code builds; still not proof of server deploy).
-
-## Key frontend files
-
-- `src/site.jsx` — main app, routing, API client (`API_BASE_URL`), marketplace UI.
-- `src/pages/DashboardPages.jsx` — large dashboard surfaces.
-- `vite.config.js` — dev proxy to backend.
+1. **Did you rebuild on the Droplet?** `git push` only updates GitHub. SSH in and run the redeploy commands above.
+2. **Stale HTML:** nginx must not cache `index.html`. Check `nginx.conf` has `no-store` for `/`.
+3. **Verify:** View page source → look for `<!-- build:... -->` and `<meta name="app-build" ...>`.
+4. **CORS:** Backend `CLIENT_ORIGIN` must include `https://thailandpanties.com`.
 
 ---
 
-*Last updated: HTML cache hints + build stamp in `index.html`; nginx example under `deploy/`; CI build workflow.*
+*Last updated: clarified frontend + backend are production; tp/thp is test-only.*

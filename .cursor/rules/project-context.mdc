@@ -3,24 +3,34 @@ description: Thailand Panties frontend — load project setup and architecture c
 alwaysApply: true
 ---
 
-# Project context (Thailand Panties frontend)
+# Project context (Thailand Panties)
 
-**Before making non-trivial changes**, read **`AGENTS.md`** at the repo root and treat it as the source of truth for:
+**Before making non-trivial changes**, read **`AGENTS.md`** at the repo root and treat it as the source of truth.
 
-- Folder layout (`frontend` / `backend` / `tp` monorepo on Desktop)
-- Dev (`Vite` :5173, proxy `/api` → backend :4000) vs production API (`api.thailandpanties.com`, `VITE_*` env)
-- Deploy expectations (DigitalOcean-style split frontend/backend per `AGENTS.md` / `tp/README.md`)
-- Ops scripts under `scripts/`
+## Production setup (two repos, no monorepo)
 
-## Memory & access
+| Repo | What | Deploy target |
+|------|------|---------------|
+| **`Desktop/frontend`** → `kyleroofaff/frontend` | React + Vite SPA | Docker → nginx on Droplet (port 80) |
+| **`Desktop/backend`** → `kyleroofaff/backend` | Express API (port 4000) | Docker → node on Droplet |
 
-- **Persist facts in-repo**: Update **`AGENTS.md`** (or this rule) when setup, URLs, or deploy steps change—do not rely on chat memory.
-- **Access**: You can use the full workspace, git history, and files the user adds. You do **not** have automatic access to cloud dashboards, SSH, or secrets unless the user pastes them or they appear in committed config/docs.
+**`Desktop/tp`** (`kyleroofaff/thp`) is **test/sandbox only** — do not deploy from it, do not sync to it.
+
+## Dev
+
+- Frontend: `npm run dev` → Vite :5173, proxies `/api` → `:4000`
+- Backend: `npm run dev` → Express :4000 with `--watch`
+- Production API: `https://api.thailandpanties.com` (resolved by `VITE_API_BASE_URL` or host fallback in `site.jsx`)
 
 ## Code hotspots
 
-- Main app shell: `src/site.jsx`
-- Dashboards: `src/pages/DashboardPages.jsx`
-- API base URL resolution and env: `src/site.jsx` (`VITE_API_BASE_URL`, host fallback)
+- `src/site.jsx` — main app shell, routing, API client
+- `src/pages/DashboardPages.jsx` — dashboard surfaces
+- `vite.config.js` — dev proxy, build stamp plugin
+- `nginx.conf` — SPA cache rules
 
-When the user says "deploy" or "production," confirm against **`AGENTS.md`** and remind them that **git push alone** does not prove production updated unless their host auto-deploys from this repo.
+## Rules
+
+- **Persist facts in-repo**: update `AGENTS.md` (or this rule) when setup changes — do not rely on chat memory.
+- **Access**: full workspace + git history. No cloud dashboards, SSH, or secrets unless user provides them.
+- When user says "deploy" or "production," confirm against `AGENTS.md` and remind them `git push` alone does not update production unless the Droplet rebuilds.
