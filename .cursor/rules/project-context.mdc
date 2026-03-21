@@ -1,0 +1,26 @@
+---
+description: Thailand Panties frontend — load project setup and architecture context every session
+alwaysApply: true
+---
+
+# Project context (Thailand Panties frontend)
+
+**Before making non-trivial changes**, read **`AGENTS.md`** at the repo root and treat it as the source of truth for:
+
+- Folder layout (`frontend` / `backend` / `tp` monorepo on Desktop)
+- Dev (`Vite` :5173, proxy `/api` → backend :4000) vs production API (`api.thailandpanties.com`, `VITE_*` env)
+- Deploy expectations (DigitalOcean-style split frontend/backend per `AGENTS.md` / `tp/README.md`)
+- Ops scripts under `scripts/`
+
+## Memory & access
+
+- **Persist facts in-repo**: Update **`AGENTS.md`** (or this rule) when setup, URLs, or deploy steps change—do not rely on chat memory.
+- **Access**: You can use the full workspace, git history, and files the user adds. You do **not** have automatic access to cloud dashboards, SSH, or secrets unless the user pastes them or they appear in committed config/docs.
+
+## Code hotspots
+
+- Main app shell: `src/site.jsx`
+- Dashboards: `src/pages/DashboardPages.jsx`
+- API base URL resolution and env: `src/site.jsx` (`VITE_API_BASE_URL`, host fallback)
+
+When the user says "deploy" or "production," confirm against **`AGENTS.md`** and remind them that **git push alone** does not prove production updated unless their host auto-deploys from this repo.

@@ -2,6 +2,8 @@
 
 This file is the **canonical place** to reload project context between sessions. Update it when deployment or layout changes.
 
+**Cursor:** `.cursor/rules/project-context.mdc` is set to **always apply** so the agent is reminded to follow this doc every session.
+
 ## Repos / folders on this machine
 
 | Path | Role |
