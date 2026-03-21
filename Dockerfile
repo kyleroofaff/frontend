@@ -1,3 +1,4 @@
+# Production build: pass --build-arg VITE_* to match real URLs (defaults are for local/docker-compose only).
 FROM node:20-alpine AS build
 WORKDIR /app
 
@@ -18,3 +19,4 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
