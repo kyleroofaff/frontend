@@ -228,6 +228,7 @@ const BAR_DASHBOARD_I18N = {
     noAffiliatedSellers: 'No affiliated sellers yet.',
     viewProfile: 'View profile',
     removeFromBar: 'Remove from bar',
+    backToBarAccount: 'Back to bar account',
     affiliationNotificationsTitle: 'Affiliation notifications',
     affiliationNotificationsSubtitle: 'Recent updates for add/remove and approval activity.',
     noAffiliationNotifications: 'No affiliation notifications yet.',
@@ -279,6 +280,7 @@ const BAR_DASHBOARD_I18N = {
     noAffiliatedSellers: 'ยังไม่มีผู้ขายที่สังกัด',
     viewProfile: 'ดูโปรไฟล์',
     removeFromBar: 'นำออกจากบาร์',
+    backToBarAccount: 'กลับไปบัญชีบาร์',
     affiliationNotificationsTitle: 'การแจ้งเตือนการสังกัด',
     affiliationNotificationsSubtitle: 'อัปเดตล่าสุดเกี่ยวกับการเพิ่ม/ลบและการอนุมัติ',
     noAffiliationNotifications: 'ยังไม่มีการแจ้งเตือนการสังกัด',
@@ -330,6 +332,7 @@ const BAR_DASHBOARD_I18N = {
     noAffiliatedSellers: 'Affiliated sellers မရှိသေးပါ။',
     viewProfile: 'ပရိုဖိုင်ကြည့်မည်',
     removeFromBar: 'bar မှ ဖယ်ရှားမည်',
+    backToBarAccount: 'bar အကောင့်သို့ ပြန်သွားမည်',
     affiliationNotificationsTitle: 'Affiliation notifications',
     affiliationNotificationsSubtitle: 'add/remove နှင့် approval activity အပ်ဒိတ်များ',
     noAffiliationNotifications: 'Affiliation notification မရှိသေးပါ။',
@@ -381,6 +384,7 @@ const BAR_DASHBOARD_I18N = {
     noAffiliatedSellers: 'Привязанных продавцов пока нет.',
     viewProfile: 'Открыть профиль',
     removeFromBar: 'Удалить из бара',
+    backToBarAccount: 'К аккаунту бара',
     affiliationNotificationsTitle: 'Уведомления о привязках',
     affiliationNotificationsSubtitle: 'Последние обновления по добавлению/удалению и одобрениям.',
     noAffiliationNotifications: 'Пока нет уведомлений о привязках.',
@@ -5049,22 +5053,22 @@ export default function ThailandPantiesMarketSite() {
     if (typeof window === 'undefined') return false;
     if (!currentUser || !apiAuthToken || backendStatus !== 'connected') return false;
     if (!pushConfig.enabled || !pushConfig.publicKey) return false;
-    const pushPref = currentUser?.notificationPreferences?.push || {};
+    const { push: pushPref } = normalizeNotificationPreferences(
+      currentUser.notificationPreferences,
+      currentUser.role,
+    );
     const shouldEnablePush =
-      pushPref.message !== false ||
-      pushPref.engagement !== false ||
-      (currentUser.role === 'admin' && pushPref.adminOps !== false);
+      pushPref.message === true ||
+      pushPref.engagement === true ||
+      (currentUser.role === 'admin' && pushPref.adminOps === true);
     if (!shouldEnablePush) return false;
     const registration = await getPushRegistration();
     if (!registration || !registration.pushManager) return false;
 
-    let permission = pushPermission;
-    if (permission !== 'granted') {
-      if (typeof Notification === 'undefined') return false;
-      permission = await Notification.requestPermission();
-      setPushPermission(permission);
-    }
+    if (typeof Notification === 'undefined') return false;
+    const permission = Notification.permission;
     if (permission !== 'granted') return false;
+    setPushPermission(permission);
 
     const existing = await registration.pushManager.getSubscription();
     const subscription = existing || await registration.pushManager.subscribe({
@@ -7443,8 +7447,8 @@ export default function ThailandPantiesMarketSite() {
         message: true,
         engagement: true,
         push: {
-          message: role === 'seller' || role === 'bar',
-          engagement: role === 'seller' || role === 'bar',
+          message: false,
+          engagement: false,
         },
       },
       ...(role === 'seller'
@@ -8762,17 +8766,28 @@ export default function ThailandPantiesMarketSite() {
     });
   }
 
-  function removeSellerFromCurrentBarByBar(sellerId) {
-    if (!currentUser || currentUser.role !== 'bar' || !currentBarId || !sellerId) return;
+  function removeSellerFromCurrentBarByBar(sellerId, forcedBarId) {
+    if (!currentUser || currentUser.role !== 'bar' || !sellerId) return;
+    const effectiveBarId = String(forcedBarId || currentBarId || '').trim();
+    if (!effectiveBarId) return;
     const now = new Date().toISOString();
     setDb((prev) => {
       const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
-      if (!seller || String(seller.affiliatedBarId || '').trim() !== currentBarId) return prev;
+      if (!seller) return prev;
+      const sellerBarId = String(seller.affiliatedBarId || '').trim();
+      if (sellerBarId && sellerBarId !== effectiveBarId) return prev;
       const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
-      const bar = (prev.bars || []).find((entry) => entry.id === currentBarId);
+      const bar = (prev.bars || []).find((entry) => entry.id === effectiveBarId);
       setBarProfileMessage(`${seller.name} removed from ${bar?.name || 'your bar'}.`);
+      const nextBarAffiliationRequests = (prev.barAffiliationRequests || []).map((req) => {
+        if (String(req.sellerId || '').trim() !== String(sellerId).trim()) return req;
+        if (String(req.barId || '').trim() !== effectiveBarId) return req;
+        if (req.status !== 'approved' || req.direction !== 'seller_to_bar') return req;
+        return { ...req, status: 'cancelled_by_bar', cancelledAt: now };
+      });
       return {
         ...prev,
+        barAffiliationRequests: nextBarAffiliationRequests,
         sellers: (prev.sellers || []).map((entry) => (
           entry.id === sellerId ? { ...entry, affiliatedBarId: '' } : entry
         )),
@@ -8788,7 +8803,7 @@ export default function ThailandPantiesMarketSite() {
             id: makeRuntimeId('admin_action'),
             type: 'bar_removed_seller_affiliation',
             targetSellerId: sellerId,
-            targetBarId: currentBarId,
+            targetBarId: effectiveBarId,
             actorUserId: currentUser.id,
             createdAt: now,
           },
@@ -14880,9 +14895,17 @@ export default function ThailandPantiesMarketSite() {
       .map((action) => String(action?.targetSellerId || '').trim())
       .filter(Boolean)
   );
+  const removedBarAffiliationSellerIdsForCurrentBar = new Set(
+    (adminActions || [])
+      .filter((action) => String(action?.type || '').trim() === 'bar_removed_seller_affiliation')
+      .filter((action) => resolvedBarIdsForCurrentUser.has(String(action?.targetBarId || '').trim()))
+      .map((action) => String(action?.targetSellerId || '').trim())
+      .filter(Boolean)
+  );
   const currentBarAffiliatedSellers = (sellers || [])
     .filter((seller) => {
       const sellerId = String(seller?.id || '').trim();
+      if (removedBarAffiliationSellerIdsForCurrentBar.has(sellerId)) return false;
       const affiliatedBarId = String(seller?.affiliatedBarId || '').trim();
       return (
         resolvedBarIdsForCurrentUser.has(affiliatedBarId)
@@ -14981,10 +15004,11 @@ export default function ThailandPantiesMarketSite() {
     })
     .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
     .slice(0, 8);
-  const barInAppPref = currentUser?.notificationPreferences?.inApp || {};
   const barPushPref = currentUser?.notificationPreferences?.push || {};
-  const barInAppAllEnabled = barInAppPref.message !== false && barInAppPref.engagement !== false;
-  const barPushAllEnabled = barPushPref.message !== false && barPushPref.engagement !== false;
+  const barInAppAllEnabled =
+    currentUser?.notificationPreferences?.message !== false
+    && currentUser?.notificationPreferences?.engagement !== false;
+  const barPushAllEnabled = barPushPref.message === true && barPushPref.engagement === true;
   const getSellerAffiliationLabel = (seller) => {
     const barId = String(seller?.affiliatedBarId || '').trim();
     if (!barId) return 'Independent';
@@ -15803,7 +15827,25 @@ export default function ThailandPantiesMarketSite() {
 
         {selectedSeller ? (
           <section className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <button onClick={() => navigate('/')} className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"><ChevronLeft className="h-4 w-4" /> {publicText.backToSellers}</button>
+            <div className="mb-6 flex flex-wrap gap-2">
+              {currentUser?.role === 'bar' ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/bar-dashboard')}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).backToBarAccount}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
+              >
+                <ChevronLeft className="h-4 w-4" /> {publicText.backToSellers}
+              </button>
+            </div>
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
               <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{publicText.sellerFallback}</div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -16635,7 +16677,7 @@ export default function ThailandPantiesMarketSite() {
                                 {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).viewProfile}
                               </button>
                               <button
-                                onClick={() => removeSellerFromCurrentBarByBar(seller.id)}
+                                onClick={() => removeSellerFromCurrentBarByBar(seller.id, activeBarIdForDashboard)}
                                 className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
                               >
                                 {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).removeFromBar}

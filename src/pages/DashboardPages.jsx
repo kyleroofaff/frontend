@@ -2562,10 +2562,11 @@ export function SellerDashboardPage({
   const inAppAllEnabled =
     (currentUser?.notificationPreferences?.message !== false)
     && (currentUser?.notificationPreferences?.engagement !== false);
+  const pushPrefs = currentUser?.notificationPreferences?.push || {};
   const pushAllEnabled =
-    (currentUser?.notificationPreferences?.push?.message !== false)
-    && (currentUser?.notificationPreferences?.push?.engagement !== false)
-    && (currentUser?.role !== "admin" || currentUser?.notificationPreferences?.push?.adminOps !== false);
+    pushPrefs.message === true
+    && pushPrefs.engagement === true
+    && (currentUser?.role !== "admin" || pushPrefs.adminOps === true);
   const scrollToSection = (sectionId) => {
     if (typeof document === "undefined") return;
     const node = document.getElementById(sectionId);
@@ -11818,7 +11819,7 @@ export function AccountPage({
   const buyerInAppAllEnabled =
     (currentUser?.notificationPreferences?.message !== false)
     && (currentUser?.notificationPreferences?.engagement !== false);
-  const buyerPushDefaultEnabled = currentUser?.role === "seller" || currentUser?.role === "bar" || currentUser?.role === "admin";
+  const buyerPushDefaultEnabled = false;
   const buyerPushMessageEnabled = typeof currentUser?.notificationPreferences?.push?.message === "boolean"
     ? currentUser.notificationPreferences.push.message
     : buyerPushDefaultEnabled;
@@ -11829,7 +11830,7 @@ export function AccountPage({
     ? true
     : (typeof currentUser?.notificationPreferences?.push?.adminOps === "boolean"
       ? currentUser.notificationPreferences.push.adminOps
-      : true);
+      : false);
   const buyerPushAllEnabled = buyerPushMessageEnabled && buyerPushEngagementEnabled && buyerPushAdminOpsEnabled;
   const buyerNotificationTypeMeta = (notificationType) => {
     const normalizedType = String(notificationType || "").toLowerCase();
