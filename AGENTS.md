@@ -29,16 +29,17 @@ This file is the **canonical place** to reload project context between sessions.
 
 **Never commit Personal Access Tokens, SSH private keys, or env secrets** — only non-secret metadata below.
 
-| Field | Value |
-|--------|--------|
-| App Platform default URL | `https://squid-app-wir4v.ondigitalocean.app` |
-| Git repo + branch | `github.com/kyleroofaff/frontend` → **`main`** |
-| Frontend build command | `npm ci && npm run build` (confirm under **Settings → Components** in DO) |
-| Frontend output directory | `dist` |
-| Custom production domain | `https://thailandpanties.com` — add under **this app** in DO (**Settings → Domains**). If DNS/custom domain points somewhere else, **`ondigitalocean.app` can show new builds while `thailandpanties.com` does not.** |
-| API URL (build-time) | `https://api.thailandpanties.com` — set via **`VITE_API_BASE_URL`** on the static site component if needed. |
+A **second** App Platform app (`squid-app-wir4v…`) was created for `main` but **removed** — the domain **`thailandpanties.com`** was already attached to **another** app, so production traffic stays on **that** original app.
 
-**After `git push` to `main`:** **DigitalOcean → Apps** (e.g. **squid-app**) → **Deployments** — confirm the latest deploy **succeeded** and matches your commit. Use **Deploy / Redeploy** if builds are not automatic.
+| Field | Value (fill in the app that still has `thailandpanties.com`) |
+|--------|--------|
+| Production DO app name | *(e.g. open **Apps** → whichever lists **Domains → thailandpanties.com**)* |
+| Git repo + branch hooked to **that** app | Should be `kyleroofaff/frontend` → **`main`** if pushes should update the live site |
+| Frontend build command | `npm ci && npm run build` |
+| Frontend output directory | `dist` |
+| API URL (build-time) | `https://api.thailandpanties.com` via **`VITE_API_BASE_URL`** on the static site component |
+
+**After `git push` to `main`:** open the **production** app → **Deployments** — confirm a successful deploy for your commit. Edit **Settings → App-level / Components** if the wrong repo or branch is connected.
 
 **Security:** Do not paste tokens into chat or `AGENTS.md`. Revoke exposed tokens in **DigitalOcean → API → Tokens**.
 
@@ -60,4 +61,4 @@ This file is the **canonical place** to reload project context between sessions.
 
 ---
 
-*Last updated: DO App Platform default hostname `squid-app-wir4v.ondigitalocean.app`, repo `kyleroofaff/frontend` branch `main`.*
+*Last updated: duplicate DO app removed; production = app that owns `thailandpanties.com` domain.*
