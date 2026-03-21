@@ -53,6 +53,13 @@ A **second** App Platform app (`squid-app-wir4v…`) was created for `main` but 
 - SSH/Docker/VPS/DigitalOcean dashboard access, production env vars, or live deploy logs unless pasted or exposed in-repo.
 - That `git push` updated production — always verify **last deploy commit / build time** on the hosting provider.
 
+## If the live site does not show the latest `main` (after hard refresh)
+
+1. **Deploy pipeline** — `git push` only updates GitHub until something runs **`npm ci && npm run build`** and copies **`dist/`** to the server (Droplet or App Platform). Confirm that step on **every** release.
+2. **Stale `index.html`** — Vite outputs **hashed** JS under `/assets/`. If the **HTML shell** is cached (nginx, CDN, Cloudflare), browsers keep requesting **old** chunk filenames. **Fix:** nginx should **not** long-cache `index.html` or `/` HTML; see **`deploy/nginx-html-no-cache.conf.example`**. Purge Cloudflare cache if used.
+3. **Verify build** — View page source on production: look for **`<!-- build:... -->`** and **`<meta name="app-build" ...>`**. After a new deploy, that timestamp/commit should **change**. If it does not, the server is still serving an old `dist/`.
+4. **GitHub Actions** — Workflow **`.github/workflows/build.yml`** runs **`npm run build`** on each push to `main` (green check = code builds; still not proof of server deploy).
+
 ## Key frontend files
 
 - `src/site.jsx` — main app, routing, API client (`API_BASE_URL`), marketplace UI.
@@ -61,4 +68,4 @@ A **second** App Platform app (`squid-app-wir4v…`) was created for `main` but 
 
 ---
 
-*Last updated: duplicate DO app removed; production = app that owns `thailandpanties.com` domain.*
+*Last updated: HTML cache hints + build stamp in `index.html`; nginx example under `deploy/`; CI build workflow.*
