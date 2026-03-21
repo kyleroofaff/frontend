@@ -25,23 +25,22 @@ This file is the **canonical place** to reload project context between sessions.
 - **Backend:** `npm install && npm start`, `PORT`, **`CLIENT_ORIGIN`**, **`JWT_SECRET`**, **`DATABASE_URL`**, etc. (see `server/.env.example` in monorepo).
 - **No GitHub Actions** were found under `frontend/`; deploy is **not** automatically implied by `git push` unless configured on the host (e.g. DigitalOcean App Platform).
 
-### DigitalOcean (fill in from dashboard or API)
+### DigitalOcean App Platform
 
 **Never commit Personal Access Tokens, SSH private keys, or env secrets** — only non-secret metadata below.
 
-| Field | Value (fill in) |
-|--------|------------------|
-| DO account / team | |
-| App Platform app name(s) | |
-| Git repo + branch hooked to deploy | |
-| Frontend build command | e.g. `npm ci && npm run build` |
+| Field | Value |
+|--------|--------|
+| App Platform default URL | `https://squid-app-wir4v.ondigitalocean.app` |
+| Git repo + branch | `github.com/kyleroofaff/frontend` → **`main`** |
+| Frontend build command | `npm ci && npm run build` (confirm under **Settings → Components** in DO) |
 | Frontend output directory | `dist` |
-| Production site URL | `https://thailandpanties.com` (confirm) |
-| API URL | `https://api.thailandpanties.com` (confirm) |
+| Custom production domain | `https://thailandpanties.com` — add under **this app** in DO (**Settings → Domains**). If DNS/custom domain points somewhere else, **`ondigitalocean.app` can show new builds while `thailandpanties.com` does not.** |
+| API URL (build-time) | `https://api.thailandpanties.com` — set via **`VITE_API_BASE_URL`** on the static site component if needed. |
 
-**API note (one-time local check):** `GET https://api.digitalocean.com/v2/apps` with a token set only in your terminal returned **pagination metadata** in the captured output; an **`apps`** list was **not** present in that capture — either **no App Platform apps** exist on the account yet, or the full JSON wasn’t copied here. Re-run the request locally and paste **non-secret** app names/specs into the table above, or copy from **DigitalOcean → Apps** in the UI.
+**After `git push` to `main`:** **DigitalOcean → Apps** (e.g. **squid-app**) → **Deployments** — confirm the latest deploy **succeeded** and matches your commit. Use **Deploy / Redeploy** if builds are not automatic.
 
-**Security:** If a DO token was ever pasted into a chat, terminal command, or logged file, **revoke it in DigitalOcean → API → Tokens** and create a new one. Do not paste tokens into `AGENTS.md` or git.
+**Security:** Do not paste tokens into chat or `AGENTS.md`. Revoke exposed tokens in **DigitalOcean → API → Tokens**.
 
 ## Ops scripts (in this repo)
 
@@ -61,4 +60,4 @@ This file is the **canonical place** to reload project context between sessions.
 
 ---
 
-*Last updated: session documenting Desktop layout + tp README + vite/site.jsx.*
+*Last updated: DO App Platform default hostname `squid-app-wir4v.ondigitalocean.app`, repo `kyleroofaff/frontend` branch `main`.*
