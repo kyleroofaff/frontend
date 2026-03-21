@@ -8776,18 +8776,24 @@ export default function ThailandPantiesMarketSite() {
     const effectiveBarId = String(forcedBarId || currentBarId || '').trim();
     if (!effectiveBarId) return;
     const now = new Date().toISOString();
+    let removedSellerName = '';
+    let removedBarName = '';
     setDb((prev) => {
       const seller = (prev.sellers || []).find((entry) => entry.id === sellerId);
       if (!seller) return prev;
       const sellerBarId = String(seller.affiliatedBarId || '').trim();
-      if (sellerBarId && sellerBarId !== effectiveBarId) return prev;
+      const barIdMatches = !sellerBarId || sellerBarId === effectiveBarId || resolvedBarIdsForCurrentUser.has(sellerBarId);
+      if (!barIdMatches) return prev;
       const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === sellerId);
-      const bar = (prev.bars || []).find((entry) => entry.id === effectiveBarId);
-      setBarProfileMessage(`${seller.name} removed from ${bar?.name || 'your bar'}.`);
+      const bar = (prev.bars || []).find((entry) => entry.id === effectiveBarId)
+        || (sellerBarId ? (prev.bars || []).find((entry) => entry.id === sellerBarId) : null);
+      removedSellerName = seller.name;
+      removedBarName = bar?.name || 'your bar';
+      const cancelBarIds = new Set([effectiveBarId, ...resolvedBarIdsForCurrentUser]);
       const nextBarAffiliationRequests = (prev.barAffiliationRequests || []).map((req) => {
         if (String(req.sellerId || '').trim() !== String(sellerId).trim()) return req;
-        if (String(req.barId || '').trim() !== effectiveBarId) return req;
-        if (req.status !== 'approved' || req.direction !== 'seller_to_bar') return req;
+        if (!cancelBarIds.has(String(req.barId || '').trim())) return req;
+        if (req.status !== 'approved') return req;
         return { ...req, status: 'cancelled_by_bar', cancelledAt: now };
       });
       return {
@@ -8815,6 +8821,9 @@ export default function ThailandPantiesMarketSite() {
         ],
       };
     });
+    if (removedSellerName) {
+      setBarProfileMessage(`${removedSellerName} removed from ${removedBarName}.`);
+    }
   }
 
   function updateBarProfileField(key, value) {
