@@ -12,6 +12,14 @@ This file is the **canonical place** to reload project context between sessions.
 | `Desktop/backend/` | Express API (`npm run dev` → `node --watch src/server.js`), Postgres via `DATABASE_URL`. |
 | `Desktop/tp/` | **Fullstack monorepo** (`client/` + `server/`) with the same split; README documents DigitalOcean deploy. May differ slightly from `frontend/` + `backend/` — confirm which copy you deploy from. |
 
+### Windows / PowerShell
+
+If **`npm` fails** with *“npm.ps1 cannot be loaded because running scripts is disabled”*, allow scripts for your user (once):
+
+`Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`
+
+Then `npm run build` works. Alternative: use **Command Prompt** (`cmd.exe`) instead of PowerShell — it does not use `npm.ps1`.
+
 ## Architecture (short)
 
 - **Frontend:** Vite + React. Dev server **:5173**; `vite.config.js` proxies **`/api` → `http://localhost:4000`**.
