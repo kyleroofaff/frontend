@@ -204,6 +204,19 @@ const BAR_DASHBOARD_I18N = {
     mapEmbedPlaceholder: 'Map embed URL (Google Maps embed)',
     mapLinkPlaceholder: 'Map link URL',
     saveProfile: 'Save bar profile',
+    saving: 'Saving...',
+    mapLocationTitle: 'Map location',
+    mapLocationInstructions: 'Paste a Google Maps link for your bar. Open Google Maps, find your bar, tap Share and copy the link.',
+    addLocationButton: 'Add location',
+    mapStep1: 'Open Google Maps and search for your bar.',
+    mapStep2: 'Tap Share, then Copy link.',
+    mapStep3: 'Paste the link in Bar location above and click Add location.',
+    aboutPresetsTitle: 'About presets',
+    aboutPresetsHelp: 'Tap any preset to append text, then edit it however you want.',
+    specialsPresetsTitle: 'Specials text presets',
+    chooseImage: 'Choose image',
+    noFileSelected: 'No file selected',
+    closeSectionLabel: 'Close',
     feedTitle: 'Bar Feed',
     feedSubtitle: 'Use this like the live feed: post photos, updates, and specials from your venue.',
     feedPlaceholder: "Share tonight's vibe, specials, or event updates...",
@@ -256,6 +269,19 @@ const BAR_DASHBOARD_I18N = {
     mapEmbedPlaceholder: 'ลิงก์ฝังแผนที่ (Google Maps embed)',
     mapLinkPlaceholder: 'ลิงก์แผนที่',
     saveProfile: 'บันทึกโปรไฟล์บาร์',
+    saving: 'กำลังบันทึก...',
+    mapLocationTitle: 'ตำแหน่งบนแผนที่',
+    mapLocationInstructions: 'วางลิงก์ Google Maps ของบาร์คุณ เปิด Google Maps ค้นหาบาร์ของคุณ แตะแชร์แล้วคัดลอกลิงก์',
+    addLocationButton: 'เพิ่มตำแหน่ง',
+    mapStep1: 'เปิด Google Maps แล้วค้นหาบาร์ของคุณ',
+    mapStep2: 'แตะแชร์ แล้วคัดลอกลิงก์',
+    mapStep3: 'วางลิงก์ในช่องที่ตั้งบาร์ด้านบน แล้วกดเพิ่มตำแหน่ง',
+    aboutPresetsTitle: 'ข้อความสำเร็จรูป',
+    aboutPresetsHelp: 'แตะข้อความสำเร็จรูปเพื่อเพิ่ม แล้วแก้ไขได้ตามต้องการ',
+    specialsPresetsTitle: 'ข้อความโปรโมชั่นสำเร็จรูป',
+    chooseImage: 'เลือกรูปภาพ',
+    noFileSelected: 'ยังไม่ได้เลือกไฟล์',
+    closeSectionLabel: 'ปิด',
     feedTitle: 'ฟีดภาพบาร์',
     feedSubtitle: 'ใช้งานเหมือนฟีดสด: โพสต์รูปภาพ อัปเดต และโปรโมชั่นจากร้านคุณ',
     feedPlaceholder: 'แชร์บรรยากาศคืนนี้ โปรโมชั่น หรืออัปเดตงานอีเวนต์...',
@@ -308,6 +334,19 @@ const BAR_DASHBOARD_I18N = {
     mapEmbedPlaceholder: 'Map embed URL (Google Maps embed)',
     mapLinkPlaceholder: 'Map link URL',
     saveProfile: 'bar ပရိုဖိုင် သိမ်းမည်',
+    saving: 'သိမ်းနေသည်...',
+    mapLocationTitle: 'မြေပုံတည်နေရာ',
+    mapLocationInstructions: 'သင့် bar ၏ Google Maps link ကို paste လုပ်ပါ။ Google Maps ကိုဖွင့်ပြီး bar ကိုရှာ၍ Share ကိုနှိပ်ပြီး link ကို copy ကူးပါ။',
+    addLocationButton: 'တည်နေရာထည့်မည်',
+    mapStep1: 'Google Maps ကိုဖွင့်ပြီး bar ကိုရှာပါ။',
+    mapStep2: 'Share ကိုနှိပ်ပြီး link ကို Copy ကူးပါ။',
+    mapStep3: 'link ကို bar တည်နေရာတွင် paste လုပ်ပြီး Add location ကိုနှိပ်ပါ။',
+    aboutPresetsTitle: 'About presets',
+    aboutPresetsHelp: 'preset ကိုနှိပ်ပြီး text ထည့်ပါ၊ ပြီးရင် ကိုယ်လိုသလို ပြင်ဆင်ပါ။',
+    specialsPresetsTitle: 'Specials text presets',
+    chooseImage: 'ပုံရွေးမည်',
+    noFileSelected: 'ဖိုင်မရွေးထားပါ',
+    closeSectionLabel: 'ပိတ်မည်',
     feedTitle: 'bar ဓာတ်ပုံဖိဒ်',
     feedSubtitle: 'live feed လို အသုံးပြုပါ - ဓာတ်ပုံများ၊ updates နှင့် specials မျှဝေပါ',
     feedPlaceholder: 'ယနေ့ည vibe၊ specials သို့မဟုတ် event updates မျှဝေပါ...',
@@ -360,6 +399,19 @@ const BAR_DASHBOARD_I18N = {
     mapEmbedPlaceholder: 'Ссылка embed карты (Google Maps)',
     mapLinkPlaceholder: 'Ссылка на карту',
     saveProfile: 'Сохранить профиль бара',
+    saving: 'Сохранение...',
+    mapLocationTitle: 'Местоположение на карте',
+    mapLocationInstructions: 'Вставьте ссылку Google Maps вашего бара. Откройте Google Maps, найдите бар, нажмите Поделиться и скопируйте ссылку.',
+    addLocationButton: 'Добавить местоположение',
+    mapStep1: 'Откройте Google Maps и найдите ваш бар.',
+    mapStep2: 'Нажмите Поделиться, затем Копировать ссылку.',
+    mapStep3: 'Вставьте ссылку в поле выше и нажмите Добавить местоположение.',
+    aboutPresetsTitle: 'Шаблоны описания',
+    aboutPresetsHelp: 'Нажмите на шаблон, чтобы добавить текст, затем отредактируйте по желанию.',
+    specialsPresetsTitle: 'Шаблоны акций',
+    chooseImage: 'Выбрать изображение',
+    noFileSelected: 'Файл не выбран',
+    closeSectionLabel: 'Закрыть',
     feedTitle: 'Фото-лента бара',
     feedSubtitle: 'Используйте как live-ленту: публикуйте фото, обновления и акции.',
     feedPlaceholder: 'Поделитесь атмосферой вечера, акциями или обновлениями событий...',
@@ -4922,6 +4974,7 @@ export default function ThailandPantiesMarketSite() {
   const uiLanguage = ['en', 'th', 'my', 'ru'].includes(currentUser?.preferredLanguage)
     ? currentUser.preferredLanguage
     : authLanguage;
+  const barT = BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en;
   const rawProducts = db.products;
   const rawSellerPosts = db.sellerPosts || [];
   const products = useMemo(
@@ -9043,6 +9096,18 @@ export default function ThailandPantiesMarketSite() {
       const parsed = new URL(mapLink);
       query = String(parsed.searchParams.get('q') || parsed.searchParams.get('query') || '').trim();
       if (!query) {
+        const placeMatch = decodeURIComponent(parsed.pathname || '').match(/\/place\/([^/@]+)/);
+        if (placeMatch) {
+          query = placeMatch[1].replace(/\+/g, ' ');
+        }
+      }
+      if (!query) {
+        const coordMatch = decodeURIComponent(parsed.pathname || '').match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (coordMatch) {
+          query = `${coordMatch[1]},${coordMatch[2]}`;
+        }
+      }
+      if (!query) {
         const pathname = decodeURIComponent(parsed.pathname || '').replace(/^\//, '').trim();
         if (pathname && !pathname.includes('maps')) query = pathname;
       }
@@ -9063,12 +9128,14 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     const nextMap = buildBarMapFields('', locationText);
-    setBarProfileMessage('');
     setBarProfileDraft((prev) => ({
       ...prev,
       mapLink: nextMap.mapLink,
       mapEmbedUrl: nextMap.mapEmbedUrl,
     }));
+    if (nextMap.mapLink) {
+      setBarProfileMessage(barT.mapLocationTitle + ' ✓');
+    }
   }
 
   function toggleBarSpecialPreset(optionId) {
@@ -15301,7 +15368,7 @@ export default function ThailandPantiesMarketSite() {
             <button onClick={() => navigate('/seller-portfolios')} className="whitespace-nowrap transition hover:text-rose-600">{navText.sellers}</button>
             <button onClick={() => navigate('/bars')} className="whitespace-nowrap transition hover:text-rose-600">{navText.bars}</button>
             <button onClick={() => navigate('/find')} className="whitespace-nowrap transition hover:text-rose-600">{navText.find}</button>
-            <button onClick={() => navigate('/seller-feed')} className="whitespace-nowrap transition hover:text-rose-600">{currentUser?.role === 'bar' ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds : navText.sellerFeed}</button>
+            <button onClick={() => navigate('/seller-feed')} className="whitespace-nowrap transition hover:text-rose-600">{currentUser?.role === 'bar' ? barT.watchFeeds : navText.sellerFeed}</button>
             <button onClick={() => navigate('/custom-requests')} className="whitespace-nowrap transition hover:text-rose-600">{navText.customRequests}</button>
             <button onClick={() => navigate('/faq')} className="whitespace-nowrap transition hover:text-rose-600">{navText.faq}</button>
             <button onClick={() => navigate('/contact')} className="hidden whitespace-nowrap transition hover:text-rose-600 2xl:inline-flex">{navText.contact}</button>
@@ -15407,7 +15474,7 @@ export default function ThailandPantiesMarketSite() {
               <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.sellers}</button>
               <button onClick={() => navigate('/bars')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.bars}</button>
               <button onClick={() => navigate('/find')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.find}</button>
-              <button onClick={() => navigate('/seller-feed')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{currentUser?.role === 'bar' ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds : navText.sellerFeed}</button>
+              <button onClick={() => navigate('/seller-feed')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{currentUser?.role === 'bar' ? barT.watchFeeds : navText.sellerFeed}</button>
               <button onClick={() => navigate('/custom-requests')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.customRequests}</button>
               <button onClick={() => navigate('/faq')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.faq}</button>
               <button onClick={() => navigate('/contact')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.contact}</button>
@@ -15825,7 +15892,7 @@ export default function ThailandPantiesMarketSite() {
                         <button onClick={() => navigate('/seller-feed')} className="mt-3 block h-56 w-full">
                           <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} />
                         </button>
-                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</p>
+                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || barT.noCaption}</p>
                       </article>
                     );
                   })}
@@ -16070,7 +16137,7 @@ export default function ThailandPantiesMarketSite() {
                           <ProductImage src={post.image} label={post.imageName || 'Bar post image'} />
                         </div>
                         <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <p className="mt-1 text-sm text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</p>
+                        <p className="mt-1 text-sm text-slate-700">{post.caption || barT.noCaption}</p>
                       </article>
                     ))}
                   </div>
@@ -16090,7 +16157,7 @@ export default function ThailandPantiesMarketSite() {
                   className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).backToBarAccount}
+                  {barT.backToBarAccount}
                 </button>
               ) : null}
               <button
@@ -16552,18 +16619,18 @@ export default function ThailandPantiesMarketSite() {
             ) : (
               <>
                 <SectionTitle
-                  eyebrow="Bar dashboard"
-                  title={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).title}
-                  subtitle={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).subtitle}
+                  eyebrow={barT.title}
+                  title={barT.title}
+                  subtitle={barT.subtitle}
                 />
                 {barIncomingAffiliationRequests.length > 0 ? (
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
                     <div className="text-sm font-semibold text-amber-900">
-                      {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).pendingRequestsTopAlert}
+                      {barT.pendingRequestsTopAlert}
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="rounded-full bg-amber-600 px-2.5 py-1 text-xs font-bold text-white">
-                        {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).pendingRequestsTopAlertCount}: {barIncomingAffiliationRequests.length}
+                        {barT.pendingRequestsTopAlertCount}: {barIncomingAffiliationRequests.length}
                       </span>
                       <button
                         type="button"
@@ -16573,7 +16640,7 @@ export default function ThailandPantiesMarketSite() {
                         }}
                         className="rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
                       >
-                        {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).reviewApplicationsNow}
+                        {barT.reviewApplicationsNow}
                       </button>
                     </div>
                   </div>
@@ -16583,14 +16650,14 @@ export default function ThailandPantiesMarketSite() {
                     type="button"
                     className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
                   >
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}
+                    {barT.profileTitle}
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate('/bar-feed-workspace')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}
+                    {barT.feedTitle}
                   </button>
                   <button
                     type="button"
@@ -16604,10 +16671,10 @@ export default function ThailandPantiesMarketSite() {
                     onClick={() => navigate('/seller-feed')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds}
+                    {barT.watchFeeds}
                   </button>
                   <label className="col-span-2 mt-1 flex items-center justify-end gap-2 text-sm text-slate-600 sm:col-auto sm:ml-auto sm:mt-0">
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).language}
+                    {barT.language}
                     <select
                       value={SUPPORTED_AUTH_LANGUAGES.includes(currentUser?.preferredLanguage) ? currentUser.preferredLanguage : 'en'}
                       onChange={(event) => updateBarLanguage(event.target.value)}
@@ -16682,7 +16749,7 @@ export default function ThailandPantiesMarketSite() {
                   <summary className="cursor-pointer list-none">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-xl font-semibold">Affiliate earnings</h3>
-                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
                     </div>
                   </summary>
                   <p className="mt-1 text-sm text-slate-600">Track the money your bar earns from affiliated seller sales and paid buyer interactions.</p>
@@ -16743,49 +16810,52 @@ export default function ThailandPantiesMarketSite() {
                   <details id="bar-profile" className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
                     <summary className="cursor-pointer list-none">
                       <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
+                        <h3 className="text-xl font-semibold">{barT.profileTitle}</h3>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
                       </div>
                     </summary>
                     <div className="mt-4 h-48">
                       <ProductImage
                         src={barProfileDraft.profileImage || currentBarProfile?.profileImage}
-                        label={barProfileDraft.profileImageName || currentBarProfile?.profileImageName || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileImage}
+                        label={barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.profileImage}
                       />
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <label className="inline-flex cursor-pointer items-center rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">
                         <input type="file" accept="image/*" onChange={handleBarProfileImageUpload} className="hidden" />
-                        Choose image
+                        {barT.chooseImage}
                       </label>
                       <span className="text-xs text-slate-500">
-                        {barProfileDraft.profileImageName || currentBarProfile?.profileImageName || 'No file selected'}
+                        {barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.noFileSelected}
                       </span>
                     </div>
                     <div className="mt-4 grid gap-3">
-                      <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).locationPlaceholder} />
+                      <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="https://maps.google.com/..." />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Map location</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.mapLocationTitle}</div>
                         <p className="mt-2 text-xs text-slate-500">
-                          Use the Bar location field above (address or Google Maps link), then add location.
+                          {barT.mapLocationInstructions}
                         </p>
                         <button
                           type="button"
                           onClick={autofillBarMapFromLocation}
                           className="mt-2 rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
                         >
-                          Add location
+                          {barT.addLocationButton}
                         </button>
                         <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-slate-500">
-                          <li>Enter your full venue address or a Google Maps URL in Bar location.</li>
-                          <li>Click Add location.</li>
-                          <li>Save profile and the map appears on your public bar page.</li>
+                          <li>{barT.mapStep1}</li>
+                          <li>{barT.mapStep2}</li>
+                          <li>{barT.mapStep3}</li>
                         </ol>
+                        {barProfileDraft.mapLink ? (
+                          <div className="mt-2 text-xs text-emerald-700 font-medium">✓ {barProfileDraft.mapLink}</div>
+                        ) : null}
                       </div>
-                      <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).aboutPlaceholder} />
+                      <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.aboutPlaceholder} />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">About presets</div>
-                        <p className="mt-1 text-xs text-slate-500">Tap any preset to append text, then edit it however you want.</p>
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.aboutPresetsTitle}</div>
+                        <p className="mt-1 text-xs text-slate-500">{barT.aboutPresetsHelp}</p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {BAR_PROFILE_TEXT_PRESET_OPTIONS.about.map((preset) => (
                             <button
@@ -16800,7 +16870,7 @@ export default function ThailandPantiesMarketSite() {
                         </div>
                       </div>
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Specials text presets</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.specialsPresetsTitle}</div>
                         <div className="mt-2 flex flex-nowrap gap-2 overflow-x-auto pb-1">
                           {BAR_PROFILE_TEXT_PRESET_OPTIONS.specials.map((preset) => (
                             <button
@@ -16814,10 +16884,10 @@ export default function ThailandPantiesMarketSite() {
                           ))}
                         </div>
                       </div>
-                      <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).specialsPlaceholder} />
+                      <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.specialsPlaceholder} />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).quickPicksTitle}</div>
-                        <p className="mt-2 text-xs text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).quickPicksHelp}</p>
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.quickPicksTitle}</div>
+                        <p className="mt-2 text-xs text-slate-500">{barT.quickPicksHelp}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {BAR_PROFILE_SPECIAL_PRESET_OPTIONS.map((option) => {
                             const isActive = barSpecialPresetSelections.includes(option.id);
@@ -16843,14 +16913,14 @@ export default function ThailandPantiesMarketSite() {
                             onClick={applyBarSpecialPresetsToDraft}
                             className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
                           >
-                            {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).applyToSpecials}
+                            {barT.applyToSpecials}
                           </button>
                           <button
                             type="button"
                             onClick={() => setBarSpecialPresetSelections([])}
                             className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
                           >
-                            {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).clearPicks}
+                            {barT.clearPicks}
                           </button>
                         </div>
                       </div>
@@ -16859,7 +16929,7 @@ export default function ThailandPantiesMarketSite() {
                         disabled={savingBarProfile}
                         className={`inline-flex w-auto justify-self-start rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 ${savingBarProfile ? 'cursor-not-allowed opacity-60' : ''}`}
                       >
-                        {savingBarProfile ? 'Saving...' : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).saveProfile}
+                        {savingBarProfile ? barT.saving : barT.saveProfile}
                       </button>
                       {barProfileMessage ? (
                         <div className={`text-sm font-medium ${barProfileMessage.startsWith('Could not') ? 'text-rose-700' : 'text-emerald-700'}`}>
@@ -16873,16 +16943,16 @@ export default function ThailandPantiesMarketSite() {
                   <details id="bar-affiliations" className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
                     <summary className="cursor-pointer list-none">
                       <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsTitle}</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
+                        <h3 className="text-xl font-semibold">{barT.affiliationsTitle}</h3>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
                       </div>
                     </summary>
-                    <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationsSubtitle}</p>
+                    <p className="mt-1 text-sm text-slate-600">{barT.affiliationsSubtitle}</p>
                     <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
-                      <div className="text-sm font-semibold text-slate-800">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).pendingRequestsTitle}</div>
+                      <div className="text-sm font-semibold text-slate-800">{barT.pendingRequestsTitle}</div>
                       <div className="mt-3 space-y-2">
                         {barIncomingAffiliationRequests.length === 0 ? (
-                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noPendingRequests}</div>
+                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{barT.noPendingRequests}</div>
                         ) : barIncomingAffiliationRequests.map((request) => {
                           const seller = sellerMap[request.sellerId];
                           return (
@@ -16890,7 +16960,7 @@ export default function ThailandPantiesMarketSite() {
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
                                   <div className="text-sm font-semibold text-slate-800">{seller?.name || request.sellerId}</div>
-                                  <div className="text-xs text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).requestedPrefix} {formatDateTimeNoSeconds(request.createdAt || Date.now())}</div>
+                                  <div className="text-xs text-slate-500">{barT.requestedPrefix} {formatDateTimeNoSeconds(request.createdAt || Date.now())}</div>
                                   {String(request?.sellerMessage || '').trim() ? (
                                     <div className="mt-2 rounded-xl border border-amber-100 bg-amber-50 px-2.5 py-2 text-xs text-amber-900">
                                       {request.sellerMessage}
@@ -16914,19 +16984,19 @@ export default function ThailandPantiesMarketSite() {
                                     onClick={() => navigate(`/seller/${request.sellerId}`)}
                                     className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"
                                   >
-                                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).viewProfile}
+                                    {barT.viewProfile}
                                   </button>
                                   <button
                                     onClick={() => respondToBarAffiliationRequest(request.id, 'approved')}
                                     className="rounded-xl border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700"
                                   >
-                                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).approve}
+                                    {barT.approve}
                                   </button>
                                   <button
                                     onClick={() => respondToBarAffiliationRequest(request.id, 'rejected')}
                                     className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
                                   >
-                                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).reject}
+                                    {barT.reject}
                                   </button>
                                 </div>
                               </div>
@@ -16936,10 +17006,10 @@ export default function ThailandPantiesMarketSite() {
                       </div>
                     </div>
                     <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
-                      <div className="text-sm font-semibold text-slate-800">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliatedSellersTitle} ({currentBarAffiliatedSellers.length})</div>
+                      <div className="text-sm font-semibold text-slate-800">{barT.affiliatedSellersTitle} ({currentBarAffiliatedSellers.length})</div>
                       <div className="mt-3 space-y-2">
                         {currentBarAffiliatedSellers.length === 0 ? (
-                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noAffiliatedSellers}</div>
+                          <div className="rounded-2xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{barT.noAffiliatedSellers}</div>
                         ) : currentBarAffiliatedSellers.map((seller) => (
                           <div key={seller.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
                             <div className="text-sm font-semibold text-slate-800">{seller.name}</div>
@@ -16948,13 +17018,13 @@ export default function ThailandPantiesMarketSite() {
                                 onClick={() => navigate(`/seller/${seller.id}`)}
                                 className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"
                               >
-                                {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).viewProfile}
+                                {barT.viewProfile}
                               </button>
                               <button
                                 onClick={() => removeSellerFromCurrentBarByBar(seller.id, activeBarIdForDashboard)}
                                 className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
                               >
-                                {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).removeFromBar}
+                                {barT.removeFromBar}
                               </button>
                             </div>
                           </div>
@@ -16965,14 +17035,14 @@ export default function ThailandPantiesMarketSite() {
                   <details className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
                     <summary className="cursor-pointer list-none">
                       <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsTitle}</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
+                        <h3 className="text-xl font-semibold">{barT.affiliationNotificationsTitle}</h3>
+                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
                       </div>
                     </summary>
-                    <p className="mt-1 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).affiliationNotificationsSubtitle}</p>
+                    <p className="mt-1 text-sm text-slate-600">{barT.affiliationNotificationsSubtitle}</p>
                     <div className="mt-4 space-y-3">
                       {barDashboardNotifications.length === 0 ? (
-                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noAffiliationNotifications}</div>
+                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{barT.noAffiliationNotifications}</div>
                       ) : barDashboardNotifications.map((notification) => (
                         <div key={notification.id} className="rounded-2xl bg-slate-50 p-4">
                           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -17210,8 +17280,8 @@ export default function ThailandPantiesMarketSite() {
               <>
                 <SectionTitle
                   eyebrow="Bar dashboard"
-                  title={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}
-                  subtitle={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedSubtitle}
+                  title={barT.feedTitle}
+                  subtitle={barT.feedSubtitle}
                 />
                 <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
                   <button
@@ -17219,13 +17289,13 @@ export default function ThailandPantiesMarketSite() {
                     onClick={() => navigate('/bar-dashboard')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).profileTitle}
+                    {barT.profileTitle}
                   </button>
                   <button
                     type="button"
                     className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
                   >
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}
+                    {barT.feedTitle}
                   </button>
                   <button
                     type="button"
@@ -17239,10 +17309,10 @@ export default function ThailandPantiesMarketSite() {
                     onClick={() => navigate('/seller-feed')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).watchFeeds}
+                    {barT.watchFeeds}
                   </button>
                   <label className="col-span-2 mt-1 flex items-center justify-end gap-2 text-sm text-slate-600 sm:col-auto sm:ml-auto sm:mt-0">
-                    {(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).language}
+                    {barT.language}
                     <select
                       value={SUPPORTED_AUTH_LANGUAGES.includes(currentUser?.preferredLanguage) ? currentUser.preferredLanguage : 'en'}
                       onChange={(event) => updateBarLanguage(event.target.value)}
@@ -17255,29 +17325,29 @@ export default function ThailandPantiesMarketSite() {
                   </label>
                 </div>
                 <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                  <h3 className="text-xl font-semibold">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedTitle}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedSubtitle}</p>
-                  <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).feedPlaceholder} />
+                  <h3 className="text-xl font-semibold">{barT.feedTitle}</h3>
+                  <p className="mt-2 text-sm text-slate-600">{barT.feedSubtitle}</p>
+                  <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.feedPlaceholder} />
                   <input type="file" accept="image/*" onChange={handleBarPostImageUpload} className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm" />
                   <div className="mt-3 h-44">
-                    {barPostDraft.image ? <ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} /> : <ProductImage label={(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).preview} />}
+                    {barPostDraft.image ? <ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} /> : <ProductImage label={barT.preview} />}
                   </div>
                   <button onClick={createBarPost} disabled={creatingBarPost} className="mt-3 inline-flex w-auto rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
-                    {creatingBarPost ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).posting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).postButton}
+                    {creatingBarPost ? barT.posting : barT.postButton}
                   </button>
                   {barProfileMessage ? <div className="mt-3 text-sm font-medium text-rose-700">{barProfileMessage}</div> : null}
                   <div className="mt-5 space-y-3">
                     {barDashboardPosts.length === 0 ? (
-                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{(BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noPosts}</div>
+                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{barT.noPosts}</div>
                     ) : barDashboardPosts.map((post) => (
                       <article key={post.id} className="rounded-2xl border border-rose-100 p-3">
                         <div className="h-40">
                           <ProductImage src={post.image} label={post.imageName || 'Bar post'} />
                         </div>
                         <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <div className="mt-1 text-sm text-slate-700">{post.caption || (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).noCaption}</div>
+                        <div className="mt-1 text-sm text-slate-700">{post.caption || barT.noCaption}</div>
                         <button onClick={() => deleteBarPost(post.id)} disabled={deletingBarPostId === post.id} className="mt-2 rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700">
-                          {deletingBarPostId === post.id ? (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).deleting : (BAR_DASHBOARD_I18N[uiLanguage] || BAR_DASHBOARD_I18N.en).delete}
+                          {deletingBarPostId === post.id ? barT.deleting : barT.delete}
                         </button>
                       </article>
                     ))}
