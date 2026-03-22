@@ -205,6 +205,7 @@ const BAR_DASHBOARD_I18N = {
     mapLinkPlaceholder: 'Map link URL',
     saveProfile: 'Save bar profile',
     saving: 'Saving...',
+    profileSaved: 'Bar profile saved.',
     mapLocationTitle: 'Map location',
     mapLocationInstructions: 'Paste a Google Maps link for your bar. Open Google Maps, find your bar, tap Share and copy the link.',
     addLocationButton: 'Add location',
@@ -270,6 +271,7 @@ const BAR_DASHBOARD_I18N = {
     mapLinkPlaceholder: 'ลิงก์แผนที่',
     saveProfile: 'บันทึกโปรไฟล์บาร์',
     saving: 'กำลังบันทึก...',
+    profileSaved: 'บันทึกโปรไฟล์บาร์แล้ว',
     mapLocationTitle: 'ตำแหน่งบนแผนที่',
     mapLocationInstructions: 'วางลิงก์ Google Maps ของบาร์คุณ เปิด Google Maps ค้นหาบาร์ของคุณ แตะแชร์แล้วคัดลอกลิงก์',
     addLocationButton: 'เพิ่มตำแหน่ง',
@@ -335,6 +337,7 @@ const BAR_DASHBOARD_I18N = {
     mapLinkPlaceholder: 'Map link URL',
     saveProfile: 'bar ပရိုဖိုင် သိမ်းမည်',
     saving: 'သိမ်းနေသည်...',
+    profileSaved: 'bar profile ကို သိမ်းပြီးပါပြီ',
     mapLocationTitle: 'မြေပုံတည်နေရာ',
     mapLocationInstructions: 'သင့် bar ၏ Google Maps link ကို paste လုပ်ပါ။ Google Maps ကိုဖွင့်ပြီး bar ကိုရှာ၍ Share ကိုနှိပ်ပြီး link ကို copy ကူးပါ။',
     addLocationButton: 'တည်နေရာထည့်မည်',
@@ -400,6 +403,7 @@ const BAR_DASHBOARD_I18N = {
     mapLinkPlaceholder: 'Ссылка на карту',
     saveProfile: 'Сохранить профиль бара',
     saving: 'Сохранение...',
+    profileSaved: 'Профиль бара сохранён.',
     mapLocationTitle: 'Местоположение на карте',
     mapLocationInstructions: 'Вставьте ссылку Google Maps вашего бара. Откройте Google Maps, найдите бар, нажмите Поделиться и скопируйте ссылку.',
     addLocationButton: 'Добавить местоположение',
@@ -656,6 +660,8 @@ const PUBLIC_SITE_I18N = {
     locationMap: 'Location map',
     mapNotSet: 'Map link not set yet.',
     openMap: 'Open map',
+    messageThisBar: 'Message this bar',
+    noCaption: 'No caption added.',
     barPhotoFeed: 'Bar photo feed',
     noBarPhotosYet: 'No bar photos yet.',
     barPrefix: 'Bar:',
@@ -796,6 +802,8 @@ const PUBLIC_SITE_I18N = {
     locationMap: 'แผนที่สถานที่',
     mapNotSet: 'ยังไม่ได้ตั้งค่าลิงก์แผนที่',
     openMap: 'เปิดแผนที่',
+    messageThisBar: 'ส่งข้อความถึงบาร์นี้',
+    noCaption: 'ยังไม่มีคำบรรยาย',
     barPhotoFeed: 'ฟีดภาพบาร์',
     noBarPhotosYet: 'ยังไม่มีภาพบาร์',
     barPrefix: 'บาร์:',
@@ -936,6 +944,8 @@ const PUBLIC_SITE_I18N = {
     locationMap: 'Location map',
     mapNotSet: 'map link မသတ်မှတ်ရသေးပါ',
     openMap: 'Map ဖွင့်ရန်',
+    messageThisBar: 'ဤ bar သို့ message ပို့ရန်',
+    noCaption: 'caption မရှိပါ',
     barPhotoFeed: 'Bar photo feed',
     noBarPhotosYet: 'bar photo မရှိသေးပါ',
     barPrefix: 'Bar:',
@@ -1076,6 +1086,8 @@ const PUBLIC_SITE_I18N = {
     locationMap: 'Карта локации',
     mapNotSet: 'Ссылка на карту еще не задана.',
     openMap: 'Открыть карту',
+    messageThisBar: 'Написать этому бару',
+    noCaption: 'Подпись не добавлена.',
     barPhotoFeed: 'Фото-лента бара',
     noBarPhotosYet: 'Пока нет фото бара.',
     barPrefix: 'Бар:',
@@ -6231,10 +6243,7 @@ export default function ThailandPantiesMarketSite() {
                 if (!local) {
                   localBarMap.set(id, serverBar);
                   barsUpdated = true;
-                } else if (serverBar.profileImage && !local.profileImage) {
-                  localBarMap.set(id, { ...local, ...serverBar });
-                  barsUpdated = true;
-                } else if (serverBar.about && !local.about) {
+                } else {
                   localBarMap.set(id, { ...local, ...serverBar });
                   barsUpdated = true;
                 }
@@ -9255,7 +9264,7 @@ export default function ThailandPantiesMarketSite() {
           body: updatedBar,
         }).catch(() => {});
       }
-      setBarProfileMessage(`Bar profile saved at ${formatDateTimeNoSeconds(new Date().toISOString())}.`);
+      setBarProfileMessage(barT.profileSaved);
     } catch {
       setBarProfileMessage(barStatus('saveFailed'));
     } finally {
@@ -15938,7 +15947,7 @@ export default function ThailandPantiesMarketSite() {
                         <button onClick={() => navigate('/seller-feed')} className="mt-3 block h-56 w-full">
                           <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} />
                         </button>
-                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || barT.noCaption}</p>
+                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || publicText.noCaption}</p>
                       </article>
                     );
                   })}
@@ -15957,43 +15966,67 @@ export default function ThailandPantiesMarketSite() {
                   {publicText.viewAllBars}
                 </button>
               </div>
-              {homeBarsByRecentPost.length === 0 ? (
-                <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
-                  {publicText.noRecentBarsHome}
-                </div>
-              ) : (
-                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                  {homeBarsByRecentPost.map(({ bar, latestPost }) => (
-                    <article
-                      key={`home_bar_${bar.id}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => navigate(`/bar/${bar.id}`)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault();
-                          navigate(`/bar/${bar.id}`);
-                        }
-                      }}
-                      className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
-                    >
-                      <div className="h-44">
-                        <ProductImage src={latestPost?.image || bar.profileImage} label={latestPost?.imageName || `${bar.name} latest post`} />
-                      </div>
-                      <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
-                      <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
-                      <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                        {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
-                      </div>
-                      <p className="mt-3 line-clamp-2 text-sm text-slate-600">{latestPost?.caption || bar.about || publicText.barProfileSoon}</p>
-                      <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(latestPost?.createdAt)}</div>
-                      <button onClick={() => navigate(`/bar/${bar.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
-                        {publicText.viewBarProfile}
-                      </button>
-                    </article>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const barsWithPostIds = new Set(homeBarsByRecentPost.map(({ bar }) => bar.id));
+                const barsWithoutPosts = Object.values(localizedBarMap).filter((bar) => !barsWithPostIds.has(bar.id));
+                const hasAnyBars = homeBarsByRecentPost.length > 0 || barsWithoutPosts.length > 0;
+                if (!hasAnyBars) return (
+                  <div className="rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-md ring-1 ring-rose-100">
+                    {publicText.noRecentBarsHome}
+                  </div>
+                );
+                return (
+                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {homeBarsByRecentPost.map(({ bar, latestPost }) => (
+                      <article
+                        key={`home_bar_${bar.id}`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => navigate(`/bar/${bar.id}`)}
+                        onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigate(`/bar/${bar.id}`); } }}
+                        className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                      >
+                        <div className="h-44">
+                          <ProductImage src={latestPost?.image || bar.profileImage} label={latestPost?.imageName || `${bar.name} latest post`} />
+                        </div>
+                        <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
+                        <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
+                        <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                          {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
+                        </div>
+                        <p className="mt-3 line-clamp-2 text-sm text-slate-600">{latestPost?.caption || bar.about || publicText.barProfileSoon}</p>
+                        <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(latestPost?.createdAt)}</div>
+                        <button onClick={() => navigate(`/bar/${bar.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                          {publicText.viewBarProfile}
+                        </button>
+                      </article>
+                    ))}
+                    {barsWithoutPosts.map((bar) => (
+                      <article
+                        key={`home_bar_${bar.id}`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => navigate(`/bar/${bar.id}`)}
+                        onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigate(`/bar/${bar.id}`); } }}
+                        className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                      >
+                        <div className="h-44">
+                          <ProductImage src={bar.profileImage} label={`${bar.name} profile`} />
+                        </div>
+                        <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
+                        <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
+                        <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                          {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
+                        </div>
+                        <p className="mt-3 line-clamp-2 text-sm text-slate-600">{bar.about || publicText.barProfileSoon}</p>
+                        <button onClick={() => navigate(`/bar/${bar.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                          {publicText.viewBarProfile}
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                );
+              })()}
               {!currentUser ? (
                 <div className="mt-8 mx-auto max-w-2xl rounded-3xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -16103,7 +16136,7 @@ export default function ThailandPantiesMarketSite() {
                       onClick={() => startConversationWithBar(selectedBar.id)}
                       className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
                     >
-                      Message this bar
+                      {publicText.messageThisBar}
                     </button>
                   </div>
                 ) : null}
@@ -16183,7 +16216,7 @@ export default function ThailandPantiesMarketSite() {
                           <ProductImage src={post.image} label={post.imageName || 'Bar post image'} />
                         </div>
                         <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <p className="mt-1 text-sm text-slate-700">{post.caption || barT.noCaption}</p>
+                        <p className="mt-1 text-sm text-slate-700">{post.caption || publicText.noCaption}</p>
                       </article>
                     ))}
                   </div>
