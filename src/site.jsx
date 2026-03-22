@@ -6207,22 +6207,56 @@ export default function ThailandPantiesMarketSite() {
         const hasLocalDb = !!window.localStorage.getItem('tlm-db');
         if (!hasLocalDb && payload?.db) {
           setDb(buildRuntimeDbState(payload.db, appMode));
-        } else if (hasLocalDb && Array.isArray(payload?.db?.users) && payload.db.users.length > 0) {
+        } else if (hasLocalDb && payload?.db) {
           setDb((prev) => {
-            const localIds = new Set((prev.users || []).map((u) => u.id));
-            const newUsers = payload.db.users.filter((u) => u?.id && !localIds.has(u.id));
-            if (newUsers.length === 0) return prev;
-            const merged = { ...prev, users: [...prev.users, ...newUsers] };
+            let changed = false;
+            let merged = { ...prev };
+            const serverUsers = Array.isArray(payload.db.users) ? payload.db.users : [];
+            if (serverUsers.length > 0) {
+              const localUserIds = new Set((prev.users || []).map((u) => u.id));
+              const newUsers = serverUsers.filter((u) => u?.id && !localUserIds.has(u.id));
+              if (newUsers.length > 0) {
+                merged.users = [...prev.users, ...newUsers];
+                changed = true;
+              }
+            }
+            const serverBars = Array.isArray(payload.db.bars) ? payload.db.bars : [];
+            if (serverBars.length > 0) {
+              const localBarMap = new Map((merged.bars || []).map((b) => [String(b?.id || ''), b]));
+              let barsUpdated = false;
+              serverBars.forEach((serverBar) => {
+                if (!serverBar?.id) return;
+                const id = String(serverBar.id);
+                const local = localBarMap.get(id);
+                if (!local) {
+                  localBarMap.set(id, serverBar);
+                  barsUpdated = true;
+                } else if (serverBar.profileImage && !local.profileImage) {
+                  localBarMap.set(id, { ...local, ...serverBar });
+                  barsUpdated = true;
+                } else if (serverBar.about && !local.about) {
+                  localBarMap.set(id, { ...local, ...serverBar });
+                  barsUpdated = true;
+                }
+              });
+              if (barsUpdated) {
+                merged.bars = Array.from(localBarMap.values());
+                changed = true;
+              }
+            }
             const barIds = new Set((merged.bars || []).map((b) => String(b?.id || '')));
-            const missingBars = newUsers
+            const missingBars = (merged.users || [])
               .filter((u) => u.role === 'bar' && u.barId && !barIds.has(String(u.barId)))
               .map((u) => ({
                 id: u.barId, name: u.name || '',
                 location: [u.city, u.country].filter(Boolean).join(', '),
                 about: '', specials: '', mapEmbedUrl: '', mapLink: '', profileImage: '', profileImageName: '',
               }));
-            if (missingBars.length > 0) merged.bars = [...(merged.bars || []), ...missingBars];
-            return merged;
+            if (missingBars.length > 0) {
+              merged.bars = [...(merged.bars || []), ...missingBars];
+              changed = true;
+            }
+            return changed ? merged : prev;
           });
         }
         setBackendStatus('connected');
@@ -9190,25 +9224,37 @@ export default function ThailandPantiesMarketSite() {
         buildTextTranslations(aboutText),
         buildTextTranslations(specialsText),
       ]);
+      const updatedBar = {
+        location: String(barProfileDraft.location || '').trim(),
+        about: aboutText,
+        aboutI18n: aboutI18n && Object.keys(aboutI18n).length > 0 ? aboutI18n : {},
+        specials: specialsText,
+        specialsI18n: specialsI18n && Object.keys(specialsI18n).length > 0 ? specialsI18n : {},
+        mapEmbedUrl: String(barProfileDraft.mapEmbedUrl || '').trim(),
+        mapLink: String(barProfileDraft.mapLink || '').trim(),
+        profileImage: barProfileDraft.profileImage || '',
+        profileImageName: barProfileDraft.profileImageName || '',
+        name: currentUser?.name || '',
+      };
       setDb((prev) => ({
         ...prev,
         bars: (prev.bars || []).map((bar) => (
           bar.id === currentBarId
             ? {
                 ...bar,
-                location: String(barProfileDraft.location || '').trim(),
-                about: aboutText,
-                aboutI18n: aboutI18n && Object.keys(aboutI18n).length > 0 ? aboutI18n : normalizeLocalizedMap(bar?.aboutI18n, aboutText),
-                specials: specialsText,
-                specialsI18n: specialsI18n && Object.keys(specialsI18n).length > 0 ? specialsI18n : normalizeLocalizedMap(bar?.specialsI18n, specialsText),
-                mapEmbedUrl: String(barProfileDraft.mapEmbedUrl || '').trim(),
-                mapLink: String(barProfileDraft.mapLink || '').trim(),
-                profileImage: barProfileDraft.profileImage || '',
-                profileImageName: barProfileDraft.profileImageName || '',
+                ...updatedBar,
+                aboutI18n: updatedBar.aboutI18n && Object.keys(updatedBar.aboutI18n).length > 0 ? updatedBar.aboutI18n : normalizeLocalizedMap(bar?.aboutI18n, aboutText),
+                specialsI18n: updatedBar.specialsI18n && Object.keys(updatedBar.specialsI18n).length > 0 ? updatedBar.specialsI18n : normalizeLocalizedMap(bar?.specialsI18n, specialsText),
               }
             : bar
         )),
       }));
+      if (backendStatus === 'connected' && apiAuthToken) {
+        apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, {
+          method: 'PUT',
+          body: updatedBar,
+        }).catch(() => {});
+      }
       setBarProfileMessage(`Bar profile saved at ${formatDateTimeNoSeconds(new Date().toISOString())}.`);
     } catch {
       setBarProfileMessage(barStatus('saveFailed'));
@@ -16613,7 +16659,7 @@ export default function ThailandPantiesMarketSite() {
                   onClick={() => navigate('/login')}
                   className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
                 >
-                  Go to login
+                  {loginText.verifyGoToLogin || 'Go to login'}
                 </button>
               </div>
             ) : (
@@ -17273,7 +17319,7 @@ export default function ThailandPantiesMarketSite() {
                   onClick={() => navigate('/login')}
                   className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
                 >
-                  Go to login
+                  {loginText.verifyGoToLogin || 'Go to login'}
                 </button>
               </div>
             ) : (
