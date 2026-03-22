@@ -4103,6 +4103,18 @@ function normalizeDbState(nextDb, mode = 'live') {
     adminEmailMessages: Array.isArray(nextDb.adminEmailMessages) ? nextDb.adminEmailMessages : [],
     siteSettings: normalizeSiteSettings(nextDb.siteSettings),
   };
+  const existingBarIds = new Set((normalized.bars || []).map((bar) => String(bar?.id || '')));
+  const missingBars = (normalized.users || [])
+    .filter((user) => user.role === 'bar' && user.barId && !existingBarIds.has(String(user.barId)))
+    .map((user) => ({
+      id: user.barId,
+      name: user.name || '',
+      location: [user.city, user.country].filter(Boolean).join(', '),
+      about: '', specials: '', mapEmbedUrl: '', mapLink: '', profileImage: '', profileImageName: '',
+    }));
+  if (missingBars.length > 0) {
+    normalized.bars = [...normalized.bars, ...missingBars];
+  }
   return pruneDemoMarketplaceData(normalized);
 }
 
@@ -6142,6 +6154,23 @@ export default function ThailandPantiesMarketSite() {
         const hasLocalDb = !!window.localStorage.getItem('tlm-db');
         if (!hasLocalDb && payload?.db) {
           setDb(buildRuntimeDbState(payload.db, appMode));
+        } else if (hasLocalDb && Array.isArray(payload?.db?.users) && payload.db.users.length > 0) {
+          setDb((prev) => {
+            const localIds = new Set((prev.users || []).map((u) => u.id));
+            const newUsers = payload.db.users.filter((u) => u?.id && !localIds.has(u.id));
+            if (newUsers.length === 0) return prev;
+            const merged = { ...prev, users: [...prev.users, ...newUsers] };
+            const barIds = new Set((merged.bars || []).map((b) => String(b?.id || '')));
+            const missingBars = newUsers
+              .filter((u) => u.role === 'bar' && u.barId && !barIds.has(String(u.barId)))
+              .map((u) => ({
+                id: u.barId, name: u.name || '',
+                location: [u.city, u.country].filter(Boolean).join(', '),
+                about: '', specials: '', mapEmbedUrl: '', mapLink: '', profileImage: '', profileImageName: '',
+              }));
+            if (missingBars.length > 0) merged.bars = [...(merged.bars || []), ...missingBars];
+            return merged;
+          });
         }
         setBackendStatus('connected');
       } catch {
@@ -7319,11 +7348,24 @@ export default function ThailandPantiesMarketSite() {
             // Never persist password from auth responses.
             password: hasExisting ? String(existingUsers.find((entry) => entry.id === authUser.id)?.password || '') : '',
           };
+          let nextBars = prev.bars || [];
+          if (mergedUser.role === 'bar' && mergedUser.barId) {
+            const barExists = nextBars.some((bar) => bar.id === mergedUser.barId);
+            if (!barExists) {
+              nextBars = [...nextBars, {
+                id: mergedUser.barId,
+                name: mergedUser.name || '',
+                location: [mergedUser.city, mergedUser.country].filter(Boolean).join(', '),
+                about: '', specials: '', mapEmbedUrl: '', mapLink: '', profileImage: '', profileImageName: '',
+              }];
+            }
+          }
           return {
             ...prev,
             users: hasExisting
               ? existingUsers.map((entry) => (entry.id === authUser.id ? mergedUser : entry))
               : [mergedUser, ...existingUsers],
+            bars: nextBars,
           };
         });
         finalizeLogin(authUser);
@@ -7542,11 +7584,24 @@ export default function ThailandPantiesMarketSite() {
           const existingUsers = Array.isArray(prev.users) ? prev.users : [];
           const hasExisting = existingUsers.some((entry) => entry.id === registrationUser.id);
           const mergedUser = { ...(hasExisting ? existingUsers.find((entry) => entry.id === registrationUser.id) : {}), ...registrationUser, password: '' };
+          let nextBars = prev.bars || [];
+          if (role === 'bar' && mergedUser.barId) {
+            const barExists = nextBars.some((bar) => bar.id === mergedUser.barId);
+            if (!barExists) {
+              nextBars = [...nextBars, {
+                id: mergedUser.barId,
+                name: name || mergedUser.name || '',
+                location: [city || mergedUser.city, country || mergedUser.country].filter(Boolean).join(', '),
+                about: '', specials: '', mapEmbedUrl: '', mapLink: '', profileImage: '', profileImageName: '',
+              }];
+            }
+          }
           return {
             ...prev,
             users: hasExisting
               ? existingUsers.map((entry) => (entry.id === registrationUser.id ? mergedUser : entry))
               : [mergedUser, ...existingUsers],
+            bars: nextBars,
           };
         });
         setSession({ userId: registrationUser.id });
