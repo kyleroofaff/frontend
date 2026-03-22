@@ -5581,15 +5581,28 @@ export default function ThailandPantiesMarketSite() {
         sourceTypes: mergedSourceTypes,
       };
     };
-    // Bars can only message participants that have already contacted this bar conversation.
+    // Buyers: bars can only reply to buyers who contacted the bar first.
+    // Sellers: bars can only message affiliated sellers.
     (messages || []).forEach((message) => {
       const parsedBarConversation = parseBarConversationId(message.conversationId);
       if (parsedBarConversation && parsedBarConversation.barId === currentBarId) {
-        upsert(parsedBarConversation.participantRole, parsedBarConversation.participantUserId, message.createdAt, 'direct_bar');
+        if (parsedBarConversation.participantRole === 'buyer') {
+          upsert('buyer', parsedBarConversation.participantUserId, message.createdAt, 'direct_bar');
+        }
       }
     });
+    const affiliatedSellerUserIds = new Set();
+    (sellers || []).forEach((seller) => {
+      if (String(seller.affiliatedBarId || '').trim() === currentBarId) {
+        const sellerUser = (users || []).find((user) => user.role === 'seller' && user.sellerId === seller.id);
+        if (sellerUser?.id) affiliatedSellerUserIds.add(sellerUser.id);
+      }
+    });
+    affiliatedSellerUserIds.forEach((userId) => {
+      upsert('seller', userId, new Date().toISOString(), 'affiliate_seller');
+    });
     return eligibilityMap;
-  }, [messages, currentUser]);
+  }, [messages, currentUser, sellers, users]);
   const barMessageEligibleContacts = useMemo(() => {
     if (!currentUser || currentUser.role !== 'bar') return [];
     const currentBarId = String(currentUser.barId || '').trim();
@@ -10118,6 +10131,10 @@ export default function ThailandPantiesMarketSite() {
     if (currentUser.accountStatus !== 'active') return;
     const normalizedBarId = String(barId || '').trim();
     if (!normalizedBarId) return;
+    if (currentUser.role === 'seller') {
+      const sellerAffiliatedBarId = String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim();
+      if (sellerAffiliatedBarId !== normalizedBarId) return;
+    }
     const conversationId = buildBarConversationId(normalizedBarId, currentUser.role, currentUser.id);
     setBarMessagesConversationId(conversationId);
     setBarMessagesError('');
@@ -10333,16 +10350,36 @@ export default function ThailandPantiesMarketSite() {
     const { barId, participantRole, participantUserId } = conversationMeta;
     if (currentUser.role === 'bar') {
       if (String(currentUser.barId || '').trim() !== barId) return;
-      const existingCount = (messages || []).filter((entry) => entry.conversationId === barMessageActiveConversationId).length;
-      if (existingCount === 0) {
-        const participantKey = `${participantRole}:${participantUserId}`;
-        if (!barOutreachEligibilityByParticipantKey?.[participantKey]) {
-          setBarMessagesError('Bars can only message buyers or sellers who contacted the bar first.');
+      if (participantRole === 'seller') {
+        const participantSeller = sellers.find((entry) => {
+          const sellerUser = users.find((user) => user.id === participantUserId && user.role === 'seller');
+          return sellerUser ? entry.id === sellerUser.sellerId : false;
+        });
+        const isAffiliated = participantSeller && String(participantSeller.affiliatedBarId || '').trim() === barId;
+        if (!isAffiliated) {
+          setBarMessagesError('Bars can only message their affiliated sellers.');
           return;
         }
       }
-    } else if (currentUser.role === 'buyer' || currentUser.role === 'seller') {
-      if (participantRole !== currentUser.role || participantUserId !== currentUser.id) return;
+      if (participantRole === 'buyer') {
+        const existingCount = (messages || []).filter((entry) => entry.conversationId === barMessageActiveConversationId).length;
+        if (existingCount === 0) {
+          const participantKey = `${participantRole}:${participantUserId}`;
+          if (!barOutreachEligibilityByParticipantKey?.[participantKey]) {
+            setBarMessagesError('Bars can only message buyers who contacted the bar first.');
+            return;
+          }
+        }
+      }
+    } else if (currentUser.role === 'seller') {
+      if (participantRole !== 'seller' || participantUserId !== currentUser.id) return;
+      const sellerAffiliatedBarId = String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim();
+      if (sellerAffiliatedBarId !== barId) {
+        setBarMessagesError('You can only message your affiliated bar.');
+        return;
+      }
+    } else if (currentUser.role === 'buyer') {
+      if (participantRole !== 'buyer' || participantUserId !== currentUser.id) return;
     } else {
       return;
     }
@@ -15791,7 +15828,7 @@ export default function ThailandPantiesMarketSite() {
                 <h2 className="mt-5 text-3xl font-bold tracking-tight">{selectedBar.name}</h2>
                 <p className="mt-2 text-slate-500">{selectedBar.location || publicText.locationComingSoon}</p>
                 <p className="mt-4 leading-7 text-slate-600">{selectedBar.about || publicText.barProfileSoon}</p>
-                {(currentUser?.role === 'buyer' || currentUser?.role === 'seller') ? (
+                {(currentUser?.role === 'buyer' || (currentUser?.role === 'seller' && String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim() === selectedBar.id)) ? (
                   <div className="mt-4">
                     <button
                       type="button"
