@@ -1308,6 +1308,8 @@ const REGISTER_I18N = {
     barAccount: 'Bar account',
     city: 'City',
     country: 'Country',
+    sellerNameHint: 'Please write your name in English using first name and last initial only (e.g. Nina R.). Do not use your full name.',
+    barNameHint: 'Please enter the name of your bar in English (e.g. Small World Chiang Mai).',
     sellerNote: 'Seller registration requires name, email, password, city, and country.',
     barNote: 'Bar registration requires bar name, email, password, city, and country.',
     createAccount: 'Create Account',
@@ -1354,6 +1356,8 @@ const REGISTER_I18N = {
     barAccount: 'บัญชีบาร์',
     city: 'เมือง',
     country: 'ประเทศ',
+    sellerNameHint: 'กรุณาเขียนชื่อเป็นภาษาอังกฤษ ใช้ชื่อจริงและนามสกุลตัวแรกเท่านั้น (เช่น Nina R.) ห้ามใช้ชื่อเต็ม',
+    barNameHint: 'กรุณาใส่ชื่อบาร์เป็นภาษาอังกฤษ (เช่น Small World Chiang Mai)',
     sellerNote: 'การสมัครผู้ขายต้องมีชื่อ อีเมล รหัสผ่าน เมือง และประเทศ',
     barNote: 'การสมัครบัญชีบาร์ต้องมีชื่อบาร์ อีเมล รหัสผ่าน เมือง และประเทศ',
     createAccount: 'สร้างบัญชี',
@@ -1400,6 +1404,8 @@ const REGISTER_I18N = {
     barAccount: 'bar အကောင့်',
     city: 'မြို့',
     country: 'နိုင်ငံ',
+    sellerNameHint: 'အမည်ကို အင်္ဂလိပ်လို ရေးပါ။ နာမည်နှင့် မျိုးနွယ်အစ တစ်လုံးသာ သုံးပါ (ဥပမာ Nina R.)။ အမည်အပြည့်အစုံ မသုံးပါနှင့်',
+    barNameHint: 'bar အမည်ကို အင်္ဂလိပ်လို ရေးပါ (ဥပမာ Small World Chiang Mai)',
     sellerNote: 'seller စာရင်းသွင်းရန် အမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     barNote: 'bar စာရင်းသွင်းရန် ဘားအမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     createAccount: 'အကောင့်ဖန်တီးမည်',
@@ -1446,6 +1452,8 @@ const REGISTER_I18N = {
     barAccount: 'Аккаунт бара',
     city: 'Город',
     country: 'Страна',
+    sellerNameHint: 'Пожалуйста, напишите имя на английском языке, используя только имя и первую букву фамилии (например, Nina R.). Не используйте полное имя.',
+    barNameHint: 'Пожалуйста, введите название бара на английском языке (например, Small World Chiang Mai).',
     sellerNote: 'Для регистрации продавца нужны имя, email, пароль, город и страна.',
     barNote: 'Для регистрации бара нужны название бара, email, пароль, город и страна.',
     createAccount: 'Создать аккаунт',
@@ -17419,8 +17427,18 @@ export default function ThailandPantiesMarketSite() {
                 value={registerForm.name}
                 onChange={(event) => setRegisterForm((prev) => ({ ...prev, name: event.target.value }))}
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                placeholder={registerText.fullName}
+                placeholder={registerForm.role === 'seller' ? 'Name (e.g. Nina R.)' : registerForm.role === 'bar' ? 'Bar name (e.g. Small World)' : registerText.fullName}
               />
+              {registerForm.role === 'seller' && registerText.sellerNameHint ? (
+                <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                  {registerText.sellerNameHint}
+                </div>
+              ) : null}
+              {registerForm.role === 'bar' && registerText.barNameHint ? (
+                <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                  {registerText.barNameHint}
+                </div>
+              ) : null}
               <input
                 value={registerForm.email}
                 onChange={(event) => setRegisterForm((prev) => ({ ...prev, email: event.target.value }))}
