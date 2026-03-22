@@ -3837,8 +3837,14 @@ const OFFICIAL_TEST_MODE_DB = {
   payoutEvents: [],
 };
 
-function normalizeDbState(nextDb) {
+function normalizeDbState(nextDb, mode = 'live') {
+  const isLive = mode === 'live';
   if (!nextDb || typeof nextDb !== 'object') {
+    if (isLive) {
+      const scaffold = structuredClone(CLEAN_SEED_DB);
+      Object.keys(scaffold).forEach((key) => { if (Array.isArray(scaffold[key])) scaffold[key] = []; });
+      return scaffold;
+    }
     return structuredClone(CLEAN_SEED_DB);
   }
 
@@ -3857,6 +3863,7 @@ function normalizeDbState(nextDb) {
               timeFormat: normalizeTimeFormat(user?.timeFormat),
               notificationPreferences: normalizeNotificationPreferences(user?.notificationPreferences, user?.role),
             }));
+          if (isLive) return normalizedUsers;
           const existingIds = new Set(normalizedUsers.map((user) => String(user?.id || '')));
           const requiredUsers = (CLEAN_SEED_DB.users || [])
             .filter((user) => REQUIRED_SYSTEM_USER_IDS.has(String(user?.id || '')) && !existingIds.has(String(user?.id || '')))
@@ -3870,7 +3877,7 @@ function normalizeDbState(nextDb) {
             }));
           return [...normalizedUsers, ...requiredUsers];
         })()
-      : structuredClone(CLEAN_SEED_DB.users),
+      : isLive ? [] : structuredClone(CLEAN_SEED_DB.users),
     sellers: Array.isArray(nextDb.sellers)
       ? (() => {
           const normalizedSellers = nextDb.sellers.map((seller) => ({
@@ -3884,6 +3891,7 @@ function normalizeDbState(nextDb) {
             turnaroundI18n: normalizeLocalizedMap(seller?.turnaroundI18n, seller?.turnaround),
             bioI18n: normalizeLocalizedMap(seller?.bioI18n, seller?.bio),
           }));
+          if (isLive) return normalizedSellers;
           const existingSellerIds = new Set(normalizedSellers.map((seller) => String(seller?.id || '')));
           const requiredSellers = (CLEAN_SEED_DB.sellers || [])
             .filter((seller) => REQUIRED_SELLER_IDS.has(String(seller?.id || '')) && !existingSellerIds.has(String(seller?.id || '')))
@@ -3900,7 +3908,7 @@ function normalizeDbState(nextDb) {
             }));
           return [...normalizedSellers, ...requiredSellers];
         })()
-      : structuredClone(CLEAN_SEED_DB.sellers),
+      : isLive ? [] : structuredClone(CLEAN_SEED_DB.sellers),
     bars: Array.isArray(nextDb.bars)
       ? (() => {
           const normalizedBars = nextDb.bars.map((bar) => ({
@@ -3908,6 +3916,7 @@ function normalizeDbState(nextDb) {
             aboutI18n: normalizeLocalizedMap(bar?.aboutI18n, bar?.about),
             specialsI18n: normalizeLocalizedMap(bar?.specialsI18n, bar?.specials),
           }));
+          if (isLive) return normalizedBars;
           const existingBarIds = new Set(normalizedBars.map((bar) => String(bar?.id || '')));
           const requiredBars = (CLEAN_SEED_DB.bars || [])
             .filter((bar) => REQUIRED_BAR_IDS.has(String(bar?.id || '')) && !existingBarIds.has(String(bar?.id || '')))
@@ -3918,8 +3927,8 @@ function normalizeDbState(nextDb) {
             }));
           return [...normalizedBars, ...requiredBars];
         })()
-      : structuredClone(CLEAN_SEED_DB.bars || []),
-    barPosts: Array.isArray(nextDb.barPosts) ? nextDb.barPosts : structuredClone(CLEAN_SEED_DB.barPosts || []),
+      : isLive ? [] : structuredClone(CLEAN_SEED_DB.bars || []),
+    barPosts: Array.isArray(nextDb.barPosts) ? nextDb.barPosts : isLive ? [] : structuredClone(CLEAN_SEED_DB.barPosts || []),
     products: Array.isArray(nextDb.products)
       ? (() => {
           const normalizedProducts = nextDb.products.map((product) => ({
@@ -3927,6 +3936,7 @@ function normalizeDbState(nextDb) {
             price: Math.max(MIN_SELLER_PRICE_THB, Number(product?.price || MIN_SELLER_PRICE_THB)),
             daysWorn: normalizeProductDaysWornValue(product?.daysWorn),
           }));
+          if (isLive) return normalizedProducts;
           const existingProductIds = new Set(normalizedProducts.map((product) => String(product?.id || '')));
           const requiredProducts = (CLEAN_SEED_DB.products || [])
             .filter((product) => REQUIRED_PRODUCT_IDS.has(String(product?.id || '')) && !existingProductIds.has(String(product?.id || '')))
@@ -3937,7 +3947,7 @@ function normalizeDbState(nextDb) {
             }));
           return [...normalizedProducts, ...requiredProducts];
         })()
-      : structuredClone(CLEAN_SEED_DB.products),
+      : isLive ? [] : structuredClone(CLEAN_SEED_DB.products),
     sellerPosts: Array.isArray(nextDb.sellerPosts)
       ? nextDb.sellerPosts.map((post) => ({
           ...post,
@@ -3945,7 +3955,7 @@ function normalizeDbState(nextDb) {
           accessPriceUsd: Math.max(MIN_FEED_UNLOCK_PRICE_THB, Number(post?.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)),
           scheduledFor: typeof post?.scheduledFor === 'string' ? post.scheduledFor : '',
         }))
-      : structuredClone(CLEAN_SEED_DB.sellerPosts),
+      : isLive ? [] : structuredClone(CLEAN_SEED_DB.sellerPosts),
     postReports: Array.isArray(nextDb.postReports) ? nextDb.postReports : [],
     commentReports: Array.isArray(nextDb.commentReports) ? nextDb.commentReports : [],
     messageReports: Array.isArray(nextDb.messageReports) ? nextDb.messageReports : [],
@@ -4371,12 +4381,12 @@ function ensureMaliBundleSeedProducts(products) {
 }
 
 function buildRuntimeDbState(sourceDb, modeValue = 'live') {
-  const normalized = normalizeDbState(sourceDb);
   const appMode = normalizeAppMode(modeValue);
+  const normalized = normalizeDbState(sourceDb, appMode);
   const baseProducts = Array.isArray(normalized.products) ? normalized.products : [];
   return {
     ...normalized,
-    products: appMode === 'test' ? baseProducts : ensureMaliBundleSeedProducts(baseProducts),
+    products: baseProducts,
   };
 }
 
@@ -4476,7 +4486,7 @@ export default function ThailandPantiesMarketSite() {
     if (appMode === 'test') {
       return buildRuntimeDbState(OFFICIAL_TEST_MODE_DB, 'test');
     }
-    return buildRuntimeDbState(readStore('tlm-db', CLEAN_SEED_DB), 'live');
+    return buildRuntimeDbState(readStore('tlm-db', {}), 'live');
   });
   const [cart, setCart] = useState(() => readStore('tlm-cart', []));
   const [cartNotice, setCartNotice] = useState('');
@@ -4585,7 +4595,7 @@ export default function ThailandPantiesMarketSite() {
       window.localStorage.removeItem('tlm-api-token');
     }
     setAppMode(normalizedMode);
-    setDb(buildRuntimeDbState(normalizedMode === 'test' ? OFFICIAL_TEST_MODE_DB : CLEAN_SEED_DB, normalizedMode));
+    setDb(buildRuntimeDbState(normalizedMode === 'test' ? OFFICIAL_TEST_MODE_DB : {}, normalizedMode));
     setCart([]);
     setCheckoutStep(1);
     setBuyerEmail('');
@@ -6004,7 +6014,7 @@ export default function ThailandPantiesMarketSite() {
     window.localStorage.removeItem('tlm-checkout-form');
     window.localStorage.removeItem('tlm-session');
     window.localStorage.removeItem('tlm-api-token');
-    setDb(buildRuntimeDbState(appMode === 'test' ? OFFICIAL_TEST_MODE_DB : CLEAN_SEED_DB, appMode));
+    setDb(buildRuntimeDbState(appMode === 'test' ? OFFICIAL_TEST_MODE_DB : {}, appMode));
     setCart([]);
     setCheckoutStep(1);
     setBuyerEmail('');
@@ -9863,7 +9873,7 @@ export default function ThailandPantiesMarketSite() {
         });
         if (ok) {
           if (apiPayload?.db) {
-            setDb(normalizeDbState(apiPayload.db));
+            setDb(normalizeDbState(apiPayload.db, appMode));
           }
           onSuccess?.('Support request submitted. Our team will follow up soon.');
           return true;
@@ -9958,7 +9968,7 @@ export default function ThailandPantiesMarketSite() {
         });
         if (ok) {
           if (apiPayload?.db) {
-            setDb(normalizeDbState(apiPayload.db));
+            setDb(normalizeDbState(apiPayload.db, appMode));
           }
           onSuccess?.('Safety report submitted. Admin has been notified.');
           return true;
@@ -10169,7 +10179,7 @@ export default function ThailandPantiesMarketSite() {
         });
         if (ok) {
           if (payload?.db) {
-            setDb(normalizeDbState(payload.db));
+            setDb(normalizeDbState(payload.db, appMode));
           }
           onSuccess?.();
           onError?.('');
@@ -10511,7 +10521,7 @@ export default function ThailandPantiesMarketSite() {
         });
         if (ok) {
           if (apiPayload?.db) {
-            setDb(normalizeDbState(apiPayload.db));
+            setDb(normalizeDbState(apiPayload.db, appMode));
           }
           onError?.('');
           onSuccess?.();
@@ -12226,7 +12236,7 @@ export default function ThailandPantiesMarketSite() {
       if (!ok) {
         return { ok: false, error: String(payload?.error || 'Could not save PromptPay receiver.') };
       }
-      if (payload?.db) setDb(normalizeDbState(payload.db));
+      if (payload?.db) setDb(normalizeDbState(payload.db, appMode));
       return { ok: true, message: String(payload?.message || 'PromptPay receiver saved.') };
     }
     setDb((prev) => ({
@@ -12252,7 +12262,7 @@ export default function ThailandPantiesMarketSite() {
       if (!ok) {
         return { ok: false, error: String(payload?.error || 'Could not create payout run.') };
       }
-      if (payload?.db) setDb(normalizeDbState(payload.db));
+      if (payload?.db) setDb(normalizeDbState(payload.db, appMode));
       return {
         ok: true,
         runId: payload?.runId || '',
@@ -12400,7 +12410,7 @@ export default function ThailandPantiesMarketSite() {
       if (!ok) {
         return { ok: false, error: String(payload?.error || 'Could not mark payout item as sent.') };
       }
-      if (payload?.db) setDb(normalizeDbState(payload.db));
+      if (payload?.db) setDb(normalizeDbState(payload.db, appMode));
       return { ok: true, message: String(payload?.message || 'Marked payout sent.') };
     }
     let actionResult = { ok: false, error: 'Could not mark payout item as sent.' };
@@ -12518,7 +12528,7 @@ export default function ThailandPantiesMarketSite() {
       if (!ok) {
         return { ok: false, error: String(payload?.error || 'Could not mark payout item as failed.') };
       }
-      if (payload?.db) setDb(normalizeDbState(payload.db));
+      if (payload?.db) setDb(normalizeDbState(payload.db, appMode));
       return { ok: true, message: String(payload?.message || 'Marked payout failed.') };
     }
     let actionResult = { ok: false, error: 'Could not mark payout item as failed.' };
@@ -12761,7 +12771,7 @@ export default function ThailandPantiesMarketSite() {
         });
         if (ok) {
           if (payload?.db) {
-            setDb(normalizeDbState(payload.db));
+            setDb(normalizeDbState(payload.db, appMode));
           }
           setWalletStatus('success');
           return { ok: true };
@@ -12886,7 +12896,7 @@ export default function ThailandPantiesMarketSite() {
           const resolvedOrderId = apiOrderId || `order_${Date.now()}`;
           if (payload?.db) {
             setDb((prev) => ensureOrderPlacedEmailQueued(
-              normalizeDbState(payload.db),
+              normalizeDbState(payload.db, appMode),
               {
                 userId: currentUser.id,
                 orderId: resolvedOrderId,
