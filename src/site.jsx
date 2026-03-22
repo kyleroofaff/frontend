@@ -257,6 +257,37 @@ const BAR_DASHBOARD_I18N = {
     applyToSpecials: 'Apply to specials',
     clearPicks: 'Clear picks',
     highlightsPrefix: 'Highlights',
+    notificationDisplay: 'Notification display',
+    discreetMessages: 'Discreet Messages',
+    viewMode: 'View',
+    on: 'On',
+    off: 'Off',
+    compact: 'Compact',
+    comfort: 'Comfort',
+    discreetMessagesHelp: 'Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).',
+    emailNotifications: 'Email notifications',
+    browserNotifications: 'Browser notifications',
+    pushNotSupported: 'Push notifications are not supported by this browser.',
+    pushBlocked: 'Browser notifications are blocked. Enable notifications in browser settings.',
+    shareBarQr: 'Share bar page QR code',
+    shareBarQrHelp: (name) => `Visitors can scan this code to open ${name}\u2019s bar profile directly.`,
+    copyLink: 'Copy Link',
+    downloadQr: 'Download QR',
+    affiliateEarnings: 'Affiliate earnings',
+    affiliateEarningsHelp: 'Track the money your bar earns from affiliated seller sales and paid buyer interactions.',
+    totalEarned: 'Total earned',
+    orderCommissions: 'Order commissions',
+    messageCommissions: 'Message commissions',
+    customRequestCommissions: 'Custom request commissions',
+    topAffiliatedSellers: 'Top affiliated sellers (order commissions)',
+    noOrderCommissions: 'No order commissions yet.',
+    commissionEvents: (n) => `${n} commission event${n > 1 ? 's' : ''}`,
+    recentLedger: 'Recent affiliate commission ledger',
+    noCommissionTransactions: 'No affiliate commission transactions yet.',
+    commissionCredit: 'Commission credit',
+    engagementBadge: 'Engagement',
+    unreadBadge: 'Unread',
+    markRead: 'Mark read',
   },
   th: {
     title: 'จัดการโปรไฟล์บาร์ของคุณ',
@@ -323,6 +354,37 @@ const BAR_DASHBOARD_I18N = {
     applyToSpecials: 'เพิ่มลงในโปรโมชั่น',
     clearPicks: 'ล้างตัวเลือก',
     highlightsPrefix: 'ไฮไลต์',
+    notificationDisplay: 'การแสดงการแจ้งเตือน',
+    discreetMessages: 'ข้อความแบบสุขุม',
+    viewMode: 'มุมมอง',
+    on: 'เปิด',
+    off: 'ปิด',
+    compact: 'กะทัดรัด',
+    comfort: 'สบายตา',
+    discreetMessagesHelp: 'ข้อความแบบสุขุมจะซ่อนข้อความละเอียดอ่อนในตัวอย่างการแจ้งเตือน มุมมองสลับระหว่างการ์ดกว้าง (สบายตา) และแถวแน่น (กะทัดรัด)',
+    emailNotifications: 'การแจ้งเตือนทางอีเมล',
+    browserNotifications: 'การแจ้งเตือนเบราว์เซอร์',
+    pushNotSupported: 'เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือนแบบพุช',
+    pushBlocked: 'การแจ้งเตือนเบราว์เซอร์ถูกบล็อก เปิดใช้งานในการตั้งค่าเบราว์เซอร์',
+    shareBarQr: 'แชร์ QR code หน้าบาร์',
+    shareBarQrHelp: (name) => `ผู้เยี่ยมชมสามารถสแกนโค้ดนี้เพื่อเปิดโปรไฟล์บาร์ ${name} โดยตรง`,
+    copyLink: 'คัดลอกลิงก์',
+    downloadQr: 'ดาวน์โหลด QR',
+    affiliateEarnings: 'รายได้จากการเป็นพันธมิตร',
+    affiliateEarningsHelp: 'ติดตามรายได้ที่บาร์ของคุณได้จากยอดขายของผู้ขายในสังกัดและการโต้ตอบของผู้ซื้อ',
+    totalEarned: 'รายได้ทั้งหมด',
+    orderCommissions: 'ค่าคอมมิชชั่นจากออเดอร์',
+    messageCommissions: 'ค่าคอมมิชชั่นจากข้อความ',
+    customRequestCommissions: 'ค่าคอมมิชชั่นจากคำขอพิเศษ',
+    topAffiliatedSellers: 'ผู้ขายในสังกัดอันดับต้น (ค่าคอมมิชชั่นจากออเดอร์)',
+    noOrderCommissions: 'ยังไม่มีค่าคอมมิชชั่นจากออเดอร์',
+    commissionEvents: (n) => `${n} รายการค่าคอมมิชชั่น`,
+    recentLedger: 'บัญชีค่าคอมมิชชั่นล่าสุด',
+    noCommissionTransactions: 'ยังไม่มีรายการค่าคอมมิชชั่น',
+    commissionCredit: 'เครดิตค่าคอมมิชชั่น',
+    engagementBadge: 'การมีส่วนร่วม',
+    unreadBadge: 'ยังไม่ได้อ่าน',
+    markRead: 'ทำเครื่องหมายอ่านแล้ว',
   },
   my: {
     title: 'သင့် bar ပရိုဖိုင်ကို စီမံပါ',
@@ -389,6 +451,37 @@ const BAR_DASHBOARD_I18N = {
     applyToSpecials: 'specials ထဲ ထည့်မည်',
     clearPicks: 'ရွေးချယ်မှုရှင်းမည်',
     highlightsPrefix: 'အထူးအချက်များ',
+    notificationDisplay: 'အကြောင်းကြားချက် ပြသမှု',
+    discreetMessages: 'လျှို့ဝှက် Messages',
+    viewMode: 'မြင်ကွင်း',
+    on: 'ဖွင့်',
+    off: 'ပိတ်',
+    compact: 'သိပ်သည်း',
+    comfort: 'အဆင်ပြေ',
+    discreetMessagesHelp: 'လျှို့ဝှက် Messages သည် အကြောင်းကြားချက်များတွင် အရေးကြီးစာသားများကို ဝှက်ထားသည်။ မြင်ကွင်းသည် ကျယ်ဝန်းသော ကတ်များ (အဆင်ပြေ) နှင့် ကျပ်သော အတန်းများ (သိပ်သည်း) ကို ပြောင်းသည်။',
+    emailNotifications: 'Email အကြောင်းကြားချက်',
+    browserNotifications: 'Browser အကြောင်းကြားချက်',
+    pushNotSupported: 'ဤ browser သည် push notifications ကို မပံ့ပိုးပါ',
+    pushBlocked: 'Browser notifications ကို ပိတ်ထားသည်။ browser settings တွင် ဖွင့်ပါ။',
+    shareBarQr: 'Bar page QR code မျှဝေမည်',
+    shareBarQrHelp: (name) => `ဧည့်သည်များသည် ${name} bar profile ကို တိုက်ရိုက်ဖွင့်ရန် ဤ code ကို scan ဖတ်နိုင်ပါသည်`,
+    copyLink: 'Link ကူးမည်',
+    downloadQr: 'QR ဒေါင်းလုဒ်',
+    affiliateEarnings: 'Affiliate ဝင်ငွေ',
+    affiliateEarningsHelp: 'သင့် bar မှ affiliated seller ရောင်းအား နှင့် buyer အပြန်အလှန်ဆက်ဆံမှုမှ ရသော ငွေကို ခြေရာခံပါ',
+    totalEarned: 'စုစုပေါင်း ရငွေ',
+    orderCommissions: 'Order commissions',
+    messageCommissions: 'Message commissions',
+    customRequestCommissions: 'Custom request commissions',
+    topAffiliatedSellers: 'ထိပ်တန်း affiliated sellers (order commissions)',
+    noOrderCommissions: 'Order commissions မရှိသေးပါ',
+    commissionEvents: (n) => `commission event ${n} ခု`,
+    recentLedger: 'မကြာသေးမီ affiliate commission စာရင်း',
+    noCommissionTransactions: 'Affiliate commission transactions မရှိသေးပါ',
+    commissionCredit: 'Commission credit',
+    engagementBadge: 'Engagement',
+    unreadBadge: 'မဖတ်ရသေး',
+    markRead: 'ဖတ်ပြီး အဖြစ် မှတ်မည်',
   },
   ru: {
     title: 'Управляйте профилем бара',
@@ -455,6 +548,37 @@ const BAR_DASHBOARD_I18N = {
     applyToSpecials: 'Добавить в акции',
     clearPicks: 'Очистить выбор',
     highlightsPrefix: 'Особенности',
+    notificationDisplay: 'Настройки уведомлений',
+    discreetMessages: 'Скрытые сообщения',
+    viewMode: 'Вид',
+    on: 'Вкл',
+    off: 'Выкл',
+    compact: 'Компактный',
+    comfort: 'Комфортный',
+    discreetMessagesHelp: 'Скрытые сообщения скрывают деликатные формулировки в превью уведомлений. Вид переключает между просторными карточками (Комфортный) и плотными рядами (Компактный).',
+    emailNotifications: 'Email-уведомления',
+    browserNotifications: 'Уведомления браузера',
+    pushNotSupported: 'Push-уведомления не поддерживаются этим браузером.',
+    pushBlocked: 'Уведомления браузера заблокированы. Включите их в настройках браузера.',
+    shareBarQr: 'QR-код страницы бара',
+    shareBarQrHelp: (name) => `Посетители могут отсканировать этот код, чтобы перейти к профилю бара ${name}.`,
+    copyLink: 'Копировать ссылку',
+    downloadQr: 'Скачать QR',
+    affiliateEarnings: 'Партнёрский доход',
+    affiliateEarningsHelp: 'Отслеживайте доход бара от продаж привязанных продавцов и платных взаимодействий покупателей.',
+    totalEarned: 'Всего заработано',
+    orderCommissions: 'Комиссии с заказов',
+    messageCommissions: 'Комиссии с сообщений',
+    customRequestCommissions: 'Комиссии с индивидуальных запросов',
+    topAffiliatedSellers: 'Топ привязанных продавцов (комиссии с заказов)',
+    noOrderCommissions: 'Пока нет комиссий с заказов.',
+    commissionEvents: (n) => `${n} комиссионн${n > 1 ? 'ых событий' : 'ое событие'}`,
+    recentLedger: 'Последние записи комиссий',
+    noCommissionTransactions: 'Пока нет комиссионных транзакций.',
+    commissionCredit: 'Комиссионный кредит',
+    engagementBadge: 'Активность',
+    unreadBadge: 'Непрочитано',
+    markRead: 'Прочитано',
   },
 };
 
@@ -16208,7 +16332,7 @@ export default function ThailandPantiesMarketSite() {
                 </div>
               </div>
               <div className="space-y-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                <BarQrCard bar={selectedBar} />
+                <BarQrCard bar={selectedBar} t={barT} />
                 <div>
                   <h3 className="text-xl font-semibold">{publicText.locationMap}</h3>
                   {selectedBar.mapEmbedUrl ? (
@@ -16789,25 +16913,25 @@ export default function ThailandPantiesMarketSite() {
                   </label>
                 </div>
                 <div className="mb-4 rounded-3xl border border-rose-100 bg-white p-4 shadow-sm">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Notification display</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.notificationDisplay}</div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => setBarDiscreetNotificationText((prev) => !prev)}
                       className={`rounded-xl px-3 py-2 text-sm font-semibold ${barDiscreetNotificationText ? 'bg-slate-800 text-white' : 'border border-slate-200 text-slate-700'}`}
                     >
-                      Discreet Messages: {barDiscreetNotificationText ? 'On' : 'Off'}
+                      {barT.discreetMessages}: {barDiscreetNotificationText ? barT.on : barT.off}
                     </button>
                     <button
                       type="button"
                       onClick={() => setBarNotificationCompactMode((prev) => !prev)}
                       className={`rounded-xl px-3 py-2 text-sm font-semibold ${barNotificationCompactMode ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-700'}`}
                     >
-                      View: {barNotificationCompactMode ? 'Compact' : 'Comfort'}
+                      {barT.viewMode}: {barNotificationCompactMode ? barT.compact : barT.comfort}
                     </button>
                   </div>
                   <p className="mt-2 text-xs text-slate-500">
-                    Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).
+                    {barT.discreetMessagesHelp}
                   </p>
                   <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
                     <div className="flex flex-wrap gap-2">
@@ -16820,7 +16944,7 @@ export default function ThailandPantiesMarketSite() {
                         }}
                         className={`rounded-xl px-3 py-2 text-sm font-semibold ${barInAppAllEnabled ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 text-slate-600'}`}
                       >
-                        Email notifications: {barInAppAllEnabled ? 'On' : 'Off'}
+                        {barT.emailNotifications}: {barInAppAllEnabled ? barT.on : barT.off}
                       </button>
                       <button
                         type="button"
@@ -16831,59 +16955,59 @@ export default function ThailandPantiesMarketSite() {
                         }}
                         className={`rounded-xl px-3 py-2 text-sm font-semibold ${barPushAllEnabled ? 'bg-indigo-50 text-indigo-700' : 'border border-slate-200 text-slate-600'}`}
                       >
-                        Browser notifications: {barPushAllEnabled ? 'On' : 'Off'}
+                        {barT.browserNotifications}: {barPushAllEnabled ? barT.on : barT.off}
                       </button>
                     </div>
                     {!pushSupport.notification ? (
-                      <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
+                      <div className="mt-2 text-xs text-amber-700">{barT.pushNotSupported}</div>
                     ) : null}
                     {pushSupport.notification && pushPermission === 'denied' ? (
-                      <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
+                      <div className="mt-2 text-xs text-amber-700">{barT.pushBlocked}</div>
                     ) : null}
                   </div>
                 </div>
                 {currentBarProfile ? (
                   <div className="mt-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                    <BarQrCard bar={currentBarProfile} />
+                    <BarQrCard bar={currentBarProfile} t={barT} />
                   </div>
                 ) : null}
                 <details id="bar-earnings" className="mt-6 overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
                   <summary className="cursor-pointer list-none">
                     <div className="flex items-center justify-between gap-3">
-                      <h3 className="text-xl font-semibold">Affiliate earnings</h3>
+                      <h3 className="text-xl font-semibold">{barT.affiliateEarnings}</h3>
                       <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
                     </div>
                   </summary>
-                  <p className="mt-1 text-sm text-slate-600">Track the money your bar earns from affiliated seller sales and paid buyer interactions.</p>
+                  <p className="mt-1 text-sm text-slate-600">{barT.affiliateEarningsHelp}</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="rounded-2xl bg-emerald-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Total earned</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{barT.totalEarned}</div>
                       <div className="mt-1 text-2xl font-bold text-emerald-800">{formatPriceTHB(barAffiliateEarnings.total)}</div>
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order commissions</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{barT.orderCommissions}</div>
                       <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(barAffiliateEarnings.bySource.orders)}</div>
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Message commissions</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{barT.messageCommissions}</div>
                       <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(barAffiliateEarnings.bySource.messages)}</div>
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Custom request commissions</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{barT.customRequestCommissions}</div>
                       <div className="mt-1 text-lg font-semibold text-slate-800">{formatPriceTHB(barAffiliateEarnings.bySource.customRequests)}</div>
                     </div>
                   </div>
                   <div className="mt-4 space-y-4">
                     <div className="rounded-2xl border border-rose-100 bg-slate-50 p-4">
-                      <div className="text-sm font-semibold text-slate-800">Top affiliated sellers (order commissions)</div>
+                      <div className="text-sm font-semibold text-slate-800">{barT.topAffiliatedSellers}</div>
                       <div className="mt-3 space-y-2">
                         {barAffiliateEarnings.bySellerFromOrders.length === 0 ? (
-                          <div className="rounded-xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">No order commissions yet.</div>
+                          <div className="rounded-xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{barT.noOrderCommissions}</div>
                         ) : barAffiliateEarnings.bySellerFromOrders.slice(0, 6).map((row) => (
                           <div key={row.sellerId} className="flex items-center justify-between rounded-xl bg-white px-3 py-2 ring-1 ring-rose-100">
                             <div>
                               <div className="text-sm font-semibold text-slate-800">{row.sellerName}</div>
-                              <div className="text-xs text-slate-500">{row.orderCount} commission event{row.orderCount > 1 ? 's' : ''}</div>
+                              <div className="text-xs text-slate-500">{barT.commissionEvents(row.orderCount)}</div>
                             </div>
                             <div className="text-sm font-semibold text-emerald-700">{formatPriceTHB(row.amount)}</div>
                           </div>
@@ -16891,15 +17015,15 @@ export default function ThailandPantiesMarketSite() {
                       </div>
                     </div>
                     <div className="rounded-2xl border border-rose-100 bg-slate-50 p-4">
-                      <div className="text-sm font-semibold text-slate-800">Recent affiliate commission ledger</div>
+                      <div className="text-sm font-semibold text-slate-800">{barT.recentLedger}</div>
                       <div className="mt-3 space-y-2">
                         {barAffiliateEarnings.ledger.length === 0 ? (
-                          <div className="rounded-xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">No affiliate commission transactions yet.</div>
+                          <div className="rounded-xl bg-white p-3 text-sm text-slate-500 ring-1 ring-rose-100">{barT.noCommissionTransactions}</div>
                         ) : barAffiliateEarnings.ledger.slice(0, 8).map((entry) => (
                           <div key={entry.id} className="flex items-center justify-between rounded-xl bg-white px-3 py-2 ring-1 ring-rose-100">
                             <div>
                               <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(entry.createdAt)}</div>
-                              <div className="text-sm text-slate-700">{entry.description || 'Commission credit'}</div>
+                              <div className="text-sm text-slate-700">{entry.description || barT.commissionCredit}</div>
                             </div>
                             <div className="text-sm font-semibold text-emerald-700">{formatPriceTHB(Number(entry.amount || 0))}</div>
                           </div>
@@ -17034,7 +17158,7 @@ export default function ThailandPantiesMarketSite() {
                         {savingBarProfile ? barT.saving : barT.saveProfile}
                       </button>
                       {barProfileMessage ? (
-                        <div className={`text-sm font-medium ${barProfileMessage.startsWith('Could not') ? 'text-rose-700' : 'text-emerald-700'}`}>
+                        <div className={`text-sm font-medium ${barProfileMessage === barT.profileSaved ? 'text-emerald-700' : 'text-rose-700'}`}>
                           {barProfileMessage}
                         </div>
                       ) : null}
@@ -17149,9 +17273,9 @@ export default function ThailandPantiesMarketSite() {
                         <div key={notification.id} className="rounded-2xl bg-slate-50 p-4">
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">Engagement</span>
+                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">{barT.engagementBadge}</span>
                               {!notification.read ? (
-                                <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">Unread</span>
+                                <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">{barT.unreadBadge}</span>
                               ) : null}
                             </div>
                             {!notification.read ? (
@@ -17160,7 +17284,7 @@ export default function ThailandPantiesMarketSite() {
                                 onClick={() => markNotificationRead(notification.id)}
                                 className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700"
                               >
-                                Mark read
+                                {barT.markRead}
                               </button>
                             ) : null}
                           </div>

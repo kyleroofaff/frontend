@@ -129,7 +129,7 @@ export function SellerQrCard({ seller, compact = false }) {
   );
 }
 
-export function BarQrCard({ bar, compact = false }) {
+export function BarQrCard({ bar, compact = false, t = {} }) {
   const profileUrl = createBarProfileUrl(bar.id);
   const qrContainerRef = useRef(null);
 
@@ -137,8 +137,8 @@ export function BarQrCard({ bar, compact = false }) {
     <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="text-lg font-semibold">Share bar page QR code</div>
-          <p className="mt-1 text-sm leading-6 text-slate-600">Visitors can scan this code to open {bar.name}&rsquo;s bar profile directly.</p>
+          <div className="text-lg font-semibold">{t.shareBarQr || 'Share bar page QR code'}</div>
+          <p className="mt-1 text-sm leading-6 text-slate-600">{typeof t.shareBarQrHelp === 'function' ? t.shareBarQrHelp(bar.name) : `Visitors can scan this code to open ${bar.name}\u2019s bar profile directly.`}</p>
         </div>
         <div ref={qrContainerRef} className="rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
           <QRCodeSVG value={profileUrl} size={compact ? 112 : 132} includeMargin />
@@ -154,7 +154,7 @@ export function BarQrCard({ bar, compact = false }) {
           }}
           className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700"
         >
-          Copy Link
+          {t.copyLink || 'Copy Link'}
         </button>
         <button
           onClick={() => {
@@ -163,7 +163,7 @@ export function BarQrCard({ bar, compact = false }) {
           }}
           className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700"
         >
-          Download QR
+          {t.downloadQr || 'Download QR'}
         </button>
       </div>
     </div>
