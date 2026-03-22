@@ -7554,9 +7554,9 @@ export default function ThailandPantiesMarketSite() {
         navigate(role === 'bar' ? '/bar-dashboard' : '/account');
         return;
       }
-      const defaultMsg = skipVerification
-        ? 'Account created. You can now log in.'
-        : 'Account created. Check your email to verify before logging in.';
+      const defaultMsg = role === 'bar' ? registerText.barSuccess
+        : role === 'seller' ? registerText.sellerPendingSuccess
+        : registerText.buyerSuccess;
       setAuthSuccess(String(payload?.message || defaultMsg));
       navigate('/login');
       return;
