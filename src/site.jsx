@@ -7384,6 +7384,7 @@ export default function ThailandPantiesMarketSite() {
     }
     const shouldUseBackendRegistration = REQUIRE_BACKEND_AUTH || backendStatus === 'connected';
     if (shouldUseBackendRegistration) {
+      const skipVerification = role === 'seller' || role === 'bar';
       const { ok, payload } = await apiRequestJson('/api/auth/register', {
         method: 'POST',
         body: {
@@ -7396,6 +7397,7 @@ export default function ThailandPantiesMarketSite() {
           preferredLanguage: authLanguage,
           acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
           acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
+          ...(skipVerification ? { skipEmailVerification: true } : {}),
         },
       });
       if (!ok) {
@@ -7415,7 +7417,31 @@ export default function ThailandPantiesMarketSite() {
         acceptedNoRefunds: false,
       });
       setAuthError('');
-      setAuthSuccess(String(payload?.message || 'Account created. Check your email to verify before logging in.'));
+      const registrationToken = String(payload?.token || '').trim();
+      const registrationUser = payload?.user || null;
+      if (skipVerification && registrationToken && registrationUser?.id) {
+        setApiAuthToken(registrationToken);
+        setBackendStatus('connected');
+        setDb((prev) => {
+          const existingUsers = Array.isArray(prev.users) ? prev.users : [];
+          const hasExisting = existingUsers.some((entry) => entry.id === registrationUser.id);
+          const mergedUser = { ...(hasExisting ? existingUsers.find((entry) => entry.id === registrationUser.id) : {}), ...registrationUser, password: '' };
+          return {
+            ...prev,
+            users: hasExisting
+              ? existingUsers.map((entry) => (entry.id === registrationUser.id ? mergedUser : entry))
+              : [mergedUser, ...existingUsers],
+          };
+        });
+        setSession({ userId: registrationUser.id });
+        setAuthSuccess('');
+        navigate(role === 'bar' ? '/bar-dashboard' : '/account');
+        return;
+      }
+      const defaultMsg = skipVerification
+        ? 'Account created. You can now log in.'
+        : 'Account created. Check your email to verify before logging in.';
+      setAuthSuccess(String(payload?.message || defaultMsg));
       navigate('/login');
       return;
     }
