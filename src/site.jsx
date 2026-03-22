@@ -7524,14 +7524,6 @@ export default function ThailandPantiesMarketSite() {
           preferredLanguage: authLanguage,
           acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
           acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
-          ...(skipVerification ? { skipEmailVerification: true } : {}),
-          ...(role === 'seller' ? {
-            height: heightCm || '',
-            weight: weightKg || '',
-            hairColor: registerForm.hairColor || '',
-            braSize: registerForm.braSize || '',
-            pantySize: registerForm.pantySize || '',
-          } : {}),
         },
       });
       if (!ok) {
