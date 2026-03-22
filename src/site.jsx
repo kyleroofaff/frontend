@@ -15484,7 +15484,7 @@ export default function ThailandPantiesMarketSite() {
                   <div className="mt-1 text-slate-600">Try broader options or reset filters to see more listings.</div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button onClick={resetFilters} className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white">Reset filters</button>
-                    <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-700">Message a seller</button>
+                    <button onClick={() => navigate(currentUser ? '/seller-portfolios' : '/login')} className="rounded-xl border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-700">Message a seller</button>
                     <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700">Browse sellers</button>
                   </div>
                 </div>
@@ -16260,7 +16260,7 @@ export default function ThailandPantiesMarketSite() {
                   <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-600">Recommended flow</div>
                   <div className="mt-1">Message seller (optional) &rarr; Add to cart &rarr; Checkout.</div>
                   <div className="mt-2">
-                    <button onClick={() => navigate(`/seller/${selectedProduct.sellerId}`)} className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700">
+                    <button onClick={() => navigate(currentUser ? `/seller/${selectedProduct.sellerId}` : '/login')} className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700">
                       Message seller
                     </button>
                   </div>
