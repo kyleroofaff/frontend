@@ -1284,6 +1284,15 @@ const SELLER_I18N = {
     turnaround: "Turnaround time",
     portfolio: "Portfolio URL",
     bio: "Seller bio",
+    profileDetails: "Profile details (shown publicly)",
+    heightLabel: "Height (cm)",
+    weightLabel: "Weight (kg)",
+    hairColorLabel: "Hair color",
+    braSizeLabel: "Bra size",
+    pantySizeLabel: "Panty size",
+    selectHairColor: "Select hair color",
+    selectBraSize: "Select bra size",
+    selectPantySize: "Select panty size",
     saveProfile: "Save profile updates",
     mediaUpload: "Product upload",
     mediaUploadHelp: "Choose an image file for your product listing. Uploaded images are saved for this session.",
@@ -1576,7 +1585,9 @@ const SELLER_I18N = {
   th: {
     sectionTitle: "จัดการหน้าร้านของคุณ", sectionSubtitle: "อัปเดตโปรไฟล์ เผยแพร่สินค้า และแชร์โพสต์ไลฟ์สไตล์ให้ผู้ซื้อเห็น",
     language: "ภาษา", loginRequired: "ต้องเข้าสู่ระบบผู้ขาย", profileChecklist: "เช็กลิสต์ความสมบูรณ์ของโปรไฟล์",
-    profileComplete: "โปรไฟล์ครบถ้วนแล้ว คุณสามารถเผยแพร่สินค้าได้", saveProfile: "บันทึกการอัปเดตโปรไฟล์",
+    profileComplete: "โปรไฟล์ครบถ้วนแล้ว คุณสามารถเผยแพร่สินค้าได้",
+    profileDetails: "รายละเอียดโปรไฟล์ (แสดงสาธารณะ)", heightLabel: "ส่วนสูง (ซม.)", weightLabel: "น้ำหนัก (กก.)", hairColorLabel: "สีผม", braSizeLabel: "ขนาดบรา", pantySizeLabel: "ขนาดกางเกงใน", selectHairColor: "เลือกสีผม", selectBraSize: "เลือกขนาดบรา", selectPantySize: "เลือกขนาดกางเกงใน",
+    saveProfile: "บันทึกการอัปเดตโปรไฟล์",
     mediaUpload: "อัปโหลดสินค้า", mediaUploadHelp: "เลือกรูปภาพสำหรับสินค้าของคุณ รูปจะถูกบันทึกในเซสชันปัจจุบัน",
     imagePreview: "ตัวอย่างรูปภาพ", createDraft: "สร้างรายการแบบร่าง", inbox: "กล่องข้อความผู้ขาย",
     liveUpdates: "อัปเดตสด", conversations: "บทสนทนา", noMessages: "ยังไม่มีข้อความ",
@@ -1789,7 +1800,9 @@ const SELLER_I18N = {
   my: {
     sectionTitle: "သင့်စတိုးကို စီမံပါ", sectionSubtitle: "ပရိုဖိုင်ပြင်ဆင်ခြင်း၊ စာရင်းထုတ်ခြင်းနှင့် lifestyle post များကို မျှဝေပါ",
     language: "ဘာသာစကား", loginRequired: "ရောင်းသူအကောင့်ဖြင့် ဝင်ရန်လိုအပ်သည်", profileChecklist: "ပရိုဖိုင်ပြည့်စုံမှု စစ်ဆေးစာရင်း",
-    profileComplete: "ပရိုဖိုင် ပြည့်စုံပြီးဖြစ်သည်။ စာရင်းတင်နိုင်ပါသည်", saveProfile: "ပရိုဖိုင်ပြင်ဆင်ချက်များ သိမ်းမည်",
+    profileComplete: "ပရိုဖိုင် ပြည့်စုံပြီးဖြစ်သည်။ စာရင်းတင်နိုင်ပါသည်",
+    profileDetails: "ပရိုဖိုင်အချက်အလက် (အများသုံးပြသ)", heightLabel: "အရပ် (စမ)", weightLabel: "ကိုယ်အလေးချိန် (ကဂ)", hairColorLabel: "ဆံပင်အရောင်", braSizeLabel: "ဘရာဆိုက်", pantySizeLabel: "ပန်တီဆိုက်", selectHairColor: "ဆံပင်အရောင်ရွေးပါ", selectBraSize: "ဘရာဆိုက်ရွေးပါ", selectPantySize: "ပန်တီဆိုက်ရွေးပါ",
+    saveProfile: "ပရိုဖိုင်ပြင်ဆင်ချက်များ သိမ်းမည်",
     mediaUpload: "ပစ္စည်း အပ်လုဒ်", mediaUploadHelp: "သင့်ပစ္စည်းအတွက် ပုံကိုရွေးပါ။ ပုံကို လက်ရှိ session တွင် သိမ်းဆည်းမည်",
     imagePreview: "ပုံကြိုတင်ကြည့်ရှုမှု", createDraft: "မူကြမ်းစာရင်း ဖန်တီးမည်", inbox: "ရောင်းသူ စာဝင်ပုံး",
     liveUpdates: "တိုက်ရိုက်အပ်ဒိတ်", conversations: "စကားဝိုင်း", noMessages: "မက်ဆေ့ချ် မရှိသေးပါ",
@@ -2002,7 +2015,9 @@ const SELLER_I18N = {
   ru: {
     sectionTitle: "Управление витриной", sectionSubtitle: "Обновляйте профиль, публикуйте объявления и делитесь постами.",
     language: "Язык", loginRequired: "Требуется вход продавца", profileChecklist: "Проверка заполнения профиля",
-    profileComplete: "Профиль заполнен. Вы можете публиковать объявления.", saveProfile: "Сохранить профиль",
+    profileComplete: "Профиль заполнен. Вы можете публиковать объявления.",
+    profileDetails: "Детали профиля (показываются публично)", heightLabel: "Рост (см)", weightLabel: "Вес (кг)", hairColorLabel: "Цвет волос", braSizeLabel: "Размер бюстгальтера", pantySizeLabel: "Размер трусиков", selectHairColor: "Выберите цвет волос", selectBraSize: "Выберите размер бюстгальтера", selectPantySize: "Выберите размер трусиков",
+    saveProfile: "Сохранить профиль",
     mediaUpload: "Загрузка товара", mediaUploadHelp: "Выберите изображение для объявления. Файлы сохраняются в текущей сессии.",
     imagePreview: "Предпросмотр изображения", createDraft: "Создать черновик", inbox: "Входящие продавца",
     liveUpdates: "Онлайн-обновления", conversations: "диалог(ов)", noMessages: "Сообщений пока нет.",
@@ -3126,6 +3141,42 @@ export function SellerDashboardPage({
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{t("profileDetails") || "Profile details (shown publicly)"}</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="grid gap-1 text-sm text-slate-600">
+                      <span className="font-medium">{t("heightLabel") || "Height (cm)"}</span>
+                      <input value={sellerProfileDraft.height || ""} onChange={(e) => updateSellerProfileField("height", e.target.value)} type="number" min="0" className="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="165" />
+                    </label>
+                    <label className="grid gap-1 text-sm text-slate-600">
+                      <span className="font-medium">{t("weightLabel") || "Weight (kg)"}</span>
+                      <input value={sellerProfileDraft.weight || ""} onChange={(e) => updateSellerProfileField("weight", e.target.value)} type="number" min="0" className="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="55" />
+                    </label>
+                  </div>
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">{t("hairColorLabel") || "Hair color"}</span>
+                    <select value={sellerProfileDraft.hairColor || ""} onChange={(e) => updateSellerProfileField("hairColor", e.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                      <option value="">{t("selectHairColor") || "Select hair color"}</option>
+                      {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, locale)}</option>)}
+                    </select>
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="grid gap-1 text-sm text-slate-600">
+                      <span className="font-medium">{t("braSizeLabel") || "Bra size"}</span>
+                      <select value={sellerProfileDraft.braSize || ""} onChange={(e) => updateSellerProfileField("braSize", e.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                        <option value="">{t("selectBraSize") || "Select bra size"}</option>
+                        {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-sm text-slate-600">
+                      <span className="font-medium">{t("pantySizeLabel") || "Panty size"}</span>
+                      <select value={sellerProfileDraft.pantySize || ""} onChange={(e) => updateSellerProfileField("pantySize", e.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                        <option value="">{t("selectPantySize") || "Select panty size"}</option>
+                        {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                      </select>
+                    </label>
                   </div>
                 </div>
                 <button onClick={saveSellerProfile} className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">{t("saveProfile")}</button>

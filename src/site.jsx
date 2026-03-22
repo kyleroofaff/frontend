@@ -4745,6 +4745,11 @@ export default function ThailandPantiesMarketSite() {
     affiliatedBarId: '',
     profileImage: '',
     profileImageName: '',
+    height: '',
+    weight: '',
+    hairColor: '',
+    braSize: '',
+    pantySize: '',
   });
   const [sellerProfileMessage, setSellerProfileMessage] = useState('');
   const [sellerAffiliationRequestDraft, setSellerAffiliationRequestDraft] = useState({
@@ -6025,6 +6030,11 @@ export default function ThailandPantiesMarketSite() {
       affiliatedBarId: currentSellerProfile.affiliatedBarId || '',
       profileImage: currentSellerProfile.profileImage || '',
       profileImageName: currentSellerProfile.profileImageName || '',
+      height: currentSellerProfile.height || '',
+      weight: currentSellerProfile.weight || '',
+      hairColor: currentSellerProfile.hairColor || '',
+      braSize: currentSellerProfile.braSize || '',
+      pantySize: currentSellerProfile.pantySize || '',
     });
   }, [currentSellerProfile?.id]);
 
@@ -8480,6 +8490,11 @@ export default function ThailandPantiesMarketSite() {
                 portfolioUrl: '',
                 profileImage: sellerProfileDraft.profileImage || '',
                 profileImageName: sellerProfileDraft.profileImageName || '',
+                height: sellerProfileDraft.height || '',
+                weight: sellerProfileDraft.weight || '',
+                hairColor: sellerProfileDraft.hairColor || '',
+                braSize: sellerProfileDraft.braSize || '',
+                pantySize: sellerProfileDraft.pantySize || '',
               }
             : seller,
         ),
