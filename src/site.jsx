@@ -6136,6 +6136,29 @@ export default function ThailandPantiesMarketSite() {
   }, [currentBarProfile?.id]);
 
   useEffect(() => {
+    if (!currentBarProfile || !currentBarId) return;
+    if (currentUser?.role !== 'bar') return;
+    if (backendStatus !== 'connected' || !apiAuthToken) return;
+    const hasLocalData = !!(currentBarProfile.profileImage || currentBarProfile.about || currentBarProfile.specials || currentBarProfile.mapLink);
+    if (!hasLocalData) return;
+    apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, {
+      method: 'PUT',
+      body: {
+        name: currentBarProfile.name || currentUser?.name || '',
+        location: currentBarProfile.location || '',
+        about: currentBarProfile.about || '',
+        specials: currentBarProfile.specials || '',
+        mapEmbedUrl: currentBarProfile.mapEmbedUrl || '',
+        mapLink: currentBarProfile.mapLink || '',
+        profileImage: currentBarProfile.profileImage || '',
+        profileImageName: currentBarProfile.profileImageName || '',
+        aboutI18n: currentBarProfile.aboutI18n || {},
+        specialsI18n: currentBarProfile.specialsI18n || {},
+      },
+    }).catch(() => {});
+  }, [currentBarProfile?.id, backendStatus, apiAuthToken]);
+
+  useEffect(() => {
     if (currentUser?.role !== 'buyer') return;
     if (!buyerDashboardConversationId && buyerConversations[0]?.conversationId) {
       setBuyerDashboardConversationId(buyerConversations[0].conversationId);
