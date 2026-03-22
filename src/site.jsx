@@ -2182,6 +2182,11 @@ const SEED_DB = {
       sellerId: 'nina-b',
       password: SEED_DEMO_PASSWORD,
       accountStatus: 'active',
+      height: 165,
+      weight: 52,
+      hairColor: 'Black',
+      braSize: '32B',
+      pantySize: 'S',
     },
     {
       id: 'buyer-1',
@@ -2226,6 +2231,11 @@ const SEED_DB = {
       affiliatedBarId: '',
       languages: ['Thai', 'English'],
       highlights: ['Premium used pairs', 'Discreet shipping', 'Professional communication'],
+      height: 165,
+      weight: 52,
+      hairColor: 'Black',
+      braSize: '32B',
+      pantySize: 'S',
     },
     {
       id: 'mali-k',
