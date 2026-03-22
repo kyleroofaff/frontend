@@ -68,6 +68,31 @@ export const WAIST_RISE_OPTIONS = ["Low-rise", "Mid-rise", "High-rise"];
 export const COVERAGE_OPTIONS = ["Minimal", "Moderate", "Full"];
 export const CONDITION_OPTIONS = ["almost new", "worn several times", "old"];
 export const SCENT_LEVEL_OPTIONS = ["Light", "Medium", "Strong"];
+export const HAIR_COLOR_OPTIONS = ["Black", "Brown", "Blonde", "Red", "Auburn", "Grey", "White", "Other"];
+export const BRA_SIZE_OPTIONS = ["30A", "30B", "32A", "32B", "32C", "32D", "34A", "34B", "34C", "34D", "34DD", "36A", "36B", "36C", "36D", "36DD", "38B", "38C", "38D", "38DD"];
+export const PANTY_SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL"];
+
+export function cmToInches(cm) { return Number((Number(cm) / 2.54).toFixed(1)); }
+export function inchesToCm(inches) { return Number((Number(inches) * 2.54).toFixed(1)); }
+export function kgToLbs(kg) { return Number((Number(kg) * 2.20462).toFixed(1)); }
+export function lbsToKg(lbs) { return Number((Number(lbs) / 2.20462).toFixed(1)); }
+export function formatHeight(valueCm, displayUnit = 'cm') {
+  const n = Number(valueCm);
+  if (!n || n <= 0) return '';
+  if (displayUnit === 'in') {
+    const totalInches = Math.round(n / 2.54);
+    const feet = Math.floor(totalInches / 12);
+    const inches = totalInches % 12;
+    return `${feet}'${inches}"`;
+  }
+  return `${Math.round(n)} cm`;
+}
+export function formatWeight(valueKg, displayUnit = 'kg') {
+  const n = Number(valueKg);
+  if (!n || n <= 0) return '';
+  if (displayUnit === 'lbs') return `${Math.round(n * 2.20462)} lbs`;
+  return `${Math.round(n)} kg`;
+}
 
 export const OPTION_LABEL_I18N = {
   All: { th: "ทั้งหมด", my: "အားလုံး", ru: "Все" },
@@ -157,6 +182,9 @@ export const OPTION_LABEL_I18N = {
   Top: { th: "เสื้อ", my: "အပေါ်ဝတ်", ru: "Топ" },
   "12-hour": { th: "12 ชั่วโมง", my: "၁၂ နာရီ", ru: "12-часовой" },
   "24-hour": { th: "24 ชั่วโมง", my: "၂၄ နာရီ", ru: "24-часовой" },
+  Blonde: { th: "บลอนด์", my: "ရွှေရောင်", ru: "Блонд" },
+  Auburn: { th: "น้ำตาลแดง", my: "လိမ္မော်ညို", ru: "Каштановый" },
+  Other: { th: "อื่น ๆ", my: "အခြား", ru: "Другой" },
 };
 
 export function formatBilingualLabel(englishLabel, uiLanguage, translatedLabel) {

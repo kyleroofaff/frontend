@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Globe, HeartHandshake, Shield } from "lucide-react";
 import { PageShell, ProductImage } from "../components/site/SitePrimitives.jsx";
-import { COLOR_OPTIONS, CONDITION_OPTIONS, CUSTOM_REQUEST_FEE_THB, DAYS_WORN_OPTIONS, FABRIC_OPTIONS, formatPriceTHB, localizeOptionLabel, MESSAGE_FEE_THB, MIN_CUSTOM_REQUEST_PURCHASE_THB, SCENT_LEVEL_OPTIONS, SELLER_SPECIALTY_OPTIONS, SHARED_SIZE_OPTIONS, STYLE_FILTER_OPTIONS } from "../productOptions.js";
+import { COLOR_OPTIONS, CONDITION_OPTIONS, CUSTOM_REQUEST_FEE_THB, DAYS_WORN_OPTIONS, FABRIC_OPTIONS, formatPriceTHB, localizeOptionLabel, MESSAGE_FEE_THB, MIN_CUSTOM_REQUEST_PURCHASE_THB, SCENT_LEVEL_OPTIONS, SELLER_SPECIALTY_OPTIONS, SHARED_SIZE_OPTIONS, STYLE_FILTER_OPTIONS, HAIR_COLOR_OPTIONS, formatHeight, formatWeight } from "../productOptions.js";
 import { formatDateTimeNoSeconds } from "../utils/timeFormat.js";
 import { getRequiredTopUpAmount } from "../utils/walletTopUp.js";
 
@@ -409,6 +409,7 @@ const MARKETPLACE_I18N = {
     daysWorn: "Days worn",
     scent: "Scent",
     language: "Language",
+    hairColor: "Hair color",
     onlineStatus: "Online status",
     clearFilters: "Clear filters",
     sellersMatchSuffix: "seller(s) match your filters.",
@@ -448,6 +449,7 @@ const MARKETPLACE_I18N = {
     daysWorn: "จำนวนวันที่สวม",
     scent: "กลิ่น",
     language: "ภาษา",
+    hairColor: "สีผม",
     onlineStatus: "สถานะออนไลน์",
     clearFilters: "ล้างตัวกรอง",
     sellersMatchSuffix: "ผู้ขายตรงกับตัวกรองของคุณ",
@@ -487,6 +489,7 @@ const MARKETPLACE_I18N = {
     daysWorn: "ဝတ်ထားသည့်ရက်",
     scent: "အနံ့",
     language: "ဘာသာစကား",
+    hairColor: "ဆံပင်အရောင်",
     onlineStatus: "အွန်လိုင်း အခြေအနေ",
     clearFilters: "filters များကို ရှင်းရန်",
     sellersMatchSuffix: "seller(s) သင့် filter နှင့် ကိုက်ညီသည်။",
@@ -526,6 +529,7 @@ const MARKETPLACE_I18N = {
     daysWorn: "Дней ношения",
     scent: "Запах",
     language: "Язык",
+    hairColor: "Цвет волос",
     onlineStatus: "Онлайн-статус",
     clearFilters: "Сбросить фильтры",
     sellersMatchSuffix: "продавцов соответствуют фильтрам.",
@@ -1895,6 +1899,7 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
     scentLevel: "All",
     language: "All",
     online: "All",
+    hairColor: "All",
   });
 
   const sellerFilterOptions = useMemo(() => {
@@ -1922,6 +1927,7 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
       daysWorn: ["All", ...daysWorn],
       scentLevels: ["All", ...scentLevels],
       languages: ["All", ...languages],
+      hairColors: ["All", ...HAIR_COLOR_OPTIONS],
     };
   }, [sellers, products]);
 
@@ -2001,6 +2007,9 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
         seller.bio,
         ...(seller.highlights || []),
         ...sellerLanguages,
+        seller.hairColor || '',
+        seller.braSize || '',
+        seller.pantySize || '',
       ].some((value) => (value || "").toLowerCase().includes(query));
       const matchesLocation = sellerFilters.location === "All" || normalized(seller.location) === sellerFilters.location;
       const matchesSpecialty =
@@ -2023,7 +2032,8 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
         sellerFilters.online === "All" ||
         (sellerFilters.online === "Online" && seller.isOnline) ||
         (sellerFilters.online === "Offline" && !seller.isOnline);
-      return matchesSearch && matchesLocation && matchesSpecialty && matchesType && matchesSize && matchesColor && matchesFabric && matchesDaysWorn && matchesScentLevel && matchesLanguage && matchesOnline;
+      const matchesHairColor = sellerFilters.hairColor === "All" || normalized(seller.hairColor) === sellerFilters.hairColor;
+      return matchesSearch && matchesLocation && matchesSpecialty && matchesType && matchesSize && matchesColor && matchesFabric && matchesDaysWorn && matchesScentLevel && matchesLanguage && matchesOnline && matchesHairColor;
     });
   }, [sellers, products, sellerFilters]);
   const sellerInsightsById = useMemo(() => {
@@ -2117,6 +2127,12 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
             </select>
           </label>
           <label className="grid gap-1 text-sm text-slate-600">
+            <span className="font-medium">{text.hairColor || 'Hair color'}</span>
+            <select value={sellerFilters.hairColor} onChange={(event) => setSellerFilters((prev) => ({ ...prev, hairColor: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+              {sellerFilterOptions.hairColors.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm text-slate-600">
             <span className="font-medium">{text.onlineStatus}</span>
             <select value={sellerFilters.online} onChange={(event) => setSellerFilters((prev) => ({ ...prev, online: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
               {["All", "Online", "Offline"].map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
@@ -2124,7 +2140,7 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
           </label>
           <button
             type="button"
-            onClick={() => setSellerFilters({ search: "", location: "All", specialty: "All", type: "All", size: "All", color: "All", fabric: "All", daysWorn: "All", scentLevel: "All", language: "All", online: "All" })}
+            onClick={() => setSellerFilters({ search: "", location: "All", specialty: "All", type: "All", size: "All", color: "All", fabric: "All", daysWorn: "All", scentLevel: "All", language: "All", online: "All", hairColor: "All" })}
             className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 md:col-span-2 lg:col-span-3 xl:col-span-5"
           >
             {text.clearFilters}
@@ -2172,6 +2188,14 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
                     {language}
                   </span>
                 ))}
+              </div>
+            ) : null}
+            {(seller.height || seller.hairColor || seller.braSize || seller.pantySize) ? (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {seller.height ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-medium text-rose-700">{formatHeight(seller.height, 'cm')} / {formatHeight(seller.height, 'in')}</span> : null}
+                {seller.hairColor ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-medium text-rose-700">{localizeOptionLabel(seller.hairColor, uiLanguage)}</span> : null}
+                {seller.braSize ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-medium text-rose-700">{seller.braSize}</span> : null}
+                {seller.pantySize ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-medium text-rose-700">{seller.pantySize}</span> : null}
               </div>
             ) : null}
             <div className="mt-3 space-y-1 text-xs text-slate-600">

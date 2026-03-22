@@ -38,7 +38,10 @@ import {
   SELLER_LANGUAGE_OPTIONS,
   SELLER_SPECIALTY_OPTIONS,
   SHARED_SIZE_OPTIONS,
-  STYLE_OPTIONS
+  STYLE_OPTIONS,
+  HAIR_COLOR_OPTIONS,
+  BRA_SIZE_OPTIONS,
+  PANTY_SIZE_OPTIONS,
 } from "../productOptions.js";
 import { formatDateTimeNoSeconds, formatTimeNoSeconds } from "../utils/timeFormat.js";
 import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from "../utils/walletTopUp.js";
@@ -12884,6 +12887,25 @@ export function AccountPage({
                     <input value={accountForm.region || ""} onChange={(e) => updateAccountField("region", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={accountAddressMeta.regionPlaceholder} />
                   </div>
                   <input value={accountForm.postalCode || ""} onChange={(e) => updateAccountField("postalCode", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={accountAddressMeta.postalPlaceholder} />
+                  {currentUser.role === "seller" ? (
+                    <>
+                      <div className="col-span-full mt-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Profile details (shown publicly)</div>
+                      <input value={accountForm.height || ""} onChange={(e) => updateAccountField("height", e.target.value)} type="number" min="0" className="rounded-2xl border border-slate-200 px-4 py-3" placeholder="Height (cm)" />
+                      <input value={accountForm.weight || ""} onChange={(e) => updateAccountField("weight", e.target.value)} type="number" min="0" className="rounded-2xl border border-slate-200 px-4 py-3" placeholder="Weight (kg)" />
+                      <select value={accountForm.hairColor || ""} onChange={(e) => updateAccountField("hairColor", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3">
+                        <option value="">Hair color</option>
+                        {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, uiLanguage)}</option>)}
+                      </select>
+                      <select value={accountForm.braSize || ""} onChange={(e) => updateAccountField("braSize", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3">
+                        <option value="">Bra size</option>
+                        {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                      </select>
+                      <select value={accountForm.pantySize || ""} onChange={(e) => updateAccountField("pantySize", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3">
+                        <option value="">Panty size</option>
+                        {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                      </select>
+                    </>
+                  ) : null}
                   <button onClick={saveAccountDetails} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{accountText.saveDetails}</button>
                   {accountSaveMessage ? <div className="text-sm font-medium text-emerald-700">{accountSaveMessage}</div> : null}
                 </div>

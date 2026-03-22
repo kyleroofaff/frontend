@@ -63,6 +63,11 @@ import {
   SELLER_SPECIALTY_OPTIONS,
   SIZE_OPTIONS,
   STYLE_OPTIONS,
+  HAIR_COLOR_OPTIONS,
+  BRA_SIZE_OPTIONS,
+  PANTY_SIZE_OPTIONS,
+  formatHeight,
+  formatWeight,
 } from './productOptions.js';
 import { formatDateTimeNoSeconds, normalizeTimeFormat, setStoredTimeFormat } from './utils/timeFormat.js';
 import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from './utils/walletTopUp.js';
@@ -608,6 +613,11 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'Back to Sellers',
     myAccount: 'My Account',
     followersLabel: 'Followers',
+    heightLabel: 'Height',
+    weightLabel: 'Weight',
+    hairColorLabel: 'Hair color',
+    braSizeLabel: 'Bra size',
+    pantySizeLabel: 'Panty size',
     messageSellerTitle: 'Message seller',
     buyerMessagesCostPrefix: 'Buyer messages cost',
     buyerMessagesCostSuffix: 'each and are delivered inside the platform.',
@@ -743,6 +753,11 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'กลับไปหน้าผู้ขาย',
     myAccount: 'บัญชีของฉัน',
     followersLabel: 'ผู้ติดตาม',
+    heightLabel: 'ส่วนสูง',
+    weightLabel: 'น้ำหนัก',
+    hairColorLabel: 'สีผม',
+    braSizeLabel: 'ขนาดบรา',
+    pantySizeLabel: 'ขนาดกางเกงใน',
     messageSellerTitle: 'ส่งข้อความหาผู้ขาย',
     buyerMessagesCostPrefix: 'ข้อความจากผู้ซื้อมีค่าใช้จ่าย',
     buyerMessagesCostSuffix: 'ต่อข้อความ และส่งภายในแพลตฟอร์ม',
@@ -878,6 +893,11 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'Sellers သို့ ပြန်ရန်',
     myAccount: 'ကျွန်ုပ်၏အကောင့်',
     followersLabel: 'Followers',
+    heightLabel: 'အရပ်',
+    weightLabel: 'ကိုယ်အလေးချိန်',
+    hairColorLabel: 'ဆံပင်အရောင်',
+    braSizeLabel: 'ဘရာဆိုက်',
+    pantySizeLabel: 'ပန်တီဆိုက်',
     messageSellerTitle: 'Seller သို့ message ပို့ရန်',
     buyerMessagesCostPrefix: 'Buyer message တစ်ခုလျှင်',
     buyerMessagesCostSuffix: 'ကုန်ကျပြီး platform အတွင်းပို့ပေးသည်',
@@ -1013,6 +1033,11 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'Назад к продавцам',
     myAccount: 'Мой аккаунт',
     followersLabel: 'Подписчики',
+    heightLabel: 'Рост',
+    weightLabel: 'Вес',
+    hairColorLabel: 'Цвет волос',
+    braSizeLabel: 'Размер бюстгальтера',
+    pantySizeLabel: 'Размер трусиков',
     messageSellerTitle: 'Написать продавцу',
     buyerMessagesCostPrefix: 'Сообщения покупателя стоят',
     buyerMessagesCostSuffix: 'за сообщение и доставляются внутри платформы.',
@@ -1310,6 +1335,15 @@ const REGISTER_I18N = {
     country: 'Country',
     sellerNameHint: 'Please write your name in English using first name and last initial only (e.g. Nina R.). Do not use your full name.',
     barNameHint: 'Please enter the name of your bar in English (e.g. Small World Chiang Mai).',
+    heightLabel: 'Height',
+    weightLabel: 'Weight',
+    hairColorLabel: 'Hair color',
+    braSizeLabel: 'Bra size',
+    pantySizeLabel: 'Panty size',
+    selectHairColor: 'Select hair color',
+    selectBraSize: 'Select bra size',
+    selectPantySize: 'Select panty size',
+    sellerBodyInfoHint: 'This info is shown on your public profile to help buyers find you.',
     sellerNote: 'Seller registration requires name, email, password, city, and country.',
     barNote: 'Bar registration requires bar name, email, password, city, and country.',
     createAccount: 'Create Account',
@@ -1358,6 +1392,15 @@ const REGISTER_I18N = {
     country: 'ประเทศ',
     sellerNameHint: 'กรุณาเขียนชื่อเป็นภาษาอังกฤษ ใช้ชื่อจริงและนามสกุลตัวแรกเท่านั้น (เช่น Nina R.) ห้ามใช้ชื่อเต็ม',
     barNameHint: 'กรุณาใส่ชื่อบาร์เป็นภาษาอังกฤษ (เช่น Small World Chiang Mai)',
+    heightLabel: 'ส่วนสูง',
+    weightLabel: 'น้ำหนัก',
+    hairColorLabel: 'สีผม',
+    braSizeLabel: 'ขนาดบรา',
+    pantySizeLabel: 'ขนาดกางเกงใน',
+    selectHairColor: 'เลือกสีผม',
+    selectBraSize: 'เลือกขนาดบรา',
+    selectPantySize: 'เลือกขนาดกางเกงใน',
+    sellerBodyInfoHint: 'ข้อมูลนี้จะแสดงในโปรไฟล์สาธารณะเพื่อช่วยให้ผู้ซื้อค้นหาคุณ',
     sellerNote: 'การสมัครผู้ขายต้องมีชื่อ อีเมล รหัสผ่าน เมือง และประเทศ',
     barNote: 'การสมัครบัญชีบาร์ต้องมีชื่อบาร์ อีเมล รหัสผ่าน เมือง และประเทศ',
     createAccount: 'สร้างบัญชี',
@@ -1406,6 +1449,15 @@ const REGISTER_I18N = {
     country: 'နိုင်ငံ',
     sellerNameHint: 'အမည်ကို အင်္ဂလိပ်လို ရေးပါ။ နာမည်နှင့် မျိုးနွယ်အစ တစ်လုံးသာ သုံးပါ (ဥပမာ Nina R.)။ အမည်အပြည့်အစုံ မသုံးပါနှင့်',
     barNameHint: 'bar အမည်ကို အင်္ဂလိပ်လို ရေးပါ (ဥပမာ Small World Chiang Mai)',
+    heightLabel: 'အရပ်',
+    weightLabel: 'ကိုယ်အလေးချိန်',
+    hairColorLabel: 'ဆံပင်အရောင်',
+    braSizeLabel: 'ဘရာဆိုက်',
+    pantySizeLabel: 'ပန်တီဆိုက်',
+    selectHairColor: 'ဆံပင်အရောင်ရွေးပါ',
+    selectBraSize: 'ဘရာဆိုက်ရွေးပါ',
+    selectPantySize: 'ပန်တီဆိုက်ရွေးပါ',
+    sellerBodyInfoHint: 'ဤအချက်အလက်ကို သင့်အများသုံးပရိုဖိုင်တွင် ပြသ၍ ဝယ်သူများ သင့်ကို ရှာတွေ့ရန် ကူညီပါသည်။',
     sellerNote: 'seller စာရင်းသွင်းရန် အမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     barNote: 'bar စာရင်းသွင်းရန် ဘားအမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     createAccount: 'အကောင့်ဖန်တီးမည်',
@@ -1454,6 +1506,15 @@ const REGISTER_I18N = {
     country: 'Страна',
     sellerNameHint: 'Пожалуйста, напишите имя на английском языке, используя только имя и первую букву фамилии (например, Nina R.). Не используйте полное имя.',
     barNameHint: 'Пожалуйста, введите название бара на английском языке (например, Small World Chiang Mai).',
+    heightLabel: 'Рост',
+    weightLabel: 'Вес',
+    hairColorLabel: 'Цвет волос',
+    braSizeLabel: 'Размер бюстгальтера',
+    pantySizeLabel: 'Размер трусиков',
+    selectHairColor: 'Выберите цвет волос',
+    selectBraSize: 'Выберите размер бюстгальтера',
+    selectPantySize: 'Выберите размер трусиков',
+    sellerBodyInfoHint: 'Эта информация отображается в вашем публичном профиле, чтобы покупатели могли вас найти.',
     sellerNote: 'Для регистрации продавца нужны имя, email, пароль, город и страна.',
     barNote: 'Для регистрации бара нужны название бара, email, пароль, город и страна.',
     createAccount: 'Создать аккаунт',
@@ -4538,6 +4599,13 @@ export default function ThailandPantiesMarketSite() {
     role: '',
     city: '',
     country: '',
+    height: '',
+    heightUnit: 'cm',
+    weight: '',
+    weightUnit: 'kg',
+    hairColor: '',
+    braSize: '',
+    pantySize: '',
     acceptedRespectfulConduct: false,
     acceptedNoRefunds: false,
   });
@@ -4563,6 +4631,7 @@ export default function ThailandPantiesMarketSite() {
     postalCode: '',
     height: '',
     weight: '',
+    hairColor: '',
     braSize: '',
     pantySize: '',
     interests: '',
@@ -6614,6 +6683,7 @@ export default function ThailandPantiesMarketSite() {
       postalCode: currentUser?.postalCode || '',
       height: currentUser?.height || '',
       weight: currentUser?.weight || '',
+      hairColor: currentUser?.hairColor || '',
       braSize: currentUser?.braSize || '',
       pantySize: currentUser?.pantySize || '',
       interests: currentUser?.interests || '',
@@ -7413,6 +7483,12 @@ export default function ThailandPantiesMarketSite() {
       setAuthSuccess('');
       return;
     }
+    const heightCm = role === 'seller' && registerForm.height
+      ? (registerForm.heightUnit === 'in' ? Number((Number(registerForm.height) * 2.54).toFixed(1)) : Number(registerForm.height))
+      : '';
+    const weightKg = role === 'seller' && registerForm.weight
+      ? (registerForm.weightUnit === 'lbs' ? Number((Number(registerForm.weight) / 2.20462).toFixed(1)) : Number(registerForm.weight))
+      : '';
     const shouldUseBackendRegistration = REQUIRE_BACKEND_AUTH || backendStatus === 'connected';
     if (shouldUseBackendRegistration) {
       const skipVerification = role === 'seller' || role === 'bar';
@@ -7429,6 +7505,13 @@ export default function ThailandPantiesMarketSite() {
           acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
           acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
           ...(skipVerification ? { skipEmailVerification: true } : {}),
+          ...(role === 'seller' ? {
+            height: heightCm || '',
+            weight: weightKg || '',
+            hairColor: registerForm.hairColor || '',
+            braSize: registerForm.braSize || '',
+            pantySize: registerForm.pantySize || '',
+          } : {}),
         },
       });
       if (!ok) {
@@ -7436,17 +7519,7 @@ export default function ThailandPantiesMarketSite() {
         setAuthSuccess('');
         return;
       }
-      setRegisterForm({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        role: '',
-        city: '',
-        country: '',
-        acceptedRespectfulConduct: false,
-        acceptedNoRefunds: false,
-      });
+      setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: '', city: '', country: '', height: '', heightUnit: 'cm', weight: '', weightUnit: 'kg', hairColor: '', braSize: '', pantySize: '', acceptedRespectfulConduct: false, acceptedNoRefunds: false });
       setAuthError('');
       const registrationToken = String(payload?.token || '').trim();
       const registrationUser = payload?.user || null;
@@ -7497,10 +7570,11 @@ export default function ThailandPantiesMarketSite() {
       city: role === 'seller' || role === 'bar' ? city : '',
       address: '',
       postalCode: '',
-      height: '',
-      weight: '',
-      braSize: '',
-      pantySize: '',
+      height: role === 'seller' ? (heightCm || '') : '',
+      weight: role === 'seller' ? (weightKg || '') : '',
+      hairColor: role === 'seller' ? (registerForm.hairColor || '') : '',
+      braSize: role === 'seller' ? (registerForm.braSize || '') : '',
+      pantySize: role === 'seller' ? (registerForm.pantySize || '') : '',
       interests: '',
       hobbies: '',
       walletBalance: 0,
@@ -7572,17 +7646,7 @@ export default function ThailandPantiesMarketSite() {
         ],
       };
     });
-    setRegisterForm({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      role: '',
-      city: '',
-      country: '',
-      acceptedRespectfulConduct: false,
-      acceptedNoRefunds: false,
-    });
+    setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: '', city: '', country: '', height: '', heightUnit: 'cm', weight: '', weightUnit: 'kg', hairColor: '', braSize: '', pantySize: '', acceptedRespectfulConduct: false, acceptedNoRefunds: false });
     setAuthError('');
     if (role === 'seller') {
       await notifyAdminOfSellerApplication({ name, email, requestedAt: now });
@@ -7645,6 +7709,11 @@ export default function ThailandPantiesMarketSite() {
                 languages: ['English'],
                 highlights: ['New seller'],
                 portfolioUrl: '',
+                height: user.height || '',
+                weight: user.weight || '',
+                hairColor: user.hairColor || '',
+                braSize: user.braSize || '',
+                pantySize: user.pantySize || '',
               },
             ],
         adminActions: [
@@ -9661,6 +9730,20 @@ export default function ThailandPantiesMarketSite() {
             }
           : user
       )),
+      sellers: currentUser.role === 'seller' && currentUser.sellerId
+        ? prev.sellers.map((seller) => (
+            seller.id === currentUser.sellerId
+              ? {
+                  ...seller,
+                  height: accountForm.height || seller.height || '',
+                  weight: accountForm.weight || seller.weight || '',
+                  hairColor: accountForm.hairColor || seller.hairColor || '',
+                  braSize: accountForm.braSize || seller.braSize || '',
+                  pantySize: accountForm.pantySize || seller.pantySize || '',
+                }
+              : seller
+          ))
+        : prev.sellers,
     }));
     if (currentUser.role === 'buyer') {
       setStoredTimeFormat(normalizedTimeFormat);
@@ -15999,6 +16082,15 @@ export default function ThailandPantiesMarketSite() {
                   {publicText.followersLabel}: {sellerFollowerCountById[selectedSeller.id] || 0}
                 </div>
                 <p className="mt-5 leading-7 text-slate-600">{selectedSeller.bio}</p>
+                {(selectedSeller.height || selectedSeller.weight || selectedSeller.hairColor || selectedSeller.braSize || selectedSeller.pantySize) ? (
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {selectedSeller.height ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{publicText.heightLabel}: {formatHeight(selectedSeller.height, 'cm')} / {formatHeight(selectedSeller.height, 'in')}</span> : null}
+                    {selectedSeller.weight ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{publicText.weightLabel}: {formatWeight(selectedSeller.weight, 'kg')} / {formatWeight(selectedSeller.weight, 'lbs')}</span> : null}
+                    {selectedSeller.hairColor ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{publicText.hairColorLabel}: {localizeOptionLabel(selectedSeller.hairColor, uiLanguage)}</span> : null}
+                    {selectedSeller.braSize ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{publicText.braSizeLabel}: {selectedSeller.braSize}</span> : null}
+                    {selectedSeller.pantySize ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{publicText.pantySizeLabel}: {selectedSeller.pantySize}</span> : null}
+                  </div>
+                ) : null}
                 <h3 className="mt-8 text-xl font-semibold">{publicText.listingsByPrefix} {selectedSeller.name}</h3>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                   {selectedSellerAllProducts.length > 0 && selectedSellerAvailableProducts.length === 0 ? (
@@ -17551,6 +17643,81 @@ export default function ThailandPantiesMarketSite() {
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3"
                     placeholder={registerText.country}
                   />
+                  {registerForm.role === 'seller' ? (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}</div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <label className="grid gap-1 text-sm text-slate-600">
+                          <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
+                          <div className="flex gap-2">
+                            <input
+                              value={registerForm.height}
+                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, height: event.target.value }))}
+                              type="number"
+                              min="0"
+                              className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                              placeholder={registerForm.heightUnit === 'cm' ? '165' : '65'}
+                            />
+                            <select
+                              value={registerForm.heightUnit}
+                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, heightUnit: event.target.value }))}
+                              className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                            >
+                              <option value="cm">cm</option>
+                              <option value="in">in</option>
+                            </select>
+                          </div>
+                        </label>
+                        <label className="grid gap-1 text-sm text-slate-600">
+                          <span className="font-medium">{registerText.weightLabel || 'Weight'}</span>
+                          <div className="flex gap-2">
+                            <input
+                              value={registerForm.weight}
+                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, weight: event.target.value }))}
+                              type="number"
+                              min="0"
+                              className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                              placeholder={registerForm.weightUnit === 'kg' ? '55' : '121'}
+                            />
+                            <select
+                              value={registerForm.weightUnit}
+                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))}
+                              className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                            >
+                              <option value="kg">kg</option>
+                              <option value="lbs">lbs</option>
+                            </select>
+                          </div>
+                        </label>
+                      </div>
+                      <select
+                        value={registerForm.hairColor}
+                        onChange={(event) => setRegisterForm((prev) => ({ ...prev, hairColor: event.target.value }))}
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      >
+                        <option value="">{registerText.selectHairColor || 'Select hair color'}</option>
+                        {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, authLanguage)}</option>)}
+                      </select>
+                      <div className="grid grid-cols-2 gap-3">
+                        <select
+                          value={registerForm.braSize}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, braSize: event.target.value }))}
+                          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        >
+                          <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
+                          {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                        </select>
+                        <select
+                          value={registerForm.pantySize}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, pantySize: event.target.value }))}
+                          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        >
+                          <option value="">{registerText.selectPantySize || 'Select panty size'}</option>
+                          {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                     {registerForm.role === 'bar' ? (registerText.barNote || registerText.sellerNote) : registerText.sellerNote}
                   </div>
