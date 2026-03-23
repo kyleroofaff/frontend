@@ -193,6 +193,7 @@ const SHARED_NAV_I18N = {
 
 const BAR_DASHBOARD_I18N = {
   en: {
+    barDashboard: 'Bar dashboard',
     title: 'Manage your bar profile',
     subtitle: 'Update your bar details, share specials, and post live bar photos.',
     language: 'Language',
@@ -290,6 +291,7 @@ const BAR_DASHBOARD_I18N = {
     markRead: 'Mark read',
   },
   th: {
+    barDashboard: 'แดชบอร์ดบาร์',
     title: 'จัดการโปรไฟล์บาร์ของคุณ',
     subtitle: 'อัปเดตรายละเอียดบาร์ แชร์โปรโมชั่น และโพสต์ภาพสดจากร้านของคุณ',
     language: 'ภาษา',
@@ -387,6 +389,7 @@ const BAR_DASHBOARD_I18N = {
     markRead: 'ทำเครื่องหมายอ่านแล้ว',
   },
   my: {
+    barDashboard: 'Bar Dashboard',
     title: 'သင့် bar ပရိုဖိုင်ကို စီမံပါ',
     subtitle: 'bar အချက်အလက်များ အပ်ဒိတ်လုပ်ပြီး အထူးအစီအစဉ်များနှင့် တိုက်ရိုက်ဓာတ်ပုံများ မျှဝေပါ',
     language: 'ဘာသာစကား',
@@ -484,6 +487,7 @@ const BAR_DASHBOARD_I18N = {
     markRead: 'ဖတ်ပြီး အဖြစ် မှတ်မည်',
   },
   ru: {
+    barDashboard: 'Панель бара',
     title: 'Управляйте профилем бара',
     subtitle: 'Обновляйте данные бара, публикуйте акции и фото из заведения.',
     language: 'Язык',
@@ -846,6 +850,10 @@ const PUBLIC_SITE_I18N = {
     viewSellerProfile: 'View Seller Profile',
     productNotFoundTitle: 'Product not found',
     productNotFoundSubtitle: 'This product could not be found in the current catalog.',
+    shareSellerQr: 'Share profile QR code',
+    shareSellerQrHelp: (name) => `Buyers can scan this code to open ${name}\u2019s profile page directly.`,
+    copyLink: 'Copy Link',
+    downloadQr: 'Download QR',
   },
   th: {
     heroBadge: 'มาร์เก็ตเพลสพรีเมียมแบบเป็นส่วนตัว',
@@ -988,6 +996,10 @@ const PUBLIC_SITE_I18N = {
     viewSellerProfile: 'ดูโปรไฟล์ผู้ขาย',
     productNotFoundTitle: 'ไม่พบสินค้า',
     productNotFoundSubtitle: 'ไม่พบสินค้านี้ในแคตตาล็อกปัจจุบัน',
+    shareSellerQr: 'แชร์ QR code โปรไฟล์',
+    shareSellerQrHelp: (name) => `ผู้ซื้อสามารถสแกนโค้ดนี้เพื่อเปิดหน้าโปรไฟล์ ${name} โดยตรง`,
+    copyLink: 'คัดลอกลิงก์',
+    downloadQr: 'ดาวน์โหลด QR',
   },
   my: {
     heroBadge: 'သီးသန့် ပရီမီယမ် marketplace',
@@ -1130,6 +1142,10 @@ const PUBLIC_SITE_I18N = {
     viewSellerProfile: 'Seller Profile ကြည့်ရန်',
     productNotFoundTitle: 'Product မတွေ့ပါ',
     productNotFoundSubtitle: 'ယခု catalog တွင် product မတွေ့ပါ',
+    shareSellerQr: 'Profile QR code မျှဝေမည်',
+    shareSellerQrHelp: (name) => `Buyer များသည် ${name} profile page ကို တိုက်ရိုက်ဖွင့်ရန် ဤ code ကို scan ဖတ်နိုင်ပါသည်`,
+    copyLink: 'Link ကူးမည်',
+    downloadQr: 'QR ဒေါင်းလုဒ်',
   },
   ru: {
     heroBadge: 'Премиум маркетплейс с конфиденциальностью',
@@ -1272,6 +1288,10 @@ const PUBLIC_SITE_I18N = {
     viewSellerProfile: 'Открыть профиль продавца',
     productNotFoundTitle: 'Товар не найден',
     productNotFoundSubtitle: 'Этот товар не найден в текущем каталоге.',
+    shareSellerQr: 'QR-код профиля',
+    shareSellerQrHelp: (name) => `Покупатели могут отсканировать этот код, чтобы перейти к профилю ${name}.`,
+    copyLink: 'Копировать ссылку',
+    downloadQr: 'Скачать QR',
   },
 };
 
@@ -8423,9 +8443,9 @@ export default function ThailandPantiesMarketSite() {
       const response = await apiRequestJson(`/api/admin/impersonate/${encodeURIComponent(normalizedUserId)}`, {
         method: 'POST',
       });
-      if (!response?.ok || !response.token || !response.user?.id) return;
-      const impersonatedUser = response.user;
-      setApiAuthToken(response.token);
+      if (!response?.ok || !response.payload?.token || !response.payload?.user?.id) return;
+      const impersonatedUser = response.payload.user;
+      setApiAuthToken(response.payload.token);
       setSession({ userId: impersonatedUser.id });
       setDb((prev) => {
         const existingIds = new Set((prev.users || []).map((u) => u.id));
@@ -16547,7 +16567,7 @@ export default function ThailandPantiesMarketSite() {
                 </div>
               </div>
               <div className="space-y-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-                <SellerQrCard seller={selectedSeller} />
+                <SellerQrCard seller={selectedSeller} t={publicText} />
                 <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -17535,7 +17555,7 @@ export default function ThailandPantiesMarketSite() {
             ) : (
               <>
                 <SectionTitle
-                  eyebrow="Bar dashboard"
+                  eyebrow={barT.barDashboard}
                   title={barT.feedTitle}
                   subtitle={barT.feedSubtitle}
                 />
