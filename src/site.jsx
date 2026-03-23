@@ -3956,8 +3956,9 @@ const DEMO_BAR_IDS_TO_REMOVE = new Set([
 /** Live-only: hide QA / manual test bar rows by display name (not in DEMO_BAR_IDS — different ids from registration). */
 const LIVE_JUNK_BAR_NAME_SNIPPETS = [
   'bangkok lounge',
-  'bangkok loung', // common typo
+  'bangkok loung',
   'bar email test',
+  'bar email check',
 ];
 
 function isLiveJunkBarRecord(bar) {
