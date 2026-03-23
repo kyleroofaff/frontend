@@ -3919,19 +3919,23 @@ function normalizeSiteSettings(siteSettings) {
 
 const DEMO_USER_IDS_TO_REMOVE = new Set([
   'admin-1',
+  'seller-1',
   'seller-2',
   'seller-3',
   'seller-4',
   'seller-5',
   'seller-6',
   'seller-7',
+  'seller-8',
   'seller-9',
   'seller-10',
   'seller-11',
-  'seller-8',
+  'buyer-1',
   'buyer-2',
+  'bar-1',
 ]);
 const DEMO_SELLER_IDS_TO_REMOVE = new Set([
+  'nina-b',
   'mali-k',
   'prae-s',
   'lila-r',
@@ -3947,6 +3951,7 @@ const DEMO_BAR_IDS_TO_REMOVE = new Set([
   'north-lantern-chiang-mai',
   'phuket-moon-lounge',
   'riverlight-social-bkk',
+  'small-world-chiang-mai',
 ]);
 const REQUIRED_SYSTEM_USER_IDS = new Set(['admin-2', 'buyer-1', 'seller-1', 'bar-1']);
 const REQUIRED_SELLER_IDS = new Set(['nina-b']);
@@ -4127,8 +4132,11 @@ function normalizeDbState(nextDb, mode = 'live') {
     return structuredClone(CLEAN_SEED_DB);
   }
 
+  const base = isLive
+    ? (() => { const s = structuredClone(CLEAN_SEED_DB); Object.keys(s).forEach((k) => { if (Array.isArray(s[k])) s[k] = []; }); return s; })()
+    : structuredClone(CLEAN_SEED_DB);
   const normalized = {
-    ...structuredClone(CLEAN_SEED_DB),
+    ...base,
     ...nextDb,
     users: Array.isArray(nextDb.users)
       ? (() => {
