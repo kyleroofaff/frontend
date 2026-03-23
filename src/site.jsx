@@ -3952,6 +3952,26 @@ const DEMO_BAR_IDS_TO_REMOVE = new Set([
   'riverlight-social-bkk',
   'small-world-chiang-mai',
 ]);
+
+/** Live-only: hide QA / manual test bar rows by display name (not in DEMO_BAR_IDS — different ids from registration). */
+const LIVE_JUNK_BAR_NAME_SNIPPETS = [
+  'bangkok lounge',
+  'bangkok loung', // common typo
+  'bar email test',
+];
+
+function isLiveJunkBarRecord(bar) {
+  const name = String(bar?.name || '').trim().toLowerCase();
+  if (!name) return false;
+  return LIVE_JUNK_BAR_NAME_SNIPPETS.some((snip) => name.includes(snip));
+}
+
+/** Strip junk bars in live mode (bootstrap merge bypasses normalizeDbState — must re-apply here). */
+function filterLiveJunkBarsForMode(bars, modeValue) {
+  return normalizeAppMode(modeValue) === 'live'
+    ? (bars || []).filter((bar) => !isLiveJunkBarRecord(bar))
+    : (bars || []);
+}
 const REQUIRED_SYSTEM_USER_IDS = new Set(['admin-2', 'buyer-1', 'seller-1', 'bar-1']);
 const REQUIRED_SELLER_IDS = new Set(['nina-b']);
 const REQUIRED_BAR_IDS = new Set(['small-world-chiang-mai']);
@@ -4202,8 +4222,9 @@ function normalizeDbState(nextDb, mode = 'live') {
             aboutI18n: normalizeLocalizedMap(bar?.aboutI18n, bar?.about),
             specialsI18n: normalizeLocalizedMap(bar?.specialsI18n, bar?.specials),
           }));
-          if (isLive) return normalizedBars;
-          const existingBarIds = new Set(normalizedBars.map((bar) => String(bar?.id || '')));
+          const afterJunkFilter = filterLiveJunkBarsForMode(normalizedBars, mode);
+          if (isLive) return afterJunkFilter;
+          const existingBarIds = new Set(afterJunkFilter.map((bar) => String(bar?.id || '')));
           const requiredBars = (CLEAN_SEED_DB.bars || [])
             .filter((bar) => REQUIRED_BAR_IDS.has(String(bar?.id || '')) && !existingBarIds.has(String(bar?.id || '')))
             .map((bar) => ({
@@ -4211,7 +4232,7 @@ function normalizeDbState(nextDb, mode = 'live') {
               aboutI18n: normalizeLocalizedMap(bar?.aboutI18n, bar?.about),
               specialsI18n: normalizeLocalizedMap(bar?.specialsI18n, bar?.specials),
             }));
-          return [...normalizedBars, ...requiredBars];
+          return [...afterJunkFilter, ...requiredBars];
         })()
       : isLive ? [] : structuredClone(CLEAN_SEED_DB.bars || []),
     barPosts: Array.isArray(nextDb.barPosts) ? nextDb.barPosts : isLive ? [] : structuredClone(CLEAN_SEED_DB.barPosts || []),
@@ -4321,6 +4342,7 @@ function normalizeDbState(nextDb, mode = 'live') {
   const existingBarIds = new Set((normalized.bars || []).map((bar) => String(bar?.id || '')));
   const missingBars = (normalized.users || [])
     .filter((user) => user.role === 'bar' && user.barId && !existingBarIds.has(String(user.barId)))
+    .filter((user) => !isLive || !isLiveJunkBarRecord({ name: user.name || '' }))
     .map((user) => ({
       id: user.barId,
       name: user.name || '',
@@ -4330,6 +4352,7 @@ function normalizeDbState(nextDb, mode = 'live') {
   if (missingBars.length > 0) {
     normalized.bars = [...normalized.bars, ...missingBars];
   }
+  normalized.bars = filterLiveJunkBarsForMode(normalized.bars, mode);
   return pruneDemoMarketplaceData(normalized);
 }
 
@@ -6383,8 +6406,13 @@ export default function ThailandPantiesMarketSite() {
     }
 
     const loadBootstrap = async () => {
+      const BOOTSTRAP_FETCH_MS = 15000;
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), BOOTSTRAP_FETCH_MS);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/bootstrap`);
+        const response = await fetch(`${API_BASE_URL}/api/bootstrap`, {
+          signal: controller.signal,
+        });
         if (!response.ok) {
           setBackendStatus('offline');
           return;
@@ -6411,7 +6439,7 @@ export default function ThailandPantiesMarketSite() {
               const localBarMap = new Map((merged.bars || []).map((b) => [String(b?.id || ''), b]));
               let barsUpdated = false;
               serverBars.forEach((serverBar) => {
-                if (!serverBar?.id) return;
+                if (!serverBar?.id || isLiveJunkBarRecord(serverBar)) return;
                 const id = String(serverBar.id);
                 const local = localBarMap.get(id);
                 if (!local) {
@@ -6430,6 +6458,7 @@ export default function ThailandPantiesMarketSite() {
             const barIds = new Set((merged.bars || []).map((b) => String(b?.id || '')));
             const missingBars = (merged.users || [])
               .filter((u) => u.role === 'bar' && u.barId && !barIds.has(String(u.barId)))
+              .filter((u) => !isLiveJunkBarRecord({ name: u.name || '' }))
               .map((u) => ({
                 id: u.barId, name: u.name || '',
                 location: [u.city, u.country].filter(Boolean).join(', '),
@@ -6439,12 +6468,21 @@ export default function ThailandPantiesMarketSite() {
               merged.bars = [...(merged.bars || []), ...missingBars];
               changed = true;
             }
+            const barsAfterJunk = filterLiveJunkBarsForMode(merged.bars, appMode);
+            if (barsAfterJunk.length !== (merged.bars || []).length) {
+              changed = true;
+              merged.bars = barsAfterJunk;
+            } else {
+              merged.bars = barsAfterJunk;
+            }
             return changed ? merged : prev;
           });
         }
         setBackendStatus('connected');
       } catch {
         setBackendStatus('offline');
+      } finally {
+        window.clearTimeout(timeoutId);
       }
     };
 
@@ -7635,7 +7673,7 @@ export default function ThailandPantiesMarketSite() {
             users: hasExisting
               ? existingUsers.map((entry) => (entry.id === authUser.id ? mergedUser : entry))
               : [mergedUser, ...existingUsers],
-            bars: nextBars,
+            bars: filterLiveJunkBarsForMode(nextBars, appMode),
           };
         });
         finalizeLogin(authUser);
@@ -7879,7 +7917,7 @@ export default function ThailandPantiesMarketSite() {
             users: hasExisting
               ? existingUsers.map((entry) => (entry.id === registrationUser.id ? mergedUser : entry))
               : [mergedUser, ...existingUsers],
-            bars: nextBars,
+            bars: filterLiveJunkBarsForMode(nextBars, appMode),
           };
         });
         setSession({ userId: registrationUser.id });
@@ -7978,7 +8016,7 @@ export default function ThailandPantiesMarketSite() {
       return {
         ...prev,
         users: [...prev.users, nextUser],
-        bars: nextBars,
+        bars: filterLiveJunkBarsForMode(nextBars, appMode),
         notifications: [
           ...(prev.notifications || []),
           {
