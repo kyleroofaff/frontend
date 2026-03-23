@@ -8147,6 +8147,7 @@ export default function ThailandPantiesMarketSite() {
   function updateBarProfileByAdmin(barId, updates = {}) {
     if (!currentUser || currentUser.role !== 'admin' || !barId) return;
     const now = new Date().toISOString();
+    const mapFields = buildBarMapFields(String(updates.mapLink || '').trim(), '');
     setDb((prev) => ({
       ...prev,
       bars: (prev.bars || []).map((bar) => (
@@ -8157,8 +8158,8 @@ export default function ThailandPantiesMarketSite() {
               location: String(updates.location ?? bar.location ?? '').trim(),
               about: String(updates.about ?? bar.about ?? '').trim(),
               specials: String(updates.specials ?? bar.specials ?? '').trim(),
-              mapEmbedUrl: String(updates.mapEmbedUrl ?? bar.mapEmbedUrl ?? '').trim(),
-              mapLink: String(updates.mapLink ?? bar.mapLink ?? '').trim(),
+              mapEmbedUrl: mapFields.mapEmbedUrl || String(bar.mapEmbedUrl || '').trim(),
+              mapLink: mapFields.mapLink || String(bar.mapLink || '').trim(),
             }
           : bar
       )),
@@ -8174,6 +8175,19 @@ export default function ThailandPantiesMarketSite() {
       ],
     }));
     setAdminAuthActionMessage(adminActionText('barUpdated'));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson(`/api/bars/${encodeURIComponent(barId)}`, {
+        method: 'PUT',
+        body: {
+          name: String(updates.name || '').trim(),
+          location: String(updates.location || '').trim(),
+          about: String(updates.about || '').trim(),
+          specials: String(updates.specials || '').trim(),
+          mapEmbedUrl: mapFields.mapEmbedUrl,
+          mapLink: mapFields.mapLink,
+        },
+      }).catch(() => {});
+    }
   }
 
   function setSellerBarAffiliationByAdmin(sellerId, barId, reason = '') {

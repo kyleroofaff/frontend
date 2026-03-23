@@ -7953,16 +7953,10 @@ export function AdminPage({
                           placeholder="Specials"
                         />
                         <input
-                          value={draft.mapEmbedUrl}
-                          onChange={(event) => setBarDraftsById((prev) => ({ ...prev, [bar.id]: { ...draft, mapEmbedUrl: event.target.value } }))}
-                          className="rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                          placeholder="Map embed URL"
-                        />
-                        <input
                           value={draft.mapLink}
                           onChange={(event) => setBarDraftsById((prev) => ({ ...prev, [bar.id]: { ...draft, mapLink: event.target.value } }))}
                           className="rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                          placeholder="Map link URL"
+                          placeholder="Google Maps link (https://maps.google.com/...)"
                         />
                         <button
                           onClick={() => updateBarProfileByAdmin?.(bar.id, draft)}
