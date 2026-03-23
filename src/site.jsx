@@ -3918,7 +3918,6 @@ function normalizeSiteSettings(siteSettings) {
 }
 
 const DEMO_USER_IDS_TO_REMOVE = new Set([
-  'admin-1',
   'seller-1',
   'seller-2',
   'seller-3',
@@ -7825,19 +7824,27 @@ export default function ThailandPantiesMarketSite() {
     const shouldUseBackendRegistration = REQUIRE_BACKEND_AUTH || backendStatus === 'connected';
     if (shouldUseBackendRegistration) {
       const skipVerification = role === 'seller' || role === 'bar';
+      const registrationBody = {
+        name,
+        email,
+        password,
+        role,
+        city,
+        country,
+        preferredLanguage: authLanguage,
+        acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
+        acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
+      };
+      if (role === 'seller') {
+        if (heightCm) registrationBody.heightCm = heightCm;
+        if (weightKg) registrationBody.weightKg = weightKg;
+        if (registerForm.hairColor) registrationBody.hairColor = String(registerForm.hairColor).trim();
+        if (registerForm.braSize) registrationBody.braSize = String(registerForm.braSize).trim();
+        if (registerForm.pantySize) registrationBody.pantySize = String(registerForm.pantySize).trim();
+      }
       const { ok, payload } = await apiRequestJson('/api/auth/register', {
         method: 'POST',
-        body: {
-          name,
-          email,
-          password,
-          role,
-          city,
-          country,
-          preferredLanguage: authLanguage,
-          acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
-          acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
-        },
+        body: registrationBody,
       });
       if (!ok) {
         setAuthError(String(payload?.error || 'Could not create account right now. Please try again.'));
@@ -10617,13 +10624,23 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function startBuyerConversationWithSeller(sellerId) {
-    if (!currentUser || currentUser.role !== 'buyer' || !sellerId) return;
+    if (!currentUser) {
+      setPostLoginRedirectPath(`/buyer-messages`);
+      navigate('/login');
+      return;
+    }
+    if (currentUser.role !== 'buyer' || !sellerId) return;
     setBuyerDashboardConversationId(`${currentUser.id}__${sellerId}`);
     setBuyerDashboardMessageError('');
   }
 
   function startConversationWithBar(barId) {
-    if (!currentUser || (currentUser.role !== 'buyer' && currentUser.role !== 'seller')) return;
+    if (!currentUser) {
+      setPostLoginRedirectPath(`/bar-messages`);
+      navigate('/login');
+      return;
+    }
+    if (currentUser.role !== 'buyer' && currentUser.role !== 'seller') return;
     if (currentUser.accountStatus !== 'active') return;
     const normalizedBarId = String(barId || '').trim();
     if (!normalizedBarId) return;
@@ -10705,8 +10722,11 @@ export default function ThailandPantiesMarketSite() {
           onError?.(`You need ${formatPriceTHB(MESSAGE_FEE_THB)} to send a message. Please top up at least ${formatPriceTHB(computedRequiredTopUp)} and try again.`);
           return;
         }
+        onError?.(String(payload?.error || 'Could not send message. Please try again.'));
+        return;
       } catch {
-        // Fall back to local flow if API is temporarily unavailable.
+        onError?.('Could not connect to messaging service. Please try again.');
+        return;
       }
     }
     const seller = sellers.find((candidate) => candidate.id === sellerId);
@@ -11673,13 +11693,16 @@ export default function ThailandPantiesMarketSite() {
             onError?.(`Insufficient wallet balance. Please top up at least ${formatPriceTHB(computedRequiredTopUp)} to continue.`);
             return;
           }
+          onError?.(String(payload?.error || 'Could not process payment. Please try again.'));
+          return;
         } else {
           serverAcceptMeta = {
             alreadyProcessed: Boolean(payload?.alreadyProcessed),
           };
         }
       } catch {
-        // Keep local flow available if API is temporarily unreachable.
+        onError?.('Could not connect to payment service. Please try again.');
+        return;
       }
     }
 
@@ -13315,52 +13338,12 @@ export default function ThailandPantiesMarketSite() {
           error: payload?.error || `Top-up failed (${payload?.status || 'unknown'}).`,
         };
       } catch {
-        // Fall back to local flow if API is temporarily unavailable.
+        setWalletStatus('idle');
+        return { ok: false, error: 'Could not connect to payment service. Please try again.' };
       }
     }
-    const now = new Date().toISOString();
-    setTimeout(() => {
-      setDb((prev) => {
-        const newBalance = Number((((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0) + normalizedAmount).toFixed(2));
-        const base = {
-          ...prev,
-          users: prev.users.map((user) =>
-            user.id === currentUser.id ? { ...user, walletBalance: newBalance } : user,
-          ),
-          walletTransactions: [
-            {
-              id: `txn_${Date.now()}`,
-              userId: currentUser.id,
-              type: 'top_up',
-              amount: normalizedAmount,
-              description: 'Stripe wallet top-up',
-              createdAt: now,
-            },
-            ...(prev.walletTransactions || []),
-          ],
-          stripeEvents: [
-            {
-              id: `evt_${Date.now()}`,
-              type: 'wallet.top_up.completed',
-              stripeSessionId: `wallet_${Date.now()}`,
-              createdAt: now,
-            },
-            ...prev.stripeEvents,
-          ],
-        };
-        return appendTemplatedEmail(base, {
-          templateKey: 'wallet_top_up_completed',
-          userId: currentUser.id,
-          vars: {
-            amount: formatPriceTHB(normalizedAmount),
-            walletBalance: formatPriceTHB(newBalance),
-            actionPath: '/account',
-          },
-        });
-      });
-      setWalletStatus('success');
-    }, 700);
-    return { ok: true };
+    setWalletStatus('idle');
+    return { ok: false, error: 'Payment service is not available. Please try again later.' };
   }
 
   async function runWalletCheckout() {
@@ -13458,7 +13441,8 @@ export default function ThailandPantiesMarketSite() {
         setCheckoutError(payload?.error || 'Could not complete checkout payment.');
         return;
       } catch {
-        // Fall back to local wallet checkout if API is temporarily unavailable.
+        setCheckoutError('Could not connect to payment service. Please try again.');
+        return;
       }
     }
     const orderId = `order_${Date.now()}`;
