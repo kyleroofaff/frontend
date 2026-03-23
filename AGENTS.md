@@ -38,7 +38,7 @@ This file is the **canonical place** to reload project context between sessions.
 
 ## Deploy (DigitalOcean Droplet + Docker)
 
-### On the Droplet (IP: 178.128.199.206)
+### On the Droplet (host: thailandpanties.com)
 
 ```
 /opt/tp/
@@ -52,8 +52,16 @@ This file is the **canonical place** to reload project context between sessions.
 
 ### SSH access
 
+**Use the hostname, not the raw IP** — the Droplet only accepts key auth via the domain:
+
 ```bash
-ssh -i ~/.ssh/id_ed25519_github root@178.128.199.206
+ssh -o ConnectTimeout=15 -i ~/.ssh/id_ed25519_github root@thailandpanties.com
+```
+
+PowerShell equivalent (Windows):
+
+```powershell
+ssh -o ConnectTimeout=15 -i "$env:USERPROFILE\.ssh\id_ed25519_github" root@thailandpanties.com
 ```
 
 ### Redeploy after push

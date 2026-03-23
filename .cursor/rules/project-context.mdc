@@ -29,8 +29,16 @@ alwaysApply: true
 - `vite.config.js` — dev proxy, build stamp plugin
 - `nginx.conf` — SPA cache rules
 
+## SSH access (Droplet)
+
+```
+ssh -o ConnectTimeout=15 -i ~/.ssh/id_ed25519_github root@thailandpanties.com
+```
+
+**Use the hostname** `thailandpanties.com`, not a raw IP — the Droplet only accepts key auth via the domain.
+
 ## Rules
 
 - **Persist facts in-repo**: update `AGENTS.md` (or this rule) when setup changes — do not rely on chat memory.
-- **Access**: full workspace + git history. No cloud dashboards, SSH, or secrets unless user provides them.
+- **Access**: full workspace + git history + SSH to Droplet (see above).
 - When user says "deploy" or "production," confirm against `AGENTS.md` and remind them `git push` alone does not update production unless the Droplet rebuilds.
