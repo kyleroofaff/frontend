@@ -8414,6 +8414,36 @@ export default function ThailandPantiesMarketSite() {
     return { ok: true, message: isBlocked ? 'User unblocked.' : 'User blocked.' };
   }
 
+  async function handleAdminImpersonate(userId) {
+    if (!currentUser || !isSuperAdmin) return;
+    const normalizedUserId = String(userId || '').trim();
+    if (!normalizedUserId) return;
+    if (backendStatus !== 'connected' || !apiAuthToken) return;
+    try {
+      const response = await apiRequestJson(`/api/admin/impersonate/${encodeURIComponent(normalizedUserId)}`, {
+        method: 'POST',
+      });
+      if (!response?.ok || !response.token || !response.user?.id) return;
+      const impersonatedUser = response.user;
+      setApiAuthToken(response.token);
+      setSession({ userId: impersonatedUser.id });
+      setDb((prev) => {
+        const existingIds = new Set((prev.users || []).map((u) => u.id));
+        if (existingIds.has(impersonatedUser.id)) return prev;
+        return { ...prev, users: [...(prev.users || []), impersonatedUser] };
+      });
+      if (impersonatedUser.role === 'bar') {
+        navigate('/bar-dashboard');
+      } else if (impersonatedUser.role === 'seller') {
+        navigate('/seller-dashboard');
+      } else {
+        navigate('/account');
+      }
+    } catch {
+      // silently fail
+    }
+  }
+
   async function updateUserCredentialsByAdmin(userId, { newEmail, newPassword } = {}) {
     if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.USERS_CREDENTIALS_MANAGE)) {
       return { ok: false, error: 'Admin permission is required.' };
@@ -17708,6 +17738,7 @@ export default function ThailandPantiesMarketSite() {
             markPayoutItemFailed={markPayoutItemFailed}
             appMode={appMode}
             switchAppMode={switchAppMode}
+            onImpersonateUser={handleAdminImpersonate}
           />
         ) : null}
 

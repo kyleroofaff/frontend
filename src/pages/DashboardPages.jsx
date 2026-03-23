@@ -5232,7 +5232,8 @@ export function AdminPage({
   markPayoutItemSent,
   markPayoutItemFailed,
   appMode,
-  switchAppMode
+  switchAppMode,
+  onImpersonateUser
 }) {
   const [socialSearch, setSocialSearch] = useState("");
   const [socialFilter, setSocialFilter] = useState("all");
@@ -8075,14 +8076,24 @@ export function AdminPage({
                           <h3 className="text-xl font-semibold">{adminSelectedUser.name}</h3>
                         <div className="mt-1 text-sm text-slate-600">{adminSelectedUser.email} · {adminSelectedUser.role}</div>
                         </div>
-                        {canBlockUsers ? (
-                          <button
-                            onClick={() => runAdminBlockToggle(adminSelectedUser.id, adminSelectedUser.accountStatus === "blocked")}
-                            className={`rounded-2xl px-4 py-2 text-sm font-semibold ${adminSelectedUser.accountStatus === "blocked" ? "border border-emerald-200 text-emerald-700" : "border border-rose-200 text-rose-700"}`}
-                          >
-                            {adminSelectedUser.accountStatus === "blocked" ? "Unblock User" : "Block User"}
-                          </button>
-                        ) : null}
+                        <div className="flex items-center gap-2">
+                          {isSuperAdmin && onImpersonateUser ? (
+                            <button
+                              onClick={() => onImpersonateUser(adminSelectedUser.id)}
+                              className="rounded-2xl border border-indigo-200 px-4 py-2 text-sm font-semibold text-indigo-700"
+                            >
+                              Login as
+                            </button>
+                          ) : null}
+                          {canBlockUsers ? (
+                            <button
+                              onClick={() => runAdminBlockToggle(adminSelectedUser.id, adminSelectedUser.accountStatus === "blocked")}
+                              className={`rounded-2xl px-4 py-2 text-sm font-semibold ${adminSelectedUser.accountStatus === "blocked" ? "border border-emerald-200 text-emerald-700" : "border border-rose-200 text-rose-700"}`}
+                            >
+                              {adminSelectedUser.accountStatus === "blocked" ? "Unblock User" : "Block User"}
+                            </button>
+                          ) : null}
+                        </div>
                       </div>
                       <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
                         Status: <span className="font-semibold">{adminSelectedUser.accountStatus || "active"}</span>
