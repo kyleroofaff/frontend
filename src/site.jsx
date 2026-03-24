@@ -1562,9 +1562,9 @@ const REGISTER_I18N = {
     passwordPolicyError: 'Password must be at least 8 characters and include at least 1 number and 1 symbol.',
     passwordMismatchError: 'Passwords do not match.',
     accountTypePlaceholder: 'Select account type',
-    buyerAccount: 'Buyer account',
-    sellerAccount: 'Seller account',
-    barAccount: 'Bar account',
+    buyerAccount: 'I want to buy used panties',
+    sellerAccount: 'I want to sell my used panties',
+    barAccount: "I'm a bar or venue",
     city: 'City',
     country: 'Country',
     sellerNameHint: 'Please write your name in English. We suggest first name and last initial (e.g. Nina R.), but you can use any name you like.',
@@ -1647,9 +1647,9 @@ const REGISTER_I18N = {
     passwordPolicyError: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร และมีตัวเลขอย่างน้อย 1 ตัวกับสัญลักษณ์อย่างน้อย 1 ตัว',
     passwordMismatchError: 'รหัสผ่านทั้งสองช่องไม่ตรงกัน',
     accountTypePlaceholder: 'เลือกประเภทบัญชี',
-    buyerAccount: 'บัญชีผู้ซื้อ',
-    sellerAccount: 'บัญชีผู้ขาย',
-    barAccount: 'บัญชีบาร์',
+    buyerAccount: 'ต้องการซื้อกางเกงในมือสอง',
+    sellerAccount: 'ต้องการขายกางเกงในมือสอง',
+    barAccount: 'เป็นบาร์หรือสถานบันเทิง',
     city: 'เมือง',
     country: 'ประเทศ',
     sellerNameHint: 'กรุณาเขียนชื่อเป็นภาษาอังกฤษ แนะนำให้ใช้ชื่อจริงและนามสกุลตัวแรก (เช่น Nina R.) แต่คุณสามารถใช้ชื่ออะไรก็ได้ที่ต้องการ',
@@ -1732,9 +1732,9 @@ const REGISTER_I18N = {
     passwordPolicyError: 'စကားဝှက်မှာ အနည်းဆုံး 8 လုံးရှိပြီး နံပါတ် 1 လုံးနှင့် သင်္ကေတ 1 လုံး ပါဝင်ရမည်',
     passwordMismatchError: 'စကားဝှက်နှစ်ခု မကိုက်ညီပါ',
     accountTypePlaceholder: 'အကောင့်အမျိုးအစားရွေးပါ',
-    buyerAccount: 'ဝယ်သူအကောင့်',
-    sellerAccount: 'ရောင်းသူအကောင့်',
-    barAccount: 'bar အကောင့်',
+    buyerAccount: 'ဝတ်ပြီးသောဝတ်ဆင် ဝယ်လိုသည်',
+    sellerAccount: 'ကျွန်ုပ်၏ ဝတ်ပြီးသောဝတ်ဆင် ရောင်းလိုသည်',
+    barAccount: 'ကျွန်ုပ်သည် ဘား သို့မဟုတ် နေရာတစ်ခု ဖြစ်သည်',
     city: 'မြို့',
     country: 'နိုင်ငံ',
     sellerNameHint: 'အမည်ကို အင်္ဂလိပ်လို ရေးပါ။ နာမည်နှင့် မျိုးနွယ်အစ တစ်လုံး သုံးရန် အကြံပြုပါသည် (ဥပမာ Nina R.)။ သို့သော် သင်ကြိုက်သော အမည်ကို သုံးနိုင်ပါသည်',
@@ -1817,9 +1817,9 @@ const REGISTER_I18N = {
     passwordPolicyError: 'Пароль должен содержать минимум 8 символов, включая хотя бы 1 цифру и 1 спецсимвол.',
     passwordMismatchError: 'Пароли не совпадают.',
     accountTypePlaceholder: 'Выберите тип аккаунта',
-    buyerAccount: 'Аккаунт покупателя',
-    sellerAccount: 'Аккаунт продавца',
-    barAccount: 'Аккаунт бара',
+    buyerAccount: 'Хочу купить ношеные трусики',
+    sellerAccount: 'Хочу продать мои ношеные трусики',
+    barAccount: 'Я бар или заведение',
     city: 'Город',
     country: 'Страна',
     sellerNameHint: 'Пожалуйста, напишите имя на английском языке. Рекомендуем использовать имя и первую букву фамилии (например, Nina R.), но вы можете указать любое имя.',
@@ -18657,9 +18657,9 @@ export default function ThailandPantiesMarketSite() {
                   className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
                 >
                   <option value="">{localizeOptionLabel("Select account type", authLanguage)}</option>
-                  <option value="buyer">{localizeOptionLabel("Buyer account", authLanguage)}</option>
-                  <option value="seller">{localizeOptionLabel("Seller account", authLanguage)}</option>
-                  <option value="bar">{localizeOptionLabel("Bar account", authLanguage)}</option>
+                  <option value="buyer">{localizeOptionLabel("I want to buy used panties", authLanguage)}</option>
+                  <option value="seller">{localizeOptionLabel("I want to sell my used panties", authLanguage)}</option>
+                  <option value="bar">{localizeOptionLabel("I'm a bar or venue", authLanguage)}</option>
                 </select>
               </label>
               {registerForm.role ? (
@@ -18878,8 +18878,8 @@ export default function ThailandPantiesMarketSite() {
                                     onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))}
                                     className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
                                   >
-                                    <option value="kg">kg</option>
-                                    <option value="lbs">lbs</option>
+                                    <option value="kg">{localizeOptionLabel("kg", authLanguage)}</option>
+                                    <option value="lbs">{localizeOptionLabel("lbs", authLanguage)}</option>
                                   </select>
                                 </div>
                               </label>
