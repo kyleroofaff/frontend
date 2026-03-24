@@ -8123,6 +8123,12 @@ export default function ThailandPantiesMarketSite() {
       });
     });
     setAdminAuthActionMessage(adminActionText('sellerApproved'));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson(`/admin/users/${encodeURIComponent(userId)}/approve-seller`, {
+        method: 'POST',
+        idempotencyScope: 'approve_seller',
+      }).catch(() => {});
+    }
     if (approvedUser?.id) {
       Promise.resolve(dispatchManagedNotification({
         recipientUserIds: [approvedUser.id],
@@ -8913,6 +8919,33 @@ export default function ThailandPantiesMarketSite() {
         adminActions: nextAdminActions,
       };
     });
+    if (backendStatus === 'connected' && apiAuthToken && currentSellerId) {
+      apiRequestJson(`/sellers/${encodeURIComponent(currentSellerId)}`, {
+        method: 'PUT',
+        body: {
+          location: locationText,
+          locationI18n,
+          specialties,
+          specialtyI18n,
+          bio: bioText,
+          bioI18n,
+          shipping: shippingText,
+          shippingI18n,
+          turnaround: turnaroundText,
+          turnaroundI18n,
+          languages,
+          profileImage: sellerProfileDraft.profileImage || '',
+          profileImageName: sellerProfileDraft.profileImageName || '',
+          height: sellerProfileDraft.height || '',
+          weight: sellerProfileDraft.weight || '',
+          hairColor: sellerProfileDraft.hairColor || '',
+          braSize: sellerProfileDraft.braSize || '',
+          pantySize: sellerProfileDraft.pantySize || '',
+          affiliatedBarId: isJoinRequest ? previousAffiliatedBarId : normalizedAffiliatedBarId,
+          feedVisibility: currentSellerProfile?.feedVisibility || 'public',
+        },
+      }).catch(() => {});
+    }
   }
 
   function requestSellerBarAffiliation(payload = {}) {
@@ -9020,6 +9053,19 @@ export default function ThailandPantiesMarketSite() {
         ],
       };
     });
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson('/affiliation-requests', {
+        method: 'POST',
+        body: {
+          sellerId: currentSellerId,
+          barId: requestedBarId,
+          direction: 'seller_to_bar',
+          sellerMessage: requestMessage,
+          sellerImages: requestImages.map((img) => img.image),
+        },
+        idempotencyScope: 'affiliation_request',
+      }).catch(() => {});
+    }
   }
 
   function respondToBarAffiliationRequest(requestId, decision) {
@@ -9254,6 +9300,13 @@ export default function ThailandPantiesMarketSite() {
       }
       return withEmails;
     });
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson(`/affiliation-requests/${encodeURIComponent(requestId)}`, {
+        method: 'PATCH',
+        body: { decision },
+        idempotencyScope: 'affiliation_respond',
+      }).catch(() => {});
+    }
   }
 
   function cancelBarAffiliationRequest(requestId) {
@@ -9293,6 +9346,13 @@ export default function ThailandPantiesMarketSite() {
         ],
       };
     });
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson(`/affiliation-requests/${encodeURIComponent(requestId)}`, {
+        method: 'PATCH',
+        body: { decision: 'cancelled' },
+        idempotencyScope: 'affiliation_cancel',
+      }).catch(() => {});
+    }
   }
 
   function removeSellerFromCurrentBarBySeller() {
@@ -11043,6 +11103,21 @@ export default function ThailandPantiesMarketSite() {
           ]
         : prev.notifications,
     }));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson('/messages/bar-send', {
+        method: 'POST',
+        body: {
+          conversationId: barMessageActiveConversationId,
+          body: draft,
+          barId,
+          participantRole,
+          participantUserId,
+          sourceLanguage,
+          translations,
+        },
+        idempotencyScope: 'bar_message',
+      }).catch(() => {});
+    }
     setBarMessagesDraft('');
     setBarMessagesError('');
   }
@@ -13922,6 +13997,24 @@ export default function ThailandPantiesMarketSite() {
       publishedAt: new Date().toISOString().slice(0, 10),
     };
     setDb((prev) => ({ ...prev, products: [newProduct, ...prev.products] }));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson('/products', {
+        method: 'POST',
+        body: {
+          id: newProduct.id,
+          title: newProduct.title,
+          description: newProduct.description,
+          priceTHB: newProduct.price,
+          image: newProduct.image,
+          imageName: newProduct.imageName,
+          category: newProduct.style || 'panties',
+          status: newProduct.status,
+          wearDays: newProduct.daysWorn,
+          extras: newProduct.features || [],
+        },
+        idempotencyScope: 'create_product',
+      }).catch(() => {});
+    }
     setUploadDraft({
       title: '',
       sellerId: currentSellerId,
