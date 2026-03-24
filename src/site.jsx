@@ -8124,7 +8124,7 @@ export default function ThailandPantiesMarketSite() {
     });
     setAdminAuthActionMessage(adminActionText('sellerApproved'));
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson(`/admin/users/${encodeURIComponent(userId)}/approve-seller`, {
+      apiRequestJson(`/api/admin/users/${encodeURIComponent(userId)}/approve-seller`, {
         method: 'POST',
         idempotencyScope: 'approve_seller',
       }).catch(() => {});
@@ -8920,7 +8920,7 @@ export default function ThailandPantiesMarketSite() {
       };
     });
     if (backendStatus === 'connected' && apiAuthToken && currentSellerId) {
-      apiRequestJson(`/sellers/${encodeURIComponent(currentSellerId)}`, {
+      apiRequestJson(`/api/sellers/${encodeURIComponent(currentSellerId)}`, {
         method: 'PUT',
         body: {
           location: locationText,
@@ -9054,7 +9054,7 @@ export default function ThailandPantiesMarketSite() {
       };
     });
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson('/affiliation-requests', {
+      apiRequestJson('/api/affiliation-requests', {
         method: 'POST',
         body: {
           sellerId: currentSellerId,
@@ -9301,7 +9301,7 @@ export default function ThailandPantiesMarketSite() {
       return withEmails;
     });
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson(`/affiliation-requests/${encodeURIComponent(requestId)}`, {
+      apiRequestJson(`/api/affiliation-requests/${encodeURIComponent(requestId)}`, {
         method: 'PATCH',
         body: { decision },
         idempotencyScope: 'affiliation_respond',
@@ -9347,7 +9347,7 @@ export default function ThailandPantiesMarketSite() {
       };
     });
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson(`/affiliation-requests/${encodeURIComponent(requestId)}`, {
+      apiRequestJson(`/api/affiliation-requests/${encodeURIComponent(requestId)}`, {
         method: 'PATCH',
         body: { decision: 'cancelled' },
         idempotencyScope: 'affiliation_cancel',
@@ -10067,7 +10067,7 @@ export default function ThailandPantiesMarketSite() {
       };
     });
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson('/seller-follows/toggle', {
+      apiRequestJson('/api/seller-follows/toggle', {
         method: 'POST',
         body: { sellerId },
         idempotencyScope: 'seller_follow',
@@ -10104,7 +10104,7 @@ export default function ThailandPantiesMarketSite() {
       };
     });
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson('/bar-follows/toggle', {
+      apiRequestJson('/api/bar-follows/toggle', {
         method: 'POST',
         body: { barId: normalizedBarId },
         idempotencyScope: 'bar_follow',
@@ -11118,7 +11118,7 @@ export default function ThailandPantiesMarketSite() {
         : prev.notifications,
     }));
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson('/messages/bar-send', {
+      apiRequestJson('/api/messages/bar-send', {
         method: 'POST',
         body: {
           conversationId: barMessageActiveConversationId,
@@ -14012,7 +14012,7 @@ export default function ThailandPantiesMarketSite() {
     };
     setDb((prev) => ({ ...prev, products: [newProduct, ...prev.products] }));
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson('/products', {
+      apiRequestJson('/api/products', {
         method: 'POST',
         body: {
           id: newProduct.id,
