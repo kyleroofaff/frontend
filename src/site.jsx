@@ -16178,7 +16178,7 @@ export default function ThailandPantiesMarketSite() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-pink-50 text-slate-800">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-rose-50 via-white to-pink-50 text-slate-800">
       <header className={`sticky top-0 z-40 border-b ${appMode === 'test' ? 'border-amber-200 bg-amber-50' : 'border-rose-100 bg-white'}`}>
         {appMode === 'test' ? (
           <div className="border-b border-amber-200 bg-amber-100 px-4 py-2 text-center text-xs font-extrabold uppercase tracking-[0.14em] text-amber-900">
@@ -18840,7 +18840,7 @@ export default function ThailandPantiesMarketSite() {
                           <div className="mb-3 text-sm font-semibold text-rose-700">{registerText.stepMeasurements || 'Your measurements'}</div>
                           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                             <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}</div>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid gap-3 sm:grid-cols-2">
                               <label className="grid gap-1 text-sm text-slate-600">
                                 <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
                                 <div className="flex gap-2">
