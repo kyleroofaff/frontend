@@ -4530,6 +4530,7 @@ export function SellerFeedPage({
   barPosts,
   sellers,
   bars,
+  users,
   sellerMap,
   barMap,
   postReports,
@@ -4559,6 +4560,11 @@ export function SellerFeedPage({
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
+  const userNameById = useMemo(() => {
+    const map = {};
+    (users || []).forEach((u) => { if (u?.id) map[u.id] = u.name || ''; });
+    return map;
+  }, [users]);
   const REPORT_REASON_OPTIONS = [
     { value: "inappropriate", label: t("reasonInappropriate") },
     { value: "harassment", label: t("reasonHarassment") },
@@ -4993,7 +4999,7 @@ export function SellerFeedPage({
                     ) : (commentsByPostId[post.id] || []).map((comment) => (
                       <div key={comment.id} className="rounded-lg bg-white px-2 py-1 text-xs text-slate-700 ring-1 ring-rose-100">
                         <div className="flex items-center justify-between gap-2">
-                          <span><span className="font-semibold text-slate-600">{comment.senderRole}</span>: {comment.body}</span>
+                          <span><span className="font-semibold text-slate-600">{userNameById[comment.senderUserId] || comment.senderRole}</span>: {comment.body}</span>
                           <div className="flex items-center gap-1">
                             {unresolvedCommentReportCounts[comment.id] ? (
                               <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">

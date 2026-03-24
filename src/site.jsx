@@ -4041,7 +4041,7 @@ function pruneDemoMarketplaceData(dbState) {
       ? dbState.sellerPostLikes.filter((entry) => hasUser(entry?.userId) && sellerPostIds.has(String(entry?.postId || '')))
       : [],
     sellerPostComments: Array.isArray(dbState.sellerPostComments)
-      ? dbState.sellerPostComments.filter((entry) => hasUser(entry?.userId) && sellerPostIds.has(String(entry?.postId || '')))
+      ? dbState.sellerPostComments.filter((entry) => hasUser(entry?.senderUserId || entry?.userId) && sellerPostIds.has(String(entry?.postId || '')))
       : [],
     sellerFollows: Array.isArray(dbState.sellerFollows)
       ? dbState.sellerFollows.filter((entry) => hasUser(entry?.userId) && hasSeller(entry?.sellerId))
@@ -7265,11 +7265,13 @@ export default function ThailandPantiesMarketSite() {
     [filteredProducts, homeProductPreviewSeed],
   );
   const homeAllFeedPreviewPosts = useMemo(() => {
-    const sellerRows = (sellerFeedPosts || []).map((post) => ({
-      ...post,
-      feedType: 'seller',
-      sortAt: post?.createdAt || null,
-    }));
+    const sellerRows = (sellerFeedPosts || [])
+      .filter((post) => !isSellerPostPrivate(post))
+      .map((post) => ({
+        ...post,
+        feedType: 'seller',
+        sortAt: post?.createdAt || null,
+      }));
     const barRows = (barFeedPosts || []).map((post) => ({
       ...post,
       feedType: 'bar',
@@ -10134,19 +10136,66 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     const now = new Date().toISOString();
+    const sellerUser = users.find((entry) => entry.sellerId === post.sellerId);
+    const sellerUserId = sellerUser?.id;
     setDb((prev) => {
       const buyerBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
       const buyerAfter = Number((buyerBefore - unlockPrice).toFixed(2));
+      const payout = calculateSellerRevenueSplit(prev, {
+        sellerId: post.sellerId,
+        grossAmount: unlockPrice,
+      });
+      const recipient = (prev.users || []).find((entry) => entry.id === sellerUserId);
       const base = {
         ...prev,
-        users: prev.users.map((user) => (
-          user.id === currentUser.id
-            ? { ...user, walletBalance: buyerAfter }
-            : user
-        )),
+        users: (prev.users || []).map((user) => {
+          if (user.id === currentUser.id) {
+            return { ...user, walletBalance: buyerAfter };
+          }
+          if (payout.sellerUserId && user.id === payout.sellerUserId && payout.sellerAmount > 0 && user.id !== currentUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.sellerAmount).toFixed(2)) };
+          }
+          if (payout.barUserId && user.id === payout.barUserId && payout.barAmount > 0 && user.id !== currentUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.barAmount).toFixed(2)) };
+          }
+          if (payout.adminUserId && user.id === payout.adminUserId && payout.adminAmount > 0 && user.id !== currentUser.id) {
+            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.adminAmount).toFixed(2)) };
+          }
+          return user;
+        }),
         walletTransactions: [
+          ...(payout.sellerUserId && payout.sellerAmount > 0 && payout.sellerUserId !== currentUser.id
+            ? [{
+                id: `txn_${Date.now()}_seller_unlock`,
+                userId: payout.sellerUserId,
+                type: 'post_unlock',
+                amount: payout.sellerAmount,
+                description: `Post unlock earning from ${currentUser.name || 'Buyer'}`,
+                createdAt: now,
+              }]
+            : []),
+          ...(payout.barUserId && payout.barAmount > 0 && payout.barUserId !== currentUser.id
+            ? [{
+                id: `txn_${Date.now()}_bar_unlock`,
+                userId: payout.barUserId,
+                type: 'post_unlock',
+                amount: payout.barAmount,
+                description: 'Bar commission from post unlock',
+                createdAt: now,
+              }]
+            : []),
+          ...(payout.adminUserId && payout.adminAmount > 0 && payout.adminUserId !== currentUser.id
+            ? [{
+                id: `txn_${Date.now()}_admin_unlock`,
+                userId: payout.adminUserId,
+                type: 'post_unlock',
+                amount: payout.adminAmount,
+                description: 'Platform commission from post unlock',
+                createdAt: now,
+              }]
+            : []),
           {
-            id: `txn_${Date.now()}`,
+            id: `txn_${Date.now()}_buyer_unlock`,
             userId: currentUser.id,
             type: 'post_unlock',
             amount: -unlockPrice,
@@ -10165,6 +10214,19 @@ export default function ThailandPantiesMarketSite() {
           },
           ...(prev.postUnlocks || []),
         ],
+        notifications: sellerUserId && sellerUserId !== currentUser.id && shouldSendNotificationForType(recipient, 'engagement')
+          ? [
+              {
+                id: `notif_${Date.now()}_unlock`,
+                userId: sellerUserId,
+                type: 'engagement',
+                text: `${currentUser.name || 'A buyer'} unlocked your private post.`,
+                read: false,
+                createdAt: now,
+              },
+              ...(prev.notifications || []),
+            ]
+          : prev.notifications,
       };
       return appendLowBalanceEmailIfNeeded(base, {
         userId: currentUser.id,
@@ -13739,10 +13801,10 @@ export default function ThailandPantiesMarketSite() {
         : MIN_FEED_UNLOCK_PRICE_THB,
     };
     const captionI18n = await buildTextTranslations(basePostPayload.caption);
-    const apiPostPayload = { ...basePostPayload, captionI18n };
     const scheduledTimestamp = sellerPostDraft.scheduledFor ? new Date(sellerPostDraft.scheduledFor).getTime() : null;
     const hasScheduledTime = Number.isFinite(scheduledTimestamp) && scheduledTimestamp > Date.now();
     const scheduledForIso = hasScheduledTime ? new Date(scheduledTimestamp).toISOString() : '';
+    const apiPostPayload = { ...basePostPayload, captionI18n, ...(scheduledForIso ? { scheduledFor: scheduledForIso } : {}) };
 
     setCreatingSellerPost(true);
     try {
@@ -16307,6 +16369,7 @@ export default function ThailandPantiesMarketSite() {
             barPosts={barFeedPosts}
             sellers={sellers}
             bars={bars}
+            users={users}
             sellerMap={sellerMap}
             barMap={barMap}
             postReports={postReports}
