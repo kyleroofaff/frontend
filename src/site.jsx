@@ -65,7 +65,11 @@ import {
   STYLE_OPTIONS,
   HAIR_COLOR_OPTIONS,
   BRA_SIZE_OPTIONS,
+  THAI_BRA_SIZE_OPTIONS,
+  THAI_TO_US_BRA_SIZE_MAP,
   PANTY_SIZE_OPTIONS,
+  REGISTRATION_COUNTRIES,
+  REGISTRATION_CITIES_BY_COUNTRY,
   formatHeight,
   formatWeight,
 } from './productOptions.js';
@@ -1574,6 +1578,15 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'Seller application submitted. We will notify you after review.',
     buyerSuccess: 'Account created. You can now login.',
     barSuccess: 'Bar account created. You can now manage your bar page.',
+    emailPrepText: 'You will need a working email address to create your account. If you do not have one, you can get a free email at gmail.com. Please have your email address ready before continuing.',
+    successPopupTitle: 'Account created successfully!',
+    successPopupSaveCredentials: 'Save these credentials. You will need them to log in.',
+    successPopupEmail: 'Your email',
+    successPopupPassword: 'Your password',
+    successPopupCopied: 'Copied!',
+    successPopupGoToLogin: 'Go to login',
+    thaiBraSizes: 'Thai sizes (cm)',
+    usBraSizes: 'US sizes',
   },
   th: {
     title: 'สร้างบัญชีของคุณ',
@@ -1631,6 +1644,15 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'ส่งคำขอผู้ขายแล้ว เราจะแจ้งผลหลังการตรวจสอบ',
     buyerSuccess: 'สร้างบัญชีเรียบร้อยแล้ว สามารถเข้าสู่ระบบได้',
     barSuccess: 'สร้างบัญชีบาร์เรียบร้อยแล้ว สามารถจัดการหน้าโปรไฟล์บาร์ได้ทันที',
+    emailPrepText: 'คุณต้องมีอีเมลที่ใช้งานได้จริงเพื่อสร้างบัญชี หากยังไม่มี สามารถสมัครอีเมลฟรีได้ที่ gmail.com กรุณาเตรียมอีเมลให้พร้อมก่อนดำเนินการต่อ',
+    successPopupTitle: 'สร้างบัญชีสำเร็จ!',
+    successPopupSaveCredentials: 'บันทึกข้อมูลเหล่านี้ไว้ คุณจะต้องใช้ในการเข้าสู่ระบบ',
+    successPopupEmail: 'อีเมลของคุณ',
+    successPopupPassword: 'รหัสผ่านของคุณ',
+    successPopupCopied: 'คัดลอกแล้ว!',
+    successPopupGoToLogin: 'ไปหน้าเข้าสู่ระบบ',
+    thaiBraSizes: 'ขนาดไทย (ซม.)',
+    usBraSizes: 'ขนาด US',
   },
   my: {
     title: 'အကောင့်ဖန်တီးရန်',
@@ -1688,6 +1710,15 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'seller လျှောက်လွှာ ပို့ပြီးပါပြီ၊ စစ်ဆေးပြီးနောက် အသိပေးပါမည်',
     buyerSuccess: 'အကောင့်ဖန်တီးပြီးပါပြီ၊ ယခု ဝင်နိုင်ပါပြီ',
     barSuccess: 'bar အကောင့် ဖန်တီးပြီးပါပြီ။ ယခု bar page ကို စီမံနိုင်ပါသည်',
+    emailPrepText: 'အကောင့်ဖန်တီးရန် အသုံးပြုနိုင်သော အီးမေးလ်လိပ်စာ လိုအပ်ပါသည်။ မရှိသေးပါက gmail.com တွင် အခမဲ့ အီးမေးလ် ရယူနိုင်ပါသည်။ ဆက်လက်မလုပ်ဆောင်မီ အီးမေးလ်ကို အသင့်ပြင်ထားပါ',
+    successPopupTitle: 'အကောင့် အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ!',
+    successPopupSaveCredentials: 'ဤအချက်အလက်များကို သိမ်းဆည်းပါ။ ဝင်ရောက်ရန် လိုအပ်ပါမည်',
+    successPopupEmail: 'သင့်အီးမေးလ်',
+    successPopupPassword: 'သင့်စကားဝှက်',
+    successPopupCopied: 'ကူးယူပြီး!',
+    successPopupGoToLogin: 'ဝင်ရောက်ရန် သွားမည်',
+    thaiBraSizes: 'ထိုင်းဆိုက် (cm)',
+    usBraSizes: 'US ဆိုက်',
   },
   ru: {
     title: 'Создание аккаунта',
@@ -1745,6 +1776,15 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'Заявка продавца отправлена. Мы сообщим после проверки.',
     buyerSuccess: 'Аккаунт создан. Теперь вы можете войти.',
     barSuccess: 'Аккаунт бара создан. Теперь вы можете управлять страницей бара.',
+    emailPrepText: 'Для создания аккаунта вам понадобится действующий email. Если у вас его нет, вы можете бесплатно создать email на gmail.com. Пожалуйста, подготовьте свой email перед продолжением.',
+    successPopupTitle: 'Аккаунт успешно создан!',
+    successPopupSaveCredentials: 'Сохраните эти данные. Они понадобятся для входа.',
+    successPopupEmail: 'Ваш email',
+    successPopupPassword: 'Ваш пароль',
+    successPopupCopied: 'Скопировано!',
+    successPopupGoToLogin: 'Перейти к входу',
+    thaiBraSizes: 'Тайские размеры (см)',
+    usBraSizes: 'Размеры US',
   },
 };
 
@@ -4870,6 +4910,8 @@ export default function ThailandPantiesMarketSite() {
     acceptedRespectfulConduct: false,
     acceptedNoRefunds: false,
   });
+  const [registrationSuccessPopup, setRegistrationSuccessPopup] = useState(null);
+  const [useBraThaiSizing, setUseBraThaiSizing] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authErrorRefreshKey, setAuthErrorRefreshKey] = useState(0);
   const [authSuccess, setAuthSuccess] = useState('');
@@ -4910,7 +4952,7 @@ export default function ThailandPantiesMarketSite() {
   const [accountCredentialMessage, setAccountCredentialMessage] = useState('');
   const [accountCredentialTone, setAccountCredentialTone] = useState('neutral');
   const [accountSearchQuery, setAccountSearchQuery] = useState('');
-  const [adminUserSearch, setAdminUserSearch] = useState(() => String(readStore('tlm-admin-user-search', '') || ''));
+  const [adminUserSearch, setAdminUserSearch] = useState('');
   const switchAppMode = useCallback((nextMode) => {
     const normalizedMode = normalizeAppMode(nextMode);
     if (normalizedMode === appMode) return;
@@ -6766,11 +6808,6 @@ export default function ThailandPantiesMarketSite() {
   }, [adminTab]);
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem('tlm-admin-user-search', JSON.stringify(String(adminUserSearch || '')));
-  }, [adminUserSearch]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
     window.localStorage.setItem('tlm-checkout-buyer-email', JSON.stringify(String(buyerEmail || '')));
   }, [buyerEmail]);
 
@@ -6806,7 +6843,6 @@ export default function ThailandPantiesMarketSite() {
       const nextCart = readStore('tlm-cart', []);
       const nextCheckoutStep = normalizeCheckoutStep(readStore('tlm-checkout-step', 1));
       const nextAdminTab = String(readStore('tlm-admin-tab', 'overview') || 'overview');
-      const nextAdminUserSearch = String(readStore('tlm-admin-user-search', '') || '');
       const nextCheckoutBuyerEmail = String(readStore('tlm-checkout-buyer-email', '') || '');
       const nextCheckoutForm = normalizeCheckoutFormDraft(readStore('tlm-checkout-form', null));
       const nextSession = readStore('tlm-session', { userId: null });
@@ -6815,7 +6851,6 @@ export default function ThailandPantiesMarketSite() {
       setCart((prev) => JSON.stringify(prev) === JSON.stringify(nextCart) ? prev : nextCart);
       setCheckoutStep((prev) => (prev === nextCheckoutStep ? prev : nextCheckoutStep));
       setAdminTab((prev) => (prev === nextAdminTab ? prev : nextAdminTab));
-      setAdminUserSearch((prev) => (prev === nextAdminUserSearch ? prev : nextAdminUserSearch));
       setBuyerEmail((prev) => (prev === nextCheckoutBuyerEmail ? prev : nextCheckoutBuyerEmail));
       setCheckoutForm((prev) => (JSON.stringify(prev) === JSON.stringify(nextCheckoutForm) ? prev : nextCheckoutForm));
       setSession((prev) => JSON.stringify(prev) === JSON.stringify(nextSession) ? prev : nextSession);
@@ -6825,7 +6860,7 @@ export default function ThailandPantiesMarketSite() {
     };
 
     const onStorage = (event) => {
-      if (!event.key || ['tlm-cart', 'tlm-checkout-step', 'tlm-admin-tab', 'tlm-admin-user-search', 'tlm-checkout-buyer-email', 'tlm-checkout-form', 'tlm-session', 'tlm-api-token', 'tlm-auth-language'].includes(event.key)) {
+      if (!event.key || ['tlm-cart', 'tlm-checkout-step', 'tlm-admin-tab', 'tlm-checkout-buyer-email', 'tlm-checkout-form', 'tlm-session', 'tlm-api-token', 'tlm-auth-language'].includes(event.key)) {
         syncFromStorage();
       }
     };
@@ -7589,26 +7624,32 @@ export default function ThailandPantiesMarketSite() {
       setAuthError('');
       setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
       setCheckoutAuthModalOpen(false);
+      const scrollAfterNav = () => setTimeout(() => window.scrollTo(0, 0), 50);
       const normalizedPostLoginRedirectPath = String(postLoginRedirectPath || '').trim();
       const canUsePostLoginRedirect = normalizedPostLoginRedirectPath.startsWith('/') && !normalizedPostLoginRedirectPath.startsWith('//');
       if (canUsePostLoginRedirect) {
         setPostLoginRedirectPath('');
         navigate(normalizedPostLoginRedirectPath);
+        scrollAfterNav();
         return;
       }
       if (hasAdminPanelAccess(user)) {
         navigate('/admin');
+        scrollAfterNav();
         return;
       }
       if (user.role === 'seller') {
         navigate('/account');
+        scrollAfterNav();
         return;
       }
       if (user.role === 'bar') {
         navigate('/bar-dashboard');
+        scrollAfterNav();
         return;
       }
       navigate('/account');
+      scrollAfterNav();
     };
 
     const shouldTryApiLogin = backendStatus === 'connected' || REQUIRE_BACKEND_AUTH;
@@ -7893,7 +7934,6 @@ export default function ThailandPantiesMarketSite() {
         setAuthSuccess('');
         return;
       }
-      setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: '', city: '', country: '', height: '', heightUnit: 'cm', weight: '', weightUnit: 'kg', hairColor: '', braSize: '', pantySize: '', acceptedRespectfulConduct: false, acceptedNoRefunds: false });
       setAuthError('');
       const registrationToken = String(payload?.token || '').trim();
       const registrationUser = payload?.user || null;
@@ -7926,14 +7966,11 @@ export default function ThailandPantiesMarketSite() {
         });
         setSession({ userId: registrationUser.id });
         setAuthSuccess('');
-        navigate(role === 'bar' ? '/bar-dashboard' : '/account');
+        setRegistrationSuccessPopup({ email, password, role });
         return;
       }
-      const defaultMsg = role === 'bar' ? registerText.barSuccess
-        : role === 'seller' ? registerText.sellerPendingSuccess
-        : registerText.buyerSuccess;
-      setAuthSuccess(String(payload?.message || defaultMsg));
-      navigate('/login');
+      setAuthSuccess('');
+      setRegistrationSuccessPopup({ email, password, role });
       return;
     }
     const exists = users.some((user) => user.email.toLowerCase() === email);
@@ -18183,6 +18220,44 @@ export default function ThailandPantiesMarketSite() {
 
         {routeInfo.name === 'register' ? (
           <PageShell title={registerText.title} subtitle={registerText.subtitle}>
+            {registrationSuccessPopup ? (
+              <div className="mx-auto max-w-lg rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100 space-y-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-emerald-700">{registerText.successPopupTitle || 'Account created successfully!'}</div>
+                  <div className="mt-2 text-sm text-slate-600">{registerText.successPopupSaveCredentials || 'Save these credentials. You will need them to log in.'}</div>
+                </div>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-slate-700">
+                    {registerText.successPopupEmail || 'Your email'}
+                    <div className="mt-1 flex items-center gap-2">
+                      <input readOnly value={registrationSuccessPopup.email} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm select-all" onClick={(e) => e.target.select()} />
+                      <button type="button" onClick={() => { navigator.clipboard.writeText(registrationSuccessPopup.email); }} className="shrink-0 rounded-xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-200">{registerText.successPopupCopied ? registerText.successPopupCopied.replace('!', '') : 'Copy'}</button>
+                    </div>
+                  </label>
+                  <label className="block text-sm font-medium text-slate-700">
+                    {registerText.successPopupPassword || 'Your password'}
+                    <div className="mt-1 flex items-center gap-2">
+                      <input readOnly value={registrationSuccessPopup.password} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm select-all" onClick={(e) => e.target.select()} />
+                      <button type="button" onClick={() => { navigator.clipboard.writeText(registrationSuccessPopup.password); }} className="shrink-0 rounded-xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-200">{registerText.successPopupCopied ? registerText.successPopupCopied.replace('!', '') : 'Copy'}</button>
+                    </div>
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const savedEmail = registrationSuccessPopup.email;
+                    setRegistrationSuccessPopup(null);
+                    setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: '', city: '', country: '', height: '', heightUnit: 'cm', weight: '', weightUnit: 'kg', hairColor: '', braSize: '', pantySize: '', acceptedRespectfulConduct: false, acceptedNoRefunds: false });
+                    setLoginForm({ email: savedEmail, password: '' });
+                    navigate('/login');
+                    setTimeout(() => window.scrollTo(0, 0), 50);
+                  }}
+                  className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white"
+                >
+                  {registerText.successPopupGoToLogin || 'Go to login'}
+                </button>
+              </div>
+            ) : (
             <form onSubmit={registerAccount} className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
               <label className="block text-sm font-medium text-slate-700">
                 {registerText.language}
@@ -18197,29 +18272,6 @@ export default function ThailandPantiesMarketSite() {
                   <option value="ru">{localizeOptionLabel("Russian", authLanguage)}</option>
                 </select>
               </label>
-              <input
-                value={registerForm.name}
-                onChange={(event) => setRegisterForm((prev) => ({ ...prev, name: event.target.value }))}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                placeholder={registerForm.role === 'seller' ? 'Name (e.g. Nina R.)' : registerForm.role === 'bar' ? 'Bar name (e.g. Small World)' : registerText.fullName}
-              />
-              {registerForm.role === 'seller' && registerText.sellerNameHint ? (
-                <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                  {registerText.sellerNameHint}
-                </div>
-              ) : null}
-              {registerForm.role === 'bar' && registerText.barNameHint ? (
-                <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                  {registerText.barNameHint}
-                </div>
-              ) : null}
-              <input
-                value={registerForm.email}
-                onChange={(event) => setRegisterForm((prev) => ({ ...prev, email: event.target.value }))}
-                type="email"
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                placeholder={registerText.email}
-              />
               <select
                 value={registerForm.role}
                 onChange={(event) => setRegisterForm((prev) => ({ ...prev, role: event.target.value }))}
@@ -18230,190 +18282,306 @@ export default function ThailandPantiesMarketSite() {
                 <option value="seller">{localizeOptionLabel("Seller account", authLanguage)}</option>
                 <option value="bar">{localizeOptionLabel("Bar account", authLanguage)}</option>
               </select>
-              <input
-                value={registerForm.password}
-                onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))}
-                type={showRegisterPassword ? "text" : "password"}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                placeholder={registerText.password}
-              />
-              <input
-                value={registerForm.confirmPassword}
-                onChange={(event) => setRegisterForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
-                type={showRegisterPassword ? "text" : "password"}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                placeholder={registerText.confirmPassword || 'Confirm password'}
-              />
-              <button
-                type="button"
-                onClick={() => setShowRegisterPassword((prev) => !prev)}
-                className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800"
-                aria-label={showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
-              >
-                {showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
-              </button>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
-                  {registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}
-                </div>
-                <div className="mt-2 space-y-1.5 text-xs">
-                  {registerPasswordChecks.map((check) => (
-                    <div key={check.key} className={check.passed ? 'text-emerald-700' : 'text-rose-700'}>
-                      {check.passed ? '✓' : '✕'} {check.label}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {registerForm.role === 'seller' || registerForm.role === 'bar' ? (
+              {registerForm.role ? (
                 <>
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                    {registerText.emailPrepText || 'You will need a working email address to create your account. If you do not have one, you can get a free email at gmail.com. Please have your email address ready before continuing.'}
+                  </div>
                   <input
-                    value={registerForm.city}
-                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
+                    value={registerForm.name}
+                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, name: event.target.value }))}
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                    placeholder={registerText.city}
+                    placeholder={registerForm.role === 'seller' ? 'Name (e.g. Nina R.)' : registerForm.role === 'bar' ? 'Bar name (e.g. Small World)' : registerText.fullName}
                   />
-                  <input
-                    value={registerForm.country}
-                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, country: event.target.value }))}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                    placeholder={registerText.country}
-                  />
-                  {registerForm.role === 'seller' ? (
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}</div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <label className="grid gap-1 text-sm text-slate-600">
-                          <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
-                          <div className="flex gap-2">
-                            <input
-                              value={registerForm.height}
-                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, height: event.target.value }))}
-                              type="number"
-                              min="0"
-                              className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                              placeholder={registerForm.heightUnit === 'cm' ? '165' : '65'}
-                            />
-                            <select
-                              value={registerForm.heightUnit}
-                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, heightUnit: event.target.value }))}
-                              className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
-                            >
-                              <option value="cm">cm</option>
-                              <option value="in">in</option>
-                            </select>
-                          </div>
-                        </label>
-                        <label className="grid gap-1 text-sm text-slate-600">
-                          <span className="font-medium">{registerText.weightLabel || 'Weight'}</span>
-                          <div className="flex gap-2">
-                            <input
-                              value={registerForm.weight}
-                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, weight: event.target.value }))}
-                              type="number"
-                              min="0"
-                              className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                              placeholder={registerForm.weightUnit === 'kg' ? '55' : '121'}
-                            />
-                            <select
-                              value={registerForm.weightUnit}
-                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))}
-                              className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
-                            >
-                              <option value="kg">kg</option>
-                              <option value="lbs">lbs</option>
-                            </select>
-                          </div>
-                        </label>
-                      </div>
-                      <select
-                        value={registerForm.hairColor}
-                        onChange={(event) => setRegisterForm((prev) => ({ ...prev, hairColor: event.target.value }))}
-                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                      >
-                        <option value="">{registerText.selectHairColor || 'Select hair color'}</option>
-                        {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, authLanguage)}</option>)}
-                      </select>
-                      <div className="grid grid-cols-2 gap-3">
-                        <select
-                          value={registerForm.braSize}
-                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, braSize: event.target.value }))}
-                          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        >
-                          <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
-                          {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
-                        </select>
-                        <select
-                          value={registerForm.pantySize}
-                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, pantySize: event.target.value }))}
-                          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        >
-                          <option value="">{registerText.selectPantySize || 'Select panty size'}</option>
-                          {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
-                        </select>
-                      </div>
+                  {registerForm.role === 'seller' && registerText.sellerNameHint ? (
+                    <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                      {registerText.sellerNameHint}
                     </div>
                   ) : null}
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                    {registerForm.role === 'bar' ? (registerText.barNote || registerText.sellerNote) : registerText.sellerNote}
+                  {registerForm.role === 'bar' && registerText.barNameHint ? (
+                    <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                      {registerText.barNameHint}
+                    </div>
+                  ) : null}
+                  <input
+                    value={registerForm.email}
+                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, email: event.target.value }))}
+                    type="email"
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                    placeholder={registerText.email}
+                  />
+                  <input
+                    value={registerForm.password}
+                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))}
+                    type={showRegisterPassword ? "text" : "password"}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                    placeholder={registerText.password}
+                  />
+                  <input
+                    value={registerForm.confirmPassword}
+                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
+                    type={showRegisterPassword ? "text" : "password"}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                    placeholder={registerText.confirmPassword || 'Confirm password'}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterPassword((prev) => !prev)}
+                    className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800"
+                    aria-label={showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
+                  >
+                    {showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
+                  </button>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+                      {registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}
+                    </div>
+                    <div className="mt-2 space-y-1.5 text-xs">
+                      {registerPasswordChecks.map((check) => (
+                        <div key={check.key} className={check.passed ? 'text-emerald-700' : 'text-rose-700'}>
+                          {check.passed ? '✓' : '✕'} {check.label}
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                  {registerForm.role === 'seller' || registerForm.role === 'bar' ? (
+                    <>
+                      <label className="block text-sm font-medium text-slate-700">
+                        {localizeOptionLabel("Select country", authLanguage)}
+                        <select
+                          value={REGISTRATION_COUNTRIES.includes(registerForm.country) ? registerForm.country : (registerForm.country ? 'Other' : '')}
+                          onChange={(event) => {
+                            const val = event.target.value;
+                            if (val === 'Other') {
+                              setRegisterForm((prev) => ({ ...prev, country: '', city: '' }));
+                            } else {
+                              setRegisterForm((prev) => ({ ...prev, country: val, city: '' }));
+                            }
+                          }}
+                          className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                        >
+                          <option value="">{localizeOptionLabel("Select country", authLanguage)}</option>
+                          {REGISTRATION_COUNTRIES.map((c) => <option key={c} value={c}>{localizeOptionLabel(c, authLanguage)}</option>)}
+                        </select>
+                      </label>
+                      {!REGISTRATION_COUNTRIES.filter(c => c !== 'Other').includes(registerForm.country) ? (
+                        <input
+                          value={registerForm.country === 'Other' ? '' : registerForm.country}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, country: event.target.value }))}
+                          className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                          placeholder={localizeOptionLabel("Type your country", authLanguage)}
+                        />
+                      ) : null}
+                      {(() => {
+                        const cities = REGISTRATION_CITIES_BY_COUNTRY[registerForm.country] || [];
+                        if (cities.length === 0) {
+                          return (
+                            <input
+                              value={registerForm.city}
+                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
+                              className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                              placeholder={registerForm.country ? (localizeOptionLabel("Type your city", authLanguage)) : registerText.city}
+                            />
+                          );
+                        }
+                        return (
+                          <>
+                            <label className="block text-sm font-medium text-slate-700">
+                              {localizeOptionLabel("Select city", authLanguage)}
+                              <select
+                                value={cities.includes(registerForm.city) ? registerForm.city : (registerForm.city ? 'Other' : '')}
+                                onChange={(event) => {
+                                  const val = event.target.value;
+                                  setRegisterForm((prev) => ({ ...prev, city: val === 'Other' ? '' : val }));
+                                }}
+                                className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                              >
+                                <option value="">{localizeOptionLabel("Select city", authLanguage)}</option>
+                                {cities.map((city) => <option key={city} value={city}>{localizeOptionLabel(city, authLanguage)}</option>)}
+                                <option value="Other">{localizeOptionLabel("Other", authLanguage)}</option>
+                              </select>
+                            </label>
+                            {!cities.includes(registerForm.city) ? (
+                              <input
+                                value={registerForm.city}
+                                onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
+                                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                                placeholder={localizeOptionLabel("Type your city", authLanguage)}
+                              />
+                            ) : null}
+                          </>
+                        );
+                      })()}
+                      {registerForm.role === 'seller' ? (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}</div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <label className="grid gap-1 text-sm text-slate-600">
+                              <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
+                              <div className="flex gap-2">
+                                <input
+                                  value={registerForm.height}
+                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, height: event.target.value }))}
+                                  type="number"
+                                  min="0"
+                                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                                  placeholder={registerForm.heightUnit === 'cm' ? '165' : '65'}
+                                />
+                                <select
+                                  value={registerForm.heightUnit}
+                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, heightUnit: event.target.value }))}
+                                  className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                                >
+                                  <option value="cm">cm</option>
+                                  <option value="in">in</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label className="grid gap-1 text-sm text-slate-600">
+                              <span className="font-medium">{registerText.weightLabel || 'Weight'}</span>
+                              <div className="flex gap-2">
+                                <input
+                                  value={registerForm.weight}
+                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, weight: event.target.value }))}
+                                  type="number"
+                                  min="0"
+                                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                                  placeholder={registerForm.weightUnit === 'kg' ? '55' : '121'}
+                                />
+                                <select
+                                  value={registerForm.weightUnit}
+                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))}
+                                  className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                                >
+                                  <option value="kg">kg</option>
+                                  <option value="lbs">lbs</option>
+                                </select>
+                              </div>
+                            </label>
+                          </div>
+                          <select
+                            value={registerForm.hairColor}
+                            onChange={(event) => setRegisterForm((prev) => ({ ...prev, hairColor: event.target.value }))}
+                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                          >
+                            <option value="">{registerText.selectHairColor || 'Select hair color'}</option>
+                            {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, authLanguage)}</option>)}
+                          </select>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <div className="mb-1 flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => { setUseBraThaiSizing(true); setRegisterForm((prev) => ({ ...prev, braSize: '' })); }}
+                                  className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                >
+                                  {registerText.thaiBraSizes || 'Thai sizes (cm)'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => { setUseBraThaiSizing(false); setRegisterForm((prev) => ({ ...prev, braSize: '' })); }}
+                                  className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${!useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                >
+                                  {registerText.usBraSizes || 'US sizes'}
+                                </button>
+                              </div>
+                              <select
+                                value={registerForm.braSize}
+                                onChange={(event) => {
+                                  const val = event.target.value;
+                                  if (useBraThaiSizing && THAI_TO_US_BRA_SIZE_MAP[val]) {
+                                    setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[val] }));
+                                  } else {
+                                    setRegisterForm((prev) => ({ ...prev, braSize: val }));
+                                  }
+                                }}
+                                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                              >
+                                <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
+                                {useBraThaiSizing
+                                  ? THAI_BRA_SIZE_OPTIONS.map((size) => {
+                                      const usEquiv = THAI_TO_US_BRA_SIZE_MAP[size] || '';
+                                      return <option key={size} value={size}>{size}{usEquiv ? ` (${usEquiv})` : ''}</option>;
+                                    })
+                                  : BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)
+                                }
+                              </select>
+                            </div>
+                            <select
+                              value={registerForm.pantySize}
+                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, pantySize: event.target.value }))}
+                              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm self-end"
+                            >
+                              <option value="">{registerText.selectPantySize || 'Select panty size'}</option>
+                              {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                      ) : null}
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                        {registerForm.role === 'bar' ? (registerText.barNote || registerText.sellerNote) : registerText.sellerNote}
+                      </div>
+                    </>
+                  ) : null}
+                  {registerForm.role === 'buyer' || registerForm.role === 'seller' ? (
+                    <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
+                      <div className="mb-2 text-sm font-semibold text-rose-800">
+                        {registerForm.role === 'seller'
+                          ? (registerText.sellerTermsTitle || 'Seller terms acceptance')
+                          : (registerText.buyerTermsTitle || 'Buyer terms acceptance')}
+                      </div>
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => navigate('/community-standards')}
+                          className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                        >
+                          {registerText.viewCommunityStandards || 'View Community Standards'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/refund-policy')}
+                          className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                        >
+                          {registerText.viewRefundPolicy || 'View Refund Policy'}
+                        </button>
+                      </div>
+                      <label className="mb-2 flex items-start gap-2 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(registerForm.acceptedRespectfulConduct)}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedRespectfulConduct: event.target.checked }))}
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                        />
+                        <span>
+                          {registerForm.role === 'seller'
+                            ? (registerText.sellerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.')
+                            : (registerText.buyerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.')}
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(registerForm.acceptedNoRefunds)}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedNoRefunds: event.target.checked }))}
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                        />
+                        <span>
+                          {registerForm.role === 'seller'
+                            ? (registerText.sellerWrongItemPolicyCheckbox || 'I understand that if I ship the wrong item, I must reship the correct item at my own expense, or the buyer may be refunded and my commission may be deducted.')
+                            : (registerText.buyerNoRefundCheckbox || 'I understand purchases are final, except wrong-item orders may be eligible for correction or refund review.')}
+                        </span>
+                      </label>
+                    </div>
+                  ) : null}
+                  {authError ? <div className="text-sm font-medium text-rose-700">{authError}</div> : null}
+                  {authSuccess ? <div className="text-sm font-medium text-emerald-700">{authSuccess}</div> : null}
+                  <button type="submit" className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{registerText.createAccount}</button>
                 </>
               ) : null}
-              {registerForm.role === 'buyer' || registerForm.role === 'seller' ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
-                  <div className="mb-2 text-sm font-semibold text-rose-800">
-                    {registerForm.role === 'seller'
-                      ? (registerText.sellerTermsTitle || 'Seller terms acceptance')
-                      : (registerText.buyerTermsTitle || 'Buyer terms acceptance')}
-                  </div>
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => navigate('/community-standards')}
-                      className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                    >
-                      {registerText.viewCommunityStandards || 'View Community Standards'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/refund-policy')}
-                      className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                    >
-                      {registerText.viewRefundPolicy || 'View Refund Policy'}
-                    </button>
-                  </div>
-                  <label className="mb-2 flex items-start gap-2 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(registerForm.acceptedRespectfulConduct)}
-                      onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedRespectfulConduct: event.target.checked }))}
-                      className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
-                    />
-                    <span>
-                      {registerForm.role === 'seller'
-                        ? (registerText.sellerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.')
-                        : (registerText.buyerRespectfulCheckbox || 'I agree to be respectful in messages and interactions.')}
-                    </span>
-                  </label>
-                  <label className="flex items-start gap-2 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(registerForm.acceptedNoRefunds)}
-                      onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedNoRefunds: event.target.checked }))}
-                      className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
-                    />
-                    <span>
-                      {registerForm.role === 'seller'
-                        ? (registerText.sellerWrongItemPolicyCheckbox || 'I understand that if I ship the wrong item, I must reship the correct item at my own expense, or the buyer may be refunded and my commission may be deducted.')
-                        : (registerText.buyerNoRefundCheckbox || 'I understand purchases are final, except wrong-item orders may be eligible for correction or refund review.')}
-                    </span>
-                  </label>
-                </div>
-              ) : null}
-              {authError ? <div className="text-sm font-medium text-rose-700">{authError}</div> : null}
-              {authSuccess ? <div className="text-sm font-medium text-emerald-700">{authSuccess}</div> : null}
-              <button type="submit" className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{registerText.createAccount}</button>
               <button type="button" onClick={() => navigate('/login')} className="w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{registerText.haveAccount}</button>
             </form>
+            )}
           </PageShell>
         ) : null}
 

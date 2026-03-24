@@ -70,7 +70,33 @@ export const CONDITION_OPTIONS = ["almost new", "worn several times", "old"];
 export const SCENT_LEVEL_OPTIONS = ["Light", "Medium", "Strong"];
 export const HAIR_COLOR_OPTIONS = ["Black", "Brown", "Blonde", "Red", "Auburn", "Grey", "White", "Other"];
 export const BRA_SIZE_OPTIONS = ["30A", "30B", "32A", "32B", "32C", "32D", "34A", "34B", "34C", "34D", "34DD", "36A", "36B", "36C", "36D", "36DD", "38B", "38C", "38D", "38DD"];
+export const THAI_BRA_SIZE_OPTIONS = ["65A", "65B", "70A", "70B", "70C", "70D", "75A", "75B", "75C", "75D", "75DD", "80A", "80B", "80C", "80D", "80DD", "85B", "85C", "85D", "85DD"];
+export const THAI_TO_US_BRA_SIZE_MAP = {
+  "65A": "30A", "65B": "30B",
+  "70A": "32A", "70B": "32B", "70C": "32C", "70D": "32D",
+  "75A": "34A", "75B": "34B", "75C": "34C", "75D": "34D", "75DD": "34DD",
+  "80A": "36A", "80B": "36B", "80C": "36C", "80D": "36D", "80DD": "36DD",
+  "85B": "38B", "85C": "38C", "85D": "38D", "85DD": "38DD",
+};
 export const PANTY_SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL"];
+
+export const REGISTRATION_COUNTRIES = [
+  "Thailand", "Myanmar", "Laos", "Cambodia", "Philippines", "Vietnam",
+  "China", "Malaysia", "Indonesia", "India", "Russia", "Other",
+];
+export const REGISTRATION_CITIES_BY_COUNTRY = {
+  Thailand: ["Bangkok", "Chiang Mai", "Pattaya", "Phuket", "Chiang Rai", "Udon Thani", "Khon Kaen", "Hat Yai", "Nakhon Ratchasima", "Surat Thani"],
+  Myanmar: ["Yangon", "Mandalay", "Naypyidaw"],
+  Laos: ["Vientiane", "Luang Prabang"],
+  Cambodia: ["Phnom Penh", "Siem Reap"],
+  Philippines: ["Manila", "Cebu", "Davao"],
+  Vietnam: ["Ho Chi Minh City", "Hanoi", "Da Nang"],
+  China: ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"],
+  Malaysia: ["Kuala Lumpur", "Penang", "Johor Bahru"],
+  Indonesia: ["Jakarta", "Bali", "Surabaya"],
+  India: ["Mumbai", "Delhi", "Bangalore"],
+  Russia: ["Moscow", "Saint Petersburg"],
+};
 
 export function cmToInches(cm) { return Number((Number(cm) / 2.54).toFixed(1)); }
 export function inchesToCm(inches) { return Number((Number(inches) * 2.54).toFixed(1)); }
@@ -185,6 +211,58 @@ export const OPTION_LABEL_I18N = {
   Blonde: { th: "บลอนด์", my: "ရွှေရောင်", ru: "Блонд" },
   Auburn: { th: "น้ำตาลแดง", my: "လိမ္မော်ညို", ru: "Каштановый" },
   Other: { th: "อื่น ๆ", my: "အခြား", ru: "Другой" },
+  Thailand: { th: "ไทย", my: "ထိုင်း", ru: "Таиланд" },
+  Myanmar: { th: "เมียนมาร์", my: "မြန်မာ", ru: "Мьянма" },
+  Laos: { th: "ลาว", my: "လာအို", ru: "Лаос" },
+  Cambodia: { th: "กัมพูชา", my: "ကမ္ဘောဒီးယား", ru: "Камбоджа" },
+  Philippines: { th: "ฟิลิปปินส์", my: "ဖိလစ်ပိုင်", ru: "Филиппины" },
+  Vietnam: { th: "เวียดนาม", my: "ဗီယက်နမ်", ru: "Вьетнам" },
+  China: { th: "จีน", my: "တရုတ်", ru: "Китай" },
+  Malaysia: { th: "มาเลเซีย", my: "မလေးရှား", ru: "Малайзия" },
+  Indonesia: { th: "อินโดนีเซีย", my: "အင်ဒိုနီးရှား", ru: "Индонезия" },
+  India: { th: "อินเดีย", my: "အိန္ဒိယ", ru: "Индия" },
+  Russia: { th: "รัสเซีย", my: "ရုရှား", ru: "Россия" },
+  Bangkok: { th: "กรุงเทพ", my: "ဘန်ကောက်", ru: "Бангкок" },
+  "Chiang Mai": { th: "เชียงใหม่", my: "ချင်းမိုင်", ru: "Чиангмай" },
+  Pattaya: { th: "พัทยา", my: "ပတ္တယား", ru: "Паттайя" },
+  Phuket: { th: "ภูเก็ต", my: "ဖူးခက်", ru: "Пхукет" },
+  "Chiang Rai": { th: "เชียงราย", my: "ချင်းရိုင်", ru: "Чианграй" },
+  "Udon Thani": { th: "อุดรธานี", my: "ဥဒုန်သာနီ", ru: "Удонтхани" },
+  "Khon Kaen": { th: "ขอนแก่น", my: "ခွန်ကဲန်", ru: "Кхонкэн" },
+  "Hat Yai": { th: "หาดใหญ่", my: "ဟတ်ယိုင်", ru: "Хатъяй" },
+  "Nakhon Ratchasima": { th: "นครราชสีมา", my: "နခွန်ရာချဆီးမား", ru: "Накхонратчасима" },
+  "Surat Thani": { th: "สุราษฎร์ธานี", my: "ဆူရတ်သာနီ", ru: "Суратхани" },
+  Yangon: { th: "ย่างกุ้ง", my: "ရန်ကုန်", ru: "Янгон" },
+  Mandalay: { th: "มัณฑะเลย์", my: "မန္တလေး", ru: "Мандалай" },
+  Naypyidaw: { th: "เนปิดอว์", my: "နေပြည်တော်", ru: "Нейпьидо" },
+  Vientiane: { th: "เวียงจันทน์", my: "ဗီယင်ကျန်း", ru: "Вьентьян" },
+  "Luang Prabang": { th: "หลวงพระบาง", my: "လွမ်ပရဘန်", ru: "Луангпхабанг" },
+  "Phnom Penh": { th: "พนมเปญ", my: "ဖနွမ်ပင်", ru: "Пномпень" },
+  "Siem Reap": { th: "เสียมราฐ", my: "ဆီအမ်ရိပ်", ru: "Сиемреап" },
+  Manila: { th: "มะนิลา", my: "မနီလာ", ru: "Манила" },
+  Cebu: { th: "เซบู", my: "ဆီဘူး", ru: "Себу" },
+  Davao: { th: "ดาเวา", my: "ဒါဗာအို", ru: "Давао" },
+  "Ho Chi Minh City": { th: "โฮจิมินห์", my: "ဟိုချီမင်းစီးတီး", ru: "Хошимин" },
+  Hanoi: { th: "ฮานอย", my: "ဟနွိုင်", ru: "Ханой" },
+  "Da Nang": { th: "ดานัง", my: "ဒါနန်", ru: "Дананг" },
+  Beijing: { th: "ปักกิ่ง", my: "ပေကျင်း", ru: "Пекин" },
+  Shanghai: { th: "เซี่ยงไฮ้", my: "ရှန်ဟိုင်း", ru: "Шанхай" },
+  Guangzhou: { th: "กวางโจว", my: "ဂွမ်ကျိုး", ru: "Гуанчжоу" },
+  Shenzhen: { th: "เซินเจิ้น", my: "ရှင်ကျန်", ru: "Шэньчжэнь" },
+  "Kuala Lumpur": { th: "กัวลาลัมเปอร์", my: "ကွာလာလမ်ပူ", ru: "Куала-Лумпур" },
+  Penang: { th: "ปีนัง", my: "ပီနန်", ru: "Пенанг" },
+  "Johor Bahru": { th: "ยะโฮร์บาห์รู", my: "ဂျိုဟိုဘာရူး", ru: "Джохор-Бару" },
+  Jakarta: { th: "จาการ์ตา", my: "ဂျကာတာ", ru: "Джакарта" },
+  Bali: { th: "บาหลี", my: "ဘာလီ", ru: "Бали" },
+  Surabaya: { th: "สุราบายา", my: "ဆူရာဘာယာ", ru: "Сурабая" },
+  Mumbai: { th: "มุมไบ", my: "မွမ်ဘိုင်း", ru: "Мумбаи" },
+  Delhi: { th: "เดลี", my: "ဒေလီ", ru: "Дели" },
+  Bangalore: { th: "บังกาลอร์", my: "ဘင်္ဂလို", ru: "Бангалор" },
+  Moscow: { th: "มอสโก", my: "မော်စကို", ru: "Москва" },
+  "Saint Petersburg": { th: "เซนต์ปีเตอร์สเบิร์ก", my: "စိန့်ပီတာစဘတ်", ru: "Санкт-Петербург" },
+  "Select city": { th: "เลือกเมือง", my: "မြို့ရွေးပါ", ru: "Выберите город" },
+  "Type your city": { th: "พิมพ์ชื่อเมือง", my: "မြို့အမည်ရိုက်ပါ", ru: "Введите город" },
+  "Type your country": { th: "พิมพ์ชื่อประเทศ", my: "နိုင်ငံအမည်ရိုက်ပါ", ru: "Введите страну" },
 };
 
 export function formatBilingualLabel(englishLabel, uiLanguage, translatedLabel) {

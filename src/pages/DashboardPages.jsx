@@ -6960,7 +6960,6 @@ export function AdminPage({
     };
     const savedTab = String(safeRead("tlm-admin-tab", "overview") || "overview");
     const savedWorkspace = String(safeRead("tlm-admin-workspace-mode", "all") || "all");
-    const savedSearch = String(safeRead("tlm-admin-user-search", "") || "");
     const savedInboxSearch = String(safeRead("tlm-admin-inbox-search", "") || "");
     const savedInboxType = String(safeRead("tlm-admin-inbox-type", "all") || "all");
     const savedInboxPriority = String(safeRead("tlm-admin-inbox-priority", "all") || "all");
@@ -6973,7 +6972,6 @@ export function AdminPage({
       setAdminTab(savedTab);
     }
     setAdminWorkspaceMode(savedWorkspace);
-    setAdminUserSearch(savedSearch);
     setInboxSearch(savedInboxSearch);
     setInboxTypeFilter(savedInboxType);
     setInboxPriorityFilter(savedInboxPriority);
@@ -6988,7 +6986,6 @@ export function AdminPage({
     if (typeof window === "undefined") return;
     window.localStorage.setItem("tlm-admin-tab", JSON.stringify(String(adminTab || "overview")));
     window.localStorage.setItem("tlm-admin-workspace-mode", JSON.stringify(String(adminWorkspaceMode || "all")));
-    window.localStorage.setItem("tlm-admin-user-search", JSON.stringify(String(adminUserSearch || "")));
     window.localStorage.setItem("tlm-admin-inbox-search", JSON.stringify(String(inboxSearch || "")));
     window.localStorage.setItem("tlm-admin-inbox-type", JSON.stringify(String(inboxTypeFilter || "all")));
     window.localStorage.setItem("tlm-admin-inbox-priority", JSON.stringify(String(inboxPriorityFilter || "all")));
@@ -6999,7 +6996,6 @@ export function AdminPage({
   }, [
     adminTab,
     adminWorkspaceMode,
-    adminUserSearch,
     inboxSearch,
     inboxTypeFilter,
     inboxPriorityFilter,
@@ -8037,21 +8033,27 @@ export function AdminPage({
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <h3 className="text-xl font-semibold">Find buyers and sellers</h3>
                 <p className="mt-1 text-sm text-slate-600">Search by name, email, role, or status, then pick a user to inspect details.</p>
-                <input
-                  value={adminUserSearch}
-                  onChange={(event) => setAdminUserSearch(event.target.value)}
-                  className="mt-4 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  placeholder="Search by name, email, role"
-                />
+                <div className="relative mt-4">
+                  <input
+                    value={adminUserSearch}
+                    onChange={(event) => setAdminUserSearch(event.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 pr-10 text-sm"
+                    placeholder="Search by name, email, role"
+                  />
+                  {adminUserSearch ? (
+                    <button
+                      onClick={() => setAdminUserSearch("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-slate-200 p-1 text-slate-500 hover:bg-slate-300 hover:text-slate-700"
+                      aria-label="Clear search"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    </button>
+                  ) : null}
+                </div>
                 <div className="mt-4 space-y-3">
                   {adminUserResults.length === 0 ? (
                     <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
                       No users found.
-                      <div className="mt-2">
-                        <button onClick={() => setAdminUserSearch("")} className="rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700">
-                          Clear search
-                        </button>
-                      </div>
                     </div>
                   ) : adminUserResults.map((user) => (
                     <button
