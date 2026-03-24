@@ -71,6 +71,8 @@ export const SCENT_LEVEL_OPTIONS = ["Light", "Medium", "Strong"];
 export const HAIR_COLOR_OPTIONS = ["Black", "Brown", "Blonde", "Red", "Auburn", "Grey", "White", "Other"];
 export const BRA_SIZE_OPTIONS = ["30A", "30B", "32A", "32B", "32C", "32D", "34A", "34B", "34C", "34D", "34DD", "36A", "36B", "36C", "36D", "36DD", "38B", "38C", "38D", "38DD"];
 export const THAI_BRA_SIZE_OPTIONS = ["65A", "65B", "70A", "70B", "70C", "70D", "75A", "75B", "75C", "75D", "75DD", "80A", "80B", "80C", "80D", "80DD", "85B", "85C", "85D", "85DD"];
+export const THAI_BRA_BANDS = [65, 70, 75, 80, 85];
+export const THAI_BRA_CUPS = ["A", "B", "C", "D", "DD"];
 export const THAI_TO_US_BRA_SIZE_MAP = {
   "65A": "30A", "65B": "30B",
   "70A": "32A", "70B": "32B", "70C": "32C", "70D": "32D",
@@ -80,10 +82,15 @@ export const THAI_TO_US_BRA_SIZE_MAP = {
 };
 export const PANTY_SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL"];
 
-export const REGISTRATION_COUNTRIES = [
-  "Thailand", "Myanmar", "Laos", "Cambodia", "Philippines", "Vietnam",
-  "China", "Malaysia", "Indonesia", "India", "Russia", "Other",
+export const SELLER_BAR_REGISTRATION_COUNTRIES = [
+  "Thailand", "Myanmar", "Russia", "Other",
 ];
+export const BUYER_REGISTRATION_COUNTRIES = [
+  "United States", "United Kingdom", "Canada", "Australia", "Germany", "France",
+  "Japan", "South Korea", "Thailand", "Myanmar", "Russia", "Brazil", "Mexico",
+  "India", "China", "Other",
+];
+export const REGISTRATION_COUNTRIES = BUYER_REGISTRATION_COUNTRIES;
 export const REGISTRATION_CITIES_BY_COUNTRY = {
   Thailand: ["Bangkok", "Chiang Mai", "Pattaya", "Phuket", "Chiang Rai", "Udon Thani", "Khon Kaen", "Hat Yai", "Nakhon Ratchasima", "Surat Thani"],
   Myanmar: ["Yangon", "Mandalay", "Naypyidaw"],
@@ -222,6 +229,18 @@ export const OPTION_LABEL_I18N = {
   Indonesia: { th: "อินโดนีเซีย", my: "အင်ဒိုနီးရှား", ru: "Индонезия" },
   India: { th: "อินเดีย", my: "အိန္ဒိယ", ru: "Индия" },
   Russia: { th: "รัสเซีย", my: "ရုရှား", ru: "Россия" },
+  "United States": { th: "สหรัฐอเมริกา", my: "အမေရိကန်", ru: "США" },
+  "United Kingdom": { th: "สหราชอาณาจักร", my: "ယူနိုက်တက်ကင်းဒမ်း", ru: "Великобритания" },
+  Canada: { th: "แคนาดา", my: "ကနေဒါ", ru: "Канада" },
+  Australia: { th: "ออสเตรเลีย", my: "ဩစတြေးလျ", ru: "Австралия" },
+  Germany: { th: "เยอรมนี", my: "ဂျာမနီ", ru: "Германия" },
+  France: { th: "ฝรั่งเศส", my: "ပြင်သစ်", ru: "Франция" },
+  Japan: { th: "ญี่ปุ่น", my: "ဂျပန်", ru: "Япония" },
+  "South Korea": { th: "เกาหลีใต้", my: "တောင်ကိုရီးယား", ru: "Южная Корея" },
+  Brazil: { th: "บราซิล", my: "ဘရာဇီး", ru: "Бразилия" },
+  Mexico: { th: "เม็กซิโก", my: "မက္ကဆီကို", ru: "Мексика" },
+  "Select band size": { th: "เลือกขนาดรอบอก", my: "ရင်ဘတ်အရွယ်အစားရွေးပါ", ru: "Выберите размер обхвата" },
+  "Select cup": { th: "เลือกคัพ", my: "ခွက်ရွေးပါ", ru: "Выберите чашку" },
   Bangkok: { th: "กรุงเทพ", my: "ဘန်ကောက်", ru: "Бангкок" },
   "Chiang Mai": { th: "เชียงใหม่", my: "ချင်းမိုင်", ru: "Чиангмай" },
   Pattaya: { th: "พัทยา", my: "ပတ္တယား", ru: "Паттайя" },

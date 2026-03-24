@@ -66,8 +66,12 @@ import {
   HAIR_COLOR_OPTIONS,
   BRA_SIZE_OPTIONS,
   THAI_BRA_SIZE_OPTIONS,
+  THAI_BRA_BANDS,
+  THAI_BRA_CUPS,
   THAI_TO_US_BRA_SIZE_MAP,
   PANTY_SIZE_OPTIONS,
+  SELLER_BAR_REGISTRATION_COUNTRIES,
+  BUYER_REGISTRATION_COUNTRIES,
   REGISTRATION_COUNTRIES,
   REGISTRATION_CITIES_BY_COUNTRY,
   formatHeight,
@@ -1545,7 +1549,7 @@ const REGISTER_I18N = {
     barAccount: 'Bar account',
     city: 'City',
     country: 'Country',
-    sellerNameHint: 'Please write your name in English using first name and last initial only (e.g. Nina R.). Do not use your full name.',
+    sellerNameHint: 'Please write your name in English. We suggest first name and last initial (e.g. Nina R.), but you can use any name you like.',
     barNameHint: 'Please enter the name of your bar in English (e.g. Small World Chiang Mai).',
     heightLabel: 'Height',
     weightLabel: 'Weight',
@@ -1587,6 +1591,11 @@ const REGISTER_I18N = {
     successPopupGoToLogin: 'Go to login',
     thaiBraSizes: 'Thai sizes (cm)',
     usBraSizes: 'US sizes',
+    pantySizeHint: 'Thai panty sizes run one size larger than US/European. If you are M in Thailand, select S here.',
+    stepDetails: 'Your details',
+    stepPassword: 'Create a password',
+    stepLocation: 'Your location',
+    stepMeasurements: 'Your measurements',
   },
   th: {
     title: 'สร้างบัญชีของคุณ',
@@ -1611,7 +1620,7 @@ const REGISTER_I18N = {
     barAccount: 'บัญชีบาร์',
     city: 'เมือง',
     country: 'ประเทศ',
-    sellerNameHint: 'กรุณาเขียนชื่อเป็นภาษาอังกฤษ ใช้ชื่อจริงและนามสกุลตัวแรกเท่านั้น (เช่น Nina R.) ห้ามใช้ชื่อเต็ม',
+    sellerNameHint: 'กรุณาเขียนชื่อเป็นภาษาอังกฤษ แนะนำให้ใช้ชื่อจริงและนามสกุลตัวแรก (เช่น Nina R.) แต่คุณสามารถใช้ชื่ออะไรก็ได้ที่ต้องการ',
     barNameHint: 'กรุณาใส่ชื่อบาร์เป็นภาษาอังกฤษ (เช่น Small World Chiang Mai)',
     heightLabel: 'ส่วนสูง',
     weightLabel: 'น้ำหนัก',
@@ -1653,6 +1662,11 @@ const REGISTER_I18N = {
     successPopupGoToLogin: 'ไปหน้าเข้าสู่ระบบ',
     thaiBraSizes: 'ขนาดไทย (ซม.)',
     usBraSizes: 'ขนาด US',
+    pantySizeHint: 'ไซส์กางเกงในไทยใหญ่กว่า US/ยุโรป 1 ไซส์ ถ้าคุณใส่ M ในไทย ให้เลือก S ที่นี่',
+    stepDetails: 'ข้อมูลของคุณ',
+    stepPassword: 'สร้างรหัสผ่าน',
+    stepLocation: 'ที่อยู่ของคุณ',
+    stepMeasurements: 'สัดส่วนของคุณ',
   },
   my: {
     title: 'အကောင့်ဖန်တီးရန်',
@@ -1677,7 +1691,7 @@ const REGISTER_I18N = {
     barAccount: 'bar အကောင့်',
     city: 'မြို့',
     country: 'နိုင်ငံ',
-    sellerNameHint: 'အမည်ကို အင်္ဂလိပ်လို ရေးပါ။ နာမည်နှင့် မျိုးနွယ်အစ တစ်လုံးသာ သုံးပါ (ဥပမာ Nina R.)။ အမည်အပြည့်အစုံ မသုံးပါနှင့်',
+    sellerNameHint: 'အမည်ကို အင်္ဂလိပ်လို ရေးပါ။ နာမည်နှင့် မျိုးနွယ်အစ တစ်လုံး သုံးရန် အကြံပြုပါသည် (ဥပမာ Nina R.)။ သို့သော် သင်ကြိုက်သော အမည်ကို သုံးနိုင်ပါသည်',
     barNameHint: 'bar အမည်ကို အင်္ဂလိပ်လို ရေးပါ (ဥပမာ Small World Chiang Mai)',
     heightLabel: 'အရပ်',
     weightLabel: 'ကိုယ်အလေးချိန်',
@@ -1719,6 +1733,11 @@ const REGISTER_I18N = {
     successPopupGoToLogin: 'ဝင်ရောက်ရန် သွားမည်',
     thaiBraSizes: 'ထိုင်းဆိုက် (cm)',
     usBraSizes: 'US ဆိုက်',
+    pantySizeHint: 'ထိုင်းပန်တီဆိုက်သည် US/ဥရောပထက် တစ်ဆိုက် ပိုကြီးပါသည်။ ထိုင်းတွင် M ဝတ်ပါက ဤနေရာတွင် S ရွေးပါ',
+    stepDetails: 'သင့်အချက်အလက်',
+    stepPassword: 'စကားဝှက်ဖန်တီးရန်',
+    stepLocation: 'သင့်တည်နေရာ',
+    stepMeasurements: 'သင့်အတိုင်းအတာ',
   },
   ru: {
     title: 'Создание аккаунта',
@@ -1743,7 +1762,7 @@ const REGISTER_I18N = {
     barAccount: 'Аккаунт бара',
     city: 'Город',
     country: 'Страна',
-    sellerNameHint: 'Пожалуйста, напишите имя на английском языке, используя только имя и первую букву фамилии (например, Nina R.). Не используйте полное имя.',
+    sellerNameHint: 'Пожалуйста, напишите имя на английском языке. Рекомендуем использовать имя и первую букву фамилии (например, Nina R.), но вы можете указать любое имя.',
     barNameHint: 'Пожалуйста, введите название бара на английском языке (например, Small World Chiang Mai).',
     heightLabel: 'Рост',
     weightLabel: 'Вес',
@@ -1785,6 +1804,11 @@ const REGISTER_I18N = {
     successPopupGoToLogin: 'Перейти к входу',
     thaiBraSizes: 'Тайские размеры (см)',
     usBraSizes: 'Размеры US',
+    pantySizeHint: 'Тайские размеры трусиков на размер больше, чем US/европейские. Если вы носите M в Таиланде, выберите S здесь.',
+    stepDetails: 'Ваши данные',
+    stepPassword: 'Создайте пароль',
+    stepLocation: 'Ваше местоположение',
+    stepMeasurements: 'Ваши параметры',
   },
 };
 
@@ -4911,7 +4935,9 @@ export default function ThailandPantiesMarketSite() {
     acceptedNoRefunds: false,
   });
   const [registrationSuccessPopup, setRegistrationSuccessPopup] = useState(null);
-  const [useBraThaiSizing, setUseBraThaiSizing] = useState(false);
+  const [useBraThaiSizing, setUseBraThaiSizing] = useState(true);
+  const [thaiBraBand, setThaiBraBand] = useState('');
+  const [thaiBraCup, setThaiBraCup] = useState('');
   const [authError, setAuthError] = useState('');
   const [authErrorRefreshKey, setAuthErrorRefreshKey] = useState(0);
   const [authSuccess, setAuthSuccess] = useState('');
@@ -18273,249 +18299,329 @@ export default function ThailandPantiesMarketSite() {
                   <option value="ru">{localizeOptionLabel("Russian", authLanguage)}</option>
                 </select>
               </label>
-              <select
-                value={registerForm.role}
-                onChange={(event) => setRegisterForm((prev) => ({ ...prev, role: event.target.value }))}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-              >
-                <option value="">{localizeOptionLabel("Select account type", authLanguage)}</option>
-                <option value="buyer">{localizeOptionLabel("Buyer account", authLanguage)}</option>
-                <option value="seller">{localizeOptionLabel("Seller account", authLanguage)}</option>
-                <option value="bar">{localizeOptionLabel("Bar account", authLanguage)}</option>
-              </select>
+              <label className="block text-sm font-medium text-slate-700">
+                {registerText.accountTypePlaceholder || 'Account type'}
+                <select
+                  value={registerForm.role}
+                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, role: event.target.value }))}
+                  className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                >
+                  <option value="">{localizeOptionLabel("Select account type", authLanguage)}</option>
+                  <option value="buyer">{localizeOptionLabel("Buyer account", authLanguage)}</option>
+                  <option value="seller">{localizeOptionLabel("Seller account", authLanguage)}</option>
+                  <option value="bar">{localizeOptionLabel("Bar account", authLanguage)}</option>
+                </select>
+              </label>
               {registerForm.role ? (
                 <>
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
                     {registerText.emailPrepText || 'You will need a working email address to create your account. If you do not have one, you can get a free email at gmail.com. Please have your email address ready before continuing.'}
                   </div>
-                  <input
-                    value={registerForm.name}
-                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, name: event.target.value }))}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                    placeholder={registerForm.role === 'seller' ? 'Name (e.g. Nina R.)' : registerForm.role === 'bar' ? 'Bar name (e.g. Small World)' : registerText.fullName}
-                  />
-                  {registerForm.role === 'seller' && registerText.sellerNameHint ? (
-                    <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                      {registerText.sellerNameHint}
-                    </div>
-                  ) : null}
-                  {registerForm.role === 'bar' && registerText.barNameHint ? (
-                    <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                      {registerText.barNameHint}
-                    </div>
-                  ) : null}
-                  <input
-                    value={registerForm.email}
-                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, email: event.target.value }))}
-                    type="email"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                    placeholder={registerText.email}
-                  />
-                  <input
-                    value={registerForm.password}
-                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))}
-                    type={showRegisterPassword ? "text" : "password"}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                    placeholder={registerText.password}
-                  />
-                  <input
-                    value={registerForm.confirmPassword}
-                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
-                    type={showRegisterPassword ? "text" : "password"}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                    placeholder={registerText.confirmPassword || 'Confirm password'}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowRegisterPassword((prev) => !prev)}
-                    className="text-left text-sm font-semibold text-rose-700 hover:text-rose-800"
-                    aria-label={showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
-                  >
-                    {showRegisterPassword ? (registerText.hidePassword || 'Hide password') : (registerText.showPassword || 'Show password')}
-                  </button>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
-                      {registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}
-                    </div>
-                    <div className="mt-2 space-y-1.5 text-xs">
-                      {registerPasswordChecks.map((check) => (
-                        <div key={check.key} className={check.passed ? 'text-emerald-700' : 'text-rose-700'}>
-                          {check.passed ? '✓' : '✕'} {check.label}
+                  <div className="border-t border-slate-100 pt-3">
+                    <div className="mb-3 text-sm font-semibold text-rose-700">{registerText.stepDetails || 'Your details'}</div>
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-slate-600">
+                        {registerForm.role === 'seller' ? (registerText.fullName || 'Name') : registerForm.role === 'bar' ? (registerText.barNameHint ? (registerText.fullName || 'Bar name') : 'Bar name') : (registerText.fullName || 'Full name')}
+                        <input
+                          value={registerForm.name}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, name: event.target.value }))}
+                          className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                          placeholder={registerForm.role === 'seller' ? 'Name (e.g. Nina R.)' : registerForm.role === 'bar' ? 'Bar name (e.g. Small World)' : registerText.fullName}
+                        />
+                      </label>
+                      {registerForm.role === 'seller' && registerText.sellerNameHint ? (
+                        <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                          {registerText.sellerNameHint}
                         </div>
-                      ))}
+                      ) : null}
+                      {registerForm.role === 'bar' && registerText.barNameHint ? (
+                        <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                          {registerText.barNameHint}
+                        </div>
+                      ) : null}
+                      <label className="block text-sm font-medium text-slate-600">
+                        {registerText.email || 'Email'}
+                        <input
+                          value={registerForm.email}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, email: event.target.value }))}
+                          type="email"
+                          className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                          placeholder={registerText.email}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="border-t border-slate-100 pt-3">
+                    <div className="mb-3 text-sm font-semibold text-rose-700">{registerText.stepPassword || 'Create a password'}</div>
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-slate-600">
+                        {registerText.password || 'Password'}
+                        <div className="relative mt-1">
+                          <input
+                            value={registerForm.password}
+                            onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))}
+                            type={showRegisterPassword ? "text" : "password"}
+                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 pr-20"
+                            placeholder={registerText.password}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRegisterPassword((prev) => !prev)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-200"
+                          >
+                            {showRegisterPassword ? (registerText.hidePassword || 'Hide') : (registerText.showPassword || 'Show')}
+                          </button>
+                        </div>
+                      </label>
+                      <label className="block text-sm font-medium text-slate-600">
+                        {registerText.confirmPassword || 'Confirm password'}
+                        <input
+                          value={registerForm.confirmPassword}
+                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
+                          type={showRegisterPassword ? "text" : "password"}
+                          className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                          placeholder={registerText.confirmPassword || 'Confirm password'}
+                        />
+                      </label>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+                          {registerText.passwordRequirementsHint || 'Use at least 8 characters with 1 number and 1 symbol.'}
+                        </div>
+                        <div className="mt-2 space-y-1.5 text-xs">
+                          {registerPasswordChecks.map((check) => (
+                            <div key={check.key} className={check.passed ? 'text-emerald-700' : 'text-rose-700'}>
+                              {check.passed ? '✓' : '✕'} {check.label}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   {registerForm.role === 'seller' || registerForm.role === 'bar' ? (
                     <>
-                      <label className="block text-sm font-medium text-slate-700">
-                        {localizeOptionLabel("Select country", authLanguage)}
-                        <select
-                          value={REGISTRATION_COUNTRIES.includes(registerForm.country) ? registerForm.country : (registerForm.country ? 'Other' : '')}
-                          onChange={(event) => {
-                            const val = event.target.value;
-                            if (val === 'Other') {
-                              setRegisterForm((prev) => ({ ...prev, country: '', city: '' }));
-                            } else {
-                              setRegisterForm((prev) => ({ ...prev, country: val, city: '' }));
+                      <div className="border-t border-slate-100 pt-3">
+                        <div className="mb-3 text-sm font-semibold text-rose-700">{registerText.stepLocation || 'Your location'}</div>
+                        <div className="space-y-3">
+                          {(() => {
+                            const countryList = (registerForm.role === 'seller' || registerForm.role === 'bar') ? SELLER_BAR_REGISTRATION_COUNTRIES : BUYER_REGISTRATION_COUNTRIES;
+                            return (
+                              <>
+                                <label className="block text-sm font-medium text-slate-600">
+                                  {registerText.country || 'Country'}
+                                  <select
+                                    value={countryList.includes(registerForm.country) ? registerForm.country : (registerForm.country ? 'Other' : '')}
+                                    onChange={(event) => {
+                                      const val = event.target.value;
+                                      if (val === 'Other') {
+                                        setRegisterForm((prev) => ({ ...prev, country: '', city: '' }));
+                                      } else {
+                                        setRegisterForm((prev) => ({ ...prev, country: val, city: '' }));
+                                      }
+                                    }}
+                                    className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                                  >
+                                    <option value="">{localizeOptionLabel("Select country", authLanguage)}</option>
+                                    {countryList.map((c) => <option key={c} value={c}>{localizeOptionLabel(c, authLanguage)}</option>)}
+                                  </select>
+                                </label>
+                                {!countryList.filter(c => c !== 'Other').includes(registerForm.country) ? (
+                                  <input
+                                    value={registerForm.country === 'Other' ? '' : registerForm.country}
+                                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, country: event.target.value }))}
+                                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                                    placeholder={localizeOptionLabel("Type your country", authLanguage)}
+                                  />
+                                ) : null}
+                              </>
+                            );
+                          })()}
+                          {(() => {
+                            const cities = REGISTRATION_CITIES_BY_COUNTRY[registerForm.country] || [];
+                            if (cities.length === 0) {
+                              return (
+                                <label className="block text-sm font-medium text-slate-600">
+                                  {registerText.city || 'City'}
+                                  <input
+                                    value={registerForm.city}
+                                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
+                                    className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                                    placeholder={registerForm.country ? (localizeOptionLabel("Type your city", authLanguage)) : registerText.city}
+                                  />
+                                </label>
+                              );
                             }
-                          }}
-                          className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
-                        >
-                          <option value="">{localizeOptionLabel("Select country", authLanguage)}</option>
-                          {REGISTRATION_COUNTRIES.map((c) => <option key={c} value={c}>{localizeOptionLabel(c, authLanguage)}</option>)}
-                        </select>
-                      </label>
-                      {!REGISTRATION_COUNTRIES.filter(c => c !== 'Other').includes(registerForm.country) ? (
-                        <input
-                          value={registerForm.country === 'Other' ? '' : registerForm.country}
-                          onChange={(event) => setRegisterForm((prev) => ({ ...prev, country: event.target.value }))}
-                          className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                          placeholder={localizeOptionLabel("Type your country", authLanguage)}
-                        />
-                      ) : null}
-                      {(() => {
-                        const cities = REGISTRATION_CITIES_BY_COUNTRY[registerForm.country] || [];
-                        if (cities.length === 0) {
-                          return (
-                            <input
-                              value={registerForm.city}
-                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
-                              className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                              placeholder={registerForm.country ? (localizeOptionLabel("Type your city", authLanguage)) : registerText.city}
-                            />
-                          );
-                        }
-                        return (
-                          <>
-                            <label className="block text-sm font-medium text-slate-700">
-                              {localizeOptionLabel("Select city", authLanguage)}
+                            return (
+                              <>
+                                <label className="block text-sm font-medium text-slate-600">
+                                  {registerText.city || 'City'}
+                                  <select
+                                    value={cities.includes(registerForm.city) ? registerForm.city : (registerForm.city ? 'Other' : '')}
+                                    onChange={(event) => {
+                                      const val = event.target.value;
+                                      setRegisterForm((prev) => ({ ...prev, city: val === 'Other' ? '' : val }));
+                                    }}
+                                    className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                                  >
+                                    <option value="">{localizeOptionLabel("Select city", authLanguage)}</option>
+                                    {cities.map((city) => <option key={city} value={city}>{localizeOptionLabel(city, authLanguage)}</option>)}
+                                    <option value="Other">{localizeOptionLabel("Other", authLanguage)}</option>
+                                  </select>
+                                </label>
+                                {!cities.includes(registerForm.city) ? (
+                                  <input
+                                    value={registerForm.city}
+                                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
+                                    className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                                    placeholder={localizeOptionLabel("Type your city", authLanguage)}
+                                  />
+                                ) : null}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                      {registerForm.role === 'seller' ? (
+                        <div className="border-t border-slate-100 pt-3">
+                          <div className="mb-3 text-sm font-semibold text-rose-700">{registerText.stepMeasurements || 'Your measurements'}</div>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}</div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <label className="grid gap-1 text-sm text-slate-600">
+                                <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
+                                <div className="flex gap-2">
+                                  <input
+                                    value={registerForm.height}
+                                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, height: event.target.value }))}
+                                    type="number"
+                                    min="0"
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                                    placeholder={registerForm.heightUnit === 'cm' ? '165' : '65'}
+                                  />
+                                  <select
+                                    value={registerForm.heightUnit}
+                                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, heightUnit: event.target.value }))}
+                                    className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                                  >
+                                    <option value="cm">cm</option>
+                                    <option value="in">in</option>
+                                  </select>
+                                </div>
+                              </label>
+                              <label className="grid gap-1 text-sm text-slate-600">
+                                <span className="font-medium">{registerText.weightLabel || 'Weight'}</span>
+                                <div className="flex gap-2">
+                                  <input
+                                    value={registerForm.weight}
+                                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, weight: event.target.value }))}
+                                    type="number"
+                                    min="0"
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                                    placeholder={registerForm.weightUnit === 'kg' ? '55' : '121'}
+                                  />
+                                  <select
+                                    value={registerForm.weightUnit}
+                                    onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))}
+                                    className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                                  >
+                                    <option value="kg">kg</option>
+                                    <option value="lbs">lbs</option>
+                                  </select>
+                                </div>
+                              </label>
+                            </div>
+                            <label className="block text-sm text-slate-600">
+                              <span className="font-medium">{registerText.hairColorLabel || 'Hair color'}</span>
                               <select
-                                value={cities.includes(registerForm.city) ? registerForm.city : (registerForm.city ? 'Other' : '')}
-                                onChange={(event) => {
-                                  const val = event.target.value;
-                                  setRegisterForm((prev) => ({ ...prev, city: val === 'Other' ? '' : val }));
-                                }}
-                                className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                                value={registerForm.hairColor}
+                                onChange={(event) => setRegisterForm((prev) => ({ ...prev, hairColor: event.target.value }))}
+                                className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                               >
-                                <option value="">{localizeOptionLabel("Select city", authLanguage)}</option>
-                                {cities.map((city) => <option key={city} value={city}>{localizeOptionLabel(city, authLanguage)}</option>)}
-                                <option value="Other">{localizeOptionLabel("Other", authLanguage)}</option>
+                                <option value="">{registerText.selectHairColor || 'Select hair color'}</option>
+                                {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, authLanguage)}</option>)}
                               </select>
                             </label>
-                            {!cities.includes(registerForm.city) ? (
-                              <input
-                                value={registerForm.city}
-                                onChange={(event) => setRegisterForm((prev) => ({ ...prev, city: event.target.value }))}
-                                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-                                placeholder={localizeOptionLabel("Type your city", authLanguage)}
-                              />
-                            ) : null}
-                          </>
-                        );
-                      })()}
-                      {registerForm.role === 'seller' ? (
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                          <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}</div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <label className="grid gap-1 text-sm text-slate-600">
-                              <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
-                              <div className="flex gap-2">
-                                <input
-                                  value={registerForm.height}
-                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, height: event.target.value }))}
-                                  type="number"
-                                  min="0"
-                                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                                  placeholder={registerForm.heightUnit === 'cm' ? '165' : '65'}
-                                />
-                                <select
-                                  value={registerForm.heightUnit}
-                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, heightUnit: event.target.value }))}
-                                  className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
-                                >
-                                  <option value="cm">cm</option>
-                                  <option value="in">in</option>
-                                </select>
-                              </div>
-                            </label>
-                            <label className="grid gap-1 text-sm text-slate-600">
-                              <span className="font-medium">{registerText.weightLabel || 'Weight'}</span>
-                              <div className="flex gap-2">
-                                <input
-                                  value={registerForm.weight}
-                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, weight: event.target.value }))}
-                                  type="number"
-                                  min="0"
-                                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                                  placeholder={registerForm.weightUnit === 'kg' ? '55' : '121'}
-                                />
-                                <select
-                                  value={registerForm.weightUnit}
-                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))}
-                                  className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
-                                >
-                                  <option value="kg">kg</option>
-                                  <option value="lbs">lbs</option>
-                                </select>
-                              </div>
-                            </label>
-                          </div>
-                          <select
-                            value={registerForm.hairColor}
-                            onChange={(event) => setRegisterForm((prev) => ({ ...prev, hairColor: event.target.value }))}
-                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                          >
-                            <option value="">{registerText.selectHairColor || 'Select hair color'}</option>
-                            {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, authLanguage)}</option>)}
-                          </select>
-                          <div className="grid grid-cols-2 gap-3">
                             <div>
                               <div className="mb-1 flex items-center gap-2">
+                                <span className="text-sm font-medium text-slate-600">{registerText.braSizeLabel || 'Bra size'}</span>
                                 <button
                                   type="button"
-                                  onClick={() => { setUseBraThaiSizing(true); setRegisterForm((prev) => ({ ...prev, braSize: '' })); }}
+                                  onClick={() => { setUseBraThaiSizing(true); setRegisterForm((prev) => ({ ...prev, braSize: '' })); setThaiBraBand(''); setThaiBraCup(''); }}
                                   className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                                 >
                                   {registerText.thaiBraSizes || 'Thai sizes (cm)'}
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => { setUseBraThaiSizing(false); setRegisterForm((prev) => ({ ...prev, braSize: '' })); }}
+                                  onClick={() => { setUseBraThaiSizing(false); setRegisterForm((prev) => ({ ...prev, braSize: '' })); setThaiBraBand(''); setThaiBraCup(''); }}
                                   className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${!useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                                 >
                                   {registerText.usBraSizes || 'US sizes'}
                                 </button>
                               </div>
-                              <select
-                                value={registerForm.braSize}
-                                onChange={(event) => {
-                                  const val = event.target.value;
-                                  if (useBraThaiSizing && THAI_TO_US_BRA_SIZE_MAP[val]) {
-                                    setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[val] }));
-                                  } else {
-                                    setRegisterForm((prev) => ({ ...prev, braSize: val }));
-                                  }
-                                }}
-                                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                              >
-                                <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
-                                {useBraThaiSizing
-                                  ? THAI_BRA_SIZE_OPTIONS.map((size) => {
-                                      const usEquiv = THAI_TO_US_BRA_SIZE_MAP[size] || '';
-                                      return <option key={size} value={size}>{size}{usEquiv ? ` (${usEquiv})` : ''}</option>;
-                                    })
-                                  : BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)
-                                }
-                              </select>
+                              {useBraThaiSizing ? (
+                                <div className="grid grid-cols-2 gap-2">
+                                  <select
+                                    value={thaiBraBand}
+                                    onChange={(event) => {
+                                      const band = event.target.value;
+                                      setThaiBraBand(band);
+                                      if (band && thaiBraCup) {
+                                        const key = band + thaiBraCup;
+                                        setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[key] || '' }));
+                                      } else {
+                                        setRegisterForm((prev) => ({ ...prev, braSize: '' }));
+                                      }
+                                    }}
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm"
+                                  >
+                                    <option value="">{localizeOptionLabel("Select band size", authLanguage)}</option>
+                                    {THAI_BRA_BANDS.map((band) => <option key={band} value={band}>{band}</option>)}
+                                  </select>
+                                  <select
+                                    value={thaiBraCup}
+                                    onChange={(event) => {
+                                      const cup = event.target.value;
+                                      setThaiBraCup(cup);
+                                      if (thaiBraBand && cup) {
+                                        const key = thaiBraBand + cup;
+                                        setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[key] || '' }));
+                                      } else {
+                                        setRegisterForm((prev) => ({ ...prev, braSize: '' }));
+                                      }
+                                    }}
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm"
+                                  >
+                                    <option value="">{localizeOptionLabel("Select cup", authLanguage)}</option>
+                                    {THAI_BRA_CUPS.map((cup) => <option key={cup} value={cup}>{cup}</option>)}
+                                  </select>
+                                </div>
+                              ) : (
+                                <select
+                                  value={registerForm.braSize}
+                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, braSize: event.target.value }))}
+                                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                                >
+                                  <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
+                                  {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                                </select>
+                              )}
                             </div>
-                            <select
-                              value={registerForm.pantySize}
-                              onChange={(event) => setRegisterForm((prev) => ({ ...prev, pantySize: event.target.value }))}
-                              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm self-end"
-                            >
-                              <option value="">{registerText.selectPantySize || 'Select panty size'}</option>
-                              {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
-                            </select>
+                            <div>
+                              <label className="block text-sm text-slate-600">
+                                <span className="font-medium">{registerText.pantySizeLabel || 'Panty size'}</span>
+                                <select
+                                  value={registerForm.pantySize}
+                                  onChange={(event) => setRegisterForm((prev) => ({ ...prev, pantySize: event.target.value }))}
+                                  className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                                >
+                                  <option value="">{registerText.selectPantySize || 'Select panty size'}</option>
+                                  {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                                </select>
+                              </label>
+                              <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                {registerText.pantySizeHint || 'Thai panty sizes run one size larger than US/European. If you are M in Thailand, select S here.'}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ) : null}
@@ -18523,6 +18629,39 @@ export default function ThailandPantiesMarketSite() {
                         {registerForm.role === 'bar' ? (registerText.barNote || registerText.sellerNote) : registerText.sellerNote}
                       </div>
                     </>
+                  ) : null}
+                  {registerForm.role === 'buyer' ? (
+                    <div className="border-t border-slate-100 pt-3">
+                      <div className="mb-3 text-sm font-semibold text-rose-700">{registerText.stepLocation || 'Your location'}</div>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-slate-600">
+                          {registerText.country || 'Country'}
+                          <select
+                            value={BUYER_REGISTRATION_COUNTRIES.includes(registerForm.country) ? registerForm.country : (registerForm.country ? 'Other' : '')}
+                            onChange={(event) => {
+                              const val = event.target.value;
+                              if (val === 'Other') {
+                                setRegisterForm((prev) => ({ ...prev, country: '', city: '' }));
+                              } else {
+                                setRegisterForm((prev) => ({ ...prev, country: val, city: '' }));
+                              }
+                            }}
+                            className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                          >
+                            <option value="">{localizeOptionLabel("Select country", authLanguage)}</option>
+                            {BUYER_REGISTRATION_COUNTRIES.map((c) => <option key={c} value={c}>{localizeOptionLabel(c, authLanguage)}</option>)}
+                          </select>
+                        </label>
+                        {!BUYER_REGISTRATION_COUNTRIES.filter(c => c !== 'Other').includes(registerForm.country) ? (
+                          <input
+                            value={registerForm.country === 'Other' ? '' : registerForm.country}
+                            onChange={(event) => setRegisterForm((prev) => ({ ...prev, country: event.target.value }))}
+                            className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                            placeholder={localizeOptionLabel("Type your country", authLanguage)}
+                          />
+                        ) : null}
+                      </div>
+                    </div>
                   ) : null}
                   {registerForm.role === 'buyer' || registerForm.role === 'seller' ? (
                     <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
