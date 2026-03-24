@@ -27,7 +27,25 @@ function Assert-Status {
 
 Write-Output "Running smoke checks..."
 
-$frontendRoutes = @("/", "/admin", "/account")
+# --- Static source guard checks (catch missing null guards before they reach production) ---
+
+$sitePrimFile = Join-Path $PSScriptRoot "..\src\components\site\SitePrimitives.jsx"
+$sitePrimContent = Get-Content $sitePrimFile -Raw
+if ($sitePrimContent -notmatch 'if \(!seller\) return null') {
+  throw "FAIL SellerQrCard missing null guard for undefined seller prop (seller.id crash risk)"
+}
+Write-Output "PASS SellerQrCard null guard present"
+
+$dashFile = Join-Path $PSScriptRoot "..\src\pages\DashboardPages.jsx"
+$dashContent = Get-Content $dashFile -Raw
+if ($dashContent -notmatch 'sellerMap\[currentSellerId\] \?') {
+  throw "FAIL SellerDashboardPage missing conditional guard around SellerQrCard render"
+}
+Write-Output "PASS SellerDashboardPage SellerQrCard render is guarded"
+
+# --- Frontend SPA shell checks ---
+
+$frontendRoutes = @("/", "/admin", "/account", "/seller-dashboard")
 foreach ($route in $frontendRoutes) {
   $resp = Assert-Status -Url ("http://localhost:5173" + $route) -ExpectedStatus 200
   if ($null -ne $resp -and $resp.Content -notmatch 'id=\"root\"') {

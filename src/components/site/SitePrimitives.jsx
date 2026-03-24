@@ -89,6 +89,7 @@ async function downloadQrPng(svgElement, fileBaseName) {
 }
 
 export function SellerQrCard({ seller, compact = false, t = {} }) {
+  if (!seller) return null;
   const profileUrl = createSellerProfileUrl(seller.id);
   const qrContainerRef = useRef(null);
 

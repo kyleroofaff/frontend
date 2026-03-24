@@ -2990,9 +2990,11 @@ export function SellerDashboardPage({
             </div>
           </div>
           <div className="space-y-8">
-            <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-              <SellerQrCard seller={sellerMap[currentSellerId]} />
-            </div>
+            {sellerMap[currentSellerId] ? (
+              <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+                <SellerQrCard seller={sellerMap[currentSellerId]} />
+              </div>
+            ) : null}
             <details
               id="seller-profile"
               open={sellerSectionOpen.profile}
