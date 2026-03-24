@@ -7875,6 +7875,7 @@ export default function ThailandPantiesMarketSite() {
         preferredLanguage: authLanguage,
         acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
         acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
+        ...(skipVerification ? { skipEmailVerification: true } : {}),
       };
       if (role === 'seller') {
         if (heightCm) registrationBody.heightCm = heightCm;
