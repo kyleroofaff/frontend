@@ -68,6 +68,7 @@ import {
   THAI_BRA_SIZE_OPTIONS,
   THAI_BRA_BANDS,
   THAI_BRA_CUPS,
+  THAI_BRA_CUP_CM_SPAN,
   THAI_TO_US_BRA_SIZE_MAP,
   PANTY_SIZE_OPTIONS,
   SELLER_BAR_REGISTRATION_COUNTRIES,
@@ -1596,6 +1597,15 @@ const REGISTER_I18N = {
     stepPassword: 'Create a password',
     stepLocation: 'Your location',
     stepMeasurements: 'Your measurements',
+    registerChecklistTitle: 'Signup checklist',
+    registerChecklistName: 'Name',
+    registerChecklistEmail: 'Email',
+    registerChecklistCountry: 'Country',
+    registerChecklistCity: 'City',
+    registerChecklistPasswordRules: 'Password rules met (8+ characters, number, symbol)',
+    registerChecklistPasswordMatch: 'Password confirmation matches',
+    registerChecklistTerms: 'Required terms accepted',
+    thaiBraCupDifferenceHint: 'Cup sizes show approximate bust–underband difference in cm. Ranges are a guide only.',
   },
   th: {
     title: 'สร้างบัญชีของคุณ',
@@ -1667,6 +1677,15 @@ const REGISTER_I18N = {
     stepPassword: 'สร้างรหัสผ่าน',
     stepLocation: 'ที่อยู่ของคุณ',
     stepMeasurements: 'สัดส่วนของคุณ',
+    registerChecklistTitle: 'รายการตรวจก่อนส่ง',
+    registerChecklistName: 'ชื่อ',
+    registerChecklistEmail: 'อีเมล',
+    registerChecklistCountry: 'ประเทศ',
+    registerChecklistCity: 'เมือง',
+    registerChecklistPasswordRules: 'รหัสผ่านตามกฎ (8+ ตัวอักษร ตัวเลข สัญลักษณ์)',
+    registerChecklistPasswordMatch: 'ยืนยันรหัสผ่านตรงกัน',
+    registerChecklistTerms: 'ยอมรับข้อกำหนดที่จำเป็นแล้ว',
+    thaiBraCupDifferenceHint: 'ตัวอักษรคัพคือความต่างโดยประมาณระหว่างรอบอกบนและใต้อก (ซม.) ใช้เป็นแนวทางเท่านั้น',
   },
   my: {
     title: 'အကောင့်ဖန်တီးရန်',
@@ -1738,6 +1757,15 @@ const REGISTER_I18N = {
     stepPassword: 'စကားဝှက်ဖန်တီးရန်',
     stepLocation: 'သင့်တည်နေရာ',
     stepMeasurements: 'သင့်အတိုင်းအတာ',
+    registerChecklistTitle: 'ပို့မီ စစ်ဆေးရမည့်အချက်များ',
+    registerChecklistName: 'အမည်',
+    registerChecklistEmail: 'အီးမေးလ်',
+    registerChecklistCountry: 'နိုင်ငံ',
+    registerChecklistCity: 'မြို့',
+    registerChecklistPasswordRules: 'စကားဝှက် စည်းမျဉ်းများ ပြည့်မီ (စာလုံး 8+၊ နံပါတ်၊ သင်္ကေတ)',
+    registerChecklistPasswordMatch: 'စကားဝှက် အတည်ပြုချက် ကိုက်ညီသည်',
+    registerChecklistTerms: 'လိုအပ်သော စည်းကမ်းများ လက်ခံထားသည်',
+    thaiBraCupDifferenceHint: 'Cup အက္ခရာများသည် ရင်ဘတ်ပတ်လည်နှင့် အောက်ရင်ဘတ်ကြား ကွာခြားချက် (cm) ကို ခန့်မှန်းပြသည်။ လမ်းညွှန်သာဖြစ်သည်။',
   },
   ru: {
     title: 'Создание аккаунта',
@@ -1809,6 +1837,210 @@ const REGISTER_I18N = {
     stepPassword: 'Создайте пароль',
     stepLocation: 'Ваше местоположение',
     stepMeasurements: 'Ваши параметры',
+    registerChecklistTitle: 'Чеклист перед отправкой',
+    registerChecklistName: 'Имя',
+    registerChecklistEmail: 'Email',
+    registerChecklistCountry: 'Страна',
+    registerChecklistCity: 'Город',
+    registerChecklistPasswordRules: 'Пароль соответствует правилам (8+ символов, цифра, спецсимвол)',
+    registerChecklistPasswordMatch: 'Подтверждение пароля совпадает',
+    registerChecklistTerms: 'Обязательные условия приняты',
+    thaiBraCupDifferenceHint: 'Буквы чашки — приблизительная разница обхвата груди и под грудью в см. Только ориентир.',
+  },
+};
+
+const FOOTER_I18N = {
+  en: {
+    brandTitle: 'Thailand Panties',
+    description: 'A trusted marketplace for premium used underwear from Thailand, with discreet checkout, secure messaging, and tools designed for professional private shopping.',
+    copyright: '© 2026 Thailand Panties. All rights reserved.',
+    groups: [
+      {
+        title: 'Marketplace',
+        links: [
+          { label: 'Shop', route: '/' },
+          { label: 'Find', route: '/find' },
+          { label: 'Seller Portfolios', route: '/seller-portfolios' },
+          { label: 'Bars', route: '/bars' },
+          { label: 'Custom Requests', route: '/custom-requests' },
+          { label: 'Worldwide Shipping', route: '/worldwide-shipping' },
+        ],
+      },
+      {
+        title: 'Support',
+        links: [
+          { label: 'FAQ', route: '/faq' },
+          { label: 'Contact', route: '/contact' },
+          { label: 'Order Help', route: '/order-help' },
+          { label: 'Appeals', route: '/appeals' },
+          { label: 'Seller Appeals Process', route: '/seller-appeals' },
+          { label: 'Privacy Packaging', route: '/privacy-packaging' },
+          { label: 'Community Standards', route: '/community-standards' },
+        ],
+      },
+      {
+        title: 'For Sellers',
+        links: [
+          { label: 'How to Apply', route: '/how-to-apply' },
+          { label: 'Seller Guidelines', route: '/seller-guidelines' },
+          { label: 'Appeals Process', route: '/seller-appeals' },
+          { label: 'Portfolio Setup', route: '/portfolio-setup' },
+          { label: 'Shipping Standards', route: '/seller-standards' },
+        ],
+      },
+    ],
+    legalLinks: [
+      { label: 'Privacy Policy', route: '/privacy-policy' },
+      { label: 'Terms', route: '/terms' },
+      { label: 'Shipping Policy', route: '/shipping-policy' },
+      { label: 'Refund Policy', route: '/refund-policy' },
+      { label: 'Community Standards', route: '/community-standards' },
+      { label: 'Seller Standards', route: '/seller-standards' },
+    ],
+  },
+  th: {
+    brandTitle: 'Thailand Panties',
+    description: 'ตลาดที่เชื่อถือได้สำหรับชุดชั้นในมือสองพรีเมียมจากประเทศไทย พร้อมการชำระเงินแบบเป็นส่วนตัว ข้อความที่ปลอดภัย และเครื่องมือสำหรับการช้อปส่วนตัวอย่างมืออาชีพ',
+    copyright: '© 2026 Thailand Panties สงวนลิขสิทธิ์',
+    groups: [
+      {
+        title: 'ตลาด',
+        links: [
+          { label: 'ร้านค้า', route: '/' },
+          { label: 'ค้นหา', route: '/find' },
+          { label: 'พอร์ตผู้ขาย', route: '/seller-portfolios' },
+          { label: 'บาร์', route: '/bars' },
+          { label: 'คำขอพิเศษ', route: '/custom-requests' },
+          { label: 'จัดส่งทั่วโลก', route: '/worldwide-shipping' },
+        ],
+      },
+      {
+        title: 'ช่วยเหลือ',
+        links: [
+          { label: 'คำถามที่พบบ่อย', route: '/faq' },
+          { label: 'ติดต่อ', route: '/contact' },
+          { label: 'ช่วยเหลือคำสั่งซื้อ', route: '/order-help' },
+          { label: 'อุทธรณ์', route: '/appeals' },
+          { label: 'ขั้นตอนอุทธรณ์ผู้ขาย', route: '/seller-appeals' },
+          { label: 'บรรจุภัณฑ์เป็นส่วนตัว', route: '/privacy-packaging' },
+          { label: 'มาตรฐานชุมชน', route: '/community-standards' },
+        ],
+      },
+      {
+        title: 'สำหรับผู้ขาย',
+        links: [
+          { label: 'วิธีสมัคร', route: '/how-to-apply' },
+          { label: 'แนวทางผู้ขาย', route: '/seller-guidelines' },
+          { label: 'ขั้นตอนอุทธรณ์', route: '/seller-appeals' },
+          { label: 'ตั้งค่าพอร์ตโฟลิโอ', route: '/portfolio-setup' },
+          { label: 'มาตรฐานการจัดส่ง', route: '/seller-standards' },
+        ],
+      },
+    ],
+    legalLinks: [
+      { label: 'นโยบายความเป็นส่วนตัว', route: '/privacy-policy' },
+      { label: 'ข้อกำหนด', route: '/terms' },
+      { label: 'นโยบายการจัดส่ง', route: '/shipping-policy' },
+      { label: 'นโยบายการคืนเงิน', route: '/refund-policy' },
+      { label: 'มาตรฐานชุมชน', route: '/community-standards' },
+      { label: 'มาตรฐานผู้ขาย', route: '/seller-standards' },
+    ],
+  },
+  my: {
+    brandTitle: 'Thailand Panties',
+    description: 'ယုံကြည်စရာ ဈေးကွက် — ထိုင်းမှ အသုံးပြုပြီးပန်တီများ၊ လျှို့ဝှက်ငွေပေးချေမှု၊ လုံခြုံသော မက်ဆေ့ခ်ျနှင့် ပရိုဖက်ရှင်နယ် ပရိုင်ဗိတ် ဈေးဝယ်ကိရိယာများ',
+    copyright: '© 2026 Thailand Panties မူပိုင်ခွင့်ရှိသည်',
+    groups: [
+      {
+        title: 'ဈေးကွက်',
+        links: [
+          { label: 'ဆိုင်', route: '/' },
+          { label: 'ရှာဖွေရန်', route: '/find' },
+          { label: 'ရောင်းသူ ပေါ်တိုဖိုလီယိုများ', route: '/seller-portfolios' },
+          { label: 'ဘားများ', route: '/bars' },
+          { label: 'စိတ်ကြိုက် တောင်းဆိုမှုများ', route: '/custom-requests' },
+          { label: 'ကမ္ဘာလုံးဆိုင်ရာ ပို့ဆောင်မှု', route: '/worldwide-shipping' },
+        ],
+      },
+      {
+        title: 'ပံ့ပိုးမှု',
+        links: [
+          { label: 'FAQ', route: '/faq' },
+          { label: 'ဆက်သွယ်ရန်', route: '/contact' },
+          { label: 'အော်ဒါ အကူအညီ', route: '/order-help' },
+          { label: 'တောင်းဆိုချက်များ', route: '/appeals' },
+          { label: 'ရောင်းသူ တောင်းဆိုချက် လုပ်ငန်းစဉ်', route: '/seller-appeals' },
+          { label: 'လျှို့ဝှက်ထုပ်ပိုး', route: '/privacy-packaging' },
+          { label: 'Community Standards', route: '/community-standards' },
+        ],
+      },
+      {
+        title: 'ရောင်းသူများအတွက်',
+        links: [
+          { label: 'လျှောက်ထားနည်း', route: '/how-to-apply' },
+          { label: 'ရောင်းသူ လမ်းညွှန်ချက်များ', route: '/seller-guidelines' },
+          { label: 'တောင်းဆိုချက် လုပ်ငန်းစဉ်', route: '/seller-appeals' },
+          { label: 'ပေါ်တိုဖိုလီယို စတင်ခြင်း', route: '/portfolio-setup' },
+          { label: 'ပို့ဆောင်မှု စံနှုန်းများ', route: '/seller-standards' },
+        ],
+      },
+    ],
+    legalLinks: [
+      { label: 'ကိုယ်ရေးလုံခြုံမှု မူဝါဒ', route: '/privacy-policy' },
+      { label: 'စည်းကမ်းများ', route: '/terms' },
+      { label: 'ပို့ဆောင်မှု မူဝါဒ', route: '/shipping-policy' },
+      { label: 'ငွေပြန်အမ်းမူဝါဒ', route: '/refund-policy' },
+      { label: 'Community Standards', route: '/community-standards' },
+      { label: 'ရောင်းသူ စံနှုန်းများ', route: '/seller-standards' },
+    ],
+  },
+  ru: {
+    brandTitle: 'Thailand Panties',
+    description: 'Надёжный маркетплейс премиального белья из Таиланда: конфиденциальная оплата, безопасные сообщения и инструменты для приватных покупок.',
+    copyright: '© 2026 Thailand Panties. Все права защищены.',
+    groups: [
+      {
+        title: 'Маркетплейс',
+        links: [
+          { label: 'Магазин', route: '/' },
+          { label: 'Поиск', route: '/find' },
+          { label: 'Портфолио продавцов', route: '/seller-portfolios' },
+          { label: 'Бары', route: '/bars' },
+          { label: 'Индивидуальные запросы', route: '/custom-requests' },
+          { label: 'Доставка по миру', route: '/worldwide-shipping' },
+        ],
+      },
+      {
+        title: 'Поддержка',
+        links: [
+          { label: 'FAQ', route: '/faq' },
+          { label: 'Контакты', route: '/contact' },
+          { label: 'Помощь по заказу', route: '/order-help' },
+          { label: 'Апелляции', route: '/appeals' },
+          { label: 'Апелляции продавцов', route: '/seller-appeals' },
+          { label: 'Конфиденциальная упаковка', route: '/privacy-packaging' },
+          { label: 'Стандарты сообщества', route: '/community-standards' },
+        ],
+      },
+      {
+        title: 'Продавцам',
+        links: [
+          { label: 'Как подать заявку', route: '/how-to-apply' },
+          { label: 'Правила для продавцов', route: '/seller-guidelines' },
+          { label: 'Процесс апелляций', route: '/seller-appeals' },
+          { label: 'Настройка портфолио', route: '/portfolio-setup' },
+          { label: 'Стандарты доставки', route: '/seller-standards' },
+        ],
+      },
+    ],
+    legalLinks: [
+      { label: 'Политика конфиденциальности', route: '/privacy-policy' },
+      { label: 'Условия', route: '/terms' },
+      { label: 'Доставка', route: '/shipping-policy' },
+      { label: 'Возвраты', route: '/refund-policy' },
+      { label: 'Стандарты сообщества', route: '/community-standards' },
+      { label: 'Стандарты продавцов', route: '/seller-standards' },
+    ],
   },
 };
 
@@ -5321,6 +5553,7 @@ export default function ThailandPantiesMarketSite() {
 
   const navText = SHARED_NAV_I18N[uiLanguage] || SHARED_NAV_I18N.en;
   const publicText = publicSiteText(uiLanguage);
+  const footerCopy = FOOTER_I18N[uiLanguage] || FOOTER_I18N.en;
   const sellerUserBySellerId = useMemo(() => {
     const map = {};
     (users || []).forEach((user) => {
@@ -5376,6 +5609,52 @@ export default function ThailandPantiesMarketSite() {
       passed: registerConfirmPasswordValue.length > 0 && registerPasswordValue === registerConfirmPasswordValue,
     },
   ];
+  const registerSellerBarFieldChecks = useMemo(() => {
+    if (registerForm.role !== 'seller' && registerForm.role !== 'bar') return [];
+    const name = String(registerForm.name || '').trim();
+    const email = String(registerForm.email || '').trim();
+    const city = String(registerForm.city || '').trim();
+    const country = String(registerForm.country || '').trim();
+    const pw = registerPasswordValue;
+    const hasPasswordNumber = /\d/.test(pw);
+    const hasPasswordSymbol = /[^A-Za-z0-9]/.test(pw);
+    const termsOk = Boolean(registerForm.acceptedRespectfulConduct) && Boolean(registerForm.acceptedNoRefunds);
+    return [
+      { key: 'name', label: registerText.registerChecklistName || 'Name', passed: Boolean(name) },
+      { key: 'email', label: registerText.registerChecklistEmail || 'Email', passed: Boolean(email) && email.includes('@') },
+      { key: 'country', label: registerText.registerChecklistCountry || 'Country', passed: Boolean(country) },
+      { key: 'city', label: registerText.registerChecklistCity || 'City', passed: Boolean(city) },
+      {
+        key: 'pwRules',
+        label: registerText.registerChecklistPasswordRules || 'Password rules met',
+        passed: pw.length >= 8 && hasPasswordNumber && hasPasswordSymbol,
+      },
+      {
+        key: 'pwMatch',
+        label: registerText.registerChecklistPasswordMatch || 'Passwords match',
+        passed: registerConfirmPasswordValue.length > 0 && pw === registerConfirmPasswordValue,
+      },
+      { key: 'terms', label: registerText.registerChecklistTerms || 'Terms accepted', passed: termsOk },
+    ];
+  }, [
+    registerForm.role,
+    registerForm.name,
+    registerForm.email,
+    registerForm.city,
+    registerForm.country,
+    registerForm.acceptedRespectfulConduct,
+    registerForm.acceptedNoRefunds,
+    registerPasswordValue,
+    registerConfirmPasswordValue,
+    registerText.registerChecklistName,
+    registerText.registerChecklistEmail,
+    registerText.registerChecklistCountry,
+    registerText.registerChecklistCity,
+    registerText.registerChecklistPasswordRules,
+    registerText.registerChecklistPasswordMatch,
+    registerText.registerChecklistTerms,
+    registerText.registerChecklistTitle,
+  ]);
   const localizeSellerApiError = (apiErrorMessage, fallbackKey) => {
     const normalized = String(apiErrorMessage || '').trim();
     const keyByApiError = {
@@ -15445,42 +15724,6 @@ export default function ThailandPantiesMarketSite() {
     })).catch(() => {});
   }
 
-  const footerGroups = [
-    {
-      title: 'Marketplace',
-      links: [
-        { label: 'Shop', route: '/' },
-        { label: 'Find', route: '/find' },
-        { label: 'Seller Portfolios', route: '/seller-portfolios' },
-        { label: 'Bars', route: '/bars' },
-        { label: 'Custom Requests', route: '/custom-requests' },
-        { label: 'Worldwide Shipping', route: '/worldwide-shipping' },
-      ],
-    },
-    {
-      title: 'Support',
-      links: [
-        { label: 'FAQ', route: '/faq' },
-        { label: 'Contact', route: '/contact' },
-        { label: 'Order Help', route: '/order-help' },
-        { label: 'Appeals', route: '/appeals' },
-        { label: 'Seller Appeals Process', route: '/seller-appeals' },
-        { label: 'Privacy Packaging', route: '/privacy-packaging' },
-        { label: 'Community Standards', route: '/community-standards' },
-      ],
-    },
-    {
-      title: 'For Sellers',
-      links: [
-        { label: 'How to Apply', route: '/how-to-apply' },
-        { label: 'Seller Guidelines', route: '/seller-guidelines' },
-        { label: 'Appeals Process', route: '/seller-appeals' },
-        { label: 'Portfolio Setup', route: '/portfolio-setup' },
-        { label: 'Shipping Standards', route: '/seller-standards' },
-      ],
-    },
-  ];
-
   const currentAdminAccess = resolveAdminAccess(currentUser);
   const adminPermissions = buildAdminPermissions(currentUser);
   const isAdmin = hasAdminPanelAccess(currentUser);
@@ -18592,10 +18835,21 @@ export default function ThailandPantiesMarketSite() {
                                     className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm"
                                   >
                                     <option value="">{localizeOptionLabel("Select cup", authLanguage)}</option>
-                                    {THAI_BRA_CUPS.map((cup) => <option key={cup} value={cup}>{cup}</option>)}
+                                    {THAI_BRA_CUPS.map((cup) => {
+                                      const span = THAI_BRA_CUP_CM_SPAN[cup];
+                                      return (
+                                        <option key={cup} value={cup}>
+                                          {cup}{span ? ` (${span})` : ''}
+                                        </option>
+                                      );
+                                    })}
                                   </select>
                                 </div>
-                              ) : (
+                              ) : null}
+                              {useBraThaiSizing && registerText.thaiBraCupDifferenceHint ? (
+                                <div className="mt-2 text-xs text-slate-500">{registerText.thaiBraCupDifferenceHint}</div>
+                              ) : null}
+                              {!useBraThaiSizing ? (
                                 <select
                                   value={registerForm.braSize}
                                   onChange={(event) => setRegisterForm((prev) => ({ ...prev, braSize: event.target.value }))}
@@ -18604,7 +18858,7 @@ export default function ThailandPantiesMarketSite() {
                                   <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
                                   {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
                                 </select>
-                              )}
+                              ) : null}
                             </div>
                             <div>
                               <label className="block text-sm text-slate-600">
@@ -18625,8 +18879,17 @@ export default function ThailandPantiesMarketSite() {
                           </div>
                         </div>
                       ) : null}
-                      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                        {registerForm.role === 'bar' ? (registerText.barNote || registerText.sellerNote) : registerText.sellerNote}
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+                          {registerText.registerChecklistTitle || 'Signup checklist'}
+                        </div>
+                        <div className="mt-2 space-y-1.5 text-xs">
+                          {registerSellerBarFieldChecks.map((check) => (
+                            <div key={check.key} className={check.passed ? 'text-emerald-700' : 'text-rose-700'}>
+                              {check.passed ? '✓' : '✕'} {check.label}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </>
                   ) : null}
@@ -18875,15 +19138,15 @@ export default function ThailandPantiesMarketSite() {
         <div className="mx-auto max-w-7xl px-6 py-10">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
             <div className="lg:col-span-2">
-              <div className="text-lg font-semibold text-slate-900">Thailand Panties</div>
-              <div className="mt-3 max-w-md text-sm leading-7 text-slate-500">A trusted marketplace for premium used underwear from Thailand, with discreet checkout, secure messaging, and tools designed for professional private shopping.</div>
+              <div className="text-lg font-semibold text-slate-900">{footerCopy.brandTitle}</div>
+              <div className="mt-3 max-w-md text-sm leading-7 text-slate-500">{footerCopy.description}</div>
             </div>
-            {footerGroups.map((group) => (
+            {footerCopy.groups.map((group) => (
               <div key={group.title}>
                 <div className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-500">{group.title}</div>
                 <div className="mt-4 space-y-3 text-sm text-slate-500">
                   {group.links.map((link) => (
-                    <button key={link.label} onClick={() => navigate(link.route)} className="block text-left hover:text-rose-600">
+                    <button key={`${group.title}-${link.route}-${link.label}`} type="button" onClick={() => navigate(link.route)} className="block text-left hover:text-rose-600">
                       {link.label}
                     </button>
                   ))}
@@ -18892,14 +19155,13 @@ export default function ThailandPantiesMarketSite() {
             ))}
           </div>
           <div className="mt-10 flex flex-col gap-4 border-t border-rose-100 pt-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
-            <div>© 2026 Thailand Panties. All rights reserved.</div>
+            <div>{footerCopy.copyright}</div>
             <div className="flex flex-wrap gap-5">
-              <button onClick={() => navigate('/privacy-policy')} className="hover:text-rose-600">Privacy Policy</button>
-              <button onClick={() => navigate('/terms')} className="hover:text-rose-600">Terms</button>
-              <button onClick={() => navigate('/shipping-policy')} className="hover:text-rose-600">Shipping Policy</button>
-              <button onClick={() => navigate('/refund-policy')} className="hover:text-rose-600">Refund Policy</button>
-              <button onClick={() => navigate('/community-standards')} className="hover:text-rose-600">Community Standards</button>
-              <button onClick={() => navigate('/seller-standards')} className="hover:text-rose-600">Seller Standards</button>
+              {footerCopy.legalLinks.map((link) => (
+                <button key={link.route} type="button" onClick={() => navigate(link.route)} className="hover:text-rose-600">
+                  {link.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>

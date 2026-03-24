@@ -73,6 +73,14 @@ export const BRA_SIZE_OPTIONS = ["30A", "30B", "32A", "32B", "32C", "32D", "34A"
 export const THAI_BRA_SIZE_OPTIONS = ["65A", "65B", "70A", "70B", "70C", "70D", "75A", "75B", "75C", "75D", "75DD", "80A", "80B", "80C", "80D", "80DD", "85B", "85C", "85D", "85DD"];
 export const THAI_BRA_BANDS = [65, 70, 75, 80, 85];
 export const THAI_BRA_CUPS = ["A", "B", "C", "D", "DD"];
+/** Approx. full-bust minus underbust (cm); guidance only — not medical sizing. */
+export const THAI_BRA_CUP_CM_SPAN = {
+  A: "12–15 cm",
+  B: "15–18 cm",
+  C: "18–21 cm",
+  D: "21–24 cm",
+  DD: "24–27 cm",
+};
 export const THAI_TO_US_BRA_SIZE_MAP = {
   "65A": "30A", "65B": "30B",
   "70A": "32A", "70B": "32B", "70C": "32C", "70D": "32D",
