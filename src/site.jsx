@@ -4044,10 +4044,10 @@ function pruneDemoMarketplaceData(dbState) {
       ? dbState.sellerPostComments.filter((entry) => hasUser(entry?.senderUserId || entry?.userId) && sellerPostIds.has(String(entry?.postId || '')))
       : [],
     sellerFollows: Array.isArray(dbState.sellerFollows)
-      ? dbState.sellerFollows.filter((entry) => hasUser(entry?.userId) && hasSeller(entry?.sellerId))
+      ? dbState.sellerFollows.filter((entry) => hasUser(entry?.followerUserId || entry?.userId) && hasSeller(entry?.sellerId))
       : [],
     barFollows: Array.isArray(dbState.barFollows)
-      ? dbState.barFollows.filter((entry) => hasUser(entry?.userId) && hasBar(entry?.barId))
+      ? dbState.barFollows.filter((entry) => hasUser(entry?.followerUserId || entry?.userId) && hasBar(entry?.barId))
       : [],
     productWatches: Array.isArray(dbState.productWatches)
       ? dbState.productWatches.filter((entry) => hasUser(entry?.userId) && productIds.has(String(entry?.productId || '')))
@@ -10066,6 +10066,13 @@ export default function ThailandPantiesMarketSite() {
           : prev.notifications,
       };
     });
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson('/seller-follows/toggle', {
+        method: 'POST',
+        body: { sellerId },
+        idempotencyScope: 'seller_follow',
+      }).catch(() => {});
+    }
     return true;
   }
 
@@ -10096,6 +10103,13 @@ export default function ThailandPantiesMarketSite() {
             ],
       };
     });
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson('/bar-follows/toggle', {
+        method: 'POST',
+        body: { barId: normalizedBarId },
+        idempotencyScope: 'bar_follow',
+      }).catch(() => {});
+    }
     return true;
   }
 
