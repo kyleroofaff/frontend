@@ -1339,10 +1339,10 @@ function randomSellerBio() {
 
 const LOW_WALLET_BALANCE_THB = 300;
 const SALE_SPLIT = {
-  sellerWithBar: 0.7,
-  sellerWithoutBar: 0.8,
-  bar: 0.1,
-  admin: 0.2,
+  sellerWithBar: 0.34,
+  sellerWithoutBar: 0.5,
+  bar: 0.33,
+  admin: 0.33,
 };
 const PAYOUT_SCHEDULE = 'monthly';
 const PAYOUT_MIN_THRESHOLD_THB = 100;
@@ -7326,7 +7326,7 @@ export default function ThailandPantiesMarketSite() {
     const unlockCount = unlockedRows.length;
     const unlockRevenue = unlockedRows.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
     const sellerUserId = users.find((user) => user.sellerId === currentSellerId)?.id;
-    const sellerPayoutRatio = String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim() ? 0.7 : 0.8;
+    const sellerPayoutRatio = String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim() ? SALE_SPLIT.sellerWithBar : SALE_SPLIT.sellerWithoutBar;
     const messageRevenue = (walletTransactions || [])
       .filter((entry) => entry.userId === sellerUserId && entry.type === 'message_fee' && Number(entry.amount || 0) > 0)
       .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);

@@ -2562,7 +2562,7 @@ export function SellerDashboardPage({
     sellerPostAnalytics?.totalRevenue
     ?? Number((unlockRevenue + messageRevenue + orderRevenue).toFixed(2))
   );
-  const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.7 : 0.8;
+  const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.34 : 0.5;
   const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
   const grossOrderRevenue = Number((orderRevenue / sellerPayoutRatio).toFixed(2));
   const grossEarnings = Number(
@@ -3751,7 +3751,7 @@ export function SellerFeedWorkspacePage({
     sellerPostAnalytics?.totalRevenue
     ?? Number((unlockRevenue + messageRevenue).toFixed(2))
   );
-  const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.7 : 0.8;
+  const sellerPayoutRatio = String(currentSellerProfile?.affiliatedBarId || "").trim() ? 0.34 : 0.5;
   const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
   const grossEarnings = Number((unlockRevenue + grossMessageFees).toFixed(2));
 
