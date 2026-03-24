@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Armchair,
   Beer,
@@ -140,6 +140,23 @@ function hasAdminPanelAccess(user) {
   return adminAccess.enabled || adminAccess.level === 'super';
 }
 
+function normalizeAuthUserRole(userLike) {
+  if (!userLike || typeof userLike !== 'object') return userLike;
+  const raw = String(userLike.role || '').trim().toLowerCase();
+  const allowed = new Set(['buyer', 'seller', 'bar', 'admin']);
+  const role = allowed.has(raw) ? raw : 'buyer';
+  return { ...userLike, role };
+}
+
+function resolvePrimaryShellRoute(user) {
+  if (!user || typeof user !== 'object') return '/account';
+  if (hasAdminPanelAccess(user)) return '/admin';
+  const { role } = normalizeAuthUserRole(user);
+  if (role === 'bar') return '/bar-dashboard';
+  if (role === 'seller') return '/seller-dashboard';
+  return '/account';
+}
+
 function buildAdminPermissions(user) {
   const isSuperAdmin = resolveAdminAccess(user).level === 'super';
   const canManageAffiliations = hasAdminScopeAccess(user, ADMIN_SCOPES.AFFILIATIONS_MANAGE);
@@ -194,10 +211,10 @@ function buildAdminPermissions(user) {
 }
 
 const SHARED_NAV_I18N = {
-  en: { home: 'Home', sellers: 'Sellers', bars: 'Bars', find: 'Find', sellerFeed: 'Seller Feed', customRequests: 'Custom Requests', faq: 'FAQ', contact: 'Contact', account: 'Account', messages: 'Messages', login: 'Login', register: 'Register', logout: 'Logout' },
-  th: { home: 'หน้าแรก', sellers: 'ผู้ขาย', bars: 'บาร์', find: 'ค้นหา', sellerFeed: 'ฟีดผู้ขาย', customRequests: 'คำขอพิเศษ', faq: 'คำถามที่พบบ่อย', contact: 'ติดต่อ', account: 'บัญชี', messages: 'ข้อความ', login: 'เข้าสู่ระบบ', register: 'สมัครสมาชิก', logout: 'ออกจากระบบ' },
-  my: { home: 'ပင်မ', sellers: 'ရောင်းသူများ', bars: 'bars', find: 'ရှာဖွေရန်', sellerFeed: 'seller feed', customRequests: 'custom request များ', faq: 'မေးလေ့ရှိသော မေးခွန်းများ', contact: 'ဆက်သွယ်ရန်', account: 'အကောင့်', messages: 'မက်ဆေ့ချ်များ', login: 'အကောင့်ဝင်ရန်', register: 'စာရင်းသွင်းရန်', logout: 'ထွက်ရန်' },
-  ru: { home: 'Главная', sellers: 'Продавцы', bars: 'Бары', find: 'Поиск', sellerFeed: 'Лента продавцов', customRequests: 'Индивидуальные запросы', faq: 'FAQ', contact: 'Контакты', account: 'Аккаунт', messages: 'Сообщения', login: 'Войти', register: 'Регистрация', logout: 'Выйти' },
+  en: { home: 'Home', sellers: 'Sellers', bars: 'Bars', find: 'Find', sellerFeed: 'Seller Feed', customRequests: 'Custom Requests', faq: 'FAQ', contact: 'Contact', account: 'Account', dashboard: 'Dashboard', messages: 'Messages', login: 'Login', register: 'Register', logout: 'Logout' },
+  th: { home: 'หน้าแรก', sellers: 'ผู้ขาย', bars: 'บาร์', find: 'ค้นหา', sellerFeed: 'ฟีดผู้ขาย', customRequests: 'คำขอพิเศษ', faq: 'คำถามที่พบบ่อย', contact: 'ติดต่อ', account: 'บัญชี', dashboard: 'แดชบอร์ด', messages: 'ข้อความ', login: 'เข้าสู่ระบบ', register: 'สมัครสมาชิก', logout: 'ออกจากระบบ' },
+  my: { home: 'ပင်မ', sellers: 'ရောင်းသူများ', bars: 'bars', find: 'ရှာဖွေရန်', sellerFeed: 'seller feed', customRequests: 'custom request များ', faq: 'မေးလေ့ရှိသော မေးခွန်းများ', contact: 'ဆက်သွယ်ရန်', account: 'အကောင့်', dashboard: 'ဒက်ရှ်ဘုတ်', messages: 'မက်ဆေ့ချ်များ', login: 'အကောင့်ဝင်ရန်', register: 'စာရင်းသွင်းရန်', logout: 'ထွက်ရန်' },
+  ru: { home: 'Главная', sellers: 'Продавцы', bars: 'Бары', find: 'Поиск', sellerFeed: 'Лента продавцов', customRequests: 'Индивидуальные запросы', faq: 'FAQ', contact: 'Контакты', account: 'Аккаунт', dashboard: 'Панель', messages: 'Сообщения', login: 'Войти', register: 'Регистрация', logout: 'Выйти' },
 };
 
 const BAR_DASHBOARD_I18N = {
@@ -1588,13 +1605,18 @@ const REGISTER_I18N = {
     successPopupSaveCredentials: 'Save these credentials. You will need them to log in.',
     successPopupEmail: 'Your email',
     successPopupPassword: 'Your password',
+    successPopupCopy: 'Copy',
     successPopupCopied: 'Copied!',
+    successPopupCopyBoth: 'Copy email & password',
+    successPopupContinue: 'Continue',
+    successPopupSaveCredentialsSignedIn: "You're signed in. Save these credentials somewhere safe if you need them on another device.",
     successPopupGoToLogin: 'Go to login',
     thaiBraSizes: 'Thai sizes (cm)',
     usBraSizes: 'US sizes',
     pantySizeHint: 'Thai panty sizes run one size larger than US/European. If you are M in Thailand, select S here.',
     stepDetails: 'Your details',
     stepPassword: 'Create a password',
+    passwordStepIntro: 'Your password must meet our security rules. Use the checklist below to see what is still needed.',
     stepLocation: 'Your location',
     stepMeasurements: 'Your measurements',
     registerChecklistTitle: 'Signup checklist',
@@ -1668,13 +1690,18 @@ const REGISTER_I18N = {
     successPopupSaveCredentials: 'บันทึกข้อมูลเหล่านี้ไว้ คุณจะต้องใช้ในการเข้าสู่ระบบ',
     successPopupEmail: 'อีเมลของคุณ',
     successPopupPassword: 'รหัสผ่านของคุณ',
+    successPopupCopy: 'คัดลอก',
     successPopupCopied: 'คัดลอกแล้ว!',
+    successPopupCopyBoth: 'คัดลอกอีเมลและรหัสผ่าน',
+    successPopupContinue: 'ดำเนินการต่อ',
+    successPopupSaveCredentialsSignedIn: 'คุณเข้าสู่ระบบแล้ว บันทึกข้อมูลเหล่านี้ไว้ในที่ปลอดภัยหากต้องใช้บนอุปกรณ์อื่น',
     successPopupGoToLogin: 'ไปหน้าเข้าสู่ระบบ',
     thaiBraSizes: 'ขนาดไทย (ซม.)',
     usBraSizes: 'ขนาด US',
     pantySizeHint: 'ไซส์กางเกงในไทยใหญ่กว่า US/ยุโรป 1 ไซส์ ถ้าคุณใส่ M ในไทย ให้เลือก S ที่นี่',
     stepDetails: 'ข้อมูลของคุณ',
     stepPassword: 'สร้างรหัสผ่าน',
+    passwordStepIntro: 'รหัสผ่านต้องเป็นไปตามกฎความปลอดภัย ใช้รายการด้านล่างเพื่อดูว่ายังขาดอะไร',
     stepLocation: 'ที่อยู่ของคุณ',
     stepMeasurements: 'สัดส่วนของคุณ',
     registerChecklistTitle: 'รายการตรวจก่อนส่ง',
@@ -1748,13 +1775,18 @@ const REGISTER_I18N = {
     successPopupSaveCredentials: 'ဤအချက်အလက်များကို သိမ်းဆည်းပါ။ ဝင်ရောက်ရန် လိုအပ်ပါမည်',
     successPopupEmail: 'သင့်အီးမေးလ်',
     successPopupPassword: 'သင့်စကားဝှက်',
+    successPopupCopy: 'ကူးယူရန်',
     successPopupCopied: 'ကူးယူပြီး!',
+    successPopupCopyBoth: 'အီးမေးလ်နှင့် စကားဝှက် ကူးယူရန်',
+    successPopupContinue: 'ဆက်လုပ်ရန်',
+    successPopupSaveCredentialsSignedIn: 'သင်ဝင်ပြီးပါပြီ။ အခြားစက်တွင် လိုအပ်ပါက ဤအချက်အလက်များကို လုံခြုံစွာ သိမ်းဆည်းပါ',
     successPopupGoToLogin: 'ဝင်ရောက်ရန် သွားမည်',
     thaiBraSizes: 'ထိုင်းဆိုက် (cm)',
     usBraSizes: 'US ဆိုက်',
     pantySizeHint: 'ထိုင်းပန်တီဆိုက်သည် US/ဥရောပထက် တစ်ဆိုက် ပိုကြီးပါသည်။ ထိုင်းတွင် M ဝတ်ပါက ဤနေရာတွင် S ရွေးပါ',
     stepDetails: 'သင့်အချက်အလက်',
     stepPassword: 'စကားဝှက်ဖန်တီးရန်',
+    passwordStepIntro: 'စကားဝှက်သည် လုံခြုံရေး စည်းမျဉ်းများနှင့် ကိုက်ညီရမည်။ အောက်ပါစာရင်းဖြင့် မပြည့်မီသေးသည်များ ကြည့်ပါ',
     stepLocation: 'သင့်တည်နေရာ',
     stepMeasurements: 'သင့်အတိုင်းအတာ',
     registerChecklistTitle: 'ပို့မီ စစ်ဆေးရမည့်အချက်များ',
@@ -1828,13 +1860,18 @@ const REGISTER_I18N = {
     successPopupSaveCredentials: 'Сохраните эти данные. Они понадобятся для входа.',
     successPopupEmail: 'Ваш email',
     successPopupPassword: 'Ваш пароль',
+    successPopupCopy: 'Копировать',
     successPopupCopied: 'Скопировано!',
+    successPopupCopyBoth: 'Копировать email и пароль',
+    successPopupContinue: 'Продолжить',
+    successPopupSaveCredentialsSignedIn: 'Вы уже вошли. Сохраните эти данные в надёжном месте, если понадобятся на другом устройстве.',
     successPopupGoToLogin: 'Перейти к входу',
     thaiBraSizes: 'Тайские размеры (см)',
     usBraSizes: 'Размеры US',
     pantySizeHint: 'Тайские размеры трусиков на размер больше, чем US/европейские. Если вы носите M в Таиланде, выберите S здесь.',
     stepDetails: 'Ваши данные',
     stepPassword: 'Создайте пароль',
+    passwordStepIntro: 'Пароль должен соответствовать правилам безопасности. Ниже список того, что ещё нужно выполнить.',
     stepLocation: 'Ваше местоположение',
     stepMeasurements: 'Ваши параметры',
     registerChecklistTitle: 'Чеклист перед отправкой',
@@ -5167,6 +5204,18 @@ export default function ThailandPantiesMarketSite() {
     acceptedNoRefunds: false,
   });
   const [registrationSuccessPopup, setRegistrationSuccessPopup] = useState(null);
+  const registrationSuccessCardRef = useRef(null);
+  const [registrationCopyFlash, setRegistrationCopyFlash] = useState({ email: false, password: false });
+  const registrationCopyTimersRef = useRef({ email: null, password: null });
+  const triggerRegistrationCopyFlash = useCallback((key) => {
+    setRegistrationCopyFlash((prev) => ({ ...prev, [key]: true }));
+    const timers = registrationCopyTimersRef.current;
+    if (timers[key]) window.clearTimeout(timers[key]);
+    timers[key] = window.setTimeout(() => {
+      setRegistrationCopyFlash((prev) => ({ ...prev, [key]: false }));
+      timers[key] = null;
+    }, 2000);
+  }, []);
   const [useBraThaiSizing, setUseBraThaiSizing] = useState(true);
   const [thaiBraBand, setThaiBraBand] = useState('');
   const [thaiBraCup, setThaiBraCup] = useState('');
@@ -5252,6 +5301,20 @@ export default function ThailandPantiesMarketSite() {
       document.removeEventListener('touchstart', closeOnOutsideClick);
     };
   }, [accountMenuOpen]);
+  useLayoutEffect(() => {
+    if (!registrationSuccessPopup) return;
+    registrationSuccessCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [registrationSuccessPopup]);
+  useEffect(() => {
+    if (registrationSuccessPopup) return undefined;
+    setRegistrationCopyFlash({ email: false, password: false });
+    const timers = registrationCopyTimersRef.current;
+    if (timers.email) window.clearTimeout(timers.email);
+    if (timers.password) window.clearTimeout(timers.password);
+    timers.email = null;
+    timers.password = null;
+    return undefined;
+  }, [registrationSuccessPopup]);
   const [adminSelectedUserId, setAdminSelectedUserId] = useState('');
   const [adminSellerReviewFilter, setAdminSellerReviewFilter] = useState('pending');
   const [adminAuthActionMessage, setAdminAuthActionMessage] = useState('');
@@ -7945,7 +8008,7 @@ export default function ThailandPantiesMarketSite() {
         return;
       }
       if (user.role === 'seller') {
-        navigate('/account');
+        navigate('/seller-dashboard');
         scrollAfterNav();
         return;
       }
@@ -7997,14 +8060,15 @@ export default function ThailandPantiesMarketSite() {
         }
         setBackendStatus('connected');
         setApiAuthToken(token);
+        const normalizedAuthUser = normalizeAuthUserRole(authUser);
         setDb((prev) => {
           const existingUsers = Array.isArray(prev.users) ? prev.users : [];
-          const hasExisting = existingUsers.some((entry) => entry.id === authUser.id);
+          const hasExisting = existingUsers.some((entry) => entry.id === normalizedAuthUser.id);
           const mergedUser = {
-            ...(hasExisting ? existingUsers.find((entry) => entry.id === authUser.id) : {}),
-            ...authUser,
+            ...(hasExisting ? existingUsers.find((entry) => entry.id === normalizedAuthUser.id) : {}),
+            ...normalizedAuthUser,
             // Never persist password from auth responses.
-            password: hasExisting ? String(existingUsers.find((entry) => entry.id === authUser.id)?.password || '') : '',
+            password: hasExisting ? String(existingUsers.find((entry) => entry.id === normalizedAuthUser.id)?.password || '') : '',
           };
           let nextBars = prev.bars || [];
           if (mergedUser.role === 'bar' && mergedUser.barId) {
@@ -8021,12 +8085,12 @@ export default function ThailandPantiesMarketSite() {
           return {
             ...prev,
             users: hasExisting
-              ? existingUsers.map((entry) => (entry.id === authUser.id ? mergedUser : entry))
+              ? existingUsers.map((entry) => (entry.id === normalizedAuthUser.id ? mergedUser : entry))
               : [mergedUser, ...existingUsers],
             bars: filterLiveJunkBarsForMode(nextBars, appMode),
           };
         });
-        finalizeLogin(authUser);
+        finalizeLogin(normalizedAuthUser);
         return;
       } catch (error) {
         if (REQUIRE_BACKEND_AUTH) {
@@ -8089,7 +8153,7 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     setApiAuthToken('');
-    finalizeLogin(user);
+    finalizeLogin(normalizeAuthUserRole(user));
     } finally {
       setAuthSubmitting(false);
     }
@@ -8248,8 +8312,9 @@ export default function ThailandPantiesMarketSite() {
         setBackendStatus('connected');
         setDb((prev) => {
           const existingUsers = Array.isArray(prev.users) ? prev.users : [];
-          const hasExisting = existingUsers.some((entry) => entry.id === registrationUser.id);
-          const mergedUser = { ...(hasExisting ? existingUsers.find((entry) => entry.id === registrationUser.id) : {}), ...registrationUser, password: '' };
+          const normalizedRegistrationUser = normalizeAuthUserRole(registrationUser);
+          const hasExisting = existingUsers.some((entry) => entry.id === normalizedRegistrationUser.id);
+          const mergedUser = { ...(hasExisting ? existingUsers.find((entry) => entry.id === normalizedRegistrationUser.id) : {}), ...normalizedRegistrationUser, password: '' };
           let nextBars = prev.bars || [];
           if (role === 'bar' && mergedUser.barId) {
             const barExists = nextBars.some((bar) => bar.id === mergedUser.barId);
@@ -8265,12 +8330,12 @@ export default function ThailandPantiesMarketSite() {
           return {
             ...prev,
             users: hasExisting
-              ? existingUsers.map((entry) => (entry.id === registrationUser.id ? mergedUser : entry))
+              ? existingUsers.map((entry) => (entry.id === normalizedRegistrationUser.id ? mergedUser : entry))
               : [mergedUser, ...existingUsers],
             bars: filterLiveJunkBarsForMode(nextBars, appMode),
           };
         });
-        setSession({ userId: registrationUser.id });
+        setSession({ userId: normalizedRegistrationUser.id });
         setAuthSuccess('');
         setRegistrationSuccessPopup({ email, password, role });
         return;
@@ -15732,14 +15797,15 @@ export default function ThailandPantiesMarketSite() {
   const isBar = currentUser?.role === 'bar' && currentUser?.accountStatus === 'active';
   const isPendingSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'pending';
   const isRejectedSeller = currentUser?.role === 'seller' && currentUser?.accountStatus === 'rejected';
-  const accountRoute = currentUser?.role === 'bar' ? '/bar-dashboard' : '/account';
+  const primaryShellRoute = resolvePrimaryShellRoute(currentUser);
+  const primaryShellNavLabel = (isAdmin || currentUser?.role === 'seller') ? navText.dashboard : navText.account;
   const messagesRoute = currentUser?.role === 'seller'
     ? '/seller-messages'
     : currentUser?.role === 'buyer'
       ? '/buyer-messages'
       : currentUser?.role === 'bar'
         ? '/bar-messages'
-        : accountRoute;
+        : primaryShellRoute;
   const resolveMarketplaceConversationBody = (message) => {
     const original = String(message?.bodyOriginal || message?.body || '');
     const translations = message?.translations || {};
@@ -16146,7 +16212,7 @@ export default function ThailandPantiesMarketSite() {
             <button onClick={() => navigate('/custom-requests')} className="whitespace-nowrap transition hover:text-rose-600">{navText.customRequests}</button>
             <button onClick={() => navigate('/faq')} className="whitespace-nowrap transition hover:text-rose-600">{navText.faq}</button>
             <button onClick={() => navigate('/contact')} className="hidden whitespace-nowrap transition hover:text-rose-600 2xl:inline-flex">{navText.contact}</button>
-            <button onClick={() => navigate(accountRoute)} className="whitespace-nowrap transition hover:text-rose-600">{navText.account}</button>
+            <button onClick={() => navigate(primaryShellRoute)} className="whitespace-nowrap transition hover:text-rose-600">{primaryShellNavLabel}</button>
             <button onClick={() => navigate(messagesRoute)} className="inline-flex items-center gap-2 whitespace-nowrap transition hover:text-rose-600">
               {navText.messages}
               {unreadMessageCount > 0 ? <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{unreadMessageCount}</span> : null}
@@ -16190,7 +16256,7 @@ export default function ThailandPantiesMarketSite() {
                 <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-rose-100 bg-white shadow-xl">
                   {currentUser ? (
                     <>
-                      <button onClick={() => navigate(accountRoute)} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><UserCog className="h-4 w-4" /> {navText.account}</button>
+                      <button onClick={() => navigate(primaryShellRoute)} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><UserCog className="h-4 w-4" /> {primaryShellNavLabel}</button>
                       <button onClick={logout} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-rose-50"><LogOut className="h-4 w-4" /> {navText.logout}</button>
                     </>
                   ) : (
@@ -16252,7 +16318,7 @@ export default function ThailandPantiesMarketSite() {
               <button onClick={() => navigate('/custom-requests')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.customRequests}</button>
               <button onClick={() => navigate('/faq')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.faq}</button>
               <button onClick={() => navigate('/contact')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.contact}</button>
-              <button onClick={() => navigate(accountRoute)} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.account}</button>
+              <button onClick={() => navigate(primaryShellRoute)} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{primaryShellNavLabel}</button>
               <button onClick={() => navigate(messagesRoute)} className="flex items-center justify-between rounded-xl px-3 py-2 text-left hover:bg-rose-50">
                 <span>{navText.messages}</span>
                 {unreadMessageCount > 0 ? <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{unreadMessageCount}</span> : null}
@@ -16260,7 +16326,7 @@ export default function ThailandPantiesMarketSite() {
               <div className="mt-2 border-t border-rose-100 pt-3">
                 {currentUser ? (
                   <>
-                    <button onClick={() => navigate(accountRoute)} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.account}</button>
+                    <button onClick={() => navigate(primaryShellRoute)} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{primaryShellNavLabel}</button>
                     <button onClick={logout} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.logout}</button>
                   </>
                 ) : (
@@ -16969,7 +17035,7 @@ export default function ThailandPantiesMarketSite() {
               {currentUser ? (
                 <button
                   type="button"
-                  onClick={() => navigate(accountRoute)}
+                  onClick={() => navigate(primaryShellRoute)}
                   className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm"
                 >
                   <User className="h-4 w-4" />
@@ -17260,7 +17326,7 @@ export default function ThailandPantiesMarketSite() {
               <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"><ChevronLeft className="h-4 w-4" /> {publicText.backToShop}</button>
               {currentUser ? (
                 <button
-                  onClick={() => navigate(accountRoute)}
+                  onClick={() => navigate(primaryShellRoute)}
                   className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
                 >
                   <ChevronLeft className="h-4 w-4" /> Back to account
@@ -18347,7 +18413,7 @@ export default function ThailandPantiesMarketSite() {
                       type="button"
                       onClick={() => {
                         setCheckoutSuccessPopup(null);
-                        navigate(accountRoute);
+                        navigate(primaryShellRoute);
                       }}
                       className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
                     >
@@ -18376,7 +18442,7 @@ export default function ThailandPantiesMarketSite() {
                   <li>Your tracking number and carrier details will appear in your account order card.</li>
                 </ul>
               </div>
-              <button onClick={() => navigate(accountRoute)} className="mt-6 rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">View account</button>
+              <button onClick={() => navigate(primaryShellRoute)} className="mt-6 rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">View account</button>
             </div>
           </section>
         ) : null}
@@ -18491,40 +18557,81 @@ export default function ThailandPantiesMarketSite() {
         {routeInfo.name === 'register' ? (
           <PageShell title={registerText.title} subtitle={registerText.subtitle}>
             {registrationSuccessPopup ? (
-              <div className="mx-auto max-w-lg rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100 space-y-4">
+              <div ref={registrationSuccessCardRef} className="mx-auto max-w-lg rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100 space-y-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-emerald-700">{registerText.successPopupTitle || 'Account created successfully!'}</div>
-                  <div className="mt-2 text-sm text-slate-600">{registerText.successPopupSaveCredentials || 'Save these credentials. You will need them to log in.'}</div>
+                  <div className="mt-2 text-sm text-slate-600">
+                    {(registrationSuccessPopup.role === 'seller' || registrationSuccessPopup.role === 'bar')
+                      ? (registerText.successPopupSaveCredentialsSignedIn || registerText.successPopupSaveCredentials || 'Save these credentials. You will need them to log in.')
+                      : (registerText.successPopupSaveCredentials || 'Save these credentials. You will need them to log in.')}
+                  </div>
                 </div>
                 <div className="space-y-3">
                   <label className="block text-sm font-medium text-slate-700">
                     {registerText.successPopupEmail || 'Your email'}
                     <div className="mt-1 flex items-center gap-2">
                       <input readOnly value={registrationSuccessPopup.email} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm select-all" onClick={(e) => e.target.select()} />
-                      <button type="button" onClick={() => { navigator.clipboard.writeText(registrationSuccessPopup.email); }} className="shrink-0 rounded-xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-200">{registerText.successPopupCopied ? registerText.successPopupCopied.replace('!', '') : 'Copy'}</button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(registrationSuccessPopup.email);
+                          triggerRegistrationCopyFlash('email');
+                        }}
+                        className="inline-flex min-w-[5.5rem] shrink-0 justify-center rounded-xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-200"
+                      >
+                        {registrationCopyFlash.email ? (registerText.successPopupCopied || 'Copied!') : (registerText.successPopupCopy || 'Copy')}
+                      </button>
                     </div>
                   </label>
                   <label className="block text-sm font-medium text-slate-700">
                     {registerText.successPopupPassword || 'Your password'}
                     <div className="mt-1 flex items-center gap-2">
                       <input readOnly value={registrationSuccessPopup.password} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm select-all" onClick={(e) => e.target.select()} />
-                      <button type="button" onClick={() => { navigator.clipboard.writeText(registrationSuccessPopup.password); }} className="shrink-0 rounded-xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-200">{registerText.successPopupCopied ? registerText.successPopupCopied.replace('!', '') : 'Copy'}</button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(registrationSuccessPopup.password);
+                          triggerRegistrationCopyFlash('password');
+                        }}
+                        className="inline-flex min-w-[5.5rem] shrink-0 justify-center rounded-xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-200"
+                      >
+                        {registrationCopyFlash.password ? (registerText.successPopupCopied || 'Copied!') : (registerText.successPopupCopy || 'Copy')}
+                      </button>
                     </div>
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = `${registrationSuccessPopup.email}\n${registrationSuccessPopup.password}`;
+                      navigator.clipboard.writeText(text);
+                      triggerRegistrationCopyFlash('email');
+                      triggerRegistrationCopyFlash('password');
+                    }}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                  >
+                    {registerText.successPopupCopyBoth || 'Copy email & password'}
+                  </button>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
                     const savedEmail = registrationSuccessPopup.email;
+                    const role = registrationSuccessPopup.role;
                     setRegistrationSuccessPopup(null);
                     setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: '', city: '', country: '', height: '', heightUnit: 'cm', weight: '', weightUnit: 'kg', hairColor: '', braSize: '', pantySize: '', acceptedRespectfulConduct: false, acceptedNoRefunds: false });
-                    setLoginForm({ email: savedEmail, password: '' });
-                    navigate('/login');
+                    if (role === 'seller' || role === 'bar') {
+                      navigate(role === 'seller' ? '/seller-dashboard' : '/bar-dashboard');
+                    } else {
+                      setLoginForm({ email: savedEmail, password: '' });
+                      navigate('/login');
+                    }
                     setTimeout(() => window.scrollTo(0, 0), 50);
                   }}
                   className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white"
                 >
-                  {registerText.successPopupGoToLogin || 'Go to login'}
+                  {(registrationSuccessPopup.role === 'seller' || registrationSuccessPopup.role === 'bar')
+                    ? (registerText.successPopupContinue || 'Continue')
+                    : (registerText.successPopupGoToLogin || 'Go to login')}
                 </button>
               </div>
             ) : (
@@ -18596,6 +18703,11 @@ export default function ThailandPantiesMarketSite() {
                   </div>
                   <div className="border-t border-slate-100 pt-3">
                     <div className="mb-3 text-sm font-semibold text-rose-700">{registerText.stepPassword || 'Create a password'}</div>
+                    {registerText.passwordStepIntro ? (
+                      <div className="mb-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                        {registerText.passwordStepIntro}
+                      </div>
+                    ) : null}
                     <div className="space-y-3">
                       <label className="block text-sm font-medium text-slate-600">
                         {registerText.password || 'Password'}

@@ -223,6 +223,9 @@ const ACCOUNT_PAGE_I18N = {
     saveDetails: "Save Details",
     timeFormat: "Time format",
     loginHelp: "Use the account menu to sign in and view your order history and profile details.",
+    unknownAccountRoleTitle: "We could not load your account type",
+    unknownAccountRoleHelp: "Try signing out and signing in again. If this keeps happening, contact support.",
+    goHome: "Go home",
     totalOrders: "Total orders",
     processing: "Processing",
     shippedDelivered: "Shipped / delivered",
@@ -371,6 +374,9 @@ const ACCOUNT_PAGE_I18N = {
     saveDetails: "บันทึกข้อมูล",
     timeFormat: "รูปแบบเวลา",
     loginHelp: "ใช้เมนูบัญชีเพื่อเข้าสู่ระบบและดูประวัติคำสั่งซื้อและข้อมูลโปรไฟล์ของคุณ",
+    unknownAccountRoleTitle: "ไม่สามารถโหลดประเภทบัญชีได้",
+    unknownAccountRoleHelp: "ลองออกจากระบบแล้วเข้าใหม่ หากยังเป็นอยู่ โปรดติดต่อฝ่ายสนับสนุน",
+    goHome: "กลับหน้าแรก",
     totalOrders: "จำนวนคำสั่งซื้อทั้งหมด",
     processing: "กำลังดำเนินการ",
     shippedDelivered: "จัดส่งแล้ว / ส่งมอบแล้ว",
@@ -502,6 +508,9 @@ const ACCOUNT_PAGE_I18N = {
     saveDetails: "အချက်အလက် သိမ်းမည်",
     timeFormat: "အချိန်ပုံစံ",
     loginHelp: "သင့် order မှတ်တမ်းနှင့် profile အသေးစိတ်ကြည့်ရန် account menu မှ လော့ဂ်အင်ဝင်ပါ။",
+    unknownAccountRoleTitle: "အကောင့်အမျိုးအစား မဖတ်နိုင်ပါ",
+    unknownAccountRoleHelp: "ထွက်ပြီး ပြန်ဝင်ကြည့်ပါ။ ဆက်ဖြစ်နေရင် ပံ့ပိုးမှုကို ဆက်သွယ်ပါ။",
+    goHome: "ပင်မသို့",
     totalOrders: "စုစုပေါင်း order များ",
     processing: "ဆောင်ရွက်နေသည်",
     shippedDelivered: "ပို့ပြီး / လက်ခံပြီး",
@@ -633,6 +642,9 @@ const ACCOUNT_PAGE_I18N = {
     saveDetails: "Сохранить данные",
     timeFormat: "Формат времени",
     loginHelp: "Используйте меню аккаунта, чтобы войти и просматривать историю заказов и данные профиля.",
+    unknownAccountRoleTitle: "Не удалось определить тип аккаунта",
+    unknownAccountRoleHelp: "Выйдите и войдите снова. Если проблема останется, обратитесь в поддержку.",
+    goHome: "На главную",
     totalOrders: "Всего заказов",
     processing: "В обработке",
     shippedDelivered: "Отправлено / доставлено",
@@ -11997,6 +12009,8 @@ export function AccountPage({
         </div>
       ) : (
         <>
+          {['buyer', 'seller', 'bar', 'admin'].includes(String(currentUser.role || '').toLowerCase()) ? (
+          <>
           <SectionTitle eyebrow="Account" title={accountText.accountCenterTitle} subtitle={accountText.accountCenterSubtitle} />
           {(currentUser.role === "buyer" || currentUser.role === "seller") && accountActiveStrikes.length > 0 ? (
             <div className={`mb-6 rounded-3xl border p-5 ${currentUser.accountStatus === "frozen" ? "border-rose-300 bg-rose-50" : "border-amber-200 bg-amber-50"}`}>
@@ -13212,6 +13226,16 @@ export function AccountPage({
               </div>
             </div>
           ) : null}
+          </>
+          ) : (
+            <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+              <h2 className="text-2xl font-bold text-slate-900">{tx("unknownAccountRoleTitle")}</h2>
+              <p className="mt-2 text-slate-600">{tx("unknownAccountRoleHelp")}</p>
+              <button type="button" onClick={() => navigate("/")} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white hover:bg-rose-700">
+                {tx("goHome")}
+              </button>
+            </div>
+          )}
         </>
       )}
     </section>
