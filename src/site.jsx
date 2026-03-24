@@ -16179,9 +16179,9 @@ export default function ThailandPantiesMarketSite() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-pink-50 text-slate-800">
-      <header className={`sticky top-0 z-40 border-b backdrop-blur ${appMode === 'test' ? 'border-amber-200 bg-amber-50/90' : 'border-rose-100 bg-white/90'}`}>
+      <header className={`sticky top-0 z-40 border-b ${appMode === 'test' ? 'border-amber-200 bg-amber-50' : 'border-rose-100 bg-white'}`}>
         {appMode === 'test' ? (
-          <div className="border-b border-amber-200 bg-amber-100/90 px-4 py-2 text-center text-xs font-extrabold uppercase tracking-[0.14em] text-amber-900">
+          <div className="border-b border-amber-200 bg-amber-100 px-4 py-2 text-center text-xs font-extrabold uppercase tracking-[0.14em] text-amber-900">
             Test Mode Active · Using Alex / Nina / Small World QA dataset
           </div>
         ) : null}

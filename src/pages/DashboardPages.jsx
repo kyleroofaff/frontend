@@ -10822,8 +10822,7 @@ export function AdminPage({
             </div>
           ) : null}
           <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
-            <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
-              {canAccessAdminTab("overview") ? <button onClick={() => setAdminTab("overview")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "overview" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.overview}</button> : null}
+            <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white p-2 shadow-lg"> ? <button onClick={() => setAdminTab("overview")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "overview" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.overview}</button> : null}
               {canAccessAdminTab("inbox") ? <button onClick={() => setAdminTab("inbox")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "inbox" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.inbox}</button> : null}
               {canAccessAdminTab("auth") ? <button onClick={() => setAdminTab("auth")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "auth" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.approvals}</button> : null}
               {canAccessAdminTab("payments") ? <button onClick={() => setAdminTab("payments")} className={`min-h-[44px] rounded-xl border px-2.5 py-2.5 text-sm font-semibold ${adminTab === "payments" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-rose-200 text-rose-700"}`}>{adminMobileNavText.payments}</button> : null}
@@ -13218,7 +13217,7 @@ export function AccountPage({
           ) : null}
           {currentUser.role === "buyer" ? (
             <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
-              <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white/95 p-2 shadow-lg backdrop-blur">
+              <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white p-2 shadow-lg">
                 <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.orders}</button>
                 <button onClick={() => navigate("/buyer-messages")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.messages}</button>
                 <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
