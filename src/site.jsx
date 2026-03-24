@@ -6174,6 +6174,7 @@ export default function ThailandPantiesMarketSite() {
     const query = adminUserSearch.trim().toLowerCase();
     return users
       .filter((user) => user.role === 'buyer' || user.role === 'seller' || user.role === 'bar')
+      .filter((user) => !(user.role === 'bar' && isLiveJunkBarRecord({ name: user.name || '' })))
       .filter((user) => {
         if (!query) return true;
         return [user.name, user.email, user.role, user.sellerId, user.barId]
