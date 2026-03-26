@@ -5276,6 +5276,7 @@ export default function ThailandPantiesMarketSite() {
   const [thaiBraBand, setThaiBraBand] = useState('');
   const [thaiBraCup, setThaiBraCup] = useState('');
   const [registerStep, setRegisterStep] = useState(1);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [registerStepError, setRegisterStepError] = useState('');
   const [authError, setAuthError] = useState('');
   const [authErrorRefreshKey, setAuthErrorRefreshKey] = useState(0);
@@ -8331,6 +8332,9 @@ export default function ThailandPantiesMarketSite() {
   }
   async function registerAccount(event) {
     event.preventDefault();
+    if (isRegistering) return;
+    setIsRegistering(true);
+    try {
     const name = registerForm.name.trim();
     const email = registerForm.email.trim().toLowerCase();
     const role = registerForm.role;
@@ -8571,6 +8575,9 @@ export default function ThailandPantiesMarketSite() {
     setAuthSuccess(role === 'bar' ? (registerText.barSuccess || registerText.buyerSuccess) : registerText.buyerSuccess);
     setCheckoutAuthModalOpen(false);
     navigate(role === 'bar' ? '/bar-dashboard' : '/account');
+    } finally {
+      setIsRegistering(false);
+    }
   }
 
   function approveSellerAccount(userId) {
@@ -19140,8 +19147,8 @@ export default function ThailandPantiesMarketSite() {
                   </button>
                 ) : null}
                 {isLastRegisterStep ? (
-                  <button type="submit" className="flex-1 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
-                    {registerText.createAccount}
+                  <button type="submit" disabled={isRegistering} className={`flex-1 rounded-2xl px-5 py-3 font-semibold text-white ${isRegistering ? 'bg-rose-300 cursor-not-allowed' : 'bg-rose-600'}`}>
+                    {isRegistering ? '...' : registerText.createAccount}
                   </button>
                 ) : (
                   <button type="button" onClick={goNextStep} className="flex-1 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
