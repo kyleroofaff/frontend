@@ -1600,7 +1600,8 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'Seller application submitted. We will notify you after review.',
     buyerSuccess: 'Account created. You can now login.',
     barSuccess: 'Bar account created. You can now manage your bar page.',
-    emailPrepText: 'You will need a working email address to create your account. If you do not have one, you can get a free email at gmail.com. Please have your email address ready before continuing.',
+    emailPrepText: 'You will need a working email address to create your account. If you do not have one, you can get a free email at',
+    emailPrepTextSuffix: '. Please have your email address ready before continuing.',
     successPopupTitle: 'Account created successfully!',
     successPopupSaveCredentials: 'Save these credentials. You will need them to log in.',
     successPopupEmail: 'Your email',
@@ -1697,7 +1698,8 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'ส่งคำขอผู้ขายแล้ว เราจะแจ้งผลหลังการตรวจสอบ',
     buyerSuccess: 'สร้างบัญชีเรียบร้อยแล้ว สามารถเข้าสู่ระบบได้',
     barSuccess: 'สร้างบัญชีบาร์เรียบร้อยแล้ว สามารถจัดการหน้าโปรไฟล์บาร์ได้ทันที',
-    emailPrepText: 'คุณต้องมีอีเมลที่ใช้งานได้จริงเพื่อสร้างบัญชี หากยังไม่มี สามารถสมัครอีเมลฟรีได้ที่ gmail.com กรุณาเตรียมอีเมลให้พร้อมก่อนดำเนินการต่อ',
+    emailPrepText: 'คุณต้องมีอีเมลที่ใช้งานได้จริงเพื่อสร้างบัญชี หากยังไม่มี สามารถสมัครอีเมลฟรีได้ที่',
+    emailPrepTextSuffix: ' กรุณาเตรียมอีเมลให้พร้อมก่อนดำเนินการต่อ',
     successPopupTitle: 'สร้างบัญชีสำเร็จ!',
     successPopupSaveCredentials: 'บันทึกข้อมูลเหล่านี้ไว้ คุณจะต้องใช้ในการเข้าสู่ระบบ',
     successPopupEmail: 'อีเมลของคุณ',
@@ -1794,7 +1796,8 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'seller လျှောက်လွှာ ပို့ပြီးပါပြီ၊ စစ်ဆေးပြီးနောက် အသိပေးပါမည်',
     buyerSuccess: 'အကောင့်ဖန်တီးပြီးပါပြီ၊ ယခု ဝင်နိုင်ပါပြီ',
     barSuccess: 'bar အကောင့် ဖန်တီးပြီးပါပြီ။ ယခု bar page ကို စီမံနိုင်ပါသည်',
-    emailPrepText: 'အကောင့်ဖန်တီးရန် အသုံးပြုနိုင်သော အီးမေးလ်လိပ်စာ လိုအပ်ပါသည်။ မရှိသေးပါက gmail.com တွင် အခမဲ့ အီးမေးလ် ရယူနိုင်ပါသည်။ ဆက်လက်မလုပ်ဆောင်မီ အီးမေးလ်ကို အသင့်ပြင်ထားပါ',
+    emailPrepText: 'အကောင့်ဖန်တီးရန် အသုံးပြုနိုင်သော အီးမေးလ်လိပ်စာ လိုအပ်ပါသည်။ မရှိသေးပါက',
+    emailPrepTextSuffix: ' တွင် အခမဲ့ အီးမေးလ် ရယူနိုင်ပါသည်။ ဆက်လက်မလုပ်ဆောင်မီ အီးမေးလ်ကို အသင့်ပြင်ထားပါ',
     successPopupTitle: 'အကောင့် အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ!',
     successPopupSaveCredentials: 'ဤအချက်အလက်များကို သိမ်းဆည်းပါ။ ဝင်ရောက်ရန် လိုအပ်ပါမည်',
     successPopupEmail: 'သင့်အီးမေးလ်',
@@ -1891,7 +1894,8 @@ const REGISTER_I18N = {
     sellerPendingSuccess: 'Заявка продавца отправлена. Мы сообщим после проверки.',
     buyerSuccess: 'Аккаунт создан. Теперь вы можете войти.',
     barSuccess: 'Аккаунт бара создан. Теперь вы можете управлять страницей бара.',
-    emailPrepText: 'Для создания аккаунта вам понадобится действующий email. Если у вас его нет, вы можете бесплатно создать email на gmail.com. Пожалуйста, подготовьте свой email перед продолжением.',
+    emailPrepText: 'Для создания аккаунта вам понадобится действующий email. Если у вас его нет, вы можете бесплатно создать email на',
+    emailPrepTextSuffix: '. Пожалуйста, подготовьте свой email перед продолжением.',
     successPopupTitle: 'Аккаунт успешно создан!',
     successPopupSaveCredentials: 'Сохраните эти данные. Они понадобятся для входа.',
     successPopupEmail: 'Ваш email',
@@ -8378,7 +8382,6 @@ export default function ThailandPantiesMarketSite() {
       : '';
     const shouldUseBackendRegistration = REQUIRE_BACKEND_AUTH || backendStatus === 'connected';
     if (shouldUseBackendRegistration) {
-      const skipVerification = role === 'seller' || role === 'bar';
       const registrationBody = {
         name,
         email,
@@ -8389,7 +8392,6 @@ export default function ThailandPantiesMarketSite() {
         preferredLanguage: authLanguage,
         acceptedRespectfulConduct: Boolean(registerForm.acceptedRespectfulConduct),
         acceptedNoRefunds: Boolean(registerForm.acceptedNoRefunds),
-        ...(skipVerification ? { skipEmailVerification: true } : {}),
       };
       if (role === 'seller') {
         if (heightCm) registrationBody.heightCm = heightCm;
@@ -18812,7 +18814,9 @@ export default function ThailandPantiesMarketSite() {
               {registerStep === 2 ? (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                    {registerText.emailPrepText || 'You will need a working email address to create your account.'}
+                    {registerText.emailPrepText || 'You will need a working email address to create your account. If you do not have one, you can get a free email at'}{' '}
+                    <a href="https://gmail.com" target="_blank" rel="noopener noreferrer" className="font-semibold underline">gmail.com</a>
+                    {registerText.emailPrepTextSuffix || '. Please have your email address ready before continuing.'}
                   </div>
                   <label className="block text-sm font-medium text-slate-600">
                     {registerForm.role === 'bar' ? 'Bar name' : (registerText.fullName || 'Name')}
@@ -19135,16 +19139,6 @@ export default function ThailandPantiesMarketSite() {
                 )}
               </div>
 
-              {/* Skip measurements (seller step 5 only) */}
-              {registerStep === 5 && registerForm.role === 'seller' ? (
-                <button
-                  type="button"
-                  onClick={() => { setRegisterStep(6); setRegisterStepError(''); }}
-                  className="mt-3 w-full text-center text-sm font-medium text-slate-400 hover:text-slate-600"
-                >
-                  {registerText.skipStep || 'Skip for now'}
-                </button>
-              ) : null}
 
               <button type="button" onClick={() => navigate('/login')} className="mt-3 w-full rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{registerText.haveAccount}</button>
             </form>
