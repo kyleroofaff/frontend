@@ -18635,7 +18635,7 @@ export default function ThailandPantiesMarketSite() {
                 </button>
               </div>
             ) : (
-            <form onSubmit={registerAccount} className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
+            <form onSubmit={registerAccount} noValidate className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
               <label className="block text-sm font-medium text-slate-700">
                 {registerText.language}
                 <select
@@ -19066,7 +19066,7 @@ export default function ThailandPantiesMarketSite() {
                           type="checkbox"
                           checked={Boolean(registerForm.acceptedRespectfulConduct)}
                           onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedRespectfulConduct: event.target.checked }))}
-                          className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                          className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 accent-rose-600"
                         />
                         <span>
                           {registerForm.role === 'seller'
@@ -19079,7 +19079,7 @@ export default function ThailandPantiesMarketSite() {
                           type="checkbox"
                           checked={Boolean(registerForm.acceptedNoRefunds)}
                           onChange={(event) => setRegisterForm((prev) => ({ ...prev, acceptedNoRefunds: event.target.checked }))}
-                          className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                          className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 accent-rose-600"
                         />
                         <span>
                           {registerForm.role === 'seller'
