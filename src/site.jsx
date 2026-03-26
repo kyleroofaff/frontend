@@ -8429,11 +8429,11 @@ export default function ThailandPantiesMarketSite() {
       const registrationToken = String(payload?.token || '').trim();
       const registrationUser = payload?.user || null;
       if (autoApproved && registrationToken && registrationUser?.id) {
+        const normalizedRegistrationUser = normalizeAuthUserRole(registrationUser);
         setApiAuthToken(registrationToken);
         setBackendStatus('connected');
         setDb((prev) => {
           const existingUsers = Array.isArray(prev.users) ? prev.users : [];
-          const normalizedRegistrationUser = normalizeAuthUserRole(registrationUser);
           const hasExisting = existingUsers.some((entry) => entry.id === normalizedRegistrationUser.id);
           const mergedUser = { ...(hasExisting ? existingUsers.find((entry) => entry.id === normalizedRegistrationUser.id) : {}), ...normalizedRegistrationUser, password: '' };
           let nextBars = prev.bars || [];
@@ -8576,6 +8576,9 @@ export default function ThailandPantiesMarketSite() {
     setAuthSuccess(role === 'bar' ? (registerText.barSuccess || registerText.buyerSuccess) : registerText.buyerSuccess);
     setCheckoutAuthModalOpen(false);
     navigate(role === 'bar' ? '/bar-dashboard' : '/account');
+    } catch (err) {
+      setAuthError('Something went wrong. Please try again.');
+      setAuthSuccess('');
     } finally {
       setIsRegistering(false);
     }
