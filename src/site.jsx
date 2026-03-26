@@ -8397,6 +8397,7 @@ export default function ThailandPantiesMarketSite() {
       : '';
     const shouldUseBackendRegistration = REQUIRE_BACKEND_AUTH || backendStatus === 'connected';
     if (shouldUseBackendRegistration) {
+      const autoApproved = role === 'seller' || role === 'bar';
       const registrationBody = {
         name,
         email,
@@ -8427,7 +8428,7 @@ export default function ThailandPantiesMarketSite() {
       setAuthError('');
       const registrationToken = String(payload?.token || '').trim();
       const registrationUser = payload?.user || null;
-      if (skipVerification && registrationToken && registrationUser?.id) {
+      if (autoApproved && registrationToken && registrationUser?.id) {
         setApiAuthToken(registrationToken);
         setBackendStatus('connected');
         setDb((prev) => {
