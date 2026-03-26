@@ -1578,6 +1578,7 @@ const REGISTER_I18N = {
     selectBraSize: 'Select bra size',
     selectPantySize: 'Select panty size',
     sellerBodyInfoHint: 'This info is shown on your public profile to help buyers find you.',
+    measurementsRequiredError: 'Please fill in all measurements before continuing.',
     sellerNote: 'Seller registration requires name, email, password, city, and country.',
     barNote: 'Bar registration requires bar name, email, password, city, and country.',
     createAccount: 'Create Account',
@@ -1676,6 +1677,7 @@ const REGISTER_I18N = {
     selectBraSize: 'เลือกขนาดบรา',
     selectPantySize: 'เลือกขนาดกางเกงใน',
     sellerBodyInfoHint: 'ข้อมูลนี้จะแสดงในโปรไฟล์สาธารณะเพื่อช่วยให้ผู้ซื้อค้นหาคุณ',
+    measurementsRequiredError: 'กรุณากรอกข้อมูลวัดตัวให้ครบก่อนดำเนินการต่อ',
     sellerNote: 'การสมัครผู้ขายต้องมีชื่อ อีเมล รหัสผ่าน เมือง และประเทศ',
     barNote: 'การสมัครบัญชีบาร์ต้องมีชื่อบาร์ อีเมล รหัสผ่าน เมือง และประเทศ',
     createAccount: 'สร้างบัญชี',
@@ -1774,6 +1776,7 @@ const REGISTER_I18N = {
     selectBraSize: 'ဘရာဆိုက်ရွေးပါ',
     selectPantySize: 'ပန်တီဆိုက်ရွေးပါ',
     sellerBodyInfoHint: 'ဤအချက်အလက်ကို သင့်အများသုံးပရိုဖိုင်တွင် ပြသ၍ ဝယ်သူများ သင့်ကို ရှာတွေ့ရန် ကူညီပါသည်။',
+    measurementsRequiredError: 'ဆက်မသွားမီ တိုင်းတာချက်အားလုံးဖြည့်ပါ။',
     sellerNote: 'seller စာရင်းသွင်းရန် အမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     barNote: 'bar စာရင်းသွင်းရန် ဘားအမည်၊ အီးမေးလ်၊ စကားဝှက်၊ မြို့၊ နိုင်ငံ လိုအပ်သည်',
     createAccount: 'အကောင့်ဖန်တီးမည်',
@@ -1872,6 +1875,7 @@ const REGISTER_I18N = {
     selectBraSize: 'Выберите размер бюстгальтера',
     selectPantySize: 'Выберите размер трусиков',
     sellerBodyInfoHint: 'Эта информация отображается в вашем публичном профиле, чтобы покупатели могли вас найти.',
+    measurementsRequiredError: 'Пожалуйста, заполните все параметры перед продолжением.',
     sellerNote: 'Для регистрации продавца нужны имя, email, пароль, город и страна.',
     barNote: 'Для регистрации бара нужны название бара, email, пароль, город и страна.',
     createAccount: 'Создать аккаунт',
@@ -8308,6 +8312,13 @@ export default function ThailandPantiesMarketSite() {
       }
       if (!city) {
         setRegisterStepError(registerText.cityRequiredError || 'Please enter your city.');
+        return;
+      }
+    }
+    if (registerStep === 5 && registerForm.role === 'seller') {
+      const missingMeasurements = !registerForm.height || !registerForm.weight || !registerForm.hairColor || !registerForm.braSize || !registerForm.pantySize;
+      if (missingMeasurements) {
+        setRegisterStepError(registerText.measurementsRequiredError || 'Please fill in all measurements before continuing.');
         return;
       }
     }
@@ -19005,7 +19016,7 @@ export default function ThailandPantiesMarketSite() {
               {registerStep === 5 && registerForm.role === 'seller' ? (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                    {registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you. All fields are optional.'}
+                    {registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                     <div className="grid gap-3 sm:grid-cols-2">
