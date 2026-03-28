@@ -6948,6 +6948,15 @@ export default function ThailandPantiesMarketSite() {
             } else {
               merged.bars = barsAfterJunk;
             }
+            const serverReqs = Array.isArray(payload.db.barAffiliationRequests) ? payload.db.barAffiliationRequests : [];
+            if (serverReqs.length > 0) {
+              const localReqIds = new Set((merged.barAffiliationRequests || []).map((r) => r?.id));
+              const newReqs = serverReqs.filter((r) => r?.id && !localReqIds.has(r.id));
+              if (newReqs.length > 0) {
+                merged.barAffiliationRequests = [...(merged.barAffiliationRequests || []), ...newReqs];
+                changed = true;
+              }
+            }
             return changed ? merged : prev;
           });
         }
@@ -9086,8 +9095,8 @@ export default function ThailandPantiesMarketSite() {
       } else {
         navigate('/account');
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      setAdminAuthActionMessage(err?.message || 'Could not impersonate user. Check the console for details.');
     }
   }
 
@@ -9548,6 +9557,16 @@ export default function ThailandPantiesMarketSite() {
       );
       if (hasPendingRequest) {
         setSellerProfileMessage(`You already have a pending request for ${bar.name}.`);
+        return prev;
+      }
+      const hasPendingAnyBar = (prev.barAffiliationRequests || []).some((request) =>
+        request.status === 'pending'
+        && request.direction === 'seller_to_bar'
+        && request.sellerId === currentSellerId
+        && request.barId !== requestedBarId
+      );
+      if (hasPendingAnyBar) {
+        setSellerProfileMessage('You already have a pending application to another bar. Cancel it first.');
         return prev;
       }
 
