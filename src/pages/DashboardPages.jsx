@@ -975,7 +975,7 @@ function formatDurationCompact(ms) {
 const SELLER_PROFILE_SELECT_I18N = {
   en: {
     locationPlaceholder: "Select location",
-    specialtyPlaceholder: "Select specialty",
+    specialtyPlaceholder: "Add your own specialty…",
     shippingPlaceholder: "Select shipping coverage",
     turnaroundPlaceholder: "Select turnaround",
     locations: ["Bangkok, Thailand", "Chiang Mai, Thailand", "Phuket, Thailand", "Pattaya, Thailand", "Khon Kaen, Thailand", "Hat Yai, Thailand"],
@@ -985,7 +985,7 @@ const SELLER_PROFILE_SELECT_I18N = {
   },
   th: {
     locationPlaceholder: "เลือกที่ตั้ง",
-    specialtyPlaceholder: "เลือกความถนัด",
+    specialtyPlaceholder: "เพิ่มความถนัดของคุณเอง…",
     shippingPlaceholder: "เลือกพื้นที่จัดส่ง",
     turnaroundPlaceholder: "เลือกระยะเวลาจัดส่ง",
     locations: ["กรุงเทพฯ, ไทย", "เชียงใหม่, ไทย", "ภูเก็ต, ไทย", "พัทยา, ไทย", "ขอนแก่น, ไทย", "หาดใหญ่, ไทย"],
@@ -995,7 +995,7 @@ const SELLER_PROFILE_SELECT_I18N = {
   },
   my: {
     locationPlaceholder: "တည်နေရာရွေးပါ",
-    specialtyPlaceholder: "အထူးပြုအမျိုးအစားရွေးပါ",
+    specialtyPlaceholder: "ကိုယ်ပိုင် အထူးပြုအမျိုးအစား ထည့်ပါ…",
     shippingPlaceholder: "ပို့ဆောင်ရေးဧရိယာရွေးပါ",
     turnaroundPlaceholder: "ပို့ဆောင်ချိန်ရွေးပါ",
     locations: ["Bangkok, Thailand", "Chiang Mai, Thailand", "Phuket, Thailand", "Pattaya, Thailand", "Khon Kaen, Thailand", "Hat Yai, Thailand"],
@@ -1005,7 +1005,7 @@ const SELLER_PROFILE_SELECT_I18N = {
   },
   ru: {
     locationPlaceholder: "Выберите локацию",
-    specialtyPlaceholder: "Выберите специализацию",
+    specialtyPlaceholder: "Добавьте свою специализацию…",
     shippingPlaceholder: "Выберите покрытие доставки",
     turnaroundPlaceholder: "Выберите срок отправки",
     locations: ["Бангкок, Таиланд", "Чиангмай, Таиланд", "Пхукет, Таиланд", "Паттайя, Таиланд", "Кхонкэн, Таиланд", "Хатъяй, Таиланд"],
@@ -3187,46 +3187,65 @@ export function SellerDashboardPage({
                       );
                     })()}
                   </div>
-                  <label className="grid gap-1 text-sm text-slate-600">
+                  <div className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("specialty")}</span>
-                    <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 px-3 py-3">
-                      {specialtyChipOptions.map((value) => {
-                        const selected = sellerSpecialties.includes(value);
-                        return (
-                          <button
-                            key={value}
-                            type="button"
-                            onClick={() => updateSellerProfileField("specialties", selected ? sellerSpecialties.filter((item) => item !== value) : [...sellerSpecialties, value])}
-                            className={`rounded-xl px-3 py-2 text-xs font-semibold ${selected ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
-                          >
-                            {localizeOptionLabel(value, locale)}
-                          </button>
-                        );
-                      })}
+                    <div className="rounded-2xl border border-slate-200 px-3 py-3 space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {SELLER_SPECIALTY_OPTIONS.map((value) => {
+                          const selected = sellerSpecialties.includes(value);
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => updateSellerProfileField("specialties", selected ? sellerSpecialties.filter((item) => item !== value) : [...sellerSpecialties, value])}
+                              className={`rounded-xl px-3 py-2 text-xs font-semibold ${selected ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
+                            >
+                              {localizeOptionLabel(value, locale)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {sellerSpecialties.filter((s) => !SELLER_SPECIALTY_OPTIONS.includes(s)).length > 0 ? (
+                        <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-2">
+                          {sellerSpecialties.filter((s) => !SELLER_SPECIALTY_OPTIONS.includes(s)).map((value) => (
+                            <span key={value} className="flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
+                              {value}
+                              <button
+                                type="button"
+                                onClick={() => updateSellerProfileField("specialties", sellerSpecialties.filter((item) => item !== value))}
+                                className="ml-0.5 text-slate-400 hover:text-rose-600"
+                                aria-label={`Remove ${value}`}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+                      <div className="flex items-center gap-2 border-t border-slate-100 pt-2">
+                        <input
+                          value={customSpecialtyDraft}
+                          onChange={(event) => setCustomSpecialtyDraft(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              addCustomSpecialty();
+                            }
+                          }}
+                          className="flex-1 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                          placeholder={sellerProfileSelectText.specialtyPlaceholder}
+                        />
+                        <button
+                          type="button"
+                          onClick={addCustomSpecialty}
+                          className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
+                          aria-label={t("addSpecialtyAriaLabel")}
+                        >
+                          + {t("addSpecialtyAriaLabel") || "Add"}
+                        </button>
+                      </div>
                     </div>
-                    <div className="mt-2 flex items-center gap-2">
-                      <input
-                        value={customSpecialtyDraft}
-                        onChange={(event) => setCustomSpecialtyDraft(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            addCustomSpecialty();
-                          }
-                        }}
-                        className="flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                        placeholder={sellerProfileSelectText.specialtyPlaceholder}
-                      />
-                      <button
-                        type="button"
-                        onClick={addCustomSpecialty}
-                        className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700"
-                        aria-label={t("addSpecialtyAriaLabel")}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </label>
+                  </div>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("languages")}</span>
                     <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 px-3 py-3">
