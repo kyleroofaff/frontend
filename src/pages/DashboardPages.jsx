@@ -42,6 +42,10 @@ import {
   HAIR_COLOR_OPTIONS,
   BRA_SIZE_OPTIONS,
   PANTY_SIZE_OPTIONS,
+  THAI_BRA_BANDS,
+  THAI_BRA_CUPS,
+  THAI_BRA_CUP_CM_SPAN,
+  THAI_TO_US_BRA_SIZE_MAP,
 } from "../productOptions.js";
 import { formatDateTimeNoSeconds, formatTimeNoSeconds } from "../utils/timeFormat.js";
 import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from "../utils/walletTopUp.js";
@@ -1297,10 +1301,15 @@ const SELLER_I18N = {
     portfolio: "Portfolio URL",
     bio: "Seller bio",
     profileDetails: "Profile details (shown publicly)",
-    heightLabel: "Height (cm)",
-    weightLabel: "Weight (kg)",
+    profileDetailsHint: "This info is shown on your public profile to help buyers find you.",
+    heightLabel: "Height",
+    weightLabel: "Weight",
     hairColorLabel: "Hair color",
     braSizeLabel: "Bra size",
+    thaiBraSizes: "Thai sizes (cm)",
+    usBraSizes: "US sizes",
+    thaiBraCupDifferenceHint: "Cup = chest difference in cm",
+    selectedUsSize: "US equivalent:",
     pantySizeLabel: "Panty size",
     selectHairColor: "Select hair color",
     selectBraSize: "Select bra size",
@@ -1598,7 +1607,7 @@ const SELLER_I18N = {
     sectionTitle: "จัดการหน้าร้านของคุณ", sectionSubtitle: "อัปเดตโปรไฟล์ เผยแพร่สินค้า และแชร์โพสต์ไลฟ์สไตล์ให้ผู้ซื้อเห็น",
     language: "ภาษา", loginRequired: "ต้องเข้าสู่ระบบผู้ขาย", profileChecklist: "เช็กลิสต์ความสมบูรณ์ของโปรไฟล์",
     profileComplete: "โปรไฟล์ครบถ้วนแล้ว คุณสามารถเผยแพร่สินค้าได้",
-    profileDetails: "รายละเอียดโปรไฟล์ (แสดงสาธารณะ)", heightLabel: "ส่วนสูง (ซม.)", weightLabel: "น้ำหนัก (กก.)", hairColorLabel: "สีผม", braSizeLabel: "ขนาดบรา", pantySizeLabel: "ขนาดกางเกงใน", selectHairColor: "เลือกสีผม", selectBraSize: "เลือกขนาดบรา", selectPantySize: "เลือกขนาดกางเกงใน",
+    profileDetails: "รายละเอียดโปรไฟล์ (แสดงสาธารณะ)", profileDetailsHint: "ข้อมูลนี้จะแสดงบนโปรไฟล์สาธารณะเพื่อช่วยให้ผู้ซื้อค้นหาคุณ", heightLabel: "ส่วนสูง", weightLabel: "น้ำหนัก", hairColorLabel: "สีผม", braSizeLabel: "ขนาดบรา", thaiBraSizes: "ไซส์ไทย (ซม.)", usBraSizes: "ไซส์ US", thaiBraCupDifferenceHint: "ถ้วย = ความต่างรอบอก (ซม.)", selectedUsSize: "ไซส์ US:", pantySizeLabel: "ขนาดกางเกงใน", selectHairColor: "เลือกสีผม", selectBraSize: "เลือกขนาดบรา", selectPantySize: "เลือกขนาดกางเกงใน",
     saveProfile: "บันทึกการอัปเดตโปรไฟล์",
     mediaUpload: "อัปโหลดสินค้า", mediaUploadHelp: "เลือกรูปภาพสำหรับสินค้าของคุณ รูปจะถูกบันทึกในเซสชันปัจจุบัน",
     imagePreview: "ตัวอย่างรูปภาพ", createDraft: "สร้างรายการแบบร่าง", inbox: "กล่องข้อความผู้ขาย",
@@ -1813,7 +1822,7 @@ const SELLER_I18N = {
     sectionTitle: "သင့်စတိုးကို စီမံပါ", sectionSubtitle: "ပရိုဖိုင်ပြင်ဆင်ခြင်း၊ စာရင်းထုတ်ခြင်းနှင့် lifestyle post များကို မျှဝေပါ",
     language: "ဘာသာစကား", loginRequired: "ရောင်းသူအကောင့်ဖြင့် ဝင်ရန်လိုအပ်သည်", profileChecklist: "ပရိုဖိုင်ပြည့်စုံမှု စစ်ဆေးစာရင်း",
     profileComplete: "ပရိုဖိုင် ပြည့်စုံပြီးဖြစ်သည်။ စာရင်းတင်နိုင်ပါသည်",
-    profileDetails: "ပရိုဖိုင်အချက်အလက် (အများသုံးပြသ)", heightLabel: "အရပ် (စမ)", weightLabel: "ကိုယ်အလေးချိန် (ကဂ)", hairColorLabel: "ဆံပင်အရောင်", braSizeLabel: "ဘရာဆိုက်", pantySizeLabel: "ပန်တီဆိုက်", selectHairColor: "ဆံပင်အရောင်ရွေးပါ", selectBraSize: "ဘရာဆိုက်ရွေးပါ", selectPantySize: "ပန်တီဆိုက်ရွေးပါ",
+    profileDetails: "ပရိုဖိုင်အချက်အလက် (အများသုံးပြသ)", profileDetailsHint: "ဤအချက်အလက်သည် သင့်ပြည်သူ့ပရိုဖိုင်တွင် ပြသပြီး ဝယ်သူများ ရှာဖွေနိုင်ရန် ကူညီသည်", heightLabel: "အရပ်", weightLabel: "ကိုယ်အလေးချိန်", hairColorLabel: "ဆံပင်အရောင်", braSizeLabel: "ဘရာဆိုက်", thaiBraSizes: "ထိုင်းဆိုက် (စမ)", usBraSizes: "US ဆိုက်", thaiBraCupDifferenceHint: "ခွက် = ရင်ဘတ်ကွာဟချက် (စမ)", selectedUsSize: "US တူညီ:", pantySizeLabel: "ပန်တီဆိုက်", selectHairColor: "ဆံပင်အရောင်ရွေးပါ", selectBraSize: "ဘရာဆိုက်ရွေးပါ", selectPantySize: "ပန်တီဆိုက်ရွေးပါ",
     saveProfile: "ပရိုဖိုင်ပြင်ဆင်ချက်များ သိမ်းမည်",
     mediaUpload: "ပစ္စည်း အပ်လုဒ်", mediaUploadHelp: "သင့်ပစ္စည်းအတွက် ပုံကိုရွေးပါ။ ပုံကို လက်ရှိ session တွင် သိမ်းဆည်းမည်",
     imagePreview: "ပုံကြိုတင်ကြည့်ရှုမှု", createDraft: "မူကြမ်းစာရင်း ဖန်တီးမည်", inbox: "ရောင်းသူ စာဝင်ပုံး",
@@ -2028,7 +2037,7 @@ const SELLER_I18N = {
     sectionTitle: "Управление витриной", sectionSubtitle: "Обновляйте профиль, публикуйте объявления и делитесь постами.",
     language: "Язык", loginRequired: "Требуется вход продавца", profileChecklist: "Проверка заполнения профиля",
     profileComplete: "Профиль заполнен. Вы можете публиковать объявления.",
-    profileDetails: "Детали профиля (показываются публично)", heightLabel: "Рост (см)", weightLabel: "Вес (кг)", hairColorLabel: "Цвет волос", braSizeLabel: "Размер бюстгальтера", pantySizeLabel: "Размер трусиков", selectHairColor: "Выберите цвет волос", selectBraSize: "Выберите размер бюстгальтера", selectPantySize: "Выберите размер трусиков",
+    profileDetails: "Детали профиля (показываются публично)", profileDetailsHint: "Эта информация отображается в вашем публичном профиле и помогает покупателям вас найти.", heightLabel: "Рост", weightLabel: "Вес", hairColorLabel: "Цвет волос", braSizeLabel: "Размер бюстгальтера", thaiBraSizes: "Тайские размеры (см)", usBraSizes: "Размеры US", thaiBraCupDifferenceHint: "Чашка = разница обхвата груди (см)", selectedUsSize: "Аналог US:", pantySizeLabel: "Размер трусиков", selectHairColor: "Выберите цвет волос", selectBraSize: "Выберите размер бюстгальтера", selectPantySize: "Выберите размер трусиков",
     saveProfile: "Сохранить профиль",
     mediaUpload: "Загрузка товара", mediaUploadHelp: "Выберите изображение для объявления. Файлы сохраняются в текущей сессии.",
     imagePreview: "Предпросмотр изображения", createDraft: "Создать черновик", inbox: "Входящие продавца",
@@ -2340,6 +2349,22 @@ export function SellerDashboardPage({
   const [editingBundleId, setEditingBundleId] = useState("");
   const [bundleMessage, setBundleMessage] = useState("");
   const [customSpecialtyDraft, setCustomSpecialtyDraft] = useState("");
+  const [dashHeightUnit, setDashHeightUnit] = useState("cm");
+  const [localHeightIn, setLocalHeightIn] = useState("");
+  const [dashWeightUnit, setDashWeightUnit] = useState("kg");
+  const [localWeightLbs, setLocalWeightLbs] = useState("");
+  const [useBraThaiSizingDash, setUseBraThaiSizingDash] = useState(true);
+  const [dashThaiBraBand, setDashThaiBraBand] = useState("");
+  const [dashThaiBraCup, setDashThaiBraCup] = useState("");
+  useEffect(() => {
+    setDashHeightUnit("cm");
+    setLocalHeightIn("");
+    setDashWeightUnit("kg");
+    setLocalWeightLbs("");
+    setUseBraThaiSizingDash(true);
+    setDashThaiBraBand("");
+    setDashThaiBraCup("");
+  }, [currentSellerProfile?.id]);
   const locationOptions = useMemo(
     () => buildSellerSelectOptions(sellerProfileSelectText.locations, sellerProfileDraft.location),
     [sellerProfileSelectText, sellerProfileDraft.location],
@@ -3159,39 +3184,125 @@ export function SellerDashboardPage({
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{t("profileDetails") || "Profile details (shown publicly)"}</div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">{t("profileDetailsHint") || "This info is shown on your public profile to help buyers find you."}</div>
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <label className="grid gap-1 text-sm text-slate-600">
-                      <span className="font-medium">{t("heightLabel") || "Height (cm)"}</span>
-                      <input value={sellerProfileDraft.height || ""} onChange={(e) => updateSellerProfileField("height", e.target.value)} type="number" min="0" className="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="165" />
+                      <span className="font-medium">{t("heightLabel") || "Height"}</span>
+                      <div className="flex gap-2">
+                        <input
+                          value={dashHeightUnit === "in" ? localHeightIn : (sellerProfileDraft.height || "")}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (dashHeightUnit === "in") {
+                              setLocalHeightIn(val);
+                              const cm = val ? Number((Number(val) * 2.54).toFixed(1)) : "";
+                              updateSellerProfileField("height", cm ? String(cm) : "");
+                            } else {
+                              updateSellerProfileField("height", val);
+                            }
+                          }}
+                          type="number" min="0"
+                          className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                          placeholder={dashHeightUnit === "cm" ? "165" : "65"}
+                        />
+                        <select
+                          value={dashHeightUnit}
+                          onChange={(e) => {
+                            const newUnit = e.target.value;
+                            if (newUnit === "in") {
+                              const currentCm = Number(sellerProfileDraft.height);
+                              setLocalHeightIn(currentCm > 0 ? String(Math.round(currentCm / 2.54)) : "");
+                            }
+                            setDashHeightUnit(newUnit);
+                          }}
+                          className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                        >
+                          <option value="cm">cm</option>
+                          <option value="in">in</option>
+                        </select>
+                      </div>
                     </label>
                     <label className="grid gap-1 text-sm text-slate-600">
-                      <span className="font-medium">{t("weightLabel") || "Weight (kg)"}</span>
-                      <input value={sellerProfileDraft.weight || ""} onChange={(e) => updateSellerProfileField("weight", e.target.value)} type="number" min="0" className="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="55" />
+                      <span className="font-medium">{t("weightLabel") || "Weight"}</span>
+                      <div className="flex gap-2">
+                        <input
+                          value={dashWeightUnit === "lbs" ? localWeightLbs : (sellerProfileDraft.weight || "")}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (dashWeightUnit === "lbs") {
+                              setLocalWeightLbs(val);
+                              const kg = val ? Number((Number(val) / 2.20462).toFixed(1)) : "";
+                              updateSellerProfileField("weight", kg ? String(kg) : "");
+                            } else {
+                              updateSellerProfileField("weight", val);
+                            }
+                          }}
+                          type="number" min="0"
+                          className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                          placeholder={dashWeightUnit === "kg" ? "55" : "121"}
+                        />
+                        <select
+                          value={dashWeightUnit}
+                          onChange={(e) => {
+                            const newUnit = e.target.value;
+                            if (newUnit === "lbs") {
+                              const currentKg = Number(sellerProfileDraft.weight);
+                              setLocalWeightLbs(currentKg > 0 ? String(Math.round(currentKg * 2.20462)) : "");
+                            }
+                            setDashWeightUnit(newUnit);
+                          }}
+                          className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
+                        >
+                          <option value="kg">{localizeOptionLabel("kg", locale)}</option>
+                          <option value="lbs">{localizeOptionLabel("lbs", locale)}</option>
+                        </select>
+                      </div>
                     </label>
                   </div>
-                  <label className="grid gap-1 text-sm text-slate-600">
+                  <label className="block text-sm text-slate-600">
                     <span className="font-medium">{t("hairColorLabel") || "Hair color"}</span>
-                    <select value={sellerProfileDraft.hairColor || ""} onChange={(e) => updateSellerProfileField("hairColor", e.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                    <select value={sellerProfileDraft.hairColor || ""} onChange={(e) => updateSellerProfileField("hairColor", e.target.value)} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
                       <option value="">{t("selectHairColor") || "Select hair color"}</option>
                       {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, locale)}</option>)}
                     </select>
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="grid gap-1 text-sm text-slate-600">
-                      <span className="font-medium">{t("braSizeLabel") || "Bra size"}</span>
-                      <select value={sellerProfileDraft.braSize || ""} onChange={(e) => updateSellerProfileField("braSize", e.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                  <div>
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="text-sm font-medium text-slate-600">{t("braSizeLabel") || "Bra size"}</span>
+                      <button type="button" onClick={() => { setUseBraThaiSizingDash(true); updateSellerProfileField("braSize", ""); setDashThaiBraBand(""); setDashThaiBraCup(""); }} className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${useBraThaiSizingDash ? "bg-rose-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>{t("thaiBraSizes") || "Thai sizes (cm)"}</button>
+                      <button type="button" onClick={() => { setUseBraThaiSizingDash(false); updateSellerProfileField("braSize", ""); setDashThaiBraBand(""); setDashThaiBraCup(""); }} className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${!useBraThaiSizingDash ? "bg-rose-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>{t("usBraSizes") || "US sizes"}</button>
+                    </div>
+                    {useBraThaiSizingDash ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        <select value={dashThaiBraBand} onChange={(e) => { const band = e.target.value; setDashThaiBraBand(band); if (band && dashThaiBraCup) { updateSellerProfileField("braSize", THAI_TO_US_BRA_SIZE_MAP[band + dashThaiBraCup] || ""); } else { updateSellerProfileField("braSize", ""); } }} className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm">
+                          <option value="">{localizeOptionLabel("Select band size", locale)}</option>
+                          {THAI_BRA_BANDS.map((band) => <option key={band} value={band}>{band}</option>)}
+                        </select>
+                        <select value={dashThaiBraCup} onChange={(e) => { const cup = e.target.value; setDashThaiBraCup(cup); if (dashThaiBraBand && cup) { updateSellerProfileField("braSize", THAI_TO_US_BRA_SIZE_MAP[dashThaiBraBand + cup] || ""); } else { updateSellerProfileField("braSize", ""); } }} className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm">
+                          <option value="">{localizeOptionLabel("Select cup", locale)}</option>
+                          {THAI_BRA_CUPS.map((cup) => { const span = THAI_BRA_CUP_CM_SPAN[cup]; return (<option key={cup} value={cup}>{cup}{span ? ` (${span})` : ""}</option>); })}
+                        </select>
+                      </div>
+                    ) : (
+                      <select value={sellerProfileDraft.braSize || ""} onChange={(e) => updateSellerProfileField("braSize", e.target.value)} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
                         <option value="">{t("selectBraSize") || "Select bra size"}</option>
                         {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
                       </select>
-                    </label>
-                    <label className="grid gap-1 text-sm text-slate-600">
-                      <span className="font-medium">{t("pantySizeLabel") || "Panty size"}</span>
-                      <select value={sellerProfileDraft.pantySize || ""} onChange={(e) => updateSellerProfileField("pantySize", e.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                        <option value="">{t("selectPantySize") || "Select panty size"}</option>
-                        {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
-                      </select>
-                    </label>
+                    )}
+                    {useBraThaiSizingDash && sellerProfileDraft.braSize ? (
+                      <div className="mt-1 text-xs text-slate-500">{t("selectedUsSize") || "US equivalent:"} <span className="font-semibold">{sellerProfileDraft.braSize}</span></div>
+                    ) : null}
+                    {useBraThaiSizingDash ? (
+                      <div className="mt-1 text-xs text-slate-400">{t("thaiBraCupDifferenceHint") || "Cup = chest difference in cm"}</div>
+                    ) : null}
                   </div>
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">{t("pantySizeLabel") || "Panty size"}</span>
+                    <select value={sellerProfileDraft.pantySize || ""} onChange={(e) => updateSellerProfileField("pantySize", e.target.value)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                      <option value="">{t("selectPantySize") || "Select panty size"}</option>
+                      {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                    </select>
+                  </label>
                 </div>
                 <button onClick={saveSellerProfile} className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">{t("saveProfile")}</button>
                 {sellerProfileMessage ? <div className="text-sm font-medium text-rose-700">{sellerProfileMessage}</div> : null}
