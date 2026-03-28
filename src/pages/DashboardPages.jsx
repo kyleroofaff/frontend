@@ -46,6 +46,8 @@ import {
   THAI_BRA_CUPS,
   THAI_BRA_CUP_CM_SPAN,
   THAI_TO_US_BRA_SIZE_MAP,
+  SELLER_BAR_REGISTRATION_COUNTRIES,
+  REGISTRATION_CITIES_BY_COUNTRY,
 } from "../productOptions.js";
 import { formatDateTimeNoSeconds, formatTimeNoSeconds } from "../utils/timeFormat.js";
 import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from "../utils/walletTopUp.js";
@@ -1295,7 +1297,8 @@ const SELLER_I18N = {
     profileChecklist: "Profile completion checklist",
     profileComplete: "Profile complete. You can publish listings.",
     location: "Location",
-    specialty: "Specialty",
+    countryLabel: "Country",
+    cityLabel: "City",
     shipping: "Shipping details",
     turnaround: "Turnaround time",
     portfolio: "Portfolio URL",
@@ -1608,6 +1611,7 @@ const SELLER_I18N = {
     language: "ภาษา", loginRequired: "ต้องเข้าสู่ระบบผู้ขาย", profileChecklist: "เช็กลิสต์ความสมบูรณ์ของโปรไฟล์",
     profileComplete: "โปรไฟล์ครบถ้วนแล้ว คุณสามารถเผยแพร่สินค้าได้",
     profileDetails: "รายละเอียดโปรไฟล์ (แสดงสาธารณะ)", profileDetailsHint: "ข้อมูลนี้จะแสดงบนโปรไฟล์สาธารณะเพื่อช่วยให้ผู้ซื้อค้นหาคุณ", heightLabel: "ส่วนสูง", weightLabel: "น้ำหนัก", hairColorLabel: "สีผม", braSizeLabel: "ขนาดบรา", thaiBraSizes: "ไซส์ไทย (ซม.)", usBraSizes: "ไซส์ US", thaiBraCupDifferenceHint: "ถ้วย = ความต่างรอบอก (ซม.)", selectedUsSize: "ไซส์ US:", pantySizeLabel: "ขนาดกางเกงใน", selectHairColor: "เลือกสีผม", selectBraSize: "เลือกขนาดบรา", selectPantySize: "เลือกขนาดกางเกงใน",
+    countryLabel: "ประเทศ", cityLabel: "เมือง",
     saveProfile: "บันทึกการอัปเดตโปรไฟล์",
     mediaUpload: "อัปโหลดสินค้า", mediaUploadHelp: "เลือกรูปภาพสำหรับสินค้าของคุณ รูปจะถูกบันทึกในเซสชันปัจจุบัน",
     imagePreview: "ตัวอย่างรูปภาพ", createDraft: "สร้างรายการแบบร่าง", inbox: "กล่องข้อความผู้ขาย",
@@ -1823,6 +1827,7 @@ const SELLER_I18N = {
     language: "ဘာသာစကား", loginRequired: "ရောင်းသူအကောင့်ဖြင့် ဝင်ရန်လိုအပ်သည်", profileChecklist: "ပရိုဖိုင်ပြည့်စုံမှု စစ်ဆေးစာရင်း",
     profileComplete: "ပရိုဖိုင် ပြည့်စုံပြီးဖြစ်သည်။ စာရင်းတင်နိုင်ပါသည်",
     profileDetails: "ပရိုဖိုင်အချက်အလက် (အများသုံးပြသ)", profileDetailsHint: "ဤအချက်အလက်သည် သင့်ပြည်သူ့ပရိုဖိုင်တွင် ပြသပြီး ဝယ်သူများ ရှာဖွေနိုင်ရန် ကူညီသည်", heightLabel: "အရပ်", weightLabel: "ကိုယ်အလေးချိန်", hairColorLabel: "ဆံပင်အရောင်", braSizeLabel: "ဘရာဆိုက်", thaiBraSizes: "ထိုင်းဆိုက် (စမ)", usBraSizes: "US ဆိုက်", thaiBraCupDifferenceHint: "ခွက် = ရင်ဘတ်ကွာဟချက် (စမ)", selectedUsSize: "US တူညီ:", pantySizeLabel: "ပန်တီဆိုက်", selectHairColor: "ဆံပင်အရောင်ရွေးပါ", selectBraSize: "ဘရာဆိုက်ရွေးပါ", selectPantySize: "ပန်တီဆိုက်ရွေးပါ",
+    countryLabel: "နိုင်ငံ", cityLabel: "မြို့",
     saveProfile: "ပရိုဖိုင်ပြင်ဆင်ချက်များ သိမ်းမည်",
     mediaUpload: "ပစ္စည်း အပ်လုဒ်", mediaUploadHelp: "သင့်ပစ္စည်းအတွက် ပုံကိုရွေးပါ။ ပုံကို လက်ရှိ session တွင် သိမ်းဆည်းမည်",
     imagePreview: "ပုံကြိုတင်ကြည့်ရှုမှု", createDraft: "မူကြမ်းစာရင်း ဖန်တီးမည်", inbox: "ရောင်းသူ စာဝင်ပုံး",
@@ -2038,6 +2043,7 @@ const SELLER_I18N = {
     language: "Язык", loginRequired: "Требуется вход продавца", profileChecklist: "Проверка заполнения профиля",
     profileComplete: "Профиль заполнен. Вы можете публиковать объявления.",
     profileDetails: "Детали профиля (показываются публично)", profileDetailsHint: "Эта информация отображается в вашем публичном профиле и помогает покупателям вас найти.", heightLabel: "Рост", weightLabel: "Вес", hairColorLabel: "Цвет волос", braSizeLabel: "Размер бюстгальтера", thaiBraSizes: "Тайские размеры (см)", usBraSizes: "Размеры US", thaiBraCupDifferenceHint: "Чашка = разница обхвата груди (см)", selectedUsSize: "Аналог US:", pantySizeLabel: "Размер трусиков", selectHairColor: "Выберите цвет волос", selectBraSize: "Выберите размер бюстгальтера", selectPantySize: "Выберите размер трусиков",
+    countryLabel: "Страна", cityLabel: "Город",
     saveProfile: "Сохранить профиль",
     mediaUpload: "Загрузка товара", mediaUploadHelp: "Выберите изображение для объявления. Файлы сохраняются в текущей сессии.",
     imagePreview: "Предпросмотр изображения", createDraft: "Создать черновик", inbox: "Входящие продавца",
@@ -2356,6 +2362,8 @@ export function SellerDashboardPage({
   const [useBraThaiSizingDash, setUseBraThaiSizingDash] = useState(true);
   const [dashThaiBraBand, setDashThaiBraBand] = useState("");
   const [dashThaiBraCup, setDashThaiBraCup] = useState("");
+  const [dashLocationCountry, setDashLocationCountry] = useState("");
+  const [dashLocationCity, setDashLocationCity] = useState("");
   useEffect(() => {
     setDashHeightUnit("cm");
     setLocalHeightIn("");
@@ -2364,11 +2372,26 @@ export function SellerDashboardPage({
     setUseBraThaiSizingDash(true);
     setDashThaiBraBand("");
     setDashThaiBraCup("");
+    const loc = String(currentSellerProfile?.location || "").trim();
+    if (loc) {
+      const lastComma = loc.lastIndexOf(", ");
+      if (lastComma >= 0) {
+        const parsedCountry = loc.slice(lastComma + 2);
+        const parsedCity = loc.slice(0, lastComma);
+        const knownCountries = SELLER_BAR_REGISTRATION_COUNTRIES.filter((c) => c !== "Other");
+        if (knownCountries.includes(parsedCountry)) {
+          setDashLocationCountry(parsedCountry);
+          setDashLocationCity(parsedCity);
+          return;
+        }
+      }
+      setDashLocationCountry("");
+      setDashLocationCity(loc);
+    } else {
+      setDashLocationCountry("");
+      setDashLocationCity("");
+    }
   }, [currentSellerProfile?.id]);
-  const locationOptions = useMemo(
-    () => buildSellerSelectOptions(sellerProfileSelectText.locations, sellerProfileDraft.location),
-    [sellerProfileSelectText, sellerProfileDraft.location],
-  );
   const turnaroundOptions = useMemo(
     () => buildSellerSelectOptions(sellerProfileSelectText.turnaround, sellerProfileDraft.turnaround),
     [sellerProfileSelectText, sellerProfileDraft.turnaround],
@@ -3080,13 +3103,90 @@ export function SellerDashboardPage({
                   <div className="mt-2 text-xs text-slate-500">{t("profileImageHelp")}</div>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("location")}</span>
-                    <select value={sellerProfileDraft.location} onChange={(e) => updateSellerProfileField("location", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
-                      <option value="">{sellerProfileSelectText.locationPlaceholder}</option>
-                      {locationOptions.map((value) => <option key={value} value={value}>{value}</option>)}
-                    </select>
-                  </label>
+                  <div className="grid gap-2 text-sm text-slate-600">
+                    <label className="block">
+                      <span className="font-medium">{t("countryLabel") || "Country"}</span>
+                      <select
+                        value={SELLER_BAR_REGISTRATION_COUNTRIES.filter((c) => c !== "Other").includes(dashLocationCountry) ? dashLocationCountry : (dashLocationCountry ? "Other" : "")}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const newCountry = val === "Other" ? "" : val;
+                          setDashLocationCountry(newCountry);
+                          setDashLocationCity("");
+                          updateSellerProfileField("location", newCountry || "");
+                        }}
+                        className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                      >
+                        <option value="">{localizeOptionLabel("Select country", locale)}</option>
+                        {SELLER_BAR_REGISTRATION_COUNTRIES.map((c) => <option key={c} value={c}>{localizeOptionLabel(c, locale)}</option>)}
+                      </select>
+                    </label>
+                    {!SELLER_BAR_REGISTRATION_COUNTRIES.filter((c) => c !== "Other").includes(dashLocationCountry) ? (
+                      <input
+                        value={dashLocationCountry === "Other" ? "" : dashLocationCountry}
+                        onChange={(e) => {
+                          const newCountry = e.target.value;
+                          setDashLocationCountry(newCountry);
+                          updateSellerProfileField("location", [dashLocationCity, newCountry].filter(Boolean).join(", "));
+                        }}
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        placeholder={localizeOptionLabel("Type your country", locale)}
+                      />
+                    ) : null}
+                    {(() => {
+                      const cities = REGISTRATION_CITIES_BY_COUNTRY[dashLocationCountry] || [];
+                      if (cities.length === 0) {
+                        return (
+                          <label className="block">
+                            <span className="font-medium">{t("cityLabel") || "City"}</span>
+                            <input
+                              value={dashLocationCity}
+                              onChange={(e) => {
+                                const newCity = e.target.value;
+                                setDashLocationCity(newCity);
+                                updateSellerProfileField("location", [newCity, dashLocationCountry].filter(Boolean).join(", "));
+                              }}
+                              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                              placeholder={dashLocationCountry ? localizeOptionLabel("Type your city", locale) : (t("cityLabel") || "City")}
+                            />
+                          </label>
+                        );
+                      }
+                      return (
+                        <>
+                          <label className="block">
+                            <span className="font-medium">{t("cityLabel") || "City"}</span>
+                            <select
+                              value={cities.includes(dashLocationCity) ? dashLocationCity : (dashLocationCity ? "Other" : "")}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const newCity = val === "Other" ? "" : val;
+                                setDashLocationCity(newCity);
+                                updateSellerProfileField("location", [newCity, dashLocationCountry].filter(Boolean).join(", "));
+                              }}
+                              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                            >
+                              <option value="">{localizeOptionLabel("Select city", locale)}</option>
+                              {cities.map((city) => <option key={city} value={city}>{localizeOptionLabel(city, locale)}</option>)}
+                              <option value="Other">{localizeOptionLabel("Other", locale)}</option>
+                            </select>
+                          </label>
+                          {!cities.includes(dashLocationCity) ? (
+                            <input
+                              value={dashLocationCity}
+                              onChange={(e) => {
+                                const newCity = e.target.value;
+                                setDashLocationCity(newCity);
+                                updateSellerProfileField("location", [newCity, dashLocationCountry].filter(Boolean).join(", "));
+                              }}
+                              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                              placeholder={localizeOptionLabel("Type your city", locale)}
+                            />
+                          ) : null}
+                        </>
+                      );
+                    })()}
+                  </div>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("specialty")}</span>
                     <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 px-3 py-3">
