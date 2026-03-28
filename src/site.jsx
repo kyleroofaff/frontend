@@ -8040,14 +8040,20 @@ export default function ThailandPantiesMarketSite() {
       if (user.role === 'seller' && user.sellerId) {
         const sellerId = String(user.sellerId || '').trim();
         if (sellerId) {
-          setDb((prev) => ({
-            ...prev,
-            sellers: (prev.sellers || []).map((seller) => (
-              String(seller?.id || '').trim() === sellerId
-                ? { ...seller, isOnline: true }
-                : seller
-            )),
-          }));
+          setDb((prev) => {
+            const alreadyInSellers = (prev.sellers || []).some((s) => String(s?.id || '').trim() === sellerId);
+            const updatedSellers = alreadyInSellers
+              ? (prev.sellers || []).map((seller) =>
+                  String(seller?.id || '').trim() === sellerId
+                    ? { ...seller, isOnline: true }
+                    : seller
+                )
+              : [
+                  ...(prev.sellers || []),
+                  { id: sellerId, name: user.name || '', isOnline: true, feedVisibility: 'public', location: [user.city, user.country].filter(Boolean).join(', ') },
+                ];
+            return { ...prev, sellers: updatedSellers };
+          });
         }
       }
       setSession({ userId: user.id });
@@ -8454,6 +8460,13 @@ export default function ThailandPantiesMarketSite() {
               ? existingUsers.map((entry) => (entry.id === normalizedRegistrationUser.id ? mergedUser : entry))
               : [mergedUser, ...existingUsers],
             bars: filterLiveJunkBarsForMode(nextBars, appMode),
+            sellers: role === 'seller' && mergedUser.sellerId
+              ? (prev.sellers || []).map((seller) =>
+                  String(seller?.id || '').trim() === String(mergedUser.sellerId || '').trim()
+                    ? { ...seller, isOnline: true }
+                    : seller
+                )
+              : (prev.sellers || []),
           };
         });
         setSession({ userId: normalizedRegistrationUser.id });
