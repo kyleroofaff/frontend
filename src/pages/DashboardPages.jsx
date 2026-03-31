@@ -3101,10 +3101,11 @@ export function SellerDashboardPage({
                       </div>
                       <div>
                         <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see (profile card)</div>
-                        <div className="h-56 max-w-sm">
+                        <div className="h-64 max-w-sm">
                           <ProductImage
                             src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
                             label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
+                            top
                           />
                         </div>
                       </div>
@@ -3138,6 +3139,29 @@ export function SellerDashboardPage({
                   </div>
                   <div className="mt-2 text-xs text-slate-500">{t("profileImageHelp")}</div>
                 </div>
+                <button
+                  onClick={saveSellerProfile}
+                  disabled={isSavingSellerProfile}
+                  className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold shadow-sm transition-all duration-300 ${
+                    sellerProfileSaveSuccess
+                      ? "border-2 border-emerald-400 bg-emerald-50 text-emerald-700 scale-[1.02]"
+                      : isSavingSellerProfile
+                        ? "border border-slate-200 bg-slate-50 text-slate-400 cursor-wait"
+                        : "border border-rose-300 bg-rose-600 text-white hover:bg-rose-700 active:scale-[0.97]"
+                  }`}
+                >
+                  {isSavingSellerProfile ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" /></svg>
+                      Saving…
+                    </>
+                  ) : sellerProfileSaveSuccess ? (
+                    <>
+                      <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                      Saved!
+                    </>
+                  ) : t("saveProfile")}
+                </button>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="grid gap-2 text-sm text-slate-600">
                     <label className="block">
@@ -3341,6 +3365,29 @@ export function SellerDashboardPage({
                     ))}
                   </div>
                 </div>
+                <button
+                  onClick={saveSellerProfile}
+                  disabled={isSavingSellerProfile}
+                  className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold shadow-sm transition-all duration-300 ${
+                    sellerProfileSaveSuccess
+                      ? "border-2 border-emerald-400 bg-emerald-50 text-emerald-700 scale-[1.02]"
+                      : isSavingSellerProfile
+                        ? "border border-slate-200 bg-slate-50 text-slate-400 cursor-wait"
+                        : "border border-rose-300 bg-rose-600 text-white hover:bg-rose-700 active:scale-[0.97]"
+                  }`}
+                >
+                  {isSavingSellerProfile ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" /></svg>
+                      Saving…
+                    </>
+                  ) : sellerProfileSaveSuccess ? (
+                    <>
+                      <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                      Saved!
+                    </>
+                  ) : t("saveProfile")}
+                </button>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{t("profileDetails") || "Profile details (shown publicly)"}</div>
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">{t("profileDetailsHint") || "This info is shown on your public profile to help buyers find you."}</div>

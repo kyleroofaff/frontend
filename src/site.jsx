@@ -16800,12 +16800,13 @@ export default function ThailandPantiesMarketSite() {
                     <div className="rounded-2xl border border-white/50 bg-white/50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-wide text-rose-700">{publicText.featuredSellers}</div>
                       <div className="mt-3 grid grid-cols-2 gap-2">
-                        {homeFeaturedSellers.slice(0, 6).map((seller) => (
+                        {homeFeaturedSellers.slice(0, 4).map((seller) => (
                           <div key={seller.id} className="overflow-hidden rounded-xl bg-white">
-                            <div className="h-20 w-full">
+                            <div className="h-28 w-full">
                               <ProductImage
                                 src={seller.profileImageResolved || seller.profileImage}
                                 label={seller.profileImageNameResolved || seller.profileImageName || `${seller.name} profile`}
+                                top
                               />
                             </div>
                           </div>
@@ -17033,10 +17034,11 @@ export default function ThailandPantiesMarketSite() {
                       }}
                       className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                     >
-                      <div className="h-44">
+                      <div className="h-64">
                         <ProductImage
                           src={seller.profileImageResolved || seller.profileImage}
                           label={seller.profileImageNameResolved || seller.profileImageName || `${seller.name} profile`}
+                          top
                         />
                       </div>
                       <div className="mt-4 flex items-start justify-between gap-4">
@@ -17437,6 +17439,7 @@ export default function ThailandPantiesMarketSite() {
                   <ProductImage
                     src={selectedSeller.profileImageResolved}
                     label={selectedSeller.profileImageNameResolved || `${selectedSeller.name} cover`}
+                    top
                   />
                 </div>
                 <div className="mt-6 flex items-start justify-between gap-4">
