@@ -18289,6 +18289,11 @@ export default function ThailandPantiesMarketSite() {
                           );
                         })}
                       </div>
+                      {barProfileMessage ? (
+                        <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
+                          {barProfileMessage}
+                        </div>
+                      ) : null}
                     </div>
                     <div className="mt-4 rounded-2xl border border-rose-100 bg-slate-50 p-4">
                       <div className="text-sm font-semibold text-slate-800">{barT.affiliatedSellersTitle} ({currentBarAffiliatedSellers.length})</div>
