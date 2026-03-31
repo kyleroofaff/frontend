@@ -8487,6 +8487,11 @@ export default function ThailandPantiesMarketSite() {
                           isOnline: true,
                           feedVisibility: 'public',
                           location: [city || mergedUser.city, country || mergedUser.country].filter(Boolean).join(', '),
+                          height: heightCm || mergedUser.heightCm || '',
+                          weight: weightKg || mergedUser.weightKg || '',
+                          hairColor: registerForm.hairColor || mergedUser.hairColor || '',
+                          braSize: registerForm.braSize || mergedUser.braSize || '',
+                          pantySize: registerForm.pantySize || mergedUser.pantySize || '',
                         },
                       ];
                 })()
