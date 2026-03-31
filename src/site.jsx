@@ -5425,6 +5425,8 @@ export default function ThailandPantiesMarketSite() {
     pantySize: '',
   });
   const [sellerProfileMessage, setSellerProfileMessage] = useState('');
+  const [isSavingSellerProfile, setIsSavingSellerProfile] = useState(false);
+  const [sellerProfileSaveSuccess, setSellerProfileSaveSuccess] = useState(false);
   const [sellerAffiliationRequestDraft, setSellerAffiliationRequestDraft] = useState({
     message: '',
     images: [],
@@ -6033,16 +6035,15 @@ export default function ThailandPantiesMarketSite() {
         setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_FEED_UNLOCK_PRICE_THB }));
         return;
       }
-      setSellerPostDraft({
+      setSellerPostDraft((prev) => ({
+        ...prev,
         caption: String(draft.caption || '').slice(0, 500),
-        image: String(draft.image || ''),
-        imageName: String(draft.imageName || ''),
         scheduledFor: String(draft.scheduledFor || ''),
         visibility: draft.visibility === 'private' ? 'private' : 'public',
         accessPriceUsd: Number.isFinite(Number(draft.accessPriceUsd)) && Number(draft.accessPriceUsd) >= MIN_FEED_UNLOCK_PRICE_THB
           ? Number(Number(draft.accessPriceUsd).toFixed(2))
           : MIN_FEED_UNLOCK_PRICE_THB,
-      });
+      }));
       setSellerPostDraftSavedAt(String(draft.savedAt || ''));
     } catch {
       setSellerPostDraft((prev) => ({ ...prev, caption: '', image: '', imageName: '', scheduledFor: '', visibility: 'public', accessPriceUsd: MIN_FEED_UNLOCK_PRICE_THB }));
@@ -6062,9 +6063,9 @@ export default function ThailandPantiesMarketSite() {
     }
     parsed[currentSellerId] = {
       caption: sellerPostDraft.caption || '',
-      image: sellerPostDraft.image || '',
-      imageName: sellerPostDraft.imageName || '',
       scheduledFor: sellerPostDraft.scheduledFor || '',
+      visibility: sellerPostDraft.visibility || 'public',
+      accessPriceUsd: sellerPostDraft.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB,
       savedAt,
     };
     window.localStorage.setItem('tlm-seller-post-drafts', JSON.stringify(parsed));
@@ -6747,7 +6748,11 @@ export default function ThailandPantiesMarketSite() {
           : [],
       languages: Array.isArray(currentSellerProfile.languages) && currentSellerProfile.languages.length > 0
         ? currentSellerProfile.languages.filter(Boolean)
-        : [],
+        : (() => {
+            const langMap = { en: 'English', th: 'Thai', my: 'Burmese', ru: 'Russian' };
+            const fromPref = langMap[currentUser?.preferredLanguage];
+            return fromPref ? [fromPref] : [];
+          })(),
       bio: currentSellerProfile.bio || '',
       shipping: currentSellerProfile.shipping || 'Worldwide from Thailand',
       turnaround: currentSellerProfile.turnaround || 'Ships in 1-3 days',
@@ -9280,18 +9285,49 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function handleSellerAffiliationRequestImagesUpload(fileList) {
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_DIMENSION = 1200;
     const files = Array.from(fileList || []).slice(0, 4);
     if (!files.length) return;
+    const skipped = [];
+    const validFiles = files.filter((file) => {
+      if (file.size > MAX_FILE_BYTES) { skipped.push(file.name); return false; }
+      if (!file.type.startsWith('image/')) { skipped.push(file.name); return false; }
+      return true;
+    });
+    if (skipped.length > 0) {
+      setSellerProfileMessage(`Skipped ${skipped.length} file(s) — images must be under 5 MB.`);
+    }
+    if (!validFiles.length) return;
     const loadedImages = await Promise.all(
-      files.map((file) => new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({
-          id: makeRuntimeId('affiliation_image'),
-          image: typeof reader.result === 'string' ? reader.result : '',
-          imageName: String(file.name || 'application-image.jpg'),
-        });
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(file);
+      validFiles.map((file) => new Promise((resolve) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+            const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          URL.revokeObjectURL(objectUrl);
+          resolve({
+            id: makeRuntimeId('affiliation_image'),
+            image: dataUrl,
+            imageName: String(file.name || 'application-image.jpg'),
+          });
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(null);
+        };
+        img.src = objectUrl;
       })),
     );
     setSellerAffiliationRequestDraft((prev) => ({
@@ -9326,6 +9362,10 @@ export default function ThailandPantiesMarketSite() {
 
   async function saveSellerProfile() {
     if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
+    if (isSavingSellerProfile) return;
+    setIsSavingSellerProfile(true);
+    setSellerProfileSaveSuccess(false);
+    try {
     const specialties = (sellerProfileDraft.specialties || [])
       .map((value) => (value || '').trim())
       .filter(Boolean)
@@ -9525,6 +9565,13 @@ export default function ThailandPantiesMarketSite() {
           feedVisibility: currentSellerProfile?.feedVisibility || 'public',
         },
       }).catch(() => {});
+    }
+    setSellerProfileSaveSuccess(true);
+    setTimeout(() => setSellerProfileSaveSuccess(false), 2500);
+    } catch (err) {
+      setSellerProfileMessage('Something went wrong saving your profile. Please try again.');
+    } finally {
+      setIsSavingSellerProfile(false);
     }
   }
 
@@ -10192,31 +10239,91 @@ export default function ThailandPantiesMarketSite() {
   function handleBarProfileImageUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_DIMENSION = 800;
+    if (file.size > MAX_FILE_BYTES) {
+      setBarProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
+      event.target.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setBarProfileMessage('Only image files are accepted.');
+      event.target.value = '';
+      return;
+    }
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       setBarProfileDraft((prev) => ({
         ...prev,
-        profileImage: typeof reader.result === 'string' ? reader.result : '',
+        profileImage: dataUrl,
         profileImageName: file.name,
       }));
       setBarProfileMessage('');
+      URL.revokeObjectURL(objectUrl);
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      setBarProfileMessage('Could not read that image. Please try a different file.');
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
   }
 
   function handleBarPostImageUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_DIMENSION = 1200;
+    if (file.size > MAX_FILE_BYTES) {
+      setBarProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
+      event.target.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setBarProfileMessage('Only image files are accepted.');
+      event.target.value = '';
+      return;
+    }
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       setBarPostDraft((prev) => ({
         ...prev,
-        image: typeof reader.result === 'string' ? reader.result : '',
+        image: dataUrl,
         imageName: file.name,
       }));
       setBarProfileMessage('');
+      URL.revokeObjectURL(objectUrl);
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      setBarProfileMessage('Could not read that image. Please try a different file.');
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
   }
 
   function createBarPost() {
@@ -10262,16 +10369,46 @@ export default function ThailandPantiesMarketSite() {
   function handleSellerProfileImageUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_DIMENSION = 800;
+    if (file.size > MAX_FILE_BYTES) {
+      setSellerProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
+      event.target.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setSellerProfileMessage('Only image files are accepted.');
+      event.target.value = '';
+      return;
+    }
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       setSellerProfileDraft((prev) => ({
         ...prev,
-        profileImage: typeof reader.result === 'string' ? reader.result : '',
+        profileImage: dataUrl,
         profileImageName: file.name,
       }));
       setSellerProfileMessage('');
+      URL.revokeObjectURL(objectUrl);
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      setSellerProfileMessage('Could not read that image. Please try a different file.');
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
   }
 
   function updateSellerLanguage(languageCode) {
@@ -14434,29 +14571,89 @@ export default function ThailandPantiesMarketSite() {
   function handleUploadFile(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_DIMENSION = 1200;
+    if (file.size > MAX_FILE_BYTES) {
+      setSellerProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
+      event.target.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setSellerProfileMessage('Only image files are accepted.');
+      event.target.value = '';
+      return;
+    }
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       setUploadDraft((prev) => ({
         ...prev,
-        image: typeof reader.result === 'string' ? reader.result : '',
+        image: dataUrl,
         imageName: file.name,
       }));
+      URL.revokeObjectURL(objectUrl);
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      setSellerProfileMessage('Could not read that image. Please try a different file.');
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
   }
 
   function handleSellerPostImageUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_DIMENSION = 1200;
+    if (file.size > MAX_FILE_BYTES) {
+      setSellerProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
+      event.target.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setSellerProfileMessage('Only image files are accepted.');
+      event.target.value = '';
+      return;
+    }
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       setSellerPostDraft((prev) => ({
         ...prev,
-        image: typeof reader.result === 'string' ? reader.result : '',
+        image: dataUrl,
         imageName: file.name,
       }));
+      URL.revokeObjectURL(objectUrl);
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      setSellerProfileMessage('Could not read that image. Please try a different file.');
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
   }
 
   async function createSellerPost() {
@@ -14496,20 +14693,23 @@ export default function ThailandPantiesMarketSite() {
       let persistedToSeed = false;
 
       if (backendStatus === 'connected') {
-        const response = await fetch(`${API_BASE_URL}/api/seller-posts`, {
-          method: 'POST',
-          headers: getApiHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify(apiPostPayload),
-        });
-        const payload = await response.json().catch(() => ({}));
-        if (response.ok && payload?.post) {
-          createdPost = payload.post;
-          persistedToSeed = true;
-        } else if (response.status === 404 && payload?.error === 'Seller not found.') {
-          // Keep UX unblocked when local seller/account data exists but backend state lags.
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/seller-posts`, {
+            method: 'POST',
+            headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify(apiPostPayload),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (response.ok && payload?.post) {
+            createdPost = payload.post;
+            persistedToSeed = true;
+          } else if (response.status === 404 && payload?.error === 'Seller not found.') {
+            persistedToSeed = false;
+          } else {
+            persistedToSeed = false;
+          }
+        } catch {
           persistedToSeed = false;
-        } else {
-          throw new Error(localizeSellerApiError(payload?.error, 'publishPostFailed'));
         }
       }
 
@@ -17875,6 +18075,9 @@ export default function ThailandPantiesMarketSite() {
                         {barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.noFileSelected}
                       </span>
                     </div>
+                    {(barProfileDraft.profileImage || currentBarProfile?.profileImage) ? (
+                      <div className="mt-1 text-[11px] text-slate-400">Image will be cropped to fit — center the important part</div>
+                    ) : null}
                     <div className="mt-4 grid gap-3">
                       <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="https://maps.google.com/..." />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
@@ -18139,6 +18342,8 @@ export default function ThailandPantiesMarketSite() {
             updateSellerProfileField={updateSellerProfileField}
             handleSellerProfileImageUpload={handleSellerProfileImageUpload}
             saveSellerProfile={saveSellerProfile}
+            isSavingSellerProfile={isSavingSellerProfile}
+            sellerProfileSaveSuccess={sellerProfileSaveSuccess}
             requestSellerBarAffiliation={requestSellerBarAffiliation}
             sellerAffiliationRequestDraft={sellerAffiliationRequestDraft}
             updateSellerAffiliationRequestDraftMessage={updateSellerAffiliationRequestDraftMessage}
@@ -18374,10 +18579,32 @@ export default function ThailandPantiesMarketSite() {
                   <h3 className="text-xl font-semibold">{barT.feedTitle}</h3>
                   <p className="mt-2 text-sm text-slate-600">{barT.feedSubtitle}</p>
                   <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.feedPlaceholder} />
-                  <input type="file" accept="image/*" onChange={handleBarPostImageUpload} className="mt-3 w-full rounded-2xl border border-dashed border-rose-300 px-4 py-3 text-sm" />
-                  <div className="mt-3 h-44">
-                    {barPostDraft.image ? <ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} /> : <ProductImage label={barT.preview} />}
+                  <input id="bar-post-image-input" type="file" accept="image/*" onChange={handleBarPostImageUpload} className="sr-only" />
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <label htmlFor="bar-post-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-2.5 py-1 text-xs font-semibold text-rose-700">
+                      {barT.chooseImage || 'Choose image'}
+                    </label>
+                    {barPostDraft.image ? (
+                      <button type="button" onClick={() => setBarPostDraft((prev) => ({ ...prev, image: '', imageName: '' }))} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-rose-600">
+                        Remove image
+                      </button>
+                    ) : null}
+                    <span className="text-xs text-slate-500">{barPostDraft.imageName || barT.noFileSelected || 'No file selected'}</span>
                   </div>
+                  {barPostDraft.image ? (
+                    <div className="mt-3 space-y-3">
+                      <div>
+                        <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
+                        <div className="h-48"><ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} contain /></div>
+                      </div>
+                      <div>
+                        <div className="mb-1 text-[11px] font-medium text-slate-500">What visitors will see</div>
+                        <div className="h-72"><ProductImage src={barPostDraft.image} label={barPostDraft.imageName || 'Bar draft image'} /></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-3 h-72"><ProductImage label={barT.preview} /></div>
+                  )}
                   <button onClick={createBarPost} disabled={creatingBarPost} className="mt-3 inline-flex w-auto rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
                     {creatingBarPost ? barT.posting : barT.postButton}
                   </button>

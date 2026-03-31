@@ -2273,6 +2273,8 @@ export function SellerDashboardPage({
   updateSellerProfileField,
   handleSellerProfileImageUpload,
   saveSellerProfile,
+  isSavingSellerProfile,
+  sellerProfileSaveSuccess,
   requestSellerBarAffiliation,
   sellerAffiliationRequestDraft,
   updateSellerAffiliationRequestDraftMessage,
@@ -3085,12 +3087,33 @@ export function SellerDashboardPage({
               <div className="mt-5 grid gap-3">
                 <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("profileImageLabel")}</div>
-                  <div className="mt-3 h-40">
-                    <ProductImage
-                      src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
-                      label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
-                    />
-                  </div>
+                  {(sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved) ? (
+                    <div className="mt-3 space-y-3">
+                      <div>
+                        <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
+                        <div className="h-48">
+                          <ProductImage
+                            src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
+                            label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
+                            contain
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see</div>
+                        <div className="h-40">
+                          <ProductImage
+                            src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
+                            label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-3 h-40">
+                      <ProductImage label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")} />
+                    </div>
+                  )}
                   <input
                     id="seller-profile-image-input"
                     type="file"
@@ -3098,11 +3121,20 @@ export function SellerDashboardPage({
                     onChange={handleSellerProfileImageUpload}
                     className="sr-only"
                   />
-                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
-                    <label htmlFor="seller-profile-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <label htmlFor="seller-profile-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-2.5 py-1 text-xs font-semibold text-rose-700">
                       {t("chooseFile")}
                     </label>
-                    <span className="text-xs text-slate-600">{sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("noFileChosen")}</span>
+                    {(sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved) ? (
+                      <button
+                        type="button"
+                        onClick={() => { updateSellerProfileField("profileImage", ""); updateSellerProfileField("profileImageName", ""); }}
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-rose-600"
+                      >
+                        Remove image
+                      </button>
+                    ) : null}
+                    <span className="text-xs text-slate-500">{sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("noFileChosen")}</span>
                   </div>
                   <div className="mt-2 text-xs text-slate-500">{t("profileImageHelp")}</div>
                 </div>
@@ -3283,7 +3315,10 @@ export function SellerDashboardPage({
                     </select>
                   </label>
                 </div>
-                <textarea value={sellerProfileDraft.bio} onChange={(e) => updateSellerProfileField("bio", e.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("bio")} />
+                <div className="grid gap-1">
+                  <textarea value={sellerProfileDraft.bio} onChange={(e) => updateSellerProfileField("bio", e.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("bio")} />
+                  <div className="text-[11px] text-slate-400">Write in any language — your bio will be automatically translated for buyers.</div>
+                </div>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.bioPresetLabel}</div>
                   <div className="mt-2 space-y-2">
@@ -3428,8 +3463,36 @@ export function SellerDashboardPage({
                     </select>
                   </label>
                 </div>
-                <button onClick={saveSellerProfile} className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">{t("saveProfile")}</button>
-                {sellerProfileMessage ? <div className="text-sm font-medium text-rose-700">{sellerProfileMessage}</div> : null}
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={saveSellerProfile}
+                    disabled={isSavingSellerProfile}
+                    className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+                      sellerProfileSaveSuccess
+                        ? "border border-emerald-400 bg-emerald-50 text-emerald-700"
+                        : isSavingSellerProfile
+                          ? "border border-slate-200 bg-slate-50 text-slate-400 cursor-wait"
+                          : "border border-rose-200 text-rose-700 hover:bg-rose-50 active:scale-[0.98]"
+                    }`}
+                  >
+                    {isSavingSellerProfile ? (
+                      <>
+                        <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" /></svg>
+                        Saving…
+                      </>
+                    ) : sellerProfileSaveSuccess ? (
+                      <>
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        Saved!
+                      </>
+                    ) : t("saveProfile")}
+                  </button>
+                  {sellerProfileMessage ? (
+                    <span className={`text-xs font-medium ${sellerProfileSaveSuccess ? "text-emerald-600" : "text-rose-600"}`}>
+                      {sellerProfileMessage}
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <div className="mt-5 rounded-2xl border border-rose-100 bg-slate-50 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("barAffiliation")}</div>
@@ -3678,6 +3741,7 @@ export function SellerDashboardPage({
                   <span className="text-xs text-slate-600">{uploadDraft.imageName || t("noFileChosen")}</span>
                 </div>
                 <div className="h-40">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} /> : <ProductImage label={t("imagePreview")} />}</div>
+                {uploadDraft.image ? <div className="mt-1 text-[11px] text-slate-400">Image will be cropped to fit — center the important part</div> : null}
                 <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
               </div>
               <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
@@ -4076,11 +4140,16 @@ export function SellerFeedWorkspacePage({
                   onChange={handleSellerPostImageUpload}
                   className="sr-only"
                 />
-                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
-                  <label htmlFor="seller-post-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
+                <div className="flex flex-wrap items-center gap-2">
+                  <label htmlFor="seller-post-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-2.5 py-1 text-xs font-semibold text-rose-700">
                     {t("chooseFile")}
                   </label>
-                  <span className="text-xs text-slate-600">{sellerPostDraft.imageName || t("noFileChosen")}</span>
+                  {sellerPostDraft.image ? (
+                    <button type="button" onClick={() => setSellerPostDraft((prev) => ({ ...prev, image: "", imageName: "" }))} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-rose-600">
+                      Remove image
+                    </button>
+                  ) : null}
+                  <span className="text-xs text-slate-500">{sellerPostDraft.imageName || t("noFileChosen")}</span>
                 </div>
                 <label className="grid max-w-md gap-1 text-sm text-slate-600">
                   <span className="font-medium">{t("scheduleOptional")}</span>
@@ -4125,7 +4194,20 @@ export function SellerFeedWorkspacePage({
                     </label>
                   ) : <div />}
                 </div>
-                <div className="h-40">{sellerPostDraft.image ? <ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} /> : <ProductImage label={t("postImagePreview")} />}</div>
+                {sellerPostDraft.image ? (
+                  <div className="space-y-3">
+                    <div>
+                      <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
+                      <div className="h-48"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain /></div>
+                    </div>
+                    <div>
+                      <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see</div>
+                      <div className="h-72"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} /></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-72"><ProductImage label={t("postImagePreview")} /></div>
+                )}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="text-xs text-slate-500">
                     {sellerPostDraft.caption.length}/500

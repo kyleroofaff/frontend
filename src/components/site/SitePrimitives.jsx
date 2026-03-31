@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
-export function ProductImage({ src, label = "Product image" }) {
+export function ProductImage({ src, label = "Product image", contain = false }) {
   if (src) {
-    return <img src={src} alt={label} className="h-full min-h-[160px] w-full rounded-2xl object-cover ring-1 ring-rose-100" />;
+    return <img src={src} alt={label} className={`h-full min-h-[160px] w-full rounded-2xl ring-1 ring-rose-100 ${contain ? "object-contain bg-slate-100" : "object-cover"}`} />;
   }
   return (
     <div className="flex h-full min-h-[160px] items-center justify-center rounded-2xl bg-gradient-to-br from-rose-100 via-pink-50 to-fuchsia-100 text-sm text-slate-500 ring-1 ring-rose-100">
