@@ -16949,8 +16949,8 @@ export default function ThailandPantiesMarketSite() {
                     }}
                     className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                   >
-                    <button onClick={() => navigate(`/product/${product.slug}`)} className="block h-56 w-full text-left">
-                      <ProductImage src={product.image} label={product.imageName || product.title} />
+                    <button onClick={() => navigate(`/product/${product.slug}`)} className="block h-64 w-full text-left">
+                      <ProductImage src={product.image} label={product.imageName || product.title} top />
                     </button>
                     <div className="mt-4">
                       <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left text-lg font-semibold hover:text-rose-700">{product.title}</button>
@@ -17112,8 +17112,8 @@ export default function ThailandPantiesMarketSite() {
                           </span>
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <button onClick={() => navigate('/seller-feed')} className="mt-3 block h-56 w-full">
-                          <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} />
+                        <button onClick={() => navigate('/seller-feed')} className="mt-3 block h-64 w-full">
+                          <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} top />
                         </button>
                         <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || publicText.noCaption}</p>
                       </article>
@@ -17381,8 +17381,8 @@ export default function ThailandPantiesMarketSite() {
                       <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{publicText.noBarPhotosYet}</div>
                     ) : barFeedPosts.filter((post) => post.barId === selectedBar.id).map((post) => (
                       <article key={post.id} className="rounded-2xl border border-rose-100 p-4">
-                        <div className="h-44">
-                          <ProductImage src={post.image} label={post.imageName || 'Bar post image'} />
+                        <div className="h-56">
+                          <ProductImage src={post.image} label={post.imageName || 'Bar post image'} top />
                         </div>
                         <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
                         <p className="mt-1 text-sm text-slate-700">{post.caption || publicText.noCaption}</p>
@@ -17492,7 +17492,7 @@ export default function ThailandPantiesMarketSite() {
                     const bundleCoveredInCart = !product.isBundle && cartBundleCoveredItemIds.has(String(product.id || ''));
                     return (
                     <div key={product.id} className="rounded-3xl border border-rose-100 p-4">
-                      <button onClick={() => navigate(`/product/${product.slug}`)} className="h-40 w-full"><ProductImage src={product.image} label={product.imageName || product.title} /></button>
+                      <button onClick={() => navigate(`/product/${product.slug}`)} className="h-52 w-full"><ProductImage src={product.image} label={product.imageName || product.title} top /></button>
                       <div className="mt-4 flex items-start justify-between gap-3">
                         <div>
                           <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left font-semibold hover:text-rose-700">{product.title}</button>
@@ -17681,10 +17681,10 @@ export default function ThailandPantiesMarketSite() {
                               unlockPrivatePost(post.id);
                             }
                           }}
-                          className="relative mt-3 block h-48 w-full text-left"
+                          className="relative mt-3 block h-64 w-full text-left"
                         >
                           <div className={canViewSellerPost(post) ? '' : 'blur-sm'}>
-                            <ProductImage src={post.image} label={post.imageName || 'Seller post'} />
+                            <ProductImage src={post.image} label={post.imageName || 'Seller post'} top />
                           </div>
                           {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                             <div className="absolute inset-0 flex items-center justify-center">
@@ -17719,8 +17719,8 @@ export default function ThailandPantiesMarketSite() {
             </div>
             <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
               <div className="space-y-4">
-                <div className="h-[420px]"><ProductImage src={selectedProduct.image} label={selectedProduct.imageName || selectedProduct.title} /></div>
-                <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map((item) => <div key={item} className="h-28"><ProductImage src={selectedProduct.image} label={`Gallery ${item}`} /></div>)}</div>
+                <div className="h-[480px]"><ProductImage src={selectedProduct.image} label={selectedProduct.imageName || selectedProduct.title} top /></div>
+                <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map((item) => <div key={item} className="h-32"><ProductImage src={selectedProduct.image} label={`Gallery ${item}`} top /></div>)}</div>
               </div>
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100 lg:sticky lg:top-24">
                 <div className="flex items-start justify-between gap-4">
@@ -18617,8 +18617,8 @@ export default function ThailandPantiesMarketSite() {
                       <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{barT.noPosts}</div>
                     ) : barDashboardPosts.map((post) => (
                       <article key={post.id} className="rounded-2xl border border-rose-100 p-3">
-                        <div className="h-40">
-                          <ProductImage src={post.image} label={post.imageName || 'Bar post'} />
+                        <div className="h-52">
+                          <ProductImage src={post.image} label={post.imageName || 'Bar post'} top />
                         </div>
                         <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
                         <div className="mt-1 text-sm text-slate-700">{post.caption || barT.noCaption}</div>
