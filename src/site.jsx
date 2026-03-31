@@ -6953,6 +6953,27 @@ export default function ThailandPantiesMarketSite() {
             } else {
               merged.bars = barsAfterJunk;
             }
+            const serverSellers = Array.isArray(payload.db.sellers) ? payload.db.sellers : [];
+            if (serverSellers.length > 0) {
+              const localSellerMap = new Map((merged.sellers || []).map((s) => [String(s?.id || ''), s]));
+              let sellersUpdated = false;
+              serverSellers.forEach((serverSeller) => {
+                if (!serverSeller?.id) return;
+                const id = String(serverSeller.id);
+                const local = localSellerMap.get(id);
+                if (!local) {
+                  localSellerMap.set(id, serverSeller);
+                  sellersUpdated = true;
+                } else {
+                  localSellerMap.set(id, { ...local, ...serverSeller });
+                  sellersUpdated = true;
+                }
+              });
+              if (sellersUpdated) {
+                merged.sellers = Array.from(localSellerMap.values());
+                changed = true;
+              }
+            }
             const serverReqs = Array.isArray(payload.db.barAffiliationRequests) ? payload.db.barAffiliationRequests : [];
             if (serverReqs.length > 0) {
               const localReqIds = new Set((merged.barAffiliationRequests || []).map((r) => r?.id));
@@ -9761,7 +9782,10 @@ export default function ThailandPantiesMarketSite() {
         : null;
       const request = existingRequest || recoveredRequest;
       if (!request || request.status !== 'pending') return prev;
-      const seller = (prev.sellers || []).find((entry) => entry.id === request.sellerId);
+      const sellerRecord = (prev.sellers || []).find((entry) => entry.id === request.sellerId);
+      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === request.sellerId);
+      const seller = sellerRecord || (sellerUser ? { id: request.sellerId, name: sellerUser.name || request.sellerId } : null)
+        || (request.sellerId ? { id: request.sellerId, name: request.sellerId } : null);
       const resolvedRequestBarId = String(request?.barId || '').trim();
       const bar = (prev.bars || []).find((entry) => (
         String(entry?.id || '').trim() === resolvedRequestBarId
@@ -9769,7 +9793,6 @@ export default function ThailandPantiesMarketSite() {
         || namesLikelyMatch(currentUser?.name, entry?.name)
       ));
       const fallbackBarByName = (prev.bars || []).find((entry) => namesLikelyMatch(currentUser?.name, entry?.name));
-      const sellerUser = (prev.users || []).find((user) => user.role === 'seller' && user.sellerId === request.sellerId);
       const fallbackResolvedBarId = String(
         bar?.id
         || fallbackBarByName?.id

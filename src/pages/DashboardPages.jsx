@@ -11098,7 +11098,21 @@ export function AdminPage({
                   <div className="mt-3 space-y-3">
                     {adminSellerReviewItems.length === 0 ? (
                       <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No seller applications in this filter.</div>
-                    ) : adminSellerReviewItems.map((user) => (
+                    ) : adminSellerReviewItems.map((user) => {
+                      const sellerRecord = (sellers || []).find((s) => s.id === user.sellerId);
+                      const pendingAffiliation = (barAffiliationRequests || []).find(
+                        (r) => r.status === "pending" && r.sellerId === (sellerRecord?.id || user.sellerId)
+                      );
+                      const approvedAffiliation = (barAffiliationRequests || []).find(
+                        (r) => r.status === "approved" && r.sellerId === (sellerRecord?.id || user.sellerId)
+                      );
+                      const affiliatedBar = approvedAffiliation
+                        ? (bars || []).find((b) => b.id === approvedAffiliation.barId)
+                        : (sellerRecord?.affiliatedBarId ? (bars || []).find((b) => b.id === sellerRecord.affiliatedBarId) : null);
+                      const pendingBar = pendingAffiliation
+                        ? (bars || []).find((b) => b.id === pendingAffiliation.barId)
+                        : null;
+                      return (
                       <div key={user.id} className="rounded-2xl border border-rose-100 p-4">
                         <div className="font-semibold">{user.name}</div>
                         <div className="mt-1 text-sm text-slate-500">{user.email}</div>
@@ -11109,6 +11123,15 @@ export function AdminPage({
                           {" · "}
                           Age: {Math.max(0, Math.floor((Date.now() - new Date(user.sellerApplicationAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24)))} day(s)
                         </div>
+                        {pendingAffiliation ? (
+                          <div className="mt-2 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+                            <span>Pending bar application: {pendingBar?.name || pendingAffiliation.barId}</span>
+                          </div>
+                        ) : affiliatedBar ? (
+                          <div className="mt-2 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                            <span>Affiliated with: {affiliatedBar.name}</span>
+                          </div>
+                        ) : null}
                         <div className="mt-3 flex flex-wrap gap-2">
                           {user.accountStatus !== "active" ? (
                             <button onClick={() => approveSellerAccount(user.id)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">
@@ -11122,7 +11145,8 @@ export function AdminPage({
                           ) : null}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
