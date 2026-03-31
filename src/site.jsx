@@ -8689,7 +8689,7 @@ export default function ThailandPantiesMarketSite() {
               ...prev.sellers,
               {
                 id: sellerId,
-                name: `${user.name} Studio`,
+                name: user.name || '',
                 location: [user.city, user.country].filter(Boolean).join(', ') || '',
                 specialty: 'Everyday',
                 specialties: ['Everyday'],
