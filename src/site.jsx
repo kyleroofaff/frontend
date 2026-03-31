@@ -4205,10 +4205,10 @@ function normalizeAuthLanguage(language) {
 
 function resolveLocalizedText(baseText, translationsByLang, targetLang) {
   const fallback = String(baseText || '');
-  if (!fallback) return '';
   if (!SUPPORTED_AUTH_LANGUAGES.includes(targetLang)) return fallback;
   const translated = translationsByLang?.[targetLang];
-  return typeof translated === 'string' && translated.trim() ? translated : fallback;
+  if (typeof translated === 'string' && translated.trim()) return translated;
+  return fallback;
 }
 
 function normalizeEmailTemplates(templates) {
@@ -7691,6 +7691,7 @@ export default function ThailandPantiesMarketSite() {
   const homeFeaturedSellers = useMemo(
     () => {
       const source = Object.values(sellerMap)
+        .filter((s) => s.profileImage)
         .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
       return rotateAndTake(source, 6, homeFeaturedSellersSeed);
     },
@@ -7721,6 +7722,7 @@ export default function ThailandPantiesMarketSite() {
       return acc;
     }, {});
     const source = Object.values(sellerMap)
+      .filter((s) => s.profileImage)
       .sort((a, b) => {
         const bTs = latestProductTsBySeller[b.id] || 0;
         const aTs = latestProductTsBySeller[a.id] || 0;
@@ -7777,7 +7779,14 @@ export default function ThailandPantiesMarketSite() {
       feedType: 'bar',
       sortAt: post?.createdAt || null,
     }));
+    const seen = new Set();
     return [...sellerRows, ...barRows]
+      .filter((post) => {
+        const key = `${post.feedType}_${post.id}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
       .sort((a, b) => new Date(b.sortAt || 0).getTime() - new Date(a.sortAt || 0).getTime())
       .slice(0, 6);
   }, [sellerFeedPosts, barFeedPosts]);
