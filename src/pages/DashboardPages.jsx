@@ -3077,21 +3077,21 @@ export function SellerDashboardPage({
                 </div>
                 <p className="mt-2 text-xs text-slate-500">{t("presenceHelp")}</p>
               </div>
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 max-w-2xl space-y-2">
                 {sellerProfileChecklist.length === 0 ? (
                   <div className="rounded-2xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700">{t("profileComplete")}</div>
                 ) : sellerProfileChecklist.map((item) => (
                   <div key={item} className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-800">• {item}</div>
                 ))}
               </div>
-              <div className="mt-5 grid gap-3">
+              <div className="mt-5 max-w-2xl grid gap-3">
                 <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("profileImageLabel")}</div>
                   {(sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved) ? (
                     <div className="mt-3 space-y-3">
                       <div>
                         <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
-                        <div className="h-48">
+                        <div className="aspect-[4/5] max-w-xs">
                           <ProductImage
                             src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
                             label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
@@ -3101,7 +3101,7 @@ export function SellerDashboardPage({
                       </div>
                       <div>
                         <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see (profile card)</div>
-                        <div className="h-64 max-w-sm">
+                        <div className="aspect-[4/5] max-w-xs">
                           <ProductImage
                             src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
                             label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
@@ -3111,7 +3111,7 @@ export function SellerDashboardPage({
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-3 h-40">
+                    <div className="mt-3 aspect-[4/5] max-w-xs">
                       <ProductImage label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")} />
                     </div>
                   )}
@@ -3801,8 +3801,7 @@ export function SellerDashboardPage({
                   </label>
                   <span className="text-xs text-slate-600">{uploadDraft.imageName || t("noFileChosen")}</span>
                 </div>
-                <div className="h-40">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} /> : <ProductImage label={t("imagePreview")} />}</div>
-                {uploadDraft.image ? <div className="mt-1 text-[11px] text-slate-400">Image will be cropped to fit — center the important part</div> : null}
+                <div className="aspect-[4/5] max-w-xs">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} top /> : <ProductImage label={t("imagePreview")} />}</div>
                 <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
               </div>
               <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
@@ -4259,15 +4258,15 @@ export function SellerFeedWorkspacePage({
                   <div className="space-y-3">
                     <div>
                       <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
-                      <div className="h-48"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain /></div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain /></div>
                     </div>
                     <div>
                       <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see</div>
-                      <div className="h-72"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} /></div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} top /></div>
                     </div>
                   </div>
                 ) : (
-                  <div className="h-72"><ProductImage label={t("postImagePreview")} /></div>
+                  <div className="aspect-[4/5] max-w-xs"><ProductImage label={t("postImagePreview")} /></div>
                 )}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="text-xs text-slate-500">
@@ -4400,7 +4399,7 @@ export function SellerFeedWorkspacePage({
                       ) : null}
                     </div>
                     <div className="mt-2 text-sm text-slate-700">{post.caption || t("noCaption")}</div>
-                    <div className="mt-3 h-36">{post.image ? <ProductImage src={post.image} label={post.imageName || "Feed image"} /> : <ProductImage label={t("noImage")} />}</div>
+                    <div className="mt-3 aspect-[4/5] max-w-xs">{post.image ? <ProductImage src={post.image} label={post.imageName || "Feed image"} top /> : <ProductImage label={t("noImage")} />}</div>
                   </div>
                 ))}
               </div>
@@ -9718,7 +9717,7 @@ export function AdminPage({
                         </button>
                       </div>
                       {post.caption ? <div className="mt-3 text-sm text-slate-700">{post.caption}</div> : null}
-                      <div className="mt-3 h-48">{post.image ? <ProductImage src={post.image} label={post.imageName || "Post image"} /> : <ProductImage label="No image" />}</div>
+                      <div className="mt-3 aspect-[4/5]">{post.image ? <ProductImage src={post.image} label={post.imageName || "Post image"} top /> : <ProductImage label="No image" />}</div>
                     </div>
                   ))}
                 </div>

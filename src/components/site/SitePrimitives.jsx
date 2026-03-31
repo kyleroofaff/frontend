@@ -3,7 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 
 export function ProductImage({ src, label = "Product image", contain = false, top = false }) {
   if (src) {
-    return <img src={src} alt={label} className={`h-full min-h-[160px] w-full rounded-2xl ring-1 ring-rose-100 ${contain ? "object-contain bg-slate-100" : `object-cover${top ? " object-top" : ""}`}`} />;
+    return <img src={src} alt={label} className={`h-full w-full rounded-2xl ring-1 ring-rose-100 ${contain ? "object-contain bg-slate-100" : `object-cover${top ? " object-top" : ""}`}`} />;
   }
   return (
     <div className="flex h-full min-h-[160px] items-center justify-center rounded-2xl bg-gradient-to-br from-rose-100 via-pink-50 to-fuchsia-100 text-sm text-slate-500 ring-1 ring-rose-100">
