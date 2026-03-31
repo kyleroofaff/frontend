@@ -9567,7 +9567,7 @@ export default function ThailandPantiesMarketSite() {
       }).catch(() => {});
     }
     setSellerProfileSaveSuccess(true);
-    setTimeout(() => setSellerProfileSaveSuccess(false), 2500);
+    setTimeout(() => setSellerProfileSaveSuccess(false), 4000);
     } catch (err) {
       setSellerProfileMessage('Something went wrong saving your profile. Please try again.');
     } finally {

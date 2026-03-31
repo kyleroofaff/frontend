@@ -3100,8 +3100,8 @@ export function SellerDashboardPage({
                         </div>
                       </div>
                       <div>
-                        <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see</div>
-                        <div className="h-40">
+                        <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see (profile card)</div>
+                        <div className="h-56 max-w-sm">
                           <ProductImage
                             src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
                             label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
@@ -3467,22 +3467,22 @@ export function SellerDashboardPage({
                   <button
                     onClick={saveSellerProfile}
                     disabled={isSavingSellerProfile}
-                    className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+                    className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold shadow-sm transition-all duration-300 ${
                       sellerProfileSaveSuccess
-                        ? "border border-emerald-400 bg-emerald-50 text-emerald-700"
+                        ? "border-2 border-emerald-400 bg-emerald-50 text-emerald-700 scale-[1.02]"
                         : isSavingSellerProfile
                           ? "border border-slate-200 bg-slate-50 text-slate-400 cursor-wait"
-                          : "border border-rose-200 text-rose-700 hover:bg-rose-50 active:scale-[0.98]"
+                          : "border border-rose-300 bg-rose-600 text-white hover:bg-rose-700 active:scale-[0.97]"
                     }`}
                   >
                     {isSavingSellerProfile ? (
                       <>
-                        <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" /></svg>
+                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" /></svg>
                         Saving…
                       </>
                     ) : sellerProfileSaveSuccess ? (
                       <>
-                        <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                         Saved!
                       </>
                     ) : t("saveProfile")}
