@@ -5634,6 +5634,22 @@ export default function ThailandPantiesMarketSite() {
   const orderHelpRequests = db.orderHelpRequests || [];
   const safetyReports = db.safetyReports || [];
   const barAffiliationRequests = db.barAffiliationRequests || [];
+  const reconciledSellers = useMemo(() => {
+    const approved = barAffiliationRequests.filter((r) => r.status === 'approved');
+    if (approved.length === 0) return sellers;
+    const barIdBySellerId = {};
+    approved.forEach((r) => { barIdBySellerId[r.sellerId] = r.barId; });
+    let changed = false;
+    const result = (sellers || []).map((s) => {
+      const approvedBarId = barIdBySellerId[s.id];
+      if (approvedBarId && String(s.affiliatedBarId || '').trim() !== String(approvedBarId).trim()) {
+        changed = true;
+        return { ...s, affiliatedBarId: approvedBarId };
+      }
+      return s;
+    });
+    return changed ? result : sellers;
+  }, [sellers, barAffiliationRequests]);
   const adminInboxReviews = db.adminInboxReviews || [];
   const adminInboxFilterPresets = db.adminInboxFilterPresets || [];
   const adminNotes = db.adminNotes || [];
@@ -6080,7 +6096,7 @@ export default function ThailandPantiesMarketSite() {
   const rawSellerMap = useMemo(
     () =>
       Object.fromEntries(
-        sellers.map((seller) => {
+        reconciledSellers.map((seller) => {
           const resolvedImage = seller.profileImage || '';
           const resolvedImageName = seller.profileImageName || `${seller.name} profile`;
           return [
@@ -6094,7 +6110,7 @@ export default function ThailandPantiesMarketSite() {
           ];
         }),
       ),
-    [sellers, barMap],
+    [reconciledSellers, barMap],
   );
   const sellerMap = useMemo(
     () =>
@@ -6146,10 +6162,10 @@ export default function ThailandPantiesMarketSite() {
   );
   const selectedBarAffiliatedSellers = useMemo(() => {
     if (!selectedBar) return [];
-    return (sellers || [])
+    return (reconciledSellers || [])
       .filter((seller) => seller.affiliatedBarId === selectedBar.id)
       .map((seller) => sellerMap[seller.id] || seller);
-  }, [selectedBar, sellers, sellerMap]);
+  }, [selectedBar, reconciledSellers, sellerMap]);
   const selectedSeller = routeInfo.name === 'seller' ? sellerMap[routeInfo.id] || null : null;
   const sortProductsNewestFirst = (items) =>
     [...(items || [])].sort((a, b) => {
@@ -6400,7 +6416,7 @@ export default function ThailandPantiesMarketSite() {
       }
     });
     const affiliatedSellerUserIds = new Set();
-    (sellers || []).forEach((seller) => {
+    (reconciledSellers || []).forEach((seller) => {
       if (String(seller.affiliatedBarId || '').trim() === currentBarId) {
         const sellerUser = (users || []).find((user) => user.role === 'seller' && user.sellerId === seller.id);
         if (sellerUser?.id) affiliatedSellerUserIds.add(sellerUser.id);
@@ -6976,10 +6992,37 @@ export default function ThailandPantiesMarketSite() {
             }
             const serverReqs = Array.isArray(payload.db.barAffiliationRequests) ? payload.db.barAffiliationRequests : [];
             if (serverReqs.length > 0) {
-              const localReqIds = new Set((merged.barAffiliationRequests || []).map((r) => r?.id));
-              const newReqs = serverReqs.filter((r) => r?.id && !localReqIds.has(r.id));
-              if (newReqs.length > 0) {
-                merged.barAffiliationRequests = [...(merged.barAffiliationRequests || []), ...newReqs];
+              const localReqMap = new Map((merged.barAffiliationRequests || []).map((r) => [r?.id, r]));
+              let reqsUpdated = false;
+              serverReqs.forEach((serverReq) => {
+                if (!serverReq?.id) return;
+                const local = localReqMap.get(serverReq.id);
+                if (!local) {
+                  localReqMap.set(serverReq.id, serverReq);
+                  reqsUpdated = true;
+                } else if (serverReq.status !== 'pending' && local.status === 'pending') {
+                  localReqMap.set(serverReq.id, { ...local, ...serverReq });
+                  reqsUpdated = true;
+                }
+              });
+              if (reqsUpdated) {
+                merged.barAffiliationRequests = Array.from(localReqMap.values());
+                changed = true;
+              }
+            }
+            const approvedReqs = (merged.barAffiliationRequests || []).filter((r) => r.status === 'approved');
+            if (approvedReqs.length > 0) {
+              const reconSellerMap = new Map((merged.sellers || []).map((s) => [s.id, s]));
+              let sellersReconciled = false;
+              approvedReqs.forEach((req) => {
+                const seller = reconSellerMap.get(req.sellerId);
+                if (seller && String(seller.affiliatedBarId || '').trim() !== String(req.barId || '').trim()) {
+                  reconSellerMap.set(req.sellerId, { ...seller, affiliatedBarId: req.barId });
+                  sellersReconciled = true;
+                }
+              });
+              if (sellersReconciled) {
+                merged.sellers = Array.from(reconSellerMap.values());
                 changed = true;
               }
             }
@@ -7733,13 +7776,13 @@ export default function ThailandPantiesMarketSite() {
   }, [sellerMap, availableProducts, homeSellerPreviewSeed]);
   const sellerCountByBarId = useMemo(() => {
     const counts = {};
-    (sellers || []).forEach((seller) => {
+    (reconciledSellers || []).forEach((seller) => {
       const barId = String(seller?.affiliatedBarId || '').trim();
       if (!barId) return;
       counts[barId] = (counts[barId] || 0) + 1;
     });
     return counts;
-  }, [sellers]);
+  }, [reconciledSellers]);
   const barFeedPosts = useMemo(
     () => [...barPosts].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
     [barPosts],
@@ -9622,6 +9665,7 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     const now = new Date().toISOString();
+    const nextRequestId = makeRuntimeId('bar_affiliation_request');
     setDb((prev) => {
       const seller = (prev.sellers || []).find((entry) => entry.id === currentSellerId);
       const bar = (prev.bars || []).find((entry) => entry.id === requestedBarId);
@@ -9668,7 +9712,7 @@ export default function ThailandPantiesMarketSite() {
       }
 
       const nextRequest = {
-        id: makeRuntimeId('bar_affiliation_request'),
+        id: nextRequestId,
         direction: 'seller_to_bar',
         sellerId: currentSellerId,
         barId: requestedBarId,
@@ -9724,6 +9768,7 @@ export default function ThailandPantiesMarketSite() {
       apiRequestJson('/api/affiliation-requests', {
         method: 'POST',
         body: {
+          id: nextRequestId,
           sellerId: currentSellerId,
           barId: requestedBarId,
           direction: 'seller_to_bar',
@@ -16477,7 +16522,7 @@ export default function ThailandPantiesMarketSite() {
       .map((action) => String(action?.targetSellerId || '').trim())
       .filter(Boolean)
   );
-  const currentBarAffiliatedSellers = (sellers || [])
+  const currentBarAffiliatedSellers = (reconciledSellers || [])
     .filter((seller) => {
       const sellerId = String(seller?.id || '').trim();
       if (removedBarAffiliationSellerIdsForCurrentBar.has(sellerId)) return false;
@@ -18714,7 +18759,7 @@ export default function ThailandPantiesMarketSite() {
             approveAllPendingSellers={approveAllPendingSellers}
             rejectSellerAccount={rejectSellerAccount}
             bars={bars}
-            sellers={sellers}
+            sellers={reconciledSellers}
             updateBarProfileByAdmin={updateBarProfileByAdmin}
             setSellerBarAffiliationByAdmin={setSellerBarAffiliationByAdmin}
             removeBarByAdmin={removeBarByAdmin}
