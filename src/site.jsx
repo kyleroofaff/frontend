@@ -8470,11 +8470,26 @@ export default function ThailandPantiesMarketSite() {
               : [mergedUser, ...existingUsers],
             bars: filterLiveJunkBarsForMode(nextBars, appMode),
             sellers: role === 'seller' && mergedUser.sellerId
-              ? (prev.sellers || []).map((seller) =>
-                  String(seller?.id || '').trim() === String(mergedUser.sellerId || '').trim()
-                    ? { ...seller, isOnline: true }
-                    : seller
-                )
+              ? (() => {
+                  const sellerId = String(mergedUser.sellerId || '').trim();
+                  const alreadyInSellers = (prev.sellers || []).some((s) => String(s?.id || '').trim() === sellerId);
+                  return alreadyInSellers
+                    ? (prev.sellers || []).map((seller) =>
+                        String(seller?.id || '').trim() === sellerId
+                          ? { ...seller, isOnline: true }
+                          : seller
+                      )
+                    : [
+                        ...(prev.sellers || []),
+                        {
+                          id: sellerId,
+                          name: mergedUser.name || name || '',
+                          isOnline: true,
+                          feedVisibility: 'public',
+                          location: [city || mergedUser.city, country || mergedUser.country].filter(Boolean).join(', '),
+                        },
+                      ];
+                })()
               : (prev.sellers || []),
           };
         });
