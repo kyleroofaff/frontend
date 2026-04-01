@@ -17754,7 +17754,12 @@ export default function ThailandPantiesMarketSite() {
                       {currentUser?.role === 'buyer' ? <div className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{publicText.autoRefreshOn}</div> : null}
                     </div>
                   </div>
-                  {!currentUser ? <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.loginBuyerToMessage}</div> : null}
+                  {!currentUser ? (
+                    <div className="mt-4 space-y-3">
+                      <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.loginBuyerToMessage}</div>
+                      <button onClick={() => navigate('/login')} className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{publicText.messageSellerTitle}</button>
+                    </div>
+                  ) : null}
                   {currentUser?.role === 'seller' ? <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.sellerInboxReviewHint}</div> : null}
                   {currentUser?.role === 'buyer' ? (
                     <>
