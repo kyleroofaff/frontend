@@ -1738,24 +1738,6 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                         ))}
                       </div>
                       <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                        {isBuyerView ? (
-                          <div className="flex flex-wrap items-center gap-1">
-                            {(requestPresets || []).slice(0, 3).map((preset) => (
-                              <button
-                                key={`${request.id}-${preset}`}
-                                type="button"
-                                onClick={() => setRequestReplyDraftById((prev) => {
-                                  const existing = String(prev[request.id] || "").trim();
-                                  const joined = existing ? `${existing} ${preset}` : preset;
-                                  return { ...prev, [request.id]: joined };
-                                })}
-                                className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-semibold text-rose-700"
-                              >
-                                + preset
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
                         <input
                           value={requestReplyDraftById[request.id] || ""}
                           onChange={(event) => setRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
@@ -1926,51 +1908,8 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
             <input value={requestForm.buyerName} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerName: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.yourName} />
             <input value={requestForm.buyerEmail} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerEmail: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.email} />
             <input value={requestForm.preferredDetails} onChange={(event) => setRequestForm((prev) => ({ ...prev, preferredDetails: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.detailsPlaceholder} />
-            {isBuyerView ? (
-              <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t.buyerPromptTitle || CUSTOM_REQUESTS_I18N.en.buyerPromptTitle}</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {(buyerPrompts || []).slice(0, 3).map((prompt) => (
-                    <button
-                      key={prompt}
-                      type="button"
-                      onClick={() => setRequestForm((prev) => {
-                        const existing = String(prev.preferredDetails || "").trim();
-                        return { ...prev, preferredDetails: existing ? `${existing} ${prompt}` : prompt };
-                      })}
-                      className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
             <input value={requestForm.shippingCountry} onChange={(event) => setRequestForm((prev) => ({ ...prev, shippingCountry: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.shippingCountry} />
             <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[140px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.requestBodyPlaceholder} />
-            {isBuyerView ? (
-              <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t.requestPresetTitle || CUSTOM_REQUESTS_I18N.en.requestPresetTitle}</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {(requestPresets || []).slice(0, 3).map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => setRequestForm((prev) => {
-                        const existing = String(prev.requestBody || "").trim();
-                        return { ...prev, requestBody: existing ? `${existing} ${preset}` : preset };
-                      })}
-                      className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                    >
-                      {preset}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-2 text-[11px] text-slate-500">
-                  Image upload is disabled until a seller enables it for your request.
-                </div>
-              </div>
-            ) : null}
             <button
               onClick={() => {
                 submitCustomRequest(

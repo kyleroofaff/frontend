@@ -2844,33 +2844,6 @@ export function SellerDashboardPage({
               </div>
             </div>
           ) : null}
-          <div className="mb-4 rounded-3xl border border-rose-100 bg-white p-4 shadow-sm">
-            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("quickActionsLabel")}</div>
-            <p className="mt-1 text-sm text-slate-600">{t("quickActionsHelp")}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => scrollToSection("seller-upload")}
-                className="min-h-[44px] rounded-xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white"
-              >
-                {t("quickNewListing")}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/seller-messages")}
-                className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
-              >
-                {t("openMessages")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/custom-requests")}
-                className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
-              >
-                {t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}
-              </button>
-            </div>
-          </div>
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -2900,11 +2873,18 @@ export function SellerDashboardPage({
             >
               {t("feedEyebrow")}
             </button>
+            <button
+              type="button"
+              onClick={() => navigate("/seller-upload")}
+              className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
+            >
+              {t("mediaUpload")}
+            </button>
           </div>
           <div className="mb-4 lg:hidden">
             <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
               <button onClick={() => scrollToSection("seller-profile")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickProfile")}</button>
-              <button onClick={() => scrollToSection("seller-upload")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
+              <button onClick={() => navigate("/seller-upload")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
               <button onClick={() => navigate("/seller-messages")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
               <button onClick={() => navigate("/custom-requests")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}</button>
               <button onClick={() => navigate("/seller-feed-workspace")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
@@ -3090,6 +3070,79 @@ export function SellerDashboardPage({
                 <SellerQrCard seller={sellerMap[currentSellerId]} />
               </div>
             ) : null}
+            <div className="mb-4 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold">{t("barAffiliation")}</h3>
+              </div>
+              <p className="mt-1 text-sm text-slate-600">{t("barAffiliationHelp")}</p>
+              <div className="mt-4 space-y-3">
+                {currentAffiliatedBar ? (
+                  <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+                    {t("currentlyAffiliatedWith")} <span className="font-semibold">{currentAffiliatedBar.name}</span>.
+                    <button type="button" onClick={removeSellerFromCurrentBarBySeller} className="ml-2 rounded-lg border border-indigo-200 px-2 py-1 text-xs font-semibold text-indigo-700">{t("removeAffiliation")}</button>
+                  </div>
+                ) : null}
+                {(sellerOutgoingAffiliationRequests || []).length > 0 ? (
+                  <div className="space-y-2 rounded-2xl border border-amber-100 bg-amber-50 p-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">{t("pendingBarRequests")}</div>
+                    {(sellerOutgoingAffiliationRequests || []).map((request) => (
+                      <div key={request.id} className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-amber-100">
+                        <span>{barMap?.[request.barId]?.name || request.barId}</span>
+                        <button type="button" onClick={() => cancelBarAffiliationRequest?.(request.id)} className="rounded-lg border border-slate-200 px-2 py-0.5 font-semibold text-slate-700">{t("cancel")}</button>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {(sellerIncomingAffiliationRequests || []).length > 0 ? (
+                  <div className="space-y-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{t("barInvitesAwaitingApproval")}</div>
+                    {(sellerIncomingAffiliationRequests || []).map((request) => (
+                      <div key={request.id} className="rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-emerald-100">
+                        <div className="font-semibold">{barMap?.[request.barId]?.name || request.barId}</div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button type="button" onClick={() => respondToBarAffiliationRequest?.(request.id, "approved")} className="rounded-lg border border-emerald-200 px-2 py-1 font-semibold text-emerald-700">{t("approve")}</button>
+                          <button type="button" onClick={() => respondToBarAffiliationRequest?.(request.id, "rejected")} className="rounded-lg border border-rose-200 px-2 py-1 font-semibold text-rose-700">{t("reject")}</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {!currentAffiliatedBar ? (
+                  <>
+                    <select value={sellerProfileDraft.affiliatedBarId || ""} onChange={(event) => updateSellerProfileField("affiliatedBarId", event.target.value)} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+                      <option value="">{localizeOptionLabel("Independent", locale)}</option>
+                      {barOptions.map((bar) => (<option key={bar.id} value={bar.id}>{bar.name}</option>))}
+                    </select>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("applicationMessageLabel")}</div>
+                      <textarea value={sellerAffiliationRequestDraft?.message || ""} onChange={(event) => updateSellerAffiliationRequestDraftMessage?.(event.target.value)} className="mt-2 min-h-[84px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder={t("applicationMessagePlaceholder")} />
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <button type="button" onClick={() => requestSellerBarAffiliation?.({ message: sellerAffiliationRequestDraft?.message || "", images: sellerAffiliationRequestDraft?.images || [] })} disabled={!canApplyToSelectedBar} className={`rounded-xl border px-3 py-2 text-xs font-semibold ${canApplyToSelectedBar ? "border-rose-200 text-rose-700" : "cursor-not-allowed border-slate-200 text-slate-400"}`}>{t("applyToBar")}</button>
+                        <label className="inline-flex cursor-pointer items-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
+                          <input type="file" accept="image/*" multiple onChange={(event) => { handleSellerAffiliationRequestImagesUpload?.(event.target.files); event.currentTarget.value = ""; }} className="hidden" />
+                          {t("uploadPhotosLabel")}
+                        </label>
+                      </div>
+                      {(sellerAffiliationRequestDraft?.images || []).length > 0 ? (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {(sellerAffiliationRequestDraft?.images || []).map((image) => (
+                            <div key={image.id || image.image} className="relative">
+                              <img src={image.image} alt={image.imageName || "Application"} className="h-14 w-14 rounded-lg object-cover ring-1 ring-rose-100" />
+                              <button type="button" onClick={() => removeSellerAffiliationRequestDraftImage?.(image.id)} className="absolute -right-1 -top-1 rounded-full border border-rose-200 bg-white px-1 text-[10px] font-semibold text-rose-700">x</button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                    {hasPendingSelectedBarRequest && selectedAffiliatedBarId ? (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">{t("applicationPendingWith")} {selectedBarName}.</div>
+                    ) : hasPendingAnyBarRequest && !hasPendingSelectedBarRequest ? (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">{t("pendingApplicationElsewhere")}</div>
+                    ) : null}
+                  </>
+                ) : null}
+              </div>
+            </div>
             <details
               id="seller-profile"
               open={sellerSectionOpen.profile}
@@ -3391,28 +3444,6 @@ export function SellerDashboardPage({
                   <textarea value={sellerProfileDraft.bio} onChange={(e) => updateSellerProfileField("bio", e.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("bio")} />
                   <div className="text-[11px] text-slate-400">Write in any language — your bio will be automatically translated for buyers.</div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.bioPresetLabel}</div>
-                  <div className="mt-2 space-y-2">
-                    {(sellerWritingPresetText.bioCategories || []).map((category) => (
-                      <div key={category.label}>
-                        <div className="text-[11px] font-semibold text-slate-500">{category.label}</div>
-                        <div className="mt-1.5 flex flex-wrap gap-2">
-                          {(category.presets || []).map((preset) => (
-                            <button
-                              key={`${category.label}-${preset}`}
-                              type="button"
-                              onClick={() => updateSellerProfileField("bio", applyPresetToDraft(sellerProfileDraft.bio, preset))}
-                              className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                            >
-                              {preset}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={saveSellerProfile}
@@ -3596,392 +3627,6 @@ export function SellerDashboardPage({
                   ) : null}
                 </div>
               </div>
-              <div className="mt-5 rounded-2xl border border-rose-100 bg-slate-50 p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("barAffiliation")}</div>
-                <div className="mt-3 space-y-3">
-                  <select
-                    value={sellerProfileDraft.affiliatedBarId || ""}
-                    onChange={(event) => updateSellerProfileField("affiliatedBarId", event.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  >
-                    <option value="">{localizeOptionLabel("Independent", locale)}</option>
-                    {barOptions.map((bar) => (
-                      <option key={bar.id} value={bar.id}>{bar.name}</option>
-                    ))}
-                  </select>
-                  <div className="rounded-2xl border border-slate-200 bg-white p-3">
-                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("applicationMessageLabel")}</div>
-                    <textarea
-                      value={sellerAffiliationRequestDraft?.message || ""}
-                      onChange={(event) => updateSellerAffiliationRequestDraftMessage?.(event.target.value)}
-                      className="mt-2 min-h-[84px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                      placeholder={t("applicationMessagePlaceholder")}
-                    />
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => requestSellerBarAffiliation?.({
-                          message: sellerAffiliationRequestDraft?.message || "",
-                          images: sellerAffiliationRequestDraft?.images || [],
-                        })}
-                        disabled={!canApplyToSelectedBar}
-                        className={`rounded-xl border px-3 py-2 text-xs font-semibold ${canApplyToSelectedBar ? "border-rose-200 text-rose-700" : "cursor-not-allowed border-slate-200 text-slate-400"}`}
-                      >
-                        {t("applyToBar")}
-                      </button>
-                      <label className="inline-flex cursor-pointer items-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={(event) => {
-                            handleSellerAffiliationRequestImagesUpload?.(event.target.files);
-                            event.currentTarget.value = "";
-                          }}
-                          className="hidden"
-                        />
-                        {t("uploadPhotosLabel")}
-                      </label>
-                    </div>
-                    {(sellerAffiliationRequestDraft?.images || []).length > 0 ? (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {(sellerAffiliationRequestDraft?.images || []).map((image) => (
-                          <div key={image.id || image.image} className="relative">
-                            <img src={image.image} alt={image.imageName || "Application"} className="h-14 w-14 rounded-lg object-cover ring-1 ring-rose-100" />
-                            <button
-                              type="button"
-                              onClick={() => removeSellerAffiliationRequestDraftImage?.(image.id)}
-                              className="absolute -right-1 -top-1 rounded-full border border-rose-200 bg-white px-1 text-[10px] font-semibold text-rose-700"
-                            >
-                              x
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                  {hasPendingSelectedBarRequest && selectedAffiliatedBarId ? (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                      {t("applicationPendingWith")} {selectedBarName}.
-                    </div>
-                  ) : hasPendingAnyBarRequest && !hasPendingSelectedBarRequest ? (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                      {t("pendingApplicationElsewhere")}
-                    </div>
-                  ) : null}
-                  <span className="text-xs text-slate-500">{t("barAffiliationHelp")}</span>
-                  {currentAffiliatedBar ? (
-                    <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
-                      {t("currentlyAffiliatedWith")} <span className="font-semibold">{currentAffiliatedBar.name}</span>.
-                      <button
-                        type="button"
-                        onClick={removeSellerFromCurrentBarBySeller}
-                        className="ml-2 rounded-lg border border-indigo-200 px-2 py-0.5 font-semibold text-indigo-700"
-                      >
-                        {t("removeAffiliation")}
-                      </button>
-                    </div>
-                  ) : null}
-                  {(sellerOutgoingAffiliationRequests || []).length > 0 ? (
-                    <div className="space-y-2 rounded-2xl border border-amber-100 bg-amber-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">{t("pendingBarRequests")}</div>
-                      {(sellerOutgoingAffiliationRequests || []).map((request) => (
-                        <div key={request.id} className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-amber-100">
-                          <span>{barMap?.[request.barId]?.name || request.barId}</span>
-                          <button
-                            type="button"
-                            onClick={() => cancelBarAffiliationRequest?.(request.id)}
-                            className="rounded-lg border border-slate-200 px-2 py-0.5 font-semibold text-slate-700"
-                          >
-                            {t("cancel")}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                  {(sellerIncomingAffiliationRequests || []).length > 0 ? (
-                    <div className="space-y-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{t("barInvitesAwaitingApproval")}</div>
-                      {(sellerIncomingAffiliationRequests || []).map((request) => (
-                        <div key={request.id} className="rounded-xl bg-white px-3 py-2 text-xs text-slate-700 ring-1 ring-emerald-100">
-                          <div className="font-semibold">{barMap?.[request.barId]?.name || request.barId}</div>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => respondToBarAffiliationRequest?.(request.id, "approved")}
-                              className="rounded-lg border border-emerald-200 px-2 py-1 font-semibold text-emerald-700"
-                            >
-                              {t("approve")}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => respondToBarAffiliationRequest?.(request.id, "rejected")}
-                              className="rounded-lg border border-rose-200 px-2 py-1 font-semibold text-rose-700"
-                            >
-                              {t("reject")}
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </details>
-
-              <details
-                id="seller-upload"
-                open={sellerSectionOpen.upload}
-                onToggle={(event) => {
-                  const isOpen = Boolean(event.currentTarget?.open);
-                  setSellerSectionOpen((prev) => ({ ...prev, upload: isOpen }));
-                }}
-                className="overflow-hidden rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100"
-              >
-                <summary className="cursor-pointer list-none">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <Upload className="h-5 w-5 text-rose-600" />
-                      <h3 className="text-xl font-semibold">{t("mediaUpload")}</h3>
-                    </div>
-                    <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.upload ? t("closeLabel") : t("openLabel")}</span>
-                  </div>
-                </summary>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{t("mediaUploadHelp")}</p>
-                <div className="mt-5 grid gap-4">
-                <input value={uploadDraft.title} onChange={(e) => setUploadDraft((prev) => ({ ...prev, title: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("productTitle")} />
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={uploadDraft.price} onChange={(e) => setUploadDraft((prev) => ({ ...prev, price: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("price")} />
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("color")}</span>
-                    <select
-                      value={normalizeLegacyLocalizedValue(uploadDraft.color, COLOR_OPTIONS, COLOR_OPTIONS[0])}
-                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, color: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                    >
-                      {COLOR_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                    </select>
-                  </label>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("size")}</span>
-                    <select
-                      value={normalizeLegacyLocalizedValue(uploadDraft.size, SHARED_SIZE_OPTIONS, SHARED_SIZE_OPTIONS[0])}
-                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                    >
-                      {SHARED_SIZE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                    </select>
-                  </label>
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("type")}</span>
-                    <select
-                      value={normalizeLegacyLocalizedValue(uploadDraft.style, STYLE_OPTIONS, STYLE_OPTIONS[0])}
-                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, style: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                    >
-                      {STYLE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                    </select>
-                  </label>
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("fabric")}</span>
-                    <select
-                      value={normalizeLegacyLocalizedValue(uploadDraft.fabric, FABRIC_OPTIONS, FABRIC_OPTIONS[0])}
-                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, fabric: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                    >
-                      {FABRIC_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                    </select>
-                  </label>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("daysWorn")}</span>
-                    <select
-                      value={normalizeLegacyLocalizedValue(uploadDraft.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0])}
-                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                    >
-                      {DAYS_WORN_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                    </select>
-                  </label>
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("condition")}</span>
-                    <select
-                      value={normalizeLegacyLocalizedValue(uploadDraft.condition, CONDITION_OPTIONS, CONDITION_OPTIONS[0])}
-                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, condition: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                    >
-                      {CONDITION_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                    </select>
-                  </label>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("scentLevel")}</span>
-                    <select
-                      value={normalizeLegacyLocalizedValue(uploadDraft.scentLevel, SCENT_LEVEL_OPTIONS, SCENT_LEVEL_OPTIONS[0])}
-                      onChange={(e) => setUploadDraft((prev) => ({ ...prev, scentLevel: e.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                    >
-                      {SCENT_LEVEL_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                    </select>
-                  </label>
-                </div>
-                <input
-                  id="seller-product-image-input"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleUploadFile}
-                  className="sr-only"
-                />
-                <div className="flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
-                  <label htmlFor="seller-product-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">
-                    {t("chooseFile")}
-                  </label>
-                  <span className="text-xs text-slate-600">{uploadDraft.imageName || t("noFileChosen")}</span>
-                </div>
-                <div className="aspect-[4/5] max-w-xs">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} top /> : <ProductImage label={t("imagePreview")} />}</div>
-                <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
-              </div>
-              <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{t("stepTwoLabel")}</div>
-                    <h4 className="text-lg font-semibold">{t("setBuilderTitle")}</h4>
-                    <p className="mt-1 text-sm text-slate-600">{t("setBuilderHelp")}</p>
-                  </div>
-                  {editingBundleId ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingBundleId("");
-                        setBundleDraft({ title: "", price: "", selectedProductIds: [] });
-                        setBundleMessage("");
-                      }}
-                      className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"
-                    >
-                      {t("cancelEdit")}
-                    </button>
-                  ) : null}
-                </div>
-                <div className="mt-4 grid gap-4 md:grid-cols-2">
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("setTitleLabel")}</span>
-                    <input
-                      value={bundleDraft.title}
-                      onChange={(event) => {
-                        setBundleMessage("");
-                        setBundleDraft((prev) => ({ ...prev, title: event.target.value }));
-                      }}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                      placeholder={t("setTitlePlaceholder")}
-                    />
-                  </label>
-                  <label className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("combinedSetPriceLabel")}</span>
-                    <input
-                      type="number"
-                      min={MIN_SELLER_PRICE_THB}
-                      step="1"
-                      value={bundleDraft.price}
-                      onChange={(event) => {
-                        setBundleMessage("");
-                        setBundleDraft((prev) => ({ ...prev, price: event.target.value }));
-                      }}
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                      placeholder={t("setPricePlaceholder")}
-                    />
-                  </label>
-                </div>
-                <div className="mt-4">
-                  <div className="text-sm font-medium text-slate-700">{t("selectProductsToInclude")}</div>
-                  <div className="mt-2 max-h-56 space-y-2 overflow-y-auto rounded-2xl border border-rose-100 bg-white p-3">
-                    {bundleSourceProducts.length === 0 ? (
-                      <div className="text-sm text-slate-500">{t("createIndividualProductsFirst")}</div>
-                    ) : bundleSourceProducts.map((product) => {
-                      const selected = bundleDraft.selectedProductIds.includes(product.id);
-                      return (
-                        <label key={product.id} className="flex items-center justify-between gap-3 rounded-xl border border-rose-100 px-3 py-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={selected}
-                              onChange={() => {
-                                setBundleMessage("");
-                                setBundleDraft((prev) => ({
-                                  ...prev,
-                                  selectedProductIds: selected
-                                    ? prev.selectedProductIds.filter((id) => id !== product.id)
-                                    : [...prev.selectedProductIds, product.id],
-                                }));
-                              }}
-                            />
-                            <span>{product.title}</span>
-                          </div>
-                          <span className="text-xs font-semibold text-slate-500">{formatPriceTHB(product.price)}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      upsertBundleProduct(
-                        {
-                          bundleId: editingBundleId || "",
-                          title: bundleDraft.title,
-                          price: bundleDraft.price,
-                          selectedProductIds: bundleDraft.selectedProductIds,
-                        },
-                        (message) => {
-                          setBundleMessage(message || t("setSaved"));
-                          setEditingBundleId("");
-                          setBundleDraft({ title: "", price: "", selectedProductIds: [] });
-                        },
-                        (errorMessage) => setBundleMessage(errorMessage || t("setSaveFailed")),
-                      );
-                    }}
-                    className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    {editingBundleId ? t("updateSetProduct") : t("createSetProduct")}
-                  </button>
-                  {bundleMessage ? <div className="text-sm font-medium text-rose-700">{bundleMessage}</div> : null}
-                </div>
-                {existingBundleProducts.length > 0 ? (
-                  <div className="mt-5 space-y-2 rounded-2xl border border-rose-100 bg-white p-3">
-                    <div className="text-sm font-medium text-slate-700">{t("existingSetProducts")}</div>
-                    {existingBundleProducts.map((bundle) => (
-                      <div key={bundle.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-100 px-3 py-2 text-sm">
-                        <div>
-                          <div className="font-medium">{bundle.title}</div>
-                          <div className="text-xs text-slate-500">
-                            {(bundle.bundleItemIds || []).length} {t("items")} · {formatPriceTHB(bundle.price)}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setBundleMessage("");
-                            setEditingBundleId(bundle.id);
-                            setBundleDraft({
-                              title: bundle.title || "",
-                              price: String(bundle.price || ""),
-                              selectedProductIds: Array.isArray(bundle.bundleItemIds) ? bundle.bundleItemIds : [],
-                            });
-                          }}
-                          className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700"
-                        >
-                          {t("editSet")}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
             </details>
 
           <details
@@ -4008,7 +3653,7 @@ export function SellerDashboardPage({
                   <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/40 p-4 text-sm text-slate-700">
                     <div className="font-semibold text-slate-900">{t("noListingsYet")}</div>
                     <div className="mt-1">{t("noListingsYetHelp")}</div>
-                    <button onClick={() => scrollToSection("seller-upload")} className="mt-3 rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white">
+                    <button onClick={() => navigate("/seller-upload")} className="mt-3 rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white">
                       {t("createFirstListing")}
                     </button>
                   </div>
@@ -4131,6 +3776,190 @@ export function SellerDashboardPage({
   );
 }
 
+export function SellerUploadPage({
+  isSeller,
+  isPendingSeller,
+  isRejectedSeller,
+  uploadDraft,
+  setUploadDraft,
+  handleUploadFile,
+  createProductFromUpload,
+  sellerDashboardProducts,
+  upsertBundleProduct,
+  sellerLanguage,
+  navigate,
+}) {
+  const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
+  const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
+  const [bundleDraft, setBundleDraft] = useState({ title: "", price: "", selectedProductIds: [] });
+  const [editingBundleId, setEditingBundleId] = useState("");
+  const [bundleMessage, setBundleMessage] = useState("");
+  const bundleSourceProducts = useMemo(
+    () => (sellerDashboardProducts || []).filter((product) => !product?.isBundle),
+    [sellerDashboardProducts],
+  );
+  const existingBundleProducts = useMemo(
+    () => (sellerDashboardProducts || []).filter((product) => product?.isBundle),
+    [sellerDashboardProducts],
+  );
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+      {isPendingSeller ? (
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <Lock className="mx-auto h-10 w-10 text-rose-600" />
+          <h2 className="mt-4 text-2xl font-bold">Seller application under review</h2>
+          <p className="mt-2 text-slate-600">Your application has been submitted and is currently being reviewed. Seller tools unlock as soon as you are approved.</p>
+        </div>
+      ) : isRejectedSeller ? (
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <Lock className="mx-auto h-10 w-10 text-rose-600" />
+          <h2 className="mt-4 text-2xl font-bold">Application not approved</h2>
+          <p className="mt-2 text-slate-600">Unfortunately your seller application was not approved. Contact support if you believe this is an error.</p>
+        </div>
+      ) : !isSeller ? (
+        <div className="rounded-3xl bg-white p-10 text-center shadow-md ring-1 ring-rose-100">
+          <Lock className="mx-auto h-10 w-10 text-rose-600" />
+          <h2 className="mt-4 text-2xl font-bold">Seller access required</h2>
+          <p className="mt-2 text-slate-600">Only approved sellers can upload products.</p>
+          <button type="button" onClick={() => navigate("/login")} className="mt-5 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700">Go to login</button>
+        </div>
+      ) : (
+        <>
+          <SectionTitle eyebrow={t("sellerDashboard")} title={t("mediaUpload")} subtitle={t("mediaUploadHelp")} />
+          <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+            <button type="button" onClick={() => navigate("/seller-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("profile")}</button>
+            <button type="button" onClick={() => navigate("/seller-messages")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("messages")}</button>
+            <button type="button" onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("customRequestsTab")}</button>
+            <button type="button" onClick={() => navigate("/seller-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("sellerFeed")}</button>
+            <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">{t("mediaUpload")}</button>
+          </div>
+          <div className="grid gap-4 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
+            <input value={uploadDraft.title} onChange={(e) => setUploadDraft((prev) => ({ ...prev, title: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("productTitle")} />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={uploadDraft.price} onChange={(e) => setUploadDraft((prev) => ({ ...prev, price: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("price")} />
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("color")}</span>
+                <select value={normalizeLegacyLocalizedValue(uploadDraft.color, COLOR_OPTIONS, COLOR_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, color: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  {COLOR_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                </select>
+              </label>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("size")}</span>
+                <select value={normalizeLegacyLocalizedValue(uploadDraft.size, SHARED_SIZE_OPTIONS, SHARED_SIZE_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  {SHARED_SIZE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("type")}</span>
+                <select value={normalizeLegacyLocalizedValue(uploadDraft.style, STYLE_OPTIONS, STYLE_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, style: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  {STYLE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("fabric")}</span>
+                <select value={normalizeLegacyLocalizedValue(uploadDraft.fabric, FABRIC_OPTIONS, FABRIC_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, fabric: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  {FABRIC_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                </select>
+              </label>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("daysWorn")}</span>
+                <select value={normalizeLegacyLocalizedValue(uploadDraft.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  {DAYS_WORN_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("condition")}</span>
+                <select value={normalizeLegacyLocalizedValue(uploadDraft.condition, CONDITION_OPTIONS, CONDITION_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, condition: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  {CONDITION_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                </select>
+              </label>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("scentLevel")}</span>
+                <select value={normalizeLegacyLocalizedValue(uploadDraft.scentLevel, SCENT_LEVEL_OPTIONS, SCENT_LEVEL_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, scentLevel: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  {SCENT_LEVEL_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                </select>
+              </label>
+            </div>
+            <input id="seller-product-image-input-page" type="file" accept="image/*" onChange={handleUploadFile} className="sr-only" />
+            <div className="flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
+              <label htmlFor="seller-product-image-input-page" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">{t("chooseFile")}</label>
+              <span className="text-xs text-slate-600">{uploadDraft.imageName || t("noFileChosen")}</span>
+            </div>
+            <div className="aspect-[4/5] max-w-xs">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} top /> : <ProductImage label={t("imagePreview")} />}</div>
+            <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
+          </div>
+          <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{t("stepTwoLabel")}</div>
+                <h4 className="text-lg font-semibold">{t("setBuilderTitle")}</h4>
+                <p className="mt-1 text-sm text-slate-600">{t("setBuilderHelp")}</p>
+              </div>
+              {editingBundleId ? (
+                <button type="button" onClick={() => { setEditingBundleId(""); setBundleDraft({ title: "", price: "", selectedProductIds: [] }); setBundleMessage(""); }} className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">{t("cancelEdit")}</button>
+              ) : null}
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("setTitleLabel")}</span>
+                <input value={bundleDraft.title} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, title: event.target.value })); }} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("setTitlePlaceholder")} />
+              </label>
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t("combinedSetPriceLabel")}</span>
+                <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={bundleDraft.price} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, price: event.target.value })); }} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("setPricePlaceholder")} />
+              </label>
+            </div>
+            <div className="mt-4">
+              <div className="text-sm font-medium text-slate-700">{t("selectProductsToInclude")}</div>
+              <div className="mt-2 max-h-56 space-y-2 overflow-y-auto rounded-2xl border border-rose-100 bg-white p-3">
+                {bundleSourceProducts.length === 0 ? (
+                  <div className="text-sm text-slate-500">{t("createIndividualProductsFirst")}</div>
+                ) : bundleSourceProducts.map((product) => {
+                  const selected = bundleDraft.selectedProductIds.includes(product.id);
+                  return (
+                    <label key={product.id} className="flex items-center justify-between gap-3 rounded-xl border border-rose-100 px-3 py-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox" checked={selected} onChange={() => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, selectedProductIds: selected ? prev.selectedProductIds.filter((id) => id !== product.id) : [...prev.selectedProductIds, product.id] })); }} />
+                        <span>{product.title}</span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-500">{formatPriceTHB(product.price)}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button type="button" onClick={() => { upsertBundleProduct({ bundleId: editingBundleId || "", title: bundleDraft.title, price: bundleDraft.price, selectedProductIds: bundleDraft.selectedProductIds }, (message) => { setBundleMessage(message || t("setSaved")); setEditingBundleId(""); setBundleDraft({ title: "", price: "", selectedProductIds: [] }); }, (errorMessage) => setBundleMessage(errorMessage || t("setSaveFailed"))); }} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">{editingBundleId ? t("updateSetProduct") : t("createSetProduct")}</button>
+              {bundleMessage ? <div className="text-sm font-medium text-rose-700">{bundleMessage}</div> : null}
+            </div>
+            {existingBundleProducts.length > 0 ? (
+              <div className="mt-5 space-y-2 rounded-2xl border border-rose-100 bg-white p-3">
+                <div className="text-sm font-medium text-slate-700">{t("existingSetProducts")}</div>
+                {existingBundleProducts.map((bundle) => (
+                  <div key={bundle.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-100 px-3 py-2 text-sm">
+                    <div>
+                      <div className="font-medium">{bundle.title}</div>
+                      <div className="text-xs text-slate-500">{(bundle.bundleItemIds || []).length} {t("items")} · {formatPriceTHB(bundle.price)}</div>
+                    </div>
+                    <button type="button" onClick={() => { setBundleMessage(""); setEditingBundleId(bundle.id); setBundleDraft({ title: bundle.title || "", price: String(bundle.price || ""), selectedProductIds: Array.isArray(bundle.bundleItemIds) ? bundle.bundleItemIds : [] }); }} className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">{t("editSet")}</button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
 export function SellerFeedWorkspacePage({
   isSeller,
   isPendingSeller,
@@ -4227,13 +4056,6 @@ export function SellerFeedWorkspacePage({
                 </div>
               </summary>
               <div className="mt-5 grid gap-4">
-                <textarea
-                  value={sellerPostDraft.caption}
-                  onChange={(e) => setSellerPostDraft((prev) => ({ ...prev, caption: e.target.value }))}
-                  className="min-h-[96px] rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  maxLength={500}
-                  placeholder={t("captionPlaceholder")}
-                />
                 <input
                   id="seller-post-image-input"
                   type="file"
@@ -4252,16 +4074,27 @@ export function SellerFeedWorkspacePage({
                   ) : null}
                   <span className="text-xs text-slate-500">{sellerPostDraft.imageName || t("noFileChosen")}</span>
                 </div>
-                <label className="grid max-w-md gap-1 text-sm text-slate-600">
-                  <span className="font-medium">{t("scheduleOptional")}</span>
-                  <input
-                    type="datetime-local"
-                    value={sellerPostDraft.scheduledFor || ""}
-                    onChange={(event) => setSellerPostDraft((prev) => ({ ...prev, scheduledFor: event.target.value }))}
-                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  />
-                  <span className="text-[11px] text-slate-500">{t("futureTimeOnly")}</span>
-                </label>
+                {sellerPostDraft.image ? (
+                  <div className="space-y-3">
+                    <div>
+                      <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain /></div>
+                    </div>
+                    <div>
+                      <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see</div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} top /></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="aspect-[4/5] max-w-xs"><ProductImage label={t("postImagePreview")} /></div>
+                )}
+                <textarea
+                  value={sellerPostDraft.caption}
+                  onChange={(e) => setSellerPostDraft((prev) => ({ ...prev, caption: e.target.value }))}
+                  className="min-h-[96px] rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  maxLength={500}
+                  placeholder={t("captionPlaceholder")}
+                />
                 <div className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("postVisibility")}</span>
@@ -4295,20 +4128,16 @@ export function SellerFeedWorkspacePage({
                     </label>
                   ) : <div />}
                 </div>
-                {sellerPostDraft.image ? (
-                  <div className="space-y-3">
-                    <div>
-                      <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain /></div>
-                    </div>
-                    <div>
-                      <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} top /></div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="aspect-[4/5] max-w-xs"><ProductImage label={t("postImagePreview")} /></div>
-                )}
+                <label className="grid max-w-md gap-1 text-sm text-slate-600">
+                  <span className="font-medium">{t("scheduleOptional")}</span>
+                  <input
+                    type="datetime-local"
+                    value={sellerPostDraft.scheduledFor || ""}
+                    onChange={(event) => setSellerPostDraft((prev) => ({ ...prev, scheduledFor: event.target.value }))}
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  />
+                  <span className="text-[11px] text-slate-500">{t("futureTimeOnly")}</span>
+                </label>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="text-xs text-slate-500">
                     {sellerPostDraft.caption.length}/500

@@ -87,6 +87,7 @@ const SellerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then(
 const BuyerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BuyerMessagesPage })));
 const BarMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BarMessagesPage })));
 const SellerFeedWorkspacePage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerFeedWorkspacePage })));
+const SellerUploadPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerUploadPage })));
 const AdminPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AdminPage })));
 const CheckoutPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.CheckoutPage })));
 const AccountPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AccountPage })));
@@ -4999,6 +5000,7 @@ function parseRoute(pathname) {
   if (pathname === '/buyer-messages') return { name: 'buyer-messages' };
   if (pathname === '/bar-messages') return { name: 'bar-messages' };
   if (pathname === '/seller-feed-workspace') return { name: 'seller-feed-workspace' };
+  if (pathname === '/seller-upload') return { name: 'seller-upload' };
   if (pathname === '/bar-feed-workspace') return { name: 'bar-feed-workspace' };
   if (pathname === '/bar-dashboard') return { name: 'bar-dashboard' };
   if (pathname === '/seller-feed') return { name: 'seller-feed' };
@@ -5209,6 +5211,10 @@ export default function ThailandPantiesMarketSite() {
   });
   const [checkoutStep, setCheckoutStep] = useState(() => normalizeCheckoutStep(readStore('tlm-checkout-step', 1)));
   const [adminTab, setAdminTab] = useState(() => String(readStore('tlm-admin-tab', 'overview') || 'overview'));
+  const [adminImpersonation, setAdminImpersonation] = useState(() => {
+    const saved = readStore('tlm-admin-impersonation', null);
+    return saved?.token && saved?.sessionUserId ? saved : null;
+  });
   const [filters, setFilters] = useState({
     search: '',
     size: 'All',
@@ -7336,6 +7342,10 @@ export default function ThailandPantiesMarketSite() {
   }, [adminTab]);
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    window.localStorage.setItem('tlm-admin-impersonation', JSON.stringify(adminImpersonation));
+  }, [adminImpersonation]);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     window.localStorage.setItem('tlm-checkout-buyer-email', JSON.stringify(String(buyerEmail || '')));
   }, [buyerEmail]);
 
@@ -9188,6 +9198,14 @@ export default function ThailandPantiesMarketSite() {
     return { ok: true, message: isBlocked ? 'User unblocked.' : 'User blocked.' };
   }
 
+  function returnToAdmin() {
+    if (!adminImpersonation?.token || !adminImpersonation?.sessionUserId) return;
+    setApiAuthToken(adminImpersonation.token);
+    setSession({ userId: adminImpersonation.sessionUserId });
+    setAdminImpersonation(null);
+    navigate('/admin');
+  }
+
   async function handleAdminImpersonate(userId) {
     if (!currentUser || !isSuperAdmin) return;
     const normalizedUserId = String(userId || '').trim();
@@ -9199,6 +9217,7 @@ export default function ThailandPantiesMarketSite() {
       });
       if (!response?.ok || !response.payload?.token || !response.payload?.user?.id) return;
       const impersonatedUser = response.payload.user;
+      setAdminImpersonation({ token: apiAuthToken, sessionUserId: currentUser.id });
       setApiAuthToken(response.payload.token);
       setSession({ userId: impersonatedUser.id });
       setDb((prev) => {
@@ -16663,6 +16682,14 @@ export default function ThailandPantiesMarketSite() {
             Test Mode Active · Using Alex / Nina / Small World QA dataset
           </div>
         ) : null}
+        {adminImpersonation ? (
+          <div className="border-b border-indigo-200 bg-indigo-50 px-4 py-1.5 text-center">
+            <button onClick={returnToAdmin} className="text-xs font-bold text-indigo-700 underline underline-offset-2 hover:text-indigo-900">
+              Return to Admin
+            </button>
+            <span className="ml-2 text-xs text-indigo-500">Currently viewing as {currentUser?.name || 'user'}</span>
+          </div>
+        ) : null}
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 md:px-6">
           <div className="shrink-0">
             <button onClick={() => navigate('/')} className="flex items-center gap-3 text-left text-lg font-bold tracking-tight text-rose-700 lg:text-2xl">
@@ -16698,6 +16725,17 @@ export default function ThailandPantiesMarketSite() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2">
+            <select
+              value={uiLanguage}
+              onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+              className="hidden rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 sm:block"
+              aria-label="Language"
+            >
+              <option value="en">EN</option>
+              <option value="th">TH</option>
+              <option value="my">MY</option>
+              <option value="ru">RU</option>
+            </select>
             {currentUser?.role === 'admin' ? (
               <div className="hidden items-center gap-1 rounded-2xl border border-slate-200 bg-white/80 p-1 lg:flex">
                 <button
@@ -16802,6 +16840,20 @@ export default function ThailandPantiesMarketSite() {
                 {unreadMessageCount > 0 ? <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{unreadMessageCount}</span> : null}
               </button>
               <div className="mt-2 border-t border-rose-100 pt-3">
+                <div className="mb-2 flex items-center gap-2 px-3">
+                  <span className="text-xs font-semibold text-slate-500">Language</span>
+                  <select
+                    value={uiLanguage}
+                    onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                    className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600"
+                    aria-label="Language"
+                  >
+                    <option value="en">{localizeOptionLabel("English", uiLanguage)}</option>
+                    <option value="th">{localizeOptionLabel("Thai", uiLanguage)}</option>
+                    <option value="my">{localizeOptionLabel("Burmese", uiLanguage)}</option>
+                    <option value="ru">{localizeOptionLabel("Russian", uiLanguage)}</option>
+                  </select>
+                </div>
                 {currentUser ? (
                   <>
                     <button onClick={() => navigate(primaryShellRoute)} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-rose-50">{primaryShellNavLabel}</button>
@@ -18615,6 +18667,21 @@ export default function ThailandPantiesMarketSite() {
             unscheduleSellerPost={unscheduleSellerPost}
             publishSellerPostNow={publishSellerPostNow}
             sellerPostAnalytics={sellerPostAnalytics}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'seller-upload' ? (
+          <SellerUploadPage
+            isSeller={isSeller}
+            isPendingSeller={isPendingSeller}
+            isRejectedSeller={isRejectedSeller}
+            uploadDraft={uploadDraft}
+            setUploadDraft={setUploadDraft}
+            handleUploadFile={handleUploadFile}
+            createProductFromUpload={createProductFromUpload}
+            sellerDashboardProducts={sellerDashboardProducts}
+            upsertBundleProduct={upsertBundleProduct}
+            sellerLanguage={currentUser?.preferredLanguage || 'en'}
             navigate={navigate}
           />
         ) : null}
