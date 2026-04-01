@@ -11727,6 +11727,7 @@ export function AccountPage({
   accountCredentialMessage,
   accountCredentialTone,
   resendOrderReceipt,
+  fetchOrderTracking,
   uiLanguage = "en",
   navigate
 }) {
@@ -11762,6 +11763,8 @@ export function AccountPage({
   };
   const [copiedTrackingOrderId, setCopiedTrackingOrderId] = useState(null);
   const [copiedTrackingLinkOrderId, setCopiedTrackingLinkOrderId] = useState(null);
+  const [trackingDataByOrderId, setTrackingDataByOrderId] = useState({});
+  const [trackingLoadingOrderId, setTrackingLoadingOrderId] = useState(null);
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
   const [customRequestReplyDraftById, setCustomRequestReplyDraftById] = useState({});
   const [customRequestImageDraftById, setCustomRequestImageDraftById] = useState({});
@@ -12094,6 +12097,35 @@ export function AccountPage({
     } catch {
       setCopiedTrackingLinkOrderId(null);
     }
+  };
+  const handleCheckTracking = async (orderId) => {
+    if (!fetchOrderTracking || trackingLoadingOrderId === orderId) return;
+    setTrackingLoadingOrderId(orderId);
+    try {
+      const result = await fetchOrderTracking(orderId);
+      if (result.ok && result.tracking) {
+        setTrackingDataByOrderId((prev) => ({ ...prev, [orderId]: result.tracking }));
+      } else if (result.ok && !result.tracking) {
+        setTrackingDataByOrderId((prev) => ({ ...prev, [orderId]: { _noData: true } }));
+      } else {
+        setTrackingDataByOrderId((prev) => ({ ...prev, [orderId]: { _error: result.error || "Failed to load tracking" } }));
+      }
+    } catch {
+      setTrackingDataByOrderId((prev) => ({ ...prev, [orderId]: { _error: "Network error" } }));
+    } finally {
+      setTrackingLoadingOrderId(null);
+    }
+  };
+  const AFTERSHIP_TAG_LABELS = {
+    Pending: { label: "Pending", color: "bg-slate-100 text-slate-700" },
+    InfoReceived: { label: "Info Received", color: "bg-blue-50 text-blue-700" },
+    InTransit: { label: "In Transit", color: "bg-amber-50 text-amber-700" },
+    OutForDelivery: { label: "Out for Delivery", color: "bg-indigo-50 text-indigo-700" },
+    AttemptFail: { label: "Delivery Attempt Failed", color: "bg-orange-50 text-orange-700" },
+    Delivered: { label: "Delivered", color: "bg-emerald-50 text-emerald-700" },
+    AvailableForPickup: { label: "Available for Pickup", color: "bg-teal-50 text-teal-700" },
+    Exception: { label: "Exception", color: "bg-red-50 text-red-700" },
+    Expired: { label: "Expired", color: "bg-slate-100 text-slate-600" },
   };
   const resolveConversationSellerName = (conversationId) => {
     const sellerId = String(conversationId || "").split("__")[1] || "";
@@ -12914,18 +12946,56 @@ export function AccountPage({
                               >
                                 {copiedTrackingLinkOrderId === order.id ? tx("linkCopied") : tx("copyLink")}
                               </button>
-                              <a
-                                href={`https://www.17track.net/en/track?nums=${encodeURIComponent(order.trackingNumber)}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-block text-xs font-semibold text-indigo-700 hover:text-indigo-900"
+                              <button
+                                type="button"
+                                onClick={() => handleCheckTracking(order.id)}
+                                disabled={trackingLoadingOrderId === order.id}
+                                className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 disabled:opacity-50"
                               >
-                                {tx("trackPackage")}
-                              </a>
+                                {trackingLoadingOrderId === order.id ? "Loading..." : "Check Status"}
+                              </button>
                             </div>
                           ) : null}
                         </div>
                       </div>
+                      {(() => {
+                        const td = trackingDataByOrderId[order.id];
+                        if (!td) return null;
+                        if (td._error) return <div className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-xs text-red-700">{td._error}</div>;
+                        if (td._noData) return <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600">Tracking registered but no updates yet.</div>;
+                        const tagInfo = AFTERSHIP_TAG_LABELS[td.tag] || { label: td.tag || "Unknown", color: "bg-slate-100 text-slate-700" };
+                        return (
+                          <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${tagInfo.color}`}>{tagInfo.label}</span>
+                              {td.subtag ? <span className="text-xs text-slate-500">{td.subtag}</span> : null}
+                              {td.estimatedDeliveryDate ? (
+                                <span className="text-xs text-slate-500">ETA: {new Date(td.estimatedDeliveryDate).toLocaleDateString()}</span>
+                              ) : null}
+                            </div>
+                            {td.trackingUrl ? (
+                              <a href={td.trackingUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-indigo-700 hover:text-indigo-900">
+                                View full tracking page
+                              </a>
+                            ) : null}
+                            {Array.isArray(td.checkpoints) && td.checkpoints.length > 0 ? (
+                              <div className="mt-3 space-y-2">
+                                <div className="text-xs font-semibold text-slate-700">Tracking history</div>
+                                {td.checkpoints.slice(0, 8).map((cp, idx) => (
+                                  <div key={idx} className="flex items-start gap-3 rounded-xl bg-white px-3 py-2 ring-1 ring-slate-100">
+                                    <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-rose-400" />
+                                    <div>
+                                      <div className="text-xs text-slate-800">{cp.message || cp.tag || ""}</div>
+                                      <div className="text-[11px] text-slate-500">{cp.location || ""}{cp.checkpoint_time ? ` · ${new Date(cp.checkpoint_time).toLocaleString()}` : ""}</div>
+                                    </div>
+                                  </div>
+                                ))}
+                                {td.checkpoints.length > 8 ? <div className="text-xs text-slate-400">+ {td.checkpoints.length - 8} more events</div> : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })()}
                     </div>
                   ))}
                 </div>

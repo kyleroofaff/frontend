@@ -4199,6 +4199,7 @@ const DASHBOARD_LANGUAGE_OPTIONS = [
   { value: 'my', label: 'Burmese' },
   { value: 'ru', label: 'Russian' },
 ];
+const BAR_TRACKING_CARRIER_OPTIONS = ['Not set', 'Thailand Post / EMS', 'DHL', 'FedEx', 'UPS', 'USPS', 'Kerry Express', 'Flash Express', 'J&T Express', 'Other'];
 
 function normalizeAuthLanguage(language) {
   return SUPPORTED_AUTH_LANGUAGES.includes(language) ? language : 'en';
@@ -5489,6 +5490,7 @@ export default function ThailandPantiesMarketSite() {
   const [submittingStrikeAppeal, setSubmittingStrikeAppeal] = useState(false);
   const [reviewingAppealId, setReviewingAppealId] = useState(null);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
+  const [barOrderShipmentDrafts, setBarOrderShipmentDrafts] = useState({});
   const [lastFrozenPopupUserId, setLastFrozenPopupUserId] = useState(null);
   const [checkoutError, setCheckoutError] = useState('');
   const [checkoutSuccessPopup, setCheckoutSuccessPopup] = useState(null);
@@ -6260,6 +6262,20 @@ export default function ThailandPantiesMarketSite() {
     () => [...buyerOrders].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
     [buyerOrders],
   );
+  const barOrders = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'bar' || !currentUser.barId) return [];
+    const affiliatedSellerIds = new Set();
+    for (const s of sellers) {
+      if (s.affiliatedBarId === currentUser.barId) affiliatedSellerIds.add(s.id);
+    }
+    if (affiliatedSellerIds.size === 0) return [];
+    return orders.filter((order) =>
+      (order.items || []).some((itemId) => {
+        const product = products.find((p) => p.id === itemId);
+        return product && affiliatedSellerIds.has(product.sellerId);
+      })
+    ).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [currentUser, sellers, orders, products]);
   const currentWalletBalance = Number(currentUser?.walletBalance || 0);
   const buyerLedger = useMemo(() => {
     if (!currentUser) return [];
@@ -15910,7 +15926,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function updateOrderShipment(orderId, nextFulfillmentStatus, nextTrackingNumber, nextTrackingCarrier) {
-    if (!currentUser || currentUser.role !== 'admin') return;
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'bar')) return;
     if (!orderId || !['processing', 'shipped', 'delivered'].includes(nextFulfillmentStatus)) return;
     if (updatingOrderId === orderId) return;
     setUpdatingOrderId(orderId);
@@ -16031,8 +16047,28 @@ export default function ThailandPantiesMarketSite() {
           kind: 'buyer_order_shipped',
         })).catch(() => {});
       }
+      if (backendStatus === 'connected' && apiAuthToken && normalizedTrackingNumber) {
+        apiRequestJson(`/api/orders/${orderId}/tracking`, {
+          method: 'POST',
+          body: { trackingNumber: normalizedTrackingNumber, slug: normalizedTrackingCarrier || undefined },
+          idempotencyScope: `order-tracking-${orderId}`,
+        }).catch(() => {});
+      }
     } finally {
       setUpdatingOrderId(null);
+    }
+  }
+
+  async function fetchOrderTracking(orderId) {
+    if (!orderId || backendStatus !== 'connected' || !apiAuthToken) {
+      return { ok: false, error: 'Not connected' };
+    }
+    try {
+      const { ok, payload } = await apiRequestJson(`/api/orders/${orderId}/tracking`);
+      if (!ok) return { ok: false, error: payload?.error || 'Failed to fetch tracking' };
+      return { ok: true, ...payload };
+    } catch {
+      return { ok: false, error: 'Network error' };
     }
   }
 
@@ -18085,6 +18121,16 @@ export default function ThailandPantiesMarketSite() {
                   >
                     {barT.watchFeeds}
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ordersSection = typeof document !== 'undefined' ? document.getElementById('bar-orders') : null;
+                      if (ordersSection) ordersSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
+                  >
+                    Orders ({barOrders.length})
+                  </button>
                   <label className="col-span-2 mt-1 flex items-center justify-end gap-2 text-sm text-slate-600 sm:col-auto sm:ml-auto sm:mt-0">
                     {barT.language}
                     <select
@@ -18216,6 +18262,103 @@ export default function ThailandPantiesMarketSite() {
                         ))}
                       </div>
                     </div>
+                  </div>
+                </details>
+                <details id="bar-orders" className="mt-6 overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
+                  <summary className="cursor-pointer list-none">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-xl font-semibold">Order management</h3>
+                      <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
+                    </div>
+                  </summary>
+                  <p className="mt-1 text-sm text-slate-600">Orders from your affiliated sellers. Add tracking numbers and update fulfillment status here.</p>
+                  <div className="mt-4 space-y-4">
+                    {barOrders.length === 0 ? (
+                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No orders for your affiliated sellers yet.</div>
+                    ) : barOrders.map((order) => (
+                      <div key={order.id} className="rounded-2xl border border-rose-100 p-5">
+                        <div className="font-semibold">{order.id}</div>
+                        <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</div>
+                        <div className="mt-1 text-sm text-slate-600">{formatPriceTHB(order.total)} &middot; {order.paymentStatus} &middot; {order.fulfillmentStatus}</div>
+                        <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                          <span className="font-medium">Ship to:</span>{' '}
+                          {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(', ') || 'Not provided'}
+                        </div>
+                        {order.paymentStatus === 'paid' ? (
+                          <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_1fr_0.95fr_auto] md:items-end">
+                            <label className="text-sm text-slate-700">
+                              Fulfillment status
+                              <select
+                                value={barOrderShipmentDrafts[order.id]?.fulfillmentStatus || order.fulfillmentStatus || 'processing'}
+                                onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
+                                  ...prev,
+                                  [order.id]: {
+                                    fulfillmentStatus: event.target.value,
+                                    trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? '',
+                                    trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? '',
+                                  },
+                                }))}
+                                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                              >
+                                <option value="processing">processing</option>
+                                <option value="shipped">shipped</option>
+                                <option value="delivered">delivered</option>
+                              </select>
+                            </label>
+                            <label className="text-sm text-slate-700">
+                              Tracking code
+                              <input
+                                value={barOrderShipmentDrafts[order.id]?.trackingNumber ?? order.trackingNumber ?? ''}
+                                onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
+                                  ...prev,
+                                  [order.id]: {
+                                    fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || 'processing',
+                                    trackingNumber: event.target.value,
+                                    trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? '',
+                                  },
+                                }))}
+                                placeholder="e.g. TH1234567890"
+                                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                              />
+                            </label>
+                            <label className="text-sm text-slate-700">
+                              Carrier
+                              <select
+                                value={barOrderShipmentDrafts[order.id]?.trackingCarrier ?? order.trackingCarrier ?? 'Not set'}
+                                onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
+                                  ...prev,
+                                  [order.id]: {
+                                    fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || 'processing',
+                                    trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? '',
+                                    trackingCarrier: event.target.value,
+                                  },
+                                }))}
+                                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                              >
+                                {BAR_TRACKING_CARRIER_OPTIONS.map((option) => (
+                                  <option key={option} value={option}>{option}</option>
+                                ))}
+                              </select>
+                            </label>
+                            <button
+                              onClick={() => {
+                                const draft = barOrderShipmentDrafts[order.id] || {};
+                                const nextStatus = draft.fulfillmentStatus || order.fulfillmentStatus || 'processing';
+                                const nextTracking = draft.trackingNumber ?? order.trackingNumber ?? '';
+                                const nextCarrier = draft.trackingCarrier ?? order.trackingCarrier ?? '';
+                                updateOrderShipment(order.id, nextStatus, nextTracking, nextCarrier);
+                              }}
+                              disabled={updatingOrderId === order.id}
+                              className={`rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 ${updatingOrderId === order.id ? 'cursor-not-allowed opacity-60' : ''}`}
+                            >
+                              {updatingOrderId === order.id ? 'Saving...' : 'Save shipment'}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mt-3 text-xs text-slate-500">Shipment controls become available after payment is marked as paid.</div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </details>
                 <div className="mt-6 space-y-8">
@@ -19702,6 +19845,7 @@ export default function ThailandPantiesMarketSite() {
             accountCredentialMessage={accountCredentialMessage}
             accountCredentialTone={accountCredentialTone}
             resendOrderReceipt={resendOrderReceipt}
+            fetchOrderTracking={fetchOrderTracking}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />
