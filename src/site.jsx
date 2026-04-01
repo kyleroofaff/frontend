@@ -17757,7 +17757,7 @@ export default function ThailandPantiesMarketSite() {
                   {!currentUser ? (
                     <div className="mt-4 space-y-3">
                       <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.loginBuyerToMessage}</div>
-                      <button onClick={() => navigate('/login')} className="mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{publicText.messageSellerTitle}</button>
+                      <button onClick={() => navigate('/login')} className="mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{publicText.messageSellerTitle} ({formatPriceTHB(MESSAGE_FEE_THB)})</button>
                     </div>
                   ) : null}
                   {currentUser?.role === 'seller' ? <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.sellerInboxReviewHint}</div> : null}
@@ -17835,6 +17835,7 @@ export default function ThailandPantiesMarketSite() {
                     />
                     <button
                       onClick={() => {
+                        if (!currentUser) { navigate('/login'); return; }
                         submitCustomRequest(
                           {
                             sellerId: selectedSeller.id,
@@ -17856,12 +17857,12 @@ export default function ThailandPantiesMarketSite() {
                           (errorMessage) => setSellerCustomRequestMessage(errorMessage || ''),
                         );
                       }}
-                      disabled={currentWalletBalance < CUSTOM_REQUEST_FEE_THB}
-                      className={`mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? 'cursor-not-allowed opacity-60' : ''}`}
+                      disabled={currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB}
+                      className={`mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? 'cursor-not-allowed opacity-60' : ''}`}
                     >
                       {publicText.sendCustomRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
                     </button>
-                    {currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? <div className="mt-2 text-xs text-amber-700">{publicText.walletNeedsAtLeastPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {publicText.walletNeedsAtLeastSuffix}</div> : null}
+                    {currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? <div className="mt-2 text-xs text-amber-700">{publicText.walletNeedsAtLeastPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {publicText.walletNeedsAtLeastSuffix}</div> : null}
                     {sellerCustomRequestMessage ? <div className="mt-2 text-sm font-medium text-rose-700">{sellerCustomRequestMessage}</div> : null}
                   </div>
                   <h3 className="mt-8 text-xl font-semibold">{publicText.lifestylePostsByPrefix} {selectedSeller.name}</h3>
