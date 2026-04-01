@@ -1307,7 +1307,7 @@ function normalizeLegacyLocalizedValue(rawValue, options, fallback = "") {
 const SELLER_I18N = {
   en: {
     sectionTitle: "Manage your storefront",
-    sectionSubtitle: "Update your profile, publish listings, and share lifestyle posts with your audience.",
+    sectionSubtitle: "Update your profile, publish listings, and share posts with your audience.",
     language: "Language",
     loginRequired: "Seller login required",
     profileChecklist: "Profile completion checklist",
@@ -1352,7 +1352,7 @@ const SELLER_I18N = {
     replyPlaceholder: "Reply to buyer",
     reply: "Reply",
     createFeedPost: "Create post",
-    createFeedPostHelp: "Share a lifestyle update on your public seller feed so buyers can get to know your brand.",
+    createFeedPostHelp: "Share an update on your public seller feed so buyers can get to know your brand.",
     captionPlaceholder: "Write a caption about your day, mood, or style...",
     postImagePreview: "Post image preview",
     posting: "Posting...",
@@ -1375,7 +1375,7 @@ const SELLER_I18N = {
     deleting: "Deleting...",
     feedEyebrow: "Seller feed",
     feedTitle: "See what your favorite seller is up to",
-    feedSubtitle: "Browse seller lifestyle posts, behind-the-scenes photos, and day-to-day updates.",
+    feedSubtitle: "Browse seller posts, behind-the-scenes photos, and day-to-day updates.",
     noFeedPosts: "No feed posts yet. Check back soon for new updates.",
     feedImage: "Feed image",
   like: "Like",
@@ -1852,7 +1852,7 @@ const SELLER_I18N = {
     unpublishLabel: "ยกเลิกเผยแพร่"
   },
   my: {
-    sectionTitle: "သင့်စတိုးကို စီမံပါ", sectionSubtitle: "ပရိုဖိုင်ပြင်ဆင်ခြင်း၊ စာရင်းထုတ်ခြင်းနှင့် lifestyle post များကို မျှဝေပါ",
+    sectionTitle: "သင့်စတိုးကို စီမံပါ", sectionSubtitle: "ပရိုဖိုင်ပြင်ဆင်ခြင်း၊ စာရင်းထုတ်ခြင်းနှင့် post များကို မျှဝေပါ",
     language: "ဘာသာစကား", loginRequired: "ရောင်းသူအကောင့်ဖြင့် ဝင်ရန်လိုအပ်သည်", profileChecklist: "ပရိုဖိုင်ပြည့်စုံမှု စစ်ဆေးစာရင်း",
     profileComplete: "ပရိုဖိုင် ပြည့်စုံပြီးဖြစ်သည်။ စာရင်းတင်နိုင်ပါသည်",
     profileDetails: "ပရိုဖိုင်အချက်အလက် (အများသုံးပြသ)", profileDetailsHint: "ဤအချက်အလက်သည် သင့်ပြည်သူ့ပရိုဖိုင်တွင် ပြသပြီး ဝယ်သူများ ရှာဖွေနိုင်ရန် ကူညီသည်", heightLabel: "အရပ်", weightLabel: "ကိုယ်အလေးချိန်", hairColorLabel: "ဆံပင်အရောင်", braSizeLabel: "ဘရာဆိုက်", thaiBraSizes: "ထိုင်းဆိုက် (စမ)", usBraSizes: "US ဆိုက်", thaiBraCupDifferenceHint: "ခွက် = ရင်ဘတ်ကွာဟချက် (စမ)", selectedUsSize: "US တူညီ:", pantySizeLabel: "ပန်တီဆိုက်", selectHairColor: "ဆံပင်အရောင်ရွေးပါ", selectBraSize: "ဘရာဆိုက်ရွေးပါ", selectPantySize: "ပန်တီဆိုက်ရွေးပါ",
@@ -1863,7 +1863,7 @@ const SELLER_I18N = {
     liveUpdates: "တိုက်ရိုက်အပ်ဒိတ်", conversations: "စကားဝိုင်း", noMessages: "မက်ဆေ့ချ် မရှိသေးပါ",
     customerConversation: "ဝယ်သူနှင့် စကားဝိုင်း", chattingWith: "စကားပြောနေသူ", unknownBuyer: "ဝယ်သူအမည်မသိ", selectConversation: "ပြန်ရန် စကားဝိုင်းတစ်ခု ရွေးပါ",
     replyPlaceholder: "ဝယ်သူသို့ ပြန်စာရေးရန်", reply: "ပြန်ပို့မည်", createFeedPost: "Post ဖန်တီးမည်",
-    createFeedPostHelp: "သင့် public seller feed တွင် lifestyle update မျှဝေပြီး ဝယ်သူများကို မိတ်ဆက်ပါ",
+    createFeedPostHelp: "သင့် public seller feed တွင် update မျှဝေပြီး ဝယ်သူများကို မိတ်ဆက်ပါ",
     captionPlaceholder: "သင့်နေ့စဉ်အကြောင်း၊ စိတ်နေစိတ်ထား သို့မဟုတ် စတိုင်ကို ရေးပါ...",
     postImagePreview: "post ပုံကြိုတင်ကြည့်ရှုမှု", posting: "တင်နေသည်...", postToFeed: "တင်မည်",
     yourFeedPosts: "သင့် post များ", noPosts: "post မရှိသေးပါ။ အပေါ်တွင် ပထမဆုံး post တင်ပါ",
@@ -1872,7 +1872,7 @@ const SELLER_I18N = {
     listingLibrary: "စာရင်းစာအုပ်", items: "ခု", noAsset: "ဖိုင်မရှိ", worn: "ဝတ်ထားသည့်ကာလ",
     notSpecified: "မသတ်မှတ်ထား", publish: "တင်မည်", viewListing: "စာရင်းကြည့်မည်", delete: "ဖျက်မည်", deleting: "ဖျက်နေသည်...",
     feedEyebrow: "seller feed", feedTitle: "သင်နှစ်သက်သော seller ဘာလုပ်နေလဲ ကြည့်ပါ",
-    feedSubtitle: "seller lifestyle post များ၊ နောက်ကွယ်ပုံများနှင့် နေ့စဉ် update များကို ကြည့်ရှုပါ",
+    feedSubtitle: "seller post များ၊ နောက်ကွယ်ပုံများနှင့် နေ့စဉ် update များကို ကြည့်ရှုပါ",
     noFeedPosts: "feed post မရှိသေးပါ။ နောက်ပိုင်းတွင် ပြန်စစ်ပါ",
     feedImage: "feed ပုံ", reportCount: "report",
     reasonInappropriate: "မသင့်လျော်သော အကြောင်းအရာ", reasonHarassment: "အနှောင့်အယှက် သို့မဟုတ် အနိုင်ကျင့်မှု",
@@ -2094,7 +2094,7 @@ const SELLER_I18N = {
     listingLibrary: "Библиотека объявлений", items: "шт.", noAsset: "Нет файла", worn: "Ношение",
     notSpecified: "Не указано", publish: "Опубликовать", viewListing: "Открыть объявление", delete: "Удалить", deleting: "Удаление...",
     feedEyebrow: "Лента продавцов", feedTitle: "Смотрите, чем сейчас занимается ваш любимый продавец",
-    feedSubtitle: "Смотрите lifestyle-посты продавцов, закулисные фото и ежедневные обновления.",
+    feedSubtitle: "Смотрите посты продавцов, закулисные фото и ежедневные обновления.",
     noFeedPosts: "Постов в ленте пока нет. Загляните позже.",
     feedImage: "Фото ленты", reportCount: "жалоб(ы)",
     reasonInappropriate: "Неприемлемый контент", reasonHarassment: "Оскорбления или травля",
@@ -9504,7 +9504,7 @@ export function AdminPage({
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-xl font-semibold">Lifestyle feed moderation</h3>
+                    <h3 className="text-xl font-semibold">Feed moderation</h3>
                     <p className="mt-1 text-sm text-slate-600">Search, review, and remove posts that violate platform policy.</p>
                   </div>
                   <div className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-rose-100">{socialPostsFiltered.length} post(s)</div>

@@ -787,7 +787,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'This item is already in your cart.',
     sellerFeed: 'Seller Feed',
     latestSellerUpdates: 'Latest seller updates',
-    recentLifestylePosts: 'Recent lifestyle posts from active sellers.',
+    recentLifestylePosts: 'Recent posts from active sellers.',
     viewFullFeed: 'View full feed',
     noRecentSellerPosts: 'No recent seller posts yet.',
     unlockFor: 'Unlock for',
@@ -861,8 +861,8 @@ const PUBLIC_SITE_I18N = {
     listingsByPrefix: 'Listings by',
     listingsReservedTitle: 'Temporarily reserved',
     listingsReservedSubtitle: 'All current listings from this seller are in active carts. If an item is removed from cart, it will appear again automatically.',
-    lifestylePostsByPrefix: 'Lifestyle posts by',
-    noLifestylePostsYet: 'No lifestyle posts from this seller yet.',
+    lifestylePostsByPrefix: 'Posts by',
+    noLifestylePostsYet: 'No posts from this seller yet.',
     backToShop: 'Back to Shop',
     sizeField: 'Size',
     colorField: 'Color',
@@ -933,7 +933,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'สินค้านี้อยู่ในตะกร้าแล้ว',
     sellerFeed: 'ฟีดผู้ขาย',
     latestSellerUpdates: 'อัปเดตล่าสุดจากผู้ขาย',
-    recentLifestylePosts: 'โพสต์ไลฟ์สไตล์ล่าสุดจากผู้ขายที่ใช้งานอยู่',
+    recentLifestylePosts: 'โพสต์ล่าสุดจากผู้ขายที่ใช้งานอยู่',
     viewFullFeed: 'ดูฟีดทั้งหมด',
     noRecentSellerPosts: 'ยังไม่มีโพสต์ล่าสุดจากผู้ขาย',
     unlockFor: 'ปลดล็อกในราคา',
@@ -1007,8 +1007,8 @@ const PUBLIC_SITE_I18N = {
     listingsByPrefix: 'รายการสินค้าของ',
     listingsReservedTitle: 'ถูกจองชั่วคราว',
     listingsReservedSubtitle: 'รายการสินค้าปัจจุบันของผู้ขายรายนี้อยู่ในตะกร้าที่กำลังใช้งานทั้งหมด หากมีการนำสินค้าออกจากตะกร้า สินค้าจะกลับมาแสดงโดยอัตโนมัติ',
-    lifestylePostsByPrefix: 'โพสต์ไลฟ์สไตล์ของ',
-    noLifestylePostsYet: 'ยังไม่มีโพสต์ไลฟ์สไตล์จากผู้ขายรายนี้',
+    lifestylePostsByPrefix: 'โพสต์ของ',
+    noLifestylePostsYet: 'ยังไม่มีโพสต์จากผู้ขายรายนี้',
     backToShop: 'กลับไปหน้าร้าน',
     sizeField: 'ไซซ์',
     colorField: 'สี',
@@ -1079,7 +1079,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'ဤပစ္စည်းသည် cart ထဲတွင် ရှိနေပြီးဖြစ်သည်',
     sellerFeed: 'Seller Feed',
     latestSellerUpdates: 'Seller update အသစ်များ',
-    recentLifestylePosts: 'active seller များ၏ lifestyle post အသစ်များ',
+    recentLifestylePosts: 'active seller များ၏ post အသစ်များ',
     viewFullFeed: 'Feed အပြည့်ကြည့်ရန်',
     noRecentSellerPosts: 'seller post အသစ် မရှိသေးပါ',
     unlockFor: 'Unlock for',
@@ -1153,8 +1153,8 @@ const PUBLIC_SITE_I18N = {
     listingsByPrefix: 'Listings by',
     listingsReservedTitle: 'ယာယီ reserved',
     listingsReservedSubtitle: 'ဤ seller ၏ လက်ရှိ listing များအားလုံးကို active cart များတွင် ထည့်ထားပါသည်။ item တစ်ခုကို cart မှ ဖယ်ရှားလျှင် အလိုအလျောက် ပြန်ပေါ်လာမည်။',
-    lifestylePostsByPrefix: 'Lifestyle posts by',
-    noLifestylePostsYet: 'ဤ seller ၏ lifestyle post မရှိသေးပါ',
+    lifestylePostsByPrefix: 'Posts by',
+    noLifestylePostsYet: 'ဤ seller ၏ post မရှိသေးပါ',
     backToShop: 'Shop သို့ ပြန်ရန်',
     sizeField: 'Size',
     colorField: 'Color',
@@ -1225,7 +1225,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'Этот товар уже в корзине.',
     sellerFeed: 'Лента продавцов',
     latestSellerUpdates: 'Последние обновления продавцов',
-    recentLifestylePosts: 'Свежие lifestyle-посты активных продавцов.',
+    recentLifestylePosts: 'Свежие посты активных продавцов.',
     viewFullFeed: 'Смотреть всю ленту',
     noRecentSellerPosts: 'Пока нет свежих постов продавцов.',
     unlockFor: 'Разблокировать за',
@@ -1299,8 +1299,8 @@ const PUBLIC_SITE_I18N = {
     listingsByPrefix: 'Листинги продавца',
     listingsReservedTitle: 'Временно зарезервировано',
     listingsReservedSubtitle: 'Все текущие листинги этого продавца сейчас находятся в активных корзинах. Если товар удалят из корзины, он снова станет доступен автоматически.',
-    lifestylePostsByPrefix: 'Lifestyle-посты продавца',
-    noLifestylePostsYet: 'У этого продавца пока нет lifestyle-постов.',
+    lifestylePostsByPrefix: 'Посты продавца',
+    noLifestylePostsYet: 'У этого продавца пока нет постов.',
     backToShop: 'Назад в магазин',
     sizeField: 'Размер',
     colorField: 'Цвет',
@@ -17771,20 +17771,18 @@ export default function ThailandPantiesMarketSite() {
                           </div>
                         ))}
                       </div>
-                      <div className="mt-4 flex gap-3">
-                        <textarea value={messageDraft} onChange={(e) => setMessageDraft(e.target.value)} className="min-h-[96px] flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" placeholder={`${publicText.sendMessageToPrefix} ${selectedSeller.name}`} />
-                        <button onClick={sendBuyerMessageToSeller} className="self-end rounded-2xl bg-rose-500 px-5 py-3 font-semibold text-white hover:bg-rose-600">{publicText.send} ({formatPriceTHB(MESSAGE_FEE_THB)})</button>
+                      <div className="mt-4">
+                        <textarea value={messageDraft} onChange={(e) => setMessageDraft(e.target.value)} className="min-h-[96px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" placeholder={`${publicText.sendMessageToPrefix} ${selectedSeller.name}`} />
+                        <button
+                          onClick={sendBuyerMessageToSeller}
+                          disabled={currentWalletBalance < MESSAGE_FEE_THB}
+                          className={`mt-3 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${currentWalletBalance < MESSAGE_FEE_THB ? 'cursor-not-allowed opacity-60' : ''}`}
+                        >
+                          {publicText.send} ({formatPriceTHB(MESSAGE_FEE_THB)})
+                        </button>
+                        {currentWalletBalance < MESSAGE_FEE_THB ? <div className="mt-2 text-xs text-amber-700">{publicText.walletNeedsAtLeastPrefix} {formatPriceTHB(MESSAGE_FEE_THB)} {publicText.walletNeedsAtLeastSuffix}</div> : null}
                       </div>
                       {messageError ? <div className="mt-3 text-sm font-medium text-rose-600">{messageError}</div> : null}
-                      {messageError && currentWalletBalance < MESSAGE_FEE_THB ? (
-                        <button
-                          type="button"
-                          onClick={() => navigate('/account')}
-                          className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800"
-                        >
-                          Top up wallet
-                        </button>
-                      ) : null}
                       <button onClick={() => markNotificationsReadForConversation(selectedConversationId)} className="mt-3 text-sm font-semibold text-rose-700">{publicText.markThreadRead}</button>
                     </>
                   ) : null}
