@@ -8195,44 +8195,6 @@ export function AdminPage({
                           </span>
                         </div>
                       </div>
-                      <div className="mt-4 grid gap-2">
-                        <input
-                          value={draft.name}
-                          onChange={(event) => setBarDraftsById((prev) => ({ ...prev, [bar.id]: { ...draft, name: event.target.value } }))}
-                          className="rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                          placeholder="Bar name"
-                        />
-                        <input
-                          value={draft.location}
-                          onChange={(event) => setBarDraftsById((prev) => ({ ...prev, [bar.id]: { ...draft, location: event.target.value } }))}
-                          className="rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                          placeholder="Location"
-                        />
-                        <textarea
-                          value={draft.about}
-                          onChange={(event) => setBarDraftsById((prev) => ({ ...prev, [bar.id]: { ...draft, about: event.target.value } }))}
-                          className="min-h-[90px] rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                          placeholder="About"
-                        />
-                        <textarea
-                          value={draft.specials}
-                          onChange={(event) => setBarDraftsById((prev) => ({ ...prev, [bar.id]: { ...draft, specials: event.target.value } }))}
-                          className="min-h-[70px] rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                          placeholder="Specials"
-                        />
-                        <input
-                          value={draft.mapLink}
-                          onChange={(event) => setBarDraftsById((prev) => ({ ...prev, [bar.id]: { ...draft, mapLink: event.target.value } }))}
-                          className="rounded-2xl border border-slate-200 px-3 py-2 text-sm"
-                          placeholder="Google Maps link (https://maps.google.com/...)"
-                        />
-                        <button
-                          onClick={() => updateBarProfileByAdmin?.(bar.id, draft)}
-                          className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white"
-                        >
-                          Save bar profile
-                        </button>
-                      </div>
                       <div className="mt-4 space-y-2">
                         {linkedSellers.length === 0 ? (
                           <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">No sellers linked to this bar.</div>

@@ -17526,17 +17526,31 @@ export default function ThailandPantiesMarketSite() {
                 <div>
                   <h3 className="text-xl font-semibold">{publicText.barPhotoFeed}</h3>
                   <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
-                    {barFeedPosts.filter((post) => post.barId === selectedBar.id).length === 0 ? (
-                      <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{publicText.noBarPhotosYet}</div>
-                    ) : barFeedPosts.filter((post) => post.barId === selectedBar.id).map((post) => (
-                      <article key={post.id} className="rounded-2xl border border-rose-100 p-4">
-                        <div className="aspect-[4/5]">
-                          <ProductImage src={post.image} label={post.imageName || 'Bar post image'} top />
-                        </div>
-                        <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <p className="mt-1 text-sm text-slate-700">{post.caption || publicText.noCaption}</p>
-                      </article>
-                    ))}
+                    {(() => {
+                      const affiliatedSellerIds = new Set(selectedBarAffiliatedSellers.map((s) => s.id));
+                      const barOwnPosts = barFeedPosts.filter((post) => post.barId === selectedBar.id).map((p) => ({ ...p, _kind: 'bar' }));
+                      const affiliatedSellerPosts = sellerFeedPosts
+                        .filter((post) => affiliatedSellerIds.has(post.sellerId) && !isSellerPostPrivate(post))
+                        .map((p) => ({ ...p, _kind: 'seller' }));
+                      const combined = [...barOwnPosts, ...affiliatedSellerPosts].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                      if (combined.length === 0) return <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{publicText.noBarPhotosYet}</div>;
+                      return combined.map((post) => (
+                        <article key={post.id} className="rounded-2xl border border-rose-100 p-4">
+                          {post.image ? (
+                            <div className="aspect-[4/5]">
+                              <ProductImage src={post.image} label={post.imageName || 'Feed image'} top />
+                            </div>
+                          ) : null}
+                          <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                          <p className="mt-1 text-sm text-slate-700">{post.caption || publicText.noCaption}</p>
+                          {post._kind === 'seller' && sellerMap[post.sellerId] ? (
+                            <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="mt-2 text-xs font-semibold text-rose-600 hover:underline">
+                              {sellerMap[post.sellerId].name}
+                            </button>
+                          ) : null}
+                        </article>
+                      ));
+                    })()}
                   </div>
                 </div>
               </div>
