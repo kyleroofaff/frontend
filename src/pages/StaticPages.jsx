@@ -419,6 +419,7 @@ const MARKETPLACE_I18N = {
     types: "types",
     onlineNow: "Online now",
     viewProfile: "View profile",
+    messageSeller: "Message seller",
     shippingCoverage: "Shipping",
     typicalShipTime: "Typical ship time",
     noSellersMatch: "No sellers match the selected filters yet.",
@@ -459,6 +460,7 @@ const MARKETPLACE_I18N = {
     types: "ประเภท",
     onlineNow: "ออนไลน์ตอนนี้",
     viewProfile: "ดูโปรไฟล์",
+    messageSeller: "ส่งข้อความหาผู้ขาย",
     shippingCoverage: "การจัดส่ง",
     typicalShipTime: "เวลาจัดส่งโดยทั่วไป",
     noSellersMatch: "ยังไม่มีผู้ขายที่ตรงกับตัวกรองที่เลือก",
@@ -499,6 +501,7 @@ const MARKETPLACE_I18N = {
     types: "အမျိုးအစားများ",
     onlineNow: "ယခု အွန်လိုင်း",
     viewProfile: "ပရိုဖိုင်ကြည့်ရန်",
+    messageSeller: "Seller သို့ message ပို့ရန်",
     shippingCoverage: "ပို့ဆောင်မှု",
     typicalShipTime: "ပုံမှန်ပို့ဆောင်ချိန်",
     noSellersMatch: "ရွေးထားသော filters နှင့် ကိုက်ညီသော seller မရှိသေးပါ။",
@@ -539,6 +542,7 @@ const MARKETPLACE_I18N = {
     types: "типов",
     onlineNow: "Сейчас онлайн",
     viewProfile: "Открыть профиль",
+    messageSeller: "Написать продавцу",
     shippingCoverage: "Доставка",
     typicalShipTime: "Обычное время отправки",
     noSellersMatch: "Нет продавцов, подходящих под выбранные фильтры.",
@@ -1953,7 +1957,7 @@ export function WorldwideShippingPage({ uiLanguage = "en", navigate }) {
   );
 }
 
-export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage = "en" }) {
+export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage = "en", currentUser }) {
   const text = marketplaceText(uiLanguage);
   const [sellerFilters, setSellerFilters] = useState({
     search: "",
@@ -2272,7 +2276,10 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
               <div><span className="font-semibold text-slate-700">{text.shippingCoverage}:</span> {seller.shipping || localizeOptionLabel("Not specified", uiLanguage)}</div>
               <div><span className="font-semibold text-slate-700">{text.typicalShipTime}:</span> {seller.turnaround || localizeOptionLabel("Not specified", uiLanguage)}</div>
             </div>
-            <button onClick={() => navigate(`/seller/${seller.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">
+            <button onClick={() => navigate(currentUser ? `/seller/${seller.id}` : '/login')} className="mt-4 w-full rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">
+              {text.messageSeller}
+            </button>
+            <button onClick={() => navigate(`/seller/${seller.id}`)} className="mt-2 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">
               {text.viewProfile}
             </button>
           </div>

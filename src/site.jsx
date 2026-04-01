@@ -17240,7 +17240,10 @@ export default function ThailandPantiesMarketSite() {
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.total || 0} {publicText.listingsLabel}</span>
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.types?.size || 0} {publicText.typesLabel}</span>
                       </div>
-                      <button onClick={() => navigate(`/seller/${seller.id}`)} className="mt-4 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                      <button onClick={() => navigate(currentUser ? `/seller/${seller.id}` : '/login')} className="mt-4 w-full rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">
+                        {publicText.messageSellerTitle}
+                      </button>
+                      <button onClick={() => navigate(`/seller/${seller.id}`)} className="mt-2 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
                         {publicText.viewSellerProfile}
                       </button>
                     </article>
@@ -17748,7 +17751,7 @@ export default function ThailandPantiesMarketSite() {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-rose-100">{publicText.balanceLabel}: {formatPriceTHB(currentWalletBalance)}</div>
-                      <div className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{publicText.autoRefreshOn}</div>
+                      {currentUser?.role === 'buyer' ? <div className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{publicText.autoRefreshOn}</div> : null}
                     </div>
                   </div>
                   {!currentUser ? <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-rose-100">{publicText.loginBuyerToMessage}</div> : null}
@@ -19897,7 +19900,7 @@ export default function ThailandPantiesMarketSite() {
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}
         {routeInfo.name === 'worldwide-shipping' ? <WorldwideShippingPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
-        {routeInfo.name === 'seller-portfolios' ? <SellerPortfoliosPage sellers={Object.values(sellerMap)} products={availableProducts} navigate={navigate} uiLanguage={uiLanguage} /> : null}
+        {routeInfo.name === 'seller-portfolios' ? <SellerPortfoliosPage sellers={Object.values(sellerMap)} products={availableProducts} navigate={navigate} uiLanguage={uiLanguage} currentUser={currentUser} /> : null}
         {routeInfo.name === 'how-to-apply' ? <HowToApplyPage uiLanguage={uiLanguage} /> : null}
         {routeInfo.name === 'seller-appeals' ? <SellerAppealsPage uiLanguage={uiLanguage} navigate={navigate} /> : null}
         {routeInfo.name === 'seller-guidelines' ? <SellerGuidelinesPage uiLanguage={uiLanguage} /> : null}
