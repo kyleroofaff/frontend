@@ -1357,6 +1357,40 @@ const CUSTOM_REQUESTS_I18N = {
     sellerFeed: "Seller feed",
   },
   th: {
+    eyebrow: "ตลาด",
+    title: "คำขอพิเศษ",
+    subtitle: "",
+    submitFee: "การส่งคำขอพิเศษมีค่าใช้จ่าย",
+    openFee: "เมื่อเปิดแล้ว ข้อความคำขอพิเศษมีค่าใช้จ่าย",
+    perMessageBoth: "ต่อข้อความสำหรับผู้ซื้อ ผู้ขายตอบกลับได้ฟรี",
+    loginBuyer: "เข้าสู่ระบบในฐานะผู้ซื้อเพื่อส่งคำขอพิเศษ",
+    recentRequests: "คำขอล่าสุดของคุณ",
+    noRequests: "ยังไม่มีคำขอที่ส่ง",
+    noMessages: "ยังไม่มีข้อความ",
+    replyPlaceholder: "ตอบกลับในคำขอนี้",
+    send: "ส่ง",
+    addWalletToSend: "เติมอย่างน้อย",
+    toWalletSend: "ลงในกระเป๋าเพื่อส่งข้อความ",
+    sellerQuote: "ราคาที่ผู้ขายเสนอ",
+    yourCounter: "ข้อเสนอของคุณ",
+    sellerNote: "หมายเหตุจากผู้ขาย:",
+    waitingCounter: "รอผู้ขายตอบกลับข้อเสนอของคุณ",
+    quoteAcceptedPaid: "ยอมรับราคาและชำระเงินแล้ว",
+    acceptPay: "ยอมรับและชำระเงิน",
+    quoteDeclined: "ราคาถูกปฏิเสธ",
+    decline: "ปฏิเสธ",
+    counterAmount: "จำนวนเงินข้อเสนอ (บาท)",
+    counterSent: "ส่งข้อเสนอแล้ว",
+    messageFeeCharged: "หักค่าข้อความแล้ว",
+    counterLabel: "ข้อเสนอ",
+    counterRequiresFee: "การเสนอราคาต้องเสียค่าข้อความปกติ:",
+    seller: "ผู้ขาย",
+    selectSeller: "เลือกผู้ขาย",
+    yourName: "ชื่อของคุณ",
+    email: "อีเมล",
+    detailsPlaceholder: "ประเภทกางเกงใน ไซส์ สไตล์ กิจกรรม หรือไอเดียภาพ",
+    shippingCountry: "ประเทศที่จัดส่ง",
+    requestBodyPlaceholder: "อธิบายกางเกงในที่ต้องการ ภาพที่อยากได้ และรายละเอียดกิจกรรม",
     buyerPromptTitle: "ตัวอย่างข้อความคุยทั่วไป",
     buyerPrompts: [
       "สบายดีไหม?",
@@ -1370,8 +1404,51 @@ const CUSTOM_REQUESTS_I18N = {
       "ฉันอยากได้ภาพพื้นหลังเรียบและภาพใกล้ที่เห็นรายละเอียดชัดเจน"
     ],
     buyerImageDisabledHelp: "ตอนนี้ยังอัปโหลดรูปไม่ได้จนกว่าผู้ขายจะเปิดให้ในคำขอนี้",
+    customRequestSubmitted: "ส่งคำขอพิเศษแล้ว",
+    sendRequest: "ส่งคำขอ",
+    needWalletSubmitPrefix: "คุณต้องมีอย่างน้อย",
+    needWalletSubmitSuffix: "ในกระเป๋าเพื่อส่งคำขอนี้",
+    awaitingBuyerPayment: "รอผู้ซื้อชำระเงิน",
+    sellerFeed: "ฟีดผู้ขาย",
+    profile: "โปรไฟล์",
+    messages: "ข้อความ",
+    customRequests: "คำขอพิเศษ",
   },
   my: {
+    eyebrow: "စျေးကွက်",
+    title: "Custom Requests",
+    subtitle: "",
+    submitFee: "Custom request တစ်ခုပို့ရန် ကုန်ကျငွေ",
+    openFee: "ဖွင့်ပြီးနောက် custom request message များ ကုန်ကျငွေ",
+    perMessageBoth: "ဝယ်သူတစ်ဦးလျှင် message တစ်ခု။ ရောင်းသူများ အခမဲ့ reply ပို့နိုင်သည်။",
+    loginBuyer: "Custom request ပို့ရန် ဝယ်သူအဖြစ် login ဝင်ပါ။",
+    recentRequests: "သင့်မကြာသေး request များ",
+    noRequests: "တင်ထားသော request မရှိသေးပါ။",
+    noMessages: "message မရှိသေးပါ။",
+    replyPlaceholder: "ဒီ request မှာ reply ပို့ပါ",
+    send: "ပို့မည်",
+    addWalletToSend: "အနည်းဆုံး",
+    toWalletSend: "ကို wallet ထဲထည့်ပြီးမှ message ပို့နိုင်ပါမည်။",
+    sellerQuote: "ရောင်းသူ ဈေးနှုန်း",
+    yourCounter: "သင့် counter",
+    sellerNote: "ရောင်းသူ မှတ်ချက်:",
+    waitingCounter: "သင့် counter-offer အတွက် ရောင်းသူ response ကို စောင့်နေသည်",
+    quoteAcceptedPaid: "ဈေးနှုန်းလက်ခံပြီး ငွေချေပြီး။",
+    acceptPay: "လက်ခံပြီး ငွေချေမည်",
+    quoteDeclined: "ဈေးနှုန်း ငြင်းပယ်ပြီး။",
+    decline: "ငြင်းပယ်မည်",
+    counterAmount: "Counter ပမာဏ (THB)",
+    counterSent: "Counter ပို့ပြီး။",
+    messageFeeCharged: "message fee ကောက်ခံပြီး။",
+    counterLabel: "Counter",
+    counterRequiresFee: "Counter-offer များအတွက် ပုံမှန် message fee လိုအပ်သည်:",
+    seller: "ရောင်းသူ",
+    selectSeller: "ရောင်းသူ ရွေးချယ်ပါ",
+    yourName: "သင့်အမည်",
+    email: "အီးမေးလ်",
+    detailsPlaceholder: "အမျိုးအစား၊ ဆိုက်၊ ပုံစံ၊ လှုပ်ရှားမှု သို့မဟုတ် ပုံ idea များ",
+    shippingCountry: "ပို့ဆောင်မည့်နိုင်ငံ",
+    requestBodyPlaceholder: "လိုချင်သော အတွင်းခံ၊ ရိုက်ယူမည့်ပုံများ နှင့် လှုပ်ရှားမှုအသေးစိတ်ကို ဖော်ပြပါ",
     buyerPromptTitle: "ဝယ်သူအတွက် ပုံမှန်စာပို့ prompt များ",
     buyerPrompts: [
       "နေကောင်းလား?",
@@ -1385,8 +1462,51 @@ const CUSTOM_REQUESTS_I18N = {
       "ရိုးရှင်းတဲ့ background နဲ့ detail ကိုရှင်းရှင်းမြင်ရတဲ့ close-up ပုံများကို လိုချင်ပါတယ်။"
     ],
     buyerImageDisabledHelp: "ဒီ request မှာ seller က enable မလုပ်မချင်း image upload ကို အသုံးမပြုနိုင်သေးပါ။",
+    customRequestSubmitted: "Custom request ပို့ပြီးပါပြီ။",
+    sendRequest: "Request ပို့မည်",
+    needWalletSubmitPrefix: "ဒီ request ပို့ရန် wallet ထဲ အနည်းဆုံး",
+    needWalletSubmitSuffix: "ရှိရန် လိုအပ်ပါသည်။",
+    awaitingBuyerPayment: "ဝယ်သူ ငွေချေရန် စောင့်နေသည်",
+    sellerFeed: "seller feed",
+    profile: "ပရိုဖိုင်",
+    messages: "မက်ဆေ့ချ်များ",
+    customRequests: "custom request များ",
   },
   ru: {
+    eyebrow: "Маркетплейс",
+    title: "Индивидуальные запросы",
+    subtitle: "",
+    submitFee: "Отправка индивидуального запроса стоит",
+    openFee: "После открытия сообщения стоят",
+    perMessageBoth: "за сообщение для покупателей. Продавцы отвечают бесплатно.",
+    loginBuyer: "Войдите как покупатель, чтобы отправлять запросы.",
+    recentRequests: "Ваши недавние запросы",
+    noRequests: "Запросов пока нет.",
+    noMessages: "Сообщений пока нет.",
+    replyPlaceholder: "Ответить в этом запросе",
+    send: "Отправить",
+    addWalletToSend: "Добавьте минимум",
+    toWalletSend: "в кошелек, чтобы отправить сообщение.",
+    sellerQuote: "Предложение продавца",
+    yourCounter: "ваше встречное предложение",
+    sellerNote: "Примечание продавца:",
+    waitingCounter: "Ожидание ответа продавца на ваше встречное предложение",
+    quoteAcceptedPaid: "Предложение принято и оплачено.",
+    acceptPay: "Принять и оплатить",
+    quoteDeclined: "Предложение отклонено.",
+    decline: "Отклонить",
+    counterAmount: "Сумма встречного предложения (THB)",
+    counterSent: "Встречное предложение отправлено.",
+    messageFeeCharged: "плата за сообщение списана.",
+    counterLabel: "Встречное",
+    counterRequiresFee: "Встречные предложения требуют стандартную плату за сообщение:",
+    seller: "Продавец",
+    selectSeller: "Выбрать продавца",
+    yourName: "Ваше имя",
+    email: "Эл. почта",
+    detailsPlaceholder: "Тип белья, размеры, стиль, активности или идеи для фото",
+    shippingCountry: "Страна доставки",
+    requestBodyPlaceholder: "Опишите желаемое белье, фото и детали активностей",
     buyerPromptTitle: "Быстрые разговорные фразы",
     buyerPrompts: [
       "Как ты?",
@@ -1400,6 +1520,15 @@ const CUSTOM_REQUESTS_I18N = {
       "Я предпочитаю нейтральный фон и четкие фото крупным планом."
     ],
     buyerImageDisabledHelp: "Загрузка изображений отключена, пока продавец не включит ее для этого запроса.",
+    customRequestSubmitted: "Индивидуальный запрос отправлен.",
+    sendRequest: "Отправить запрос",
+    needWalletSubmitPrefix: "Для отправки запроса в кошельке должно быть минимум",
+    needWalletSubmitSuffix: ".",
+    awaitingBuyerPayment: "ожидание оплаты покупателем",
+    sellerFeed: "Лента продавцов",
+    profile: "Профиль",
+    messages: "Сообщения",
+    customRequests: "Индивидуальные запросы",
   },
 };
 
@@ -1499,20 +1628,20 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
             onClick={() => navigate?.("/seller-dashboard")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            Profile
+            {t.profile || "Profile"}
           </button>
           <button
             type="button"
             onClick={() => navigate?.("/seller-messages")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            Messages
+            {t.messages || "Messages"}
           </button>
           <button
             type="button"
             className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
           >
-            Custom requests
+            {t.customRequests || "Custom requests"}
           </button>
           <button
             type="button"
@@ -1529,27 +1658,27 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
             onClick={() => navigate?.("/account")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            Profile
+            {t.profile || "Profile"}
           </button>
           <button
             type="button"
             onClick={() => navigate?.("/buyer-messages")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            Messages
+            {t.messages || "Messages"}
           </button>
           <button
             type="button"
             className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto"
           >
-            Custom requests
+            {t.customRequests || "Custom requests"}
           </button>
           <button
             type="button"
             onClick={() => navigate?.("/seller-feed")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            Seller feed
+            {t.sellerFeed || "Seller feed"}
           </button>
         </div>
       ) : null}

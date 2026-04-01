@@ -7010,6 +7010,26 @@ export default function ThailandPantiesMarketSite() {
                 changed = true;
               }
             }
+            const serverPosts = Array.isArray(payload.db.sellerPosts) ? payload.db.sellerPosts : [];
+            if (serverPosts.length > 0) {
+              const localPostMap = new Map((merged.sellerPosts || []).map((p) => [p?.id, p]));
+              let postsUpdated = false;
+              serverPosts.forEach((serverPost) => {
+                if (!serverPost?.id) return;
+                const local = localPostMap.get(serverPost.id);
+                if (!local) {
+                  localPostMap.set(serverPost.id, serverPost);
+                  postsUpdated = true;
+                } else {
+                  localPostMap.set(serverPost.id, { ...local, ...serverPost });
+                  postsUpdated = true;
+                }
+              });
+              if (postsUpdated) {
+                merged.sellerPosts = Array.from(localPostMap.values());
+                changed = true;
+              }
+            }
             const approvedReqs = (merged.barAffiliationRequests || []).filter((r) => r.status === 'approved');
             if (approvedReqs.length > 0) {
               const reconSellerMap = new Map((merged.sellers || []).map((s) => [s.id, s]));

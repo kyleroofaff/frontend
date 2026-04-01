@@ -253,6 +253,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "Messaging center",
     perMessage: "per message",
     messagingHelp: "Connect with sellers, ask questions, and continue conversations in one secure thread.",
+    sellerFeed: "Seller feed",
+    barProfile: "Bar profile",
+    barFeedTab: "Bar Feed",
+    watchFeeds: "Watch feeds",
     findSellers: "Find sellers",
     searchSellers: "Search sellers",
     noSellerSearchResults: "No sellers match your search.",
@@ -399,6 +403,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "ศูนย์ข้อความ",
     perMessage: "ต่อข้อความ",
     messagingHelp: "เชื่อมต่อกับผู้ขาย ถามคำถาม และสนทนาต่อในเธรดเดียวอย่างปลอดภัย",
+    sellerFeed: "ฟีดผู้ขาย",
+    barProfile: "โปรไฟล์บาร์",
+    barFeedTab: "ฟีดบาร์",
+    watchFeeds: "ดูฟีด",
     findSellers: "ค้นหาผู้ขาย",
     searchSellers: "ค้นหาผู้ขาย",
     noSellerSearchResults: "ไม่พบผู้ขายที่ตรงกับคำค้นหา",
@@ -533,6 +541,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "မက်ဆေ့ချ်စင်တာ",
     perMessage: "တစ်မက်ဆေ့ချ်လျှင်",
     messagingHelp: "seller များနှင့် ဆက်သွယ်ပြီး မေးခွန်းမေးကာ conversation ကို တစ်နေရာတည်းတွင် ဆက်လက်လုပ်ဆောင်နိုင်သည်။",
+    sellerFeed: "seller feed",
+    barProfile: "bar ပရိုဖိုင်",
+    barFeedTab: "bar feed",
+    watchFeeds: "feed များကြည့်မည်",
     findSellers: "seller ရှာရန်",
     searchSellers: "seller ရှာရန်",
     noSellerSearchResults: "ရှာဖွေမှုနှင့် ကိုက်ညီသော seller မရှိပါ။",
@@ -667,6 +679,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "Центр сообщений",
     perMessage: "за сообщение",
     messagingHelp: "Связывайтесь с продавцами, задавайте вопросы и продолжайте диалоги в одном безопасном чате.",
+    sellerFeed: "Лента продавцов",
+    barProfile: "Профиль бара",
+    barFeedTab: "Лента бара",
+    watchFeeds: "Смотреть ленты",
     findSellers: "Найти продавцов",
     searchSellers: "Поиск продавцов",
     noSellerSearchResults: "По вашему запросу продавцы не найдены.",
@@ -1396,6 +1412,8 @@ const SELLER_I18N = {
   clearSearch: "Clear",
   noSearchResults: "No posts match your search.",
   watchFeeds: "Watch feeds",
+  barProfile: "Bar profile",
+  barFeedTab: "Bar Feed",
     reportCount: "report(s)",
     reasonInappropriate: "Inappropriate content",
     reasonHarassment: "Harassment or abuse",
@@ -1422,6 +1440,11 @@ const SELLER_I18N = {
     languages: "Languages",
     barAffiliation: "Bar affiliation",
     barAffiliationHelp: "Adding a bar now creates an approval request. Removing your affiliation applies immediately.",
+    applicationMessageLabel: "Application message (optional)",
+    applicationMessagePlaceholder: "Tell the bar about you and why you want to join.",
+    uploadPhotosLabel: "Upload photos (up to 4)",
+    applicationPendingWith: "Application pending with",
+    pendingApplicationElsewhere: "You have a pending application to another bar. Cancel it before applying elsewhere.",
     currentlyAffiliatedWith: "Currently affiliated with",
     removeAffiliation: "Remove affiliation",
     pendingBarRequests: "Pending requests to bars",
@@ -1634,11 +1657,17 @@ const SELLER_I18N = {
     reasonSpam: "สแปม", reasonImpersonation: "แอบอ้างตัวตน", reasonOther: "อื่นๆ",
     customReason: "เหตุผลเพิ่มเติม", report: "รายงาน", reporting: "กำลังรายงาน...", loadMorePosts: "โหลดโพสต์เพิ่มเติม",
     quickProfile: "โปรไฟล์", quickNewListing: "ลงสินค้าใหม่", quickInbox: "กล่องข้อความ", messagesTab: "ข้อความ", customRequestsTab: "คำขอพิเศษ", unreadChatsCount: "แชทยังไม่อ่าน", openRequestsCount: "คำขอที่เปิดอยู่", quickNewPost: "โพสต์ใหม่", quickListings: "รายการสินค้า",
+    watchFeeds: "ดูฟีด", barProfile: "โปรไฟล์บาร์", barFeedTab: "ฟีดบาร์",
     showTranslation: "แสดงคำแปล", showOriginal: "แสดงต้นฉบับ",
     addWalletReplyPrefix: "เติมอย่างน้อย", addWalletReplySuffix: "ลงในกระเป๋าเพื่อส่งข้อความตอบกลับ",
     languages: "ภาษา",
     barAffiliation: "การเชื่อมกับบาร์",
     barAffiliationHelp: "เมื่อเลือกบาร์จะสร้างคำขออนุมัติทันที การยกเลิกการเชื่อมจะมีผลทันที",
+    applicationMessageLabel: "ข้อความสมัคร (ไม่บังคับ)",
+    applicationMessagePlaceholder: "บอกบาร์เกี่ยวกับตัวคุณและเหตุผลที่อยากเข้าร่วม",
+    uploadPhotosLabel: "อัปโหลดรูปภาพ (สูงสุด 4 รูป)",
+    applicationPendingWith: "คำขอกำลังรอการอนุมัติจาก",
+    pendingApplicationElsewhere: "คุณมีคำขอที่รออยู่กับบาร์อื่น กรุณายกเลิกก่อนสมัครที่อื่น",
     currentlyAffiliatedWith: "เชื่อมอยู่กับ",
     removeAffiliation: "ยกเลิกการเชื่อม",
     pendingBarRequests: "คำขอที่ส่งถึงบาร์ (รอดำเนินการ)",
@@ -1850,11 +1879,17 @@ const SELLER_I18N = {
     reasonSpam: "spam", reasonImpersonation: "အယောင်ဆောင်မှု", reasonOther: "အခြား",
     customReason: "စိတ်ကြိုက် အကြောင်းပြချက်", report: "report", reporting: "report လုပ်နေသည်...", loadMorePosts: "post များထပ်ဖွင့်မည်",
     quickProfile: "ပရိုဖိုင်", quickNewListing: "စာရင်းသစ်", quickInbox: "စာဝင်ပုံး", messagesTab: "မက်ဆေ့ချ်များ", customRequestsTab: "စိတ်ကြိုက်တောင်းဆိုချက်များ", unreadChatsCount: "မဖတ်ရသေးသော chat", openRequestsCount: "ဖွင့်ထားသော request များ", quickNewPost: "post အသစ်", quickListings: "စာရင်းများ",
+    watchFeeds: "feed များကြည့်မည်", barProfile: "bar ပရိုဖိုင်", barFeedTab: "bar feed",
     showTranslation: "ဘာသာပြန်ကိုပြရန်", showOriginal: "မူရင်းကိုပြရန်",
     addWalletReplyPrefix: "အနည်းဆုံး", addWalletReplySuffix: "ကို wallet ထဲ ထည့်ပြီးမှ reply ပို့နိုင်ပါမည်။",
     languages: "ဘာသာစကားများ",
     barAffiliation: "bar ချိတ်ဆက်မှု",
     barAffiliationHelp: "bar ရွေးချယ်ပါက အတည်ပြုခွင့်ပြုရန် တောင်းဆိုချက် ပို့မည်။ ချိတ်ဆက်မှုဖယ်ရှားခြင်းသည် ချက်ချင်းအသက်ဝင်သည်",
+    applicationMessageLabel: "လျှောက်လွှာ message (မလိုအပ်ပါ)",
+    applicationMessagePlaceholder: "bar ကို သင့်အကြောင်းနှင့် ဝင်ချင်သော အကြောင်းရင်း ပြောပြပါ",
+    uploadPhotosLabel: "ဓာတ်ပုံများတင်ပါ (၄ ခုအထိ)",
+    applicationPendingWith: "လျှောက်လွှာ စောင့်နေသည်",
+    pendingApplicationElsewhere: "အခြား bar တစ်ခုတွင် စောင့်နေသော လျှောက်လွှာရှိသည်။ အခြားနေရာ မလျှောက်ခင် ပယ်ဖျက်ပါ",
     currentlyAffiliatedWith: "လက်ရှိချိတ်ဆက်ထားသည်",
     removeAffiliation: "ချိတ်ဆက်မှုဖယ်ရှားရန်",
     pendingBarRequests: "bar များသို့ ပို့ထားသော တောင်းဆိုချက်များ",
@@ -2066,11 +2101,17 @@ const SELLER_I18N = {
     reasonSpam: "Спам", reasonImpersonation: "Выдача себя за другого", reasonOther: "Другое",
     customReason: "Своя причина", report: "Пожаловаться", reporting: "Отправка...", loadMorePosts: "Загрузить еще",
     quickProfile: "Профиль", quickNewListing: "Новое объявление", quickInbox: "Входящие", messagesTab: "Сообщения", customRequestsTab: "Индивидуальные запросы", unreadChatsCount: "Непрочитанные чаты", openRequestsCount: "Открытые запросы", quickNewPost: "Новый пост", quickListings: "Объявления",
+    watchFeeds: "Смотреть ленты", barProfile: "Профиль бара", barFeedTab: "Лента бара",
     showTranslation: "Показать перевод", showOriginal: "Показать оригинал",
     addWalletReplyPrefix: "Добавьте минимум", addWalletReplySuffix: "в кошелек, чтобы ответить.",
     languages: "Языки",
     barAffiliation: "Привязка к бару",
     barAffiliationHelp: "При выборе бара создается запрос на одобрение. Удаление привязки применяется сразу.",
+    applicationMessageLabel: "Сообщение к заявке (необязательно)",
+    applicationMessagePlaceholder: "Расскажите бару о себе и почему хотите присоединиться.",
+    uploadPhotosLabel: "Загрузить фото (до 4)",
+    applicationPendingWith: "Заявка ожидает рассмотрения",
+    pendingApplicationElsewhere: "У вас есть заявка в другой бар. Отмените ее, чтобы подать новую.",
     currentlyAffiliatedWith: "Сейчас привязан к",
     removeAffiliation: "Убрать привязку",
     pendingBarRequests: "Ожидающие запросы в бары",
@@ -3569,12 +3610,12 @@ export function SellerDashboardPage({
                     ))}
                   </select>
                   <div className="rounded-2xl border border-slate-200 bg-white p-3">
-                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Application message (optional)</div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("applicationMessageLabel")}</div>
                     <textarea
                       value={sellerAffiliationRequestDraft?.message || ""}
                       onChange={(event) => updateSellerAffiliationRequestDraftMessage?.(event.target.value)}
                       className="mt-2 min-h-[84px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                      placeholder="Tell the bar about you and why you want to join."
+                      placeholder={t("applicationMessagePlaceholder")}
                     />
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <button
@@ -3599,7 +3640,7 @@ export function SellerDashboardPage({
                           }}
                           className="hidden"
                         />
-                        Upload photos (up to 4)
+                        {t("uploadPhotosLabel")}
                       </label>
                     </div>
                     {(sellerAffiliationRequestDraft?.images || []).length > 0 ? (
@@ -3621,11 +3662,11 @@ export function SellerDashboardPage({
                   </div>
                   {hasPendingSelectedBarRequest && selectedAffiliatedBarId ? (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                      Application pending with {selectedBarName}.
+                      {t("applicationPendingWith")} {selectedBarName}.
                     </div>
                   ) : hasPendingAnyBarRequest && !hasPendingSelectedBarRequest ? (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                      You have a pending application to another bar. Cancel it before applying elsewhere.
+                      {t("pendingApplicationElsewhere")}
                     </div>
                   ) : null}
                   <span className="text-xs text-slate-500">{t("barAffiliationHelp")}</span>
@@ -4733,16 +4774,16 @@ export function BarMessagesPage({
       {isBar ? (
         <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
           <button type="button" onClick={() => navigate("/bar-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-            Bar profile
+            {tx("barProfile")}
           </button>
           <button type="button" onClick={() => navigate("/bar-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-            Bar Feed
+            {tx("barFeedTab")}
           </button>
           <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
-            Messages
+            {tx("messages")}
           </button>
           <button type="button" onClick={() => navigate("/seller-feed")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-            Watch Feeds
+            {tx("watchFeeds")}
           </button>
         </div>
       ) : (
@@ -5156,7 +5197,7 @@ export function SellerFeedPage({
             {t("quickProfile")}
           </button>
           <button type="button" onClick={() => navigate("/bar-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-            Bar Feed
+            {t("barFeedTab")}
           </button>
           <button type="button" onClick={() => navigate("/bar-messages")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
             {t("messagesTab")}
@@ -12473,7 +12514,7 @@ export function AccountPage({
                 onClick={() => navigate("/seller-feed")}
                 className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto"
               >
-                Seller feed
+                {tx("sellerFeed")}
               </button>
             </div>
           ) : null}
@@ -13781,7 +13822,7 @@ export function BuyerMessagesPage({
           {tx("customRequests")}
         </button>
         <button type="button" onClick={() => navigate("/seller-feed")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-          Seller feed
+          {tx("sellerFeed")}
         </button>
       </div>
       <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
