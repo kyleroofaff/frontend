@@ -9510,7 +9510,7 @@ export default function ThailandPantiesMarketSite() {
     const isLeavingBar = Boolean(!normalizedAffiliatedBarId && previousAffiliatedBarId);
     const now = new Date().toISOString();
     const locationText = String(sellerProfileDraft.location || '').trim();
-    const specialtyText = specialties.join(' · ') || 'Pending profile details';
+    const specialtyText = specialties.join(' · ') || '';
     const bioText = sellerProfileDraft.bio.trim();
     const shippingText = String(sellerProfileDraft.shipping || '').trim() || 'Worldwide via international carriers';
     const turnaroundText = String(sellerProfileDraft.turnaround || '').trim() || 'Ships in 1-3 days';
@@ -17235,7 +17235,7 @@ export default function ThailandPantiesMarketSite() {
                           {seller.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
                         </span>
                       </div>
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{seller.bio || seller.specialty || publicText.sellerFallback}</p>
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{seller.bio || (seller.specialty && seller.specialty !== 'Pending profile details' ? seller.specialty : null) || publicText.sellerFallback}</p>
                       <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.total || 0} {publicText.listingsLabel}</span>
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.types?.size || 0} {publicText.typesLabel}</span>
@@ -17529,7 +17529,7 @@ export default function ThailandPantiesMarketSite() {
                               <div className="truncate text-sm font-semibold text-slate-800">{seller.name}</div>
                             </div>
                             <p className="mt-1 line-clamp-2 text-xs text-slate-600">
-                              {seller.bio || seller.specialty || publicText.affiliatedSellerFallback}
+                              {seller.bio || (seller.specialty && seller.specialty !== 'Pending profile details' ? seller.specialty : null) || publicText.affiliatedSellerFallback}
                             </p>
                           </div>
                         </button>

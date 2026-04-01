@@ -2233,11 +2233,13 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
                   {seller.affiliatedBarName ? `${text.barPrefix} ${seller.affiliatedBarName}` : localizeOptionLabel("Independent", uiLanguage)}
                 </p>
               </div>
+              {(() => { const _label = formatSellerSpecialtyLabel(seller); return (_label && _label !== 'Pending profile details') ? (
               <div className="max-w-full rounded-2xl bg-slate-100 px-3 py-2 text-sm font-semibold leading-5 text-slate-700">
-                {formatSellerSpecialtyLabel(seller) || text.sellerFallback}
+                {_label}
               </div>
+              ) : null; })()}
             </div>
-            <p className="mt-4 text-sm leading-6 text-slate-600">{(Array.isArray(seller.specialties) && seller.specialties.length > 0) ? seller.specialties.join(" · ") : seller.specialty}</p>
+            {(() => { const _raw = (Array.isArray(seller.specialties) && seller.specialties.length > 0) ? seller.specialties.join(" · ") : seller.specialty; return (_raw && _raw !== 'Pending profile details') ? <p className="mt-4 text-sm leading-6 text-slate-600">{_raw}</p> : null; })()}
             <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
               <span className="rounded-full bg-slate-100 px-3 py-1">
                 {(sellerInsightsById[seller.id]?.total || 0)} {text.listings}
