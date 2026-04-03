@@ -1378,6 +1378,10 @@ const SELLER_I18N = {
     feedSubtitle: "Browse seller posts, behind-the-scenes photos, and day-to-day updates.",
     noFeedPosts: "No feed posts yet. Check back soon for new updates.",
     feedImage: "Feed image",
+    specialty: "Specialty",
+    whatBuyersWillSee: "What buyers will see (profile card)",
+    whatBuyersWillSeeShort: "What buyers will see",
+    removeImage: "Remove image",
   like: "Like",
   unlike: "Unlike",
   comment: "Comment",
@@ -1652,7 +1656,7 @@ const SELLER_I18N = {
     feedEyebrow: "ฟีดผู้ขาย", feedTitle: "ดูว่า ผู้ขายคนโปรดของคุณกำลังทำอะไรอยู่",
     feedSubtitle: "ดูโพสต์ไลฟ์สไตล์ เบื้องหลัง และอัปเดตประจำวันจากผู้ขาย",
     noFeedPosts: "ยังไม่มีโพสต์ฟีด กลับมาตรวจสอบอีกครั้งเร็วๆ นี้",
-    feedImage: "รูปฟีด", reportCount: "รายงาน",
+    feedImage: "รูปฟีด", specialty: "ความถนัด", whatBuyersWillSee: "สิ่งที่ผู้ซื้อจะเห็น (การ์ดโปรไฟล์)", whatBuyersWillSeeShort: "สิ่งที่ผู้ซื้อจะเห็น", removeImage: "ลบรูปภาพ", reportCount: "รายงาน",
     reasonInappropriate: "เนื้อหาไม่เหมาะสม", reasonHarassment: "คุกคามหรือกลั่นแกล้ง",
     reasonSpam: "สแปม", reasonImpersonation: "แอบอ้างตัวตน", reasonOther: "อื่นๆ",
     customReason: "เหตุผลเพิ่มเติม", report: "รายงาน", reporting: "กำลังรายงาน...", loadMorePosts: "โหลดโพสต์เพิ่มเติม",
@@ -1874,7 +1878,7 @@ const SELLER_I18N = {
     feedEyebrow: "seller feed", feedTitle: "သင်နှစ်သက်သော seller ဘာလုပ်နေလဲ ကြည့်ပါ",
     feedSubtitle: "seller post များ၊ နောက်ကွယ်ပုံများနှင့် နေ့စဉ် update များကို ကြည့်ရှုပါ",
     noFeedPosts: "feed post မရှိသေးပါ။ နောက်ပိုင်းတွင် ပြန်စစ်ပါ",
-    feedImage: "feed ပုံ", reportCount: "report",
+    feedImage: "feed ပုံ", specialty: "အထူးပြုအမျိုးအစား", whatBuyersWillSee: "ဝယ်သူမြင်ရမည့်အရာ (ပရိုဖိုင်ကတ်)", whatBuyersWillSeeShort: "ဝယ်သူမြင်ရမည့်အရာ", removeImage: "ပုံဖယ်ရှားမည်", reportCount: "report",
     reasonInappropriate: "မသင့်လျော်သော အကြောင်းအရာ", reasonHarassment: "အနှောင့်အယှက် သို့မဟုတ် အနိုင်ကျင့်မှု",
     reasonSpam: "spam", reasonImpersonation: "အယောင်ဆောင်မှု", reasonOther: "အခြား",
     customReason: "စိတ်ကြိုက် အကြောင်းပြချက်", report: "report", reporting: "report လုပ်နေသည်...", loadMorePosts: "post များထပ်ဖွင့်မည်",
@@ -2096,7 +2100,7 @@ const SELLER_I18N = {
     feedEyebrow: "Лента продавцов", feedTitle: "Смотрите, чем сейчас занимается ваш любимый продавец",
     feedSubtitle: "Смотрите посты продавцов, закулисные фото и ежедневные обновления.",
     noFeedPosts: "Постов в ленте пока нет. Загляните позже.",
-    feedImage: "Фото ленты", reportCount: "жалоб(ы)",
+    feedImage: "Фото ленты", specialty: "Специализация", whatBuyersWillSee: "Что увидят покупатели (карточка профиля)", whatBuyersWillSeeShort: "Что увидят покупатели", removeImage: "Удалить изображение", reportCount: "жалоб(ы)",
     reasonInappropriate: "Неприемлемый контент", reasonHarassment: "Оскорбления или травля",
     reasonSpam: "Спам", reasonImpersonation: "Выдача себя за другого", reasonOther: "Другое",
     customReason: "Своя причина", report: "Пожаловаться", reporting: "Отправка...", loadMorePosts: "Загрузить еще",
@@ -3194,7 +3198,7 @@ export function SellerDashboardPage({
                         </div>
                       </div>
                       <div>
-                        <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see (profile card)</div>
+                        <div className="mb-1 text-[11px] font-medium text-slate-500">{t("whatBuyersWillSee")}</div>
                         <div className="aspect-[4/5] max-w-xs">
                           <ProductImage
                             src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
@@ -3226,7 +3230,7 @@ export function SellerDashboardPage({
                         onClick={() => { updateSellerProfileField("profileImage", ""); updateSellerProfileField("profileImageName", ""); }}
                         className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-rose-600"
                       >
-                        Remove image
+                        {t("removeImage")}
                       </button>
                     ) : null}
                     <span className="text-xs text-slate-500">{sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("noFileChosen")}</span>
@@ -4069,7 +4073,7 @@ export function SellerFeedWorkspacePage({
                   </label>
                   {sellerPostDraft.image ? (
                     <button type="button" onClick={() => setSellerPostDraft((prev) => ({ ...prev, image: "", imageName: "" }))} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-rose-600">
-                      Remove image
+                      {t("removeImage")}
                     </button>
                   ) : null}
                   <span className="text-xs text-slate-500">{sellerPostDraft.imageName || t("noFileChosen")}</span>
@@ -4081,7 +4085,7 @@ export function SellerFeedWorkspacePage({
                       <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain /></div>
                     </div>
                     <div>
-                      <div className="mb-1 text-[11px] font-medium text-slate-500">What buyers will see</div>
+                      <div className="mb-1 text-[11px] font-medium text-slate-500">{t("whatBuyersWillSeeShort")}</div>
                       <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} top /></div>
                     </div>
                   </div>

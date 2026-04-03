@@ -316,6 +316,7 @@ const BAR_DASHBOARD_I18N = {
     engagementBadge: 'Engagement',
     unreadBadge: 'Unread',
     markRead: 'Mark read',
+    removeImage: 'Remove image',
   },
   th: {
     barDashboard: 'แดชบอร์ดบาร์',
@@ -414,6 +415,7 @@ const BAR_DASHBOARD_I18N = {
     engagementBadge: 'การมีส่วนร่วม',
     unreadBadge: 'ยังไม่ได้อ่าน',
     markRead: 'ทำเครื่องหมายอ่านแล้ว',
+    removeImage: 'ลบรูปภาพ',
   },
   my: {
     barDashboard: 'Bar Dashboard',
@@ -512,6 +514,7 @@ const BAR_DASHBOARD_I18N = {
     engagementBadge: 'Engagement',
     unreadBadge: 'မဖတ်ရသေး',
     markRead: 'ဖတ်ပြီး အဖြစ် မှတ်မည်',
+    removeImage: 'ပုံဖယ်ရှားမည်',
   },
   ru: {
     barDashboard: 'Панель бара',
@@ -610,6 +613,7 @@ const BAR_DASHBOARD_I18N = {
     engagementBadge: 'Активность',
     unreadBadge: 'Непрочитано',
     markRead: 'Прочитано',
+    removeImage: 'Удалить изображение',
   },
 };
 
@@ -1568,7 +1572,7 @@ const REGISTER_I18N = {
     barAccount: "I'm a bar or venue",
     city: 'City',
     country: 'Country',
-    sellerNameHint: 'Please write your name in English. We suggest first name and last initial (e.g. Nina R.), but you can use any name you like.',
+    sellerNameHint: 'Please write your name in English. We suggest a nickname and one initial (e.g. Nina R.), but you can use any name you like.',
     barNameHint: 'Please enter the name of your bar in English (e.g. Small World Chiang Mai).',
     heightLabel: 'Height',
     weightLabel: 'Weight',
@@ -1667,7 +1671,7 @@ const REGISTER_I18N = {
     barAccount: 'เป็นบาร์หรือสถานบันเทิง',
     city: 'เมือง',
     country: 'ประเทศ',
-    sellerNameHint: 'กรุณาเขียนชื่อเป็นภาษาอังกฤษ แนะนำให้ใช้ชื่อจริงและนามสกุลตัวแรก (เช่น Nina R.) แต่คุณสามารถใช้ชื่ออะไรก็ได้ที่ต้องการ',
+    sellerNameHint: 'กรุณาเขียนชื่อเป็นภาษาอังกฤษ แนะนำให้ใช้ชื่อเล่นและอักษรย่อหนึ่งตัว (เช่น Nina R.) แต่คุณสามารถใช้ชื่ออะไรก็ได้ที่ต้องการ',
     barNameHint: 'กรุณาใส่ชื่อบาร์เป็นภาษาอังกฤษ (เช่น Small World Chiang Mai)',
     heightLabel: 'ส่วนสูง',
     weightLabel: 'น้ำหนัก',
@@ -1766,7 +1770,7 @@ const REGISTER_I18N = {
     barAccount: 'ကျွန်ုပ်သည် ဘား သို့မဟုတ် နေရာတစ်ခု ဖြစ်သည်',
     city: 'မြို့',
     country: 'နိုင်ငံ',
-    sellerNameHint: 'အမည်ကို အင်္ဂလိပ်လို ရေးပါ။ နာမည်နှင့် မျိုးနွယ်အစ တစ်လုံး သုံးရန် အကြံပြုပါသည် (ဥပမာ Nina R.)။ သို့သော် သင်ကြိုက်သော အမည်ကို သုံးနိုင်ပါသည်',
+    sellerNameHint: 'အမည်ကို အင်္ဂလိပ်လို ရေးပါ။ အမည်ပြောင်နှင့် အစအက္ခရာတစ်လုံး သုံးရန် အကြံပြုပါသည် (ဥပမာ Nina R.)။ သို့သော် သင်ကြိုက်သော အမည်ကို သုံးနိုင်ပါသည်',
     barNameHint: 'bar အမည်ကို အင်္ဂလိပ်လို ရေးပါ (ဥပမာ Small World Chiang Mai)',
     heightLabel: 'အရပ်',
     weightLabel: 'ကိုယ်အလေးချိန်',
@@ -1865,7 +1869,7 @@ const REGISTER_I18N = {
     barAccount: 'Я бар или заведение',
     city: 'Город',
     country: 'Страна',
-    sellerNameHint: 'Пожалуйста, напишите имя на английском языке. Рекомендуем использовать имя и первую букву фамилии (например, Nina R.), но вы можете указать любое имя.',
+    sellerNameHint: 'Пожалуйста, напишите имя на английском языке. Рекомендуем использовать никнейм и одну начальную букву (например, Nina R.), но вы можете указать любое имя.',
     barNameHint: 'Пожалуйста, введите название бара на английском языке (например, Small World Chiang Mai).',
     heightLabel: 'Рост',
     weightLabel: 'Вес',
@@ -18923,7 +18927,7 @@ export default function ThailandPantiesMarketSite() {
                     </label>
                     {barPostDraft.image ? (
                       <button type="button" onClick={() => setBarPostDraft((prev) => ({ ...prev, image: '', imageName: '' }))} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-rose-600">
-                        Remove image
+                        {barT.removeImage || 'Remove image'}
                       </button>
                     ) : null}
                     <span className="text-xs text-slate-500">{barPostDraft.imageName || barT.noFileSelected || 'No file selected'}</span>
