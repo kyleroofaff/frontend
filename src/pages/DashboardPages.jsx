@@ -955,6 +955,7 @@ const ADMIN_TAB_CONFIG = [
   { key: "email_inbox", label: "Email Inbox", description: "Manage shared support and admin mailbox threads", icon: MessageSquare },
   { key: "email_templates", label: "Email Templates", description: "Notification copy, variants, and tests", icon: MessageSquare },
   { key: "payments", label: "Payments", description: "Payouts and ledger operations", icon: CreditCard },
+  { key: "gifts", label: "Gifts", description: "Gift catalog and fulfillment", icon: ShoppingBag },
   { key: "cms", label: "CMS and Routes", description: "Content model and route map", icon: Database },
   { key: "deployment", label: "Site Settings", description: "Manage SEO, routes, and technical settings.", icon: Upload },
 ];
@@ -2388,7 +2389,9 @@ export function SellerDashboardPage({
   accountCredentialSaving,
   accountCredentialMessage,
   accountCredentialTone,
-  navigate
+  navigate,
+  giftPurchases,
+  giftFulfillmentTasks,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
@@ -3600,6 +3603,22 @@ export function SellerDashboardPage({
                     </select>
                   </label>
                 </div>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">Birthday day</span>
+                    <select value={sellerProfileDraft.birthDay || ""} onChange={(e) => updateSellerProfileField("birthDay", Number(e.target.value) || null)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                      <option value="">Day</option>
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">Birthday month</span>
+                    <select value={sellerProfileDraft.birthMonth || ""} onChange={(e) => updateSellerProfileField("birthMonth", Number(e.target.value) || null)} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                      <option value="">Month</option>
+                      {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
+                    </select>
+                  </label>
+                </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={saveSellerProfile}
@@ -3632,6 +3651,28 @@ export function SellerDashboardPage({
                 </div>
               </div>
             </details>
+
+          {/* Gifts Received */}
+          {(giftPurchases || []).filter((p) => p.sellerId === currentSellerId).length > 0 && (
+            <div className="mt-8 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
+              <h3 className="text-xl font-semibold">Gifts Received</h3>
+              <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+                {(giftPurchases || []).filter((p) => p.sellerId === currentSellerId).map((purchase) => (
+                  <div key={purchase.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium capitalize">{purchase.giftType?.replace(/_/g, ' ')}</span>
+                      <span className="text-slate-500">฿{purchase.price}</span>
+                      {purchase.message && <span className="text-xs text-slate-400 italic">"{purchase.message}"</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400">{purchase.isAnonymous ? 'Anonymous' : purchase.buyerId}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${purchase.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>{purchase.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <details
             id="seller-listings"
@@ -3891,12 +3932,26 @@ export function SellerUploadPage({
                 </select>
               </label>
             </div>
-            <input id="seller-product-image-input-page" type="file" accept="image/*" onChange={handleUploadFile} className="sr-only" />
+            <input id="seller-product-image-input-page" type="file" accept="image/*" multiple onChange={handleUploadFile} className="sr-only" />
             <div className="flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
               <label htmlFor="seller-product-image-input-page" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">{t("chooseFile")}</label>
-              <span className="text-xs text-slate-600">{uploadDraft.imageName || t("noFileChosen")}</span>
+              <span className="text-xs text-slate-600">{uploadDraft.images?.length ? `${uploadDraft.images.length} / 5 images` : t("noFileChosen")}</span>
             </div>
-            <div className="aspect-[4/5] max-w-xs">{uploadDraft.image ? <ProductImage src={uploadDraft.image} label={uploadDraft.imageName} top /> : <ProductImage label={t("imagePreview")} />}</div>
+            <div className="grid grid-cols-3 gap-3 max-w-md">
+              {(uploadDraft.images || []).map((img, idx) => (
+                <div key={idx} className="relative aspect-[4/5]">
+                  <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top />
+                  <button onClick={() => setUploadDraft((prev) => {
+                    const next = prev.images.filter((_, i) => i !== idx);
+                    return { ...prev, images: next, image: next[0]?.url || '', imageName: next[0]?.name || '' };
+                  })} className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow">&times;</button>
+                  {idx === 0 && <span className="absolute left-1 bottom-1 rounded bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">Cover</span>}
+                </div>
+              ))}
+              {(!uploadDraft.images?.length) && (
+                <div className="aspect-[4/5]"><ProductImage label={t("imagePreview")} /></div>
+              )}
+            </div>
             <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
           </div>
           <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
@@ -5508,7 +5563,10 @@ export function AdminPage({
   markPayoutItemFailed,
   appMode,
   switchAppMode,
-  onImpersonateUser
+  onImpersonateUser,
+  giftCatalog,
+  giftPurchases,
+  giftFulfillmentTasks,
 }) {
   const [socialSearch, setSocialSearch] = useState("");
   const [socialFilter, setSocialFilter] = useState("all");
@@ -10869,6 +10927,64 @@ export function AdminPage({
               </div>
               </>
               ) : null}
+            </div>
+          ) : null}
+
+          {adminTab === "gifts" ? (
+            <div className="space-y-6">
+              <div className="rounded-3xl border border-rose-100 bg-white p-5">
+                <h3 className="text-lg font-semibold text-slate-900">Gift Catalog</h3>
+                <p className="mt-1 text-sm text-slate-500">Enable or disable gift items available on seller profiles.</p>
+                <div className="mt-4 space-y-3">
+                  {(giftCatalog || []).map((item) => (
+                    <div key={item.id} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
+                      <div>
+                        <span className="font-semibold">{item.name}</span>
+                        <span className="ml-2 text-sm text-slate-500">฿{item.price}</span>
+                        <span className="ml-2 text-xs text-slate-400">{item.fulfillmentType}</span>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                        {item.isActive ? 'Active' : 'Disabled'}
+                      </span>
+                    </div>
+                  ))}
+                  {(!giftCatalog || giftCatalog.length === 0) && <p className="text-sm text-slate-400">Default catalog will be used (Rose, Dozen Roses, Chocolate, Drink).</p>}
+                </div>
+              </div>
+              <div className="rounded-3xl border border-rose-100 bg-white p-5">
+                <h3 className="text-lg font-semibold text-slate-900">Gift Purchases</h3>
+                <p className="mt-1 text-sm text-slate-500">{(giftPurchases || []).length} total purchases</p>
+                <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
+                  {(giftPurchases || []).slice(0, 50).map((purchase) => (
+                    <div key={purchase.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-3 text-sm">
+                      <div>
+                        <span className="font-medium">{purchase.giftType}</span>
+                        <span className="ml-2 text-slate-500">฿{purchase.price}</span>
+                        <span className="ml-2 text-xs text-slate-400">{purchase.isAnonymous ? 'Anonymous' : purchase.buyerId}</span>
+                        <span className="ml-1 text-xs text-slate-400">→ {purchase.sellerId}</span>
+                      </div>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${purchase.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>{purchase.status}</span>
+                    </div>
+                  ))}
+                  {(!giftPurchases || giftPurchases.length === 0) && <p className="text-sm text-slate-400">No gift purchases yet.</p>}
+                </div>
+              </div>
+              <div className="rounded-3xl border border-rose-100 bg-white p-5">
+                <h3 className="text-lg font-semibold text-slate-900">Fulfillment Tasks</h3>
+                <p className="mt-1 text-sm text-slate-500">{(giftFulfillmentTasks || []).length} total tasks</p>
+                <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
+                  {(giftFulfillmentTasks || []).slice(0, 50).map((task) => (
+                    <div key={task.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-3 text-sm">
+                      <div>
+                        <span className="font-medium">{task.taskType}</span>
+                        <span className="ml-2 text-xs text-slate-400">{task.assigneeType === 'bar' ? `Bar: ${task.barId}` : `Seller: ${task.sellerId}`}</span>
+                      </div>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${task.status === 'pending' ? 'bg-amber-50 text-amber-700' : task.status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{task.status}</span>
+                    </div>
+                  ))}
+                  {(!giftFulfillmentTasks || giftFulfillmentTasks.length === 0) && <p className="text-sm text-slate-400">No fulfillment tasks yet.</p>}
+                </div>
+              </div>
             </div>
           ) : null}
 

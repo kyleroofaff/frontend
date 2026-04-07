@@ -105,6 +105,13 @@ const ADMIN_SCOPES = {
 
 const KNOWN_ADMIN_SCOPES = new Set(Object.values(ADMIN_SCOPES));
 
+const GIFT_CATALOG = [
+  { id: 'gift_rose', type: 'rose', name: 'Rose', nameI18n: { en: 'Rose', th: 'กุหลาบ', my: 'နှင်းဆီ', ru: 'Роза' }, price: 200, emoji: '🌹', fulfillmentType: 'physical' },
+  { id: 'gift_dozen_roses', type: 'dozen_roses', name: 'Dozen Roses', nameI18n: { en: 'Dozen Roses', th: 'กุหลาบ 12 ดอก', my: 'နှင်းဆီ ၁၂ ပွင့်', ru: '12 Роз' }, price: 2000, emoji: '💐', fulfillmentType: 'physical' },
+  { id: 'gift_chocolate', type: 'chocolate', name: 'Chocolate', nameI18n: { en: 'Chocolate', th: 'ช็อกโกแลต', my: 'ချောကလက်', ru: 'Шоколад' }, price: 1650, emoji: '🍫', fulfillmentType: 'physical' },
+  { id: 'gift_drink', type: 'drink', name: 'Drink', nameI18n: { en: 'Drink', th: 'เครื่องดื่ม', my: 'အချိုရည်', ru: 'Напиток' }, price: 350, emoji: '🍹', fulfillmentType: 'drink' },
+];
+
 function resolveAdminAccess(user) {
   const role = String(user?.role || '').trim().toLowerCase();
   if (role === 'admin') {
@@ -4587,6 +4594,8 @@ function normalizeDbState(nextDb, mode = 'live') {
             isOnline: Boolean(seller?.isOnline),
             feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
             affiliatedBarId: String(seller?.affiliatedBarId || '').trim(),
+            birthDay: seller?.birthDay || null,
+            birthMonth: seller?.birthMonth || null,
             locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
             specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
             shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
@@ -4602,6 +4611,8 @@ function normalizeDbState(nextDb, mode = 'live') {
               isOnline: Boolean(seller?.isOnline),
               feedVisibility: ['public', 'private', 'per-post'].includes(seller?.feedVisibility) ? seller.feedVisibility : 'public',
               affiliatedBarId: String(seller?.affiliatedBarId || '').trim(),
+              birthDay: seller?.birthDay || null,
+              birthMonth: seller?.birthMonth || null,
               locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
               specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
               shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
@@ -4733,6 +4744,9 @@ function normalizeDbState(nextDb, mode = 'live') {
     emailDeliveryLog: Array.isArray(nextDb.emailDeliveryLog) ? nextDb.emailDeliveryLog : [],
     adminEmailThreads: Array.isArray(nextDb.adminEmailThreads) ? nextDb.adminEmailThreads : [],
     adminEmailMessages: Array.isArray(nextDb.adminEmailMessages) ? nextDb.adminEmailMessages : [],
+    giftCatalog: Array.isArray(nextDb.giftCatalog) ? nextDb.giftCatalog : [],
+    giftPurchases: Array.isArray(nextDb.giftPurchases) ? nextDb.giftPurchases : [],
+    giftFulfillmentTasks: Array.isArray(nextDb.giftFulfillmentTasks) ? nextDb.giftFulfillmentTasks : [],
     siteSettings: normalizeSiteSettings(nextDb.siteSettings),
   };
   const existingBarIds = new Set((normalized.bars || []).map((bar) => String(bar?.id || '')));
@@ -5244,6 +5258,7 @@ export default function ThailandPantiesMarketSite() {
     scentLevel: SCENT_LEVEL_OPTIONS[0],
     image: '',
     imageName: '',
+    images: [],
   });
   const [buyerEmail, setBuyerEmail] = useState(() => String(readStore('tlm-checkout-buyer-email', '') || ''));
   const [checkoutAuthModalOpen, setCheckoutAuthModalOpen] = useState(false);
@@ -5409,6 +5424,7 @@ export default function ThailandPantiesMarketSite() {
   const [topUpAmount, setTopUpAmount] = useState(500);
   const [walletStatus, setWalletStatus] = useState('idle');
   const [walletTopUpContext, setWalletTopUpContext] = useState(null);
+  const [giftModal, setGiftModal] = useState({ open: false, sellerId: '', giftType: '', message: '', isAnonymous: false, sending: false, error: '', success: '' });
   const [sellerSelectedConversationId, setSellerSelectedConversationId] = useState('');
   const [sellerReplyDraft, setSellerReplyDraft] = useState('');
   const [sellerCustomRequestDraft, setSellerCustomRequestDraft] = useState({
@@ -5434,6 +5450,8 @@ export default function ThailandPantiesMarketSite() {
     hairColor: '',
     braSize: '',
     pantySize: '',
+    birthDay: null,
+    birthMonth: null,
   });
   const [sellerProfileMessage, setSellerProfileMessage] = useState('');
   const [isSavingSellerProfile, setIsSavingSellerProfile] = useState(false);
@@ -6234,6 +6252,7 @@ export default function ThailandPantiesMarketSite() {
     && !selectedProduct.isBundle
     && cartBundleCoveredItemIds.has(String(selectedProduct.id || ''))
   );
+  const [selectedProductImageIndex, setSelectedProductImageIndex] = useState(0);
   const getPrimaryBundleForProduct = (productId) => {
     if (!productId) return null;
     const matches = bundlesByItemId[productId] || [];
@@ -6806,6 +6825,8 @@ export default function ThailandPantiesMarketSite() {
       hairColor: currentSellerProfile.hairColor || '',
       braSize: currentSellerProfile.braSize || '',
       pantySize: currentSellerProfile.pantySize || '',
+      birthDay: currentSellerProfile.birthDay || null,
+      birthMonth: currentSellerProfile.birthMonth || null,
     });
   }, [currentSellerProfile?.id]);
 
@@ -7085,6 +7106,32 @@ export default function ThailandPantiesMarketSite() {
 
     loadBootstrap();
   }, [appMode]);
+
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== 'buyer') return;
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+    const todayDay = now.getDate();
+    const todayMonth = now.getMonth() + 1;
+    const todayKey = `birthday-notif-${todayDay}-${todayMonth}`;
+    const birthdaySellers = (db.sellers || []).filter((s) => s.birthDay === todayDay && s.birthMonth === todayMonth);
+    if (birthdaySellers.length === 0) return;
+    const existingNotifIds = new Set((db.notifications || []).map((n) => String(n?.id || '')));
+    const newNotifs = birthdaySellers
+      .filter((s) => !existingNotifIds.has(`birthday_${s.id}_${todayKey}`))
+      .map((s) => ({
+        id: `birthday_${s.id}_${todayKey}`,
+        userId: currentUser.id,
+        type: 'birthday',
+        title: { en: `${s.name || 'A seller'}'s birthday is today!` },
+        body: { en: `Send ${s.name || 'them'} a gift to celebrate!` },
+        route: `/seller/${s.id}`,
+        read: false,
+        createdAt: new Date().toISOString(),
+      }));
+    if (newNotifs.length > 0) {
+      setDb((prev) => ({ ...prev, notifications: [...newNotifs, ...(prev.notifications || [])] }));
+    }
+  }, [currentUser?.id, currentUser?.role, db.sellers]);
 
   useEffect(() => {
     if (backendStatus !== 'connected') return;
@@ -9663,6 +9710,8 @@ export default function ThailandPantiesMarketSite() {
                 hairColor: sellerProfileDraft.hairColor || '',
                 braSize: sellerProfileDraft.braSize || '',
                 pantySize: sellerProfileDraft.pantySize || '',
+                birthDay: sellerProfileDraft.birthDay || null,
+                birthMonth: sellerProfileDraft.birthMonth || null,
               }
             : seller,
         ),
@@ -9695,8 +9744,13 @@ export default function ThailandPantiesMarketSite() {
           pantySize: sellerProfileDraft.pantySize || '',
           affiliatedBarId: isJoinRequest ? previousAffiliatedBarId : normalizedAffiliatedBarId,
           feedVisibility: currentSellerProfile?.feedVisibility || 'public',
+          birthDay: sellerProfileDraft.birthDay || null,
+          birthMonth: sellerProfileDraft.birthMonth || null,
         },
-      }).catch(() => {});
+      }).catch((err) => {
+        console.error('Seller profile save failed:', err);
+        setSellerProfileMessage('Profile saved locally but failed to sync to server. Please try saving again.');
+      });
     }
     setSellerProfileSaveSuccess(true);
     setTimeout(() => setSellerProfileSaveSuccess(false), 4000);
@@ -10531,7 +10585,7 @@ export default function ThailandPantiesMarketSite() {
       canvas.height = height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
       setSellerProfileDraft((prev) => ({
         ...prev,
         profileImage: dataUrl,
@@ -14705,47 +14759,54 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function handleUploadFile(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
     const MAX_FILE_BYTES = 5 * 1024 * 1024;
     const MAX_DIMENSION = 1200;
-    if (file.size > MAX_FILE_BYTES) {
-      setSellerProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
+    const MAX_IMAGES = 5;
+    const currentCount = Array.isArray(uploadDraft.images) ? uploadDraft.images.length : 0;
+    const allowed = files.slice(0, MAX_IMAGES - currentCount);
+    if (!allowed.length) {
+      setSellerProfileMessage(`Maximum ${MAX_IMAGES} images per product.`);
       event.target.value = '';
       return;
     }
-    if (!file.type.startsWith('image/')) {
-      setSellerProfileMessage('Only image files are accepted.');
-      event.target.value = '';
-      return;
-    }
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    img.onload = () => {
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      setUploadDraft((prev) => ({
-        ...prev,
-        image: dataUrl,
-        imageName: file.name,
-      }));
-      URL.revokeObjectURL(objectUrl);
-    };
-    img.onerror = () => {
-      setSellerProfileMessage('Could not read that image. Please try a different file.');
-      URL.revokeObjectURL(objectUrl);
-    };
-    img.src = objectUrl;
+    allowed.forEach((file) => {
+      if (file.size > MAX_FILE_BYTES) { setSellerProfileMessage('Each image must be under 5 MB.'); return; }
+      if (!file.type.startsWith('image/')) { setSellerProfileMessage('Only image files are accepted.'); return; }
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+          const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        setUploadDraft((prev) => {
+          const nextImages = [...(prev.images || []), { url: dataUrl, name: file.name }].slice(0, MAX_IMAGES);
+          return {
+            ...prev,
+            images: nextImages,
+            image: nextImages[0]?.url || '',
+            imageName: nextImages[0]?.name || '',
+          };
+        });
+        URL.revokeObjectURL(objectUrl);
+      };
+      img.onerror = () => {
+        setSellerProfileMessage('Could not read that image. Please try a different file.');
+        URL.revokeObjectURL(objectUrl);
+      };
+      img.src = objectUrl;
+    });
+    event.target.value = '';
   }
 
   function handleSellerPostImageUpload(event) {
@@ -14908,6 +14969,9 @@ export default function ThailandPantiesMarketSite() {
     }
     const slug = uploadDraft.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const titleI18n = await buildTextTranslations(uploadDraft.title);
+    const productImages = Array.isArray(uploadDraft.images) && uploadDraft.images.length > 0
+      ? uploadDraft.images
+      : [{ url: uploadDraft.image, name: uploadDraft.imageName }];
     const newProduct = {
       id: `product-${Date.now()}`,
       title: uploadDraft.title,
@@ -14929,8 +14993,9 @@ export default function ThailandPantiesMarketSite() {
         `${uploadDraft.fabric} fabric`,
         `${uploadDraft.scentLevel} scent level`,
       ],
-      image: uploadDraft.image,
-      imageName: uploadDraft.imageName,
+      image: productImages[0]?.url || uploadDraft.image,
+      imageName: productImages[0]?.name || uploadDraft.imageName,
+      images: productImages,
       isBundle: false,
       bundleItemIds: [],
       status: 'Draft',
@@ -14947,6 +15012,7 @@ export default function ThailandPantiesMarketSite() {
           priceTHB: newProduct.price,
           image: newProduct.image,
           imageName: newProduct.imageName,
+          images: newProduct.images,
           category: newProduct.style || 'panties',
           status: newProduct.status,
           wearDays: newProduct.daysWorn,
@@ -14968,8 +15034,72 @@ export default function ThailandPantiesMarketSite() {
       scentLevel: SCENT_LEVEL_OPTIONS[0],
       image: '',
       imageName: '',
+      images: [],
     });
     navigate('/account');
+  }
+
+  async function purchaseGift() {
+    if (giftModal.sending) return;
+    const gift = GIFT_CATALOG.find((g) => g.type === giftModal.giftType);
+    if (!gift) return;
+    const balance = Number(currentUser?.walletBalance || 0);
+    if (balance < gift.price) {
+      setGiftModal((prev) => ({ ...prev, error: `Insufficient balance. You need ฿${gift.price} but have ฿${balance.toFixed(2)}.` }));
+      return;
+    }
+    setGiftModal((prev) => ({ ...prev, sending: true, error: '' }));
+    try {
+      if (backendStatus === 'connected' && apiAuthToken) {
+        const { ok, payload } = await apiRequestJson('/api/gifts/purchase', {
+          method: 'POST',
+          body: {
+            sellerId: giftModal.sellerId,
+            giftType: giftModal.giftType,
+            message: giftModal.message,
+            isAnonymous: giftModal.isAnonymous,
+          },
+          idempotencyScope: 'gift_purchase',
+        });
+        if (ok && payload?.ok) {
+          setDb((prev) => ({
+            ...prev,
+            users: (prev.users || []).map((u) =>
+              u.id === currentUser.id ? { ...u, walletBalance: Number(((Number(u.walletBalance || 0) - gift.price)).toFixed(2)) } : u
+            ),
+            giftPurchases: [payload.purchase, ...(prev.giftPurchases || [])],
+            giftFulfillmentTasks: [payload.fulfillmentTask, ...(prev.giftFulfillmentTasks || [])],
+          }));
+          setGiftModal((prev) => ({ ...prev, sending: false, success: `${gift.name} sent!`, error: '' }));
+          setTimeout(() => setGiftModal({ open: false, sellerId: '', giftType: '', message: '', isAnonymous: false, sending: false, error: '', success: '' }), 2000);
+          return;
+        }
+        setGiftModal((prev) => ({ ...prev, sending: false, error: String(payload?.error || 'Gift purchase failed.') }));
+        return;
+      }
+      setDb((prev) => {
+        const now = new Date().toISOString();
+        const purchaseId = `gift_purchase_${Date.now()}`;
+        return {
+          ...prev,
+          users: (prev.users || []).map((u) =>
+            u.id === currentUser.id ? { ...u, walletBalance: Number(((Number(u.walletBalance || 0) - gift.price)).toFixed(2)) } : u
+          ),
+          walletTransactions: [
+            { id: `wtxn_${Date.now()}_gift`, userId: currentUser.id, amount: -gift.price, type: 'gift_purchase', description: `Purchased ${gift.name}`, relatedId: purchaseId, createdAt: now },
+            ...(prev.walletTransactions || []),
+          ],
+          giftPurchases: [
+            { id: purchaseId, buyerId: currentUser.id, sellerId: giftModal.sellerId, giftType: gift.type, catalogId: gift.id, price: gift.price, message: giftModal.message, isAnonymous: giftModal.isAnonymous, status: 'pending', createdAt: now },
+            ...(prev.giftPurchases || []),
+          ],
+        };
+      });
+      setGiftModal((prev) => ({ ...prev, sending: false, success: `${gift.name} sent!`, error: '' }));
+      setTimeout(() => setGiftModal({ open: false, sellerId: '', giftType: '', message: '', isAnonymous: false, sending: false, error: '', success: '' }), 2000);
+    } catch (err) {
+      setGiftModal((prev) => ({ ...prev, sending: false, error: 'Something went wrong. Please try again.' }));
+    }
   }
 
   function upsertBundleProduct(bundleDraft, onSuccess, onError) {
@@ -17685,6 +17815,88 @@ export default function ThailandPantiesMarketSite() {
                     {selectedSeller.pantySize ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{publicText.pantySizeLabel}: {selectedSeller.pantySize}</span> : null}
                   </div>
                 ) : null}
+
+                {/* Gift section */}
+                {currentUser?.role === 'buyer' && (
+                  <div className="mt-8">
+                    <h3 className="text-xl font-semibold">Send a Gift</h3>
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      {GIFT_CATALOG.filter((g) => g.fulfillmentType !== 'drink' || selectedSeller.affiliatedBarId).map((gift) => (
+                        <button
+                          key={gift.id}
+                          onClick={() => setGiftModal({ open: true, sellerId: selectedSeller.id, giftType: gift.type, message: '', isAnonymous: false, sending: false, error: '', success: '' })}
+                          className="flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 hover:shadow"
+                        >
+                          <span className="text-lg">{gift.emoji}</span>
+                          <span>{gift.nameI18n?.[uiLanguage] || gift.name}</span>
+                          <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600">฿{gift.price}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Gift purchase modal */}
+                {giftModal.open && (() => {
+                  const gift = GIFT_CATALOG.find((g) => g.type === giftModal.giftType);
+                  if (!gift) return null;
+                  const balance = Number(currentUser?.walletBalance || 0);
+                  return (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => !giftModal.sending && setGiftModal((prev) => ({ ...prev, open: false }))}>
+                      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl">{gift.emoji}</span>
+                          <div>
+                            <h3 className="text-xl font-bold">{gift.nameI18n?.[uiLanguage] || gift.name}</h3>
+                            <p className="text-sm text-slate-500">฿{gift.price} THB</p>
+                          </div>
+                        </div>
+                        <div className="mt-4 space-y-3">
+                          <textarea
+                            value={giftModal.message}
+                            onChange={(e) => setGiftModal((prev) => ({ ...prev, message: e.target.value }))}
+                            placeholder="Add a message (optional)"
+                            className="w-full rounded-xl border border-slate-200 p-3 text-sm"
+                            rows={3}
+                            maxLength={500}
+                          />
+                          <label className="flex items-center gap-2 text-sm text-slate-600">
+                            <input
+                              type="checkbox"
+                              checked={giftModal.isAnonymous}
+                              onChange={(e) => setGiftModal((prev) => ({ ...prev, isAnonymous: e.target.checked }))}
+                              className="rounded border-slate-300"
+                            />
+                            Send anonymously
+                          </label>
+                          <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+                            Wallet balance: <span className="font-semibold">฿{balance.toFixed(2)}</span>
+                            {balance < gift.price && <span className="ml-2 text-red-500 font-medium">(need ฿{(gift.price - balance).toFixed(2)} more)</span>}
+                          </div>
+                          {giftModal.error && <p className="text-sm font-medium text-red-600">{giftModal.error}</p>}
+                          {giftModal.success && <p className="text-sm font-medium text-emerald-600">{giftModal.success}</p>}
+                        </div>
+                        <div className="mt-5 flex gap-3">
+                          <button
+                            onClick={() => setGiftModal((prev) => ({ ...prev, open: false }))}
+                            disabled={giftModal.sending}
+                            className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={purchaseGift}
+                            disabled={giftModal.sending || balance < gift.price}
+                            className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                          >
+                            {giftModal.sending ? 'Sending...' : `Send ${gift.name} — ฿${gift.price}`}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <h3 className="mt-8 text-xl font-semibold">{publicText.listingsByPrefix} {selectedSeller.name}</h3>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                   {selectedSellerAllProducts.length > 0 && selectedSellerAvailableProducts.length === 0 ? (
@@ -17929,8 +18141,26 @@ export default function ThailandPantiesMarketSite() {
             </div>
             <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
               <div className="space-y-4">
-                <div className="aspect-[4/5]"><ProductImage src={selectedProduct.image} label={selectedProduct.imageName || selectedProduct.title} top /></div>
-                <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map((item) => <div key={item} className="aspect-square"><ProductImage src={selectedProduct.image} label={`Gallery ${item}`} top /></div>)}</div>
+                {(() => {
+                  const allImages = Array.isArray(selectedProduct.images) && selectedProduct.images.length > 0
+                    ? selectedProduct.images
+                    : [{ url: selectedProduct.image, name: selectedProduct.imageName || selectedProduct.title }];
+                  const activeIdx = Math.min(selectedProductImageIndex, allImages.length - 1);
+                  return (
+                    <>
+                      <div className="aspect-[4/5]"><ProductImage src={allImages[activeIdx]?.url} label={allImages[activeIdx]?.name || selectedProduct.title} top /></div>
+                      {allImages.length > 1 && (
+                        <div className="grid grid-cols-5 gap-3">
+                          {allImages.map((img, idx) => (
+                            <button key={idx} onClick={() => setSelectedProductImageIndex(idx)} className={`aspect-square rounded-xl ring-2 overflow-hidden ${idx === activeIdx ? 'ring-rose-500' : 'ring-transparent hover:ring-rose-200'}`}>
+                              <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
               <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100 lg:sticky lg:top-24">
                 <div className="flex items-start justify-between gap-4">
@@ -18739,6 +18969,8 @@ export default function ThailandPantiesMarketSite() {
             accountCredentialMessage={accountCredentialMessage}
             accountCredentialTone={accountCredentialTone}
             navigate={navigate}
+            giftPurchases={db.giftPurchases || []}
+            giftFulfillmentTasks={db.giftFulfillmentTasks || []}
           />
           </>
         ) : null}
@@ -19097,6 +19329,9 @@ export default function ThailandPantiesMarketSite() {
             appMode={appMode}
             switchAppMode={switchAppMode}
             onImpersonateUser={handleAdminImpersonate}
+            giftCatalog={db.giftCatalog || []}
+            giftPurchases={db.giftPurchases || []}
+            giftFulfillmentTasks={db.giftFulfillmentTasks || []}
           />
         ) : null}
 
