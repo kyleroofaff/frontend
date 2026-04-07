@@ -17817,7 +17817,7 @@ export default function ThailandPantiesMarketSite() {
                 ) : null}
 
                 {/* Gift section */}
-                {currentUser?.role === 'buyer' && (
+                {(
                   <div className="mt-8">
                     <h3 className="text-xl font-semibold">Send a Gift</h3>
                     <div className="mt-3 flex flex-wrap gap-3">
@@ -17852,27 +17852,35 @@ export default function ThailandPantiesMarketSite() {
                           </div>
                         </div>
                         <div className="mt-4 space-y-3">
-                          <textarea
-                            value={giftModal.message}
-                            onChange={(e) => setGiftModal((prev) => ({ ...prev, message: e.target.value }))}
-                            placeholder="Add a message (optional)"
-                            className="w-full rounded-xl border border-slate-200 p-3 text-sm"
-                            rows={3}
-                            maxLength={500}
-                          />
-                          <label className="flex items-center gap-2 text-sm text-slate-600">
-                            <input
-                              type="checkbox"
-                              checked={giftModal.isAnonymous}
-                              onChange={(e) => setGiftModal((prev) => ({ ...prev, isAnonymous: e.target.checked }))}
-                              className="rounded border-slate-300"
-                            />
-                            Send anonymously
-                          </label>
-                          <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
-                            Wallet balance: <span className="font-semibold">฿{balance.toFixed(2)}</span>
-                            {balance < gift.price && <span className="ml-2 text-red-500 font-medium">(need ฿{(gift.price - balance).toFixed(2)} more)</span>}
-                          </div>
+                          {currentUser ? (
+                            <>
+                              <textarea
+                                value={giftModal.message}
+                                onChange={(e) => setGiftModal((prev) => ({ ...prev, message: e.target.value }))}
+                                placeholder="Add a message (optional)"
+                                className="w-full rounded-xl border border-slate-200 p-3 text-sm"
+                                rows={3}
+                                maxLength={500}
+                              />
+                              <label className="flex items-center gap-2 text-sm text-slate-600">
+                                <input
+                                  type="checkbox"
+                                  checked={giftModal.isAnonymous}
+                                  onChange={(e) => setGiftModal((prev) => ({ ...prev, isAnonymous: e.target.checked }))}
+                                  className="rounded border-slate-300"
+                                />
+                                Send anonymously
+                              </label>
+                              <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+                                Wallet balance: <span className="font-semibold">฿{balance.toFixed(2)}</span>
+                                {balance < gift.price && <span className="ml-2 text-red-500 font-medium">(need ฿{(gift.price - balance).toFixed(2)} more)</span>}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-600">
+                              Log in to send a gift to this seller.
+                            </div>
+                          )}
                           {giftModal.error && <p className="text-sm font-medium text-red-600">{giftModal.error}</p>}
                           {giftModal.success && <p className="text-sm font-medium text-emerald-600">{giftModal.success}</p>}
                         </div>
@@ -17884,13 +17892,22 @@ export default function ThailandPantiesMarketSite() {
                           >
                             Cancel
                           </button>
-                          <button
-                            onClick={purchaseGift}
-                            disabled={giftModal.sending || balance < gift.price}
-                            className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-                          >
-                            {giftModal.sending ? 'Sending...' : `Send ${gift.name} — ฿${gift.price}`}
-                          </button>
+                          {currentUser ? (
+                            <button
+                              onClick={purchaseGift}
+                              disabled={giftModal.sending || balance < gift.price}
+                              className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                            >
+                              {giftModal.sending ? 'Sending...' : `Send ${gift.name} — ฿${gift.price}`}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => { setGiftModal((prev) => ({ ...prev, open: false })); navigate('/login'); }}
+                              className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white"
+                            >
+                              Log in to send
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
