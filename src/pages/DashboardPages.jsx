@@ -2390,6 +2390,7 @@ export function SellerDashboardPage({
   accountCredentialMessage,
   accountCredentialTone,
   navigate,
+  giftCatalog,
   giftPurchases,
   giftFulfillmentTasks,
 }) {
@@ -3619,6 +3620,32 @@ export function SellerDashboardPage({
                     </select>
                   </label>
                 </div>
+                {(giftCatalog || []).length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium text-slate-700">Gift preferences</span>
+                    <p className="text-xs text-slate-500">Uncheck any gift types you do not want to receive.</p>
+                    <div className="flex flex-wrap gap-3">
+                      {(giftCatalog || []).filter(g => g.isActive).map((gift) => {
+                        const disabled = (sellerProfileDraft.disabledGiftTypes || []).includes(gift.type);
+                        return (
+                          <label key={gift.id} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm cursor-pointer hover:bg-slate-50 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={!disabled}
+                              onChange={() => {
+                                const current = sellerProfileDraft.disabledGiftTypes || [];
+                                const next = disabled ? current.filter(t => t !== gift.type) : [...current, gift.type];
+                                updateSellerProfileField("disabledGiftTypes", next);
+                              }}
+                              className="rounded border-slate-300 text-rose-500 focus:ring-rose-400"
+                            />
+                            <span>{gift.name}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={saveSellerProfile}
@@ -5567,6 +5594,7 @@ export function AdminPage({
   giftCatalog,
   giftPurchases,
   giftFulfillmentTasks,
+  updateGiftCatalogItem,
 }) {
   const [socialSearch, setSocialSearch] = useState("");
   const [socialFilter, setSocialFilter] = useState("all");
@@ -10934,18 +10962,35 @@ export function AdminPage({
             <div className="space-y-6">
               <div className="rounded-3xl border border-rose-100 bg-white p-5">
                 <h3 className="text-lg font-semibold text-slate-900">Gift Catalog</h3>
-                <p className="mt-1 text-sm text-slate-500">Enable or disable gift items available on seller profiles.</p>
+                <p className="mt-1 text-sm text-slate-500">Manage prices and availability for all gift types.</p>
                 <div className="mt-4 space-y-3">
                   {(giftCatalog || []).map((item) => (
-                    <div key={item.id} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
-                      <div>
+                    <div key={item.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 p-4">
+                      <div className="flex-1 min-w-[120px]">
                         <span className="font-semibold">{item.name}</span>
-                        <span className="ml-2 text-sm text-slate-500">฿{item.price}</span>
                         <span className="ml-2 text-xs text-slate-400">{item.fulfillmentType}</span>
                       </div>
-                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm text-slate-500">฿</span>
+                        <input
+                          type="number"
+                          min="1"
+                          className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm"
+                          defaultValue={item.price}
+                          onBlur={(e) => {
+                            const val = Number(e.target.value);
+                            if (val > 0 && val !== item.price) updateGiftCatalogItem(item.id, { price: val });
+                          }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => updateGiftCatalogItem(item.id, { isActive: !item.isActive })}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${item.isActive ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                      >
                         {item.isActive ? 'Active' : 'Disabled'}
-                      </span>
+                      </button>
                     </div>
                   ))}
                   {(!giftCatalog || giftCatalog.length === 0) && <p className="text-sm text-slate-400">Default catalog will be used (Rose, Dozen Roses, Chocolate, Drink).</p>}

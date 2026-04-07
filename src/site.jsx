@@ -6827,6 +6827,7 @@ export default function ThailandPantiesMarketSite() {
       pantySize: currentSellerProfile.pantySize || '',
       birthDay: currentSellerProfile.birthDay || null,
       birthMonth: currentSellerProfile.birthMonth || null,
+      disabledGiftTypes: Array.isArray(currentSellerProfile.disabledGiftTypes) ? currentSellerProfile.disabledGiftTypes : [],
     });
   }, [currentSellerProfile?.id]);
 
@@ -9712,6 +9713,7 @@ export default function ThailandPantiesMarketSite() {
                 pantySize: sellerProfileDraft.pantySize || '',
                 birthDay: sellerProfileDraft.birthDay || null,
                 birthMonth: sellerProfileDraft.birthMonth || null,
+                disabledGiftTypes: sellerProfileDraft.disabledGiftTypes || [],
               }
             : seller,
         ),
@@ -9746,6 +9748,7 @@ export default function ThailandPantiesMarketSite() {
           feedVisibility: currentSellerProfile?.feedVisibility || 'public',
           birthDay: sellerProfileDraft.birthDay || null,
           birthMonth: sellerProfileDraft.birthMonth || null,
+          disabledGiftTypes: sellerProfileDraft.disabledGiftTypes || [],
         },
       }).catch((err) => {
         console.error('Seller profile save failed:', err);
@@ -15039,6 +15042,23 @@ export default function ThailandPantiesMarketSite() {
     navigate('/account');
   }
 
+  async function updateGiftCatalogItem(giftId, patch) {
+    try {
+      const res = await api.patch(`/gifts/catalog/${giftId}`, patch);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.item) {
+          setDb(prev => {
+            const catalog = (prev.giftCatalog || []).map(g => g.id === giftId ? { ...g, ...data.item } : g);
+            return { ...prev, giftCatalog: catalog };
+          });
+        }
+      }
+    } catch (e) {
+      console.error("updateGiftCatalogItem error:", e);
+    }
+  }
+
   async function purchaseGift() {
     if (giftModal.sending) return;
     const gift = GIFT_CATALOG.find((g) => g.type === giftModal.giftType);
@@ -17817,29 +17837,44 @@ export default function ThailandPantiesMarketSite() {
                 ) : null}
 
                 {/* Gift section */}
-                {(
-                  <div className="mt-8">
-                    <h3 className="text-xl font-semibold">Send a Gift</h3>
-                    <div className="mt-3 flex flex-wrap gap-3">
-                      {GIFT_CATALOG.filter((g) => g.fulfillmentType !== 'drink' || selectedSeller.affiliatedBarId).map((gift) => (
-                        <button
-                          key={gift.id}
-                          onClick={() => setGiftModal({ open: true, sellerId: selectedSeller.id, giftType: gift.type, message: '', isAnonymous: false, sending: false, error: '', success: '' })}
-                          className="flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 hover:shadow"
-                        >
-                          <span className="text-lg">{gift.emoji}</span>
-                          <span>{gift.nameI18n?.[uiLanguage] || gift.name}</span>
-                          <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600">฿{gift.price}</span>
-                        </button>
-                      ))}
+                {(() => {
+                  const sellerDisabled = Array.isArray(selectedSeller.disabledGiftTypes) ? selectedSeller.disabledGiftTypes : [];
+                  const mergedCatalog = GIFT_CATALOG.map((def) => {
+                    const server = (db.giftCatalog || []).find((s) => s.type === def.type);
+                    return server ? { ...def, ...server } : def;
+                  });
+                  const visibleGifts = mergedCatalog.filter((g) =>
+                    g.isActive !== false &&
+                    !sellerDisabled.includes(g.type) &&
+                    (g.fulfillmentType !== 'drink' || selectedSeller.affiliatedBarId)
+                  );
+                  if (visibleGifts.length === 0) return null;
+                  return (
+                    <div className="mt-8">
+                      <h3 className="text-xl font-semibold">Send a Gift</h3>
+                      <div className="mt-3 flex flex-wrap gap-3">
+                        {visibleGifts.map((gift) => (
+                          <button
+                            key={gift.id}
+                            onClick={() => setGiftModal({ open: true, sellerId: selectedSeller.id, giftType: gift.type, message: '', isAnonymous: false, sending: false, error: '', success: '' })}
+                            className="flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 hover:shadow"
+                          >
+                            <span className="text-lg">{gift.emoji}</span>
+                            <span>{gift.nameI18n?.[uiLanguage] || gift.name}</span>
+                            <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600">฿{gift.price}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Gift purchase modal */}
                 {giftModal.open && (() => {
-                  const gift = GIFT_CATALOG.find((g) => g.type === giftModal.giftType);
-                  if (!gift) return null;
+                  const giftDef = GIFT_CATALOG.find((g) => g.type === giftModal.giftType);
+                  if (!giftDef) return null;
+                  const serverGift = (db.giftCatalog || []).find((s) => s.type === giftDef.type);
+                  const gift = serverGift ? { ...giftDef, ...serverGift } : giftDef;
                   const balance = Number(currentUser?.walletBalance || 0);
                   return (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => !giftModal.sending && setGiftModal((prev) => ({ ...prev, open: false }))}>
@@ -18986,6 +19021,7 @@ export default function ThailandPantiesMarketSite() {
             accountCredentialMessage={accountCredentialMessage}
             accountCredentialTone={accountCredentialTone}
             navigate={navigate}
+            giftCatalog={db.giftCatalog || []}
             giftPurchases={db.giftPurchases || []}
             giftFulfillmentTasks={db.giftFulfillmentTasks || []}
           />
@@ -19349,6 +19385,7 @@ export default function ThailandPantiesMarketSite() {
             giftCatalog={db.giftCatalog || []}
             giftPurchases={db.giftPurchases || []}
             giftFulfillmentTasks={db.giftFulfillmentTasks || []}
+            updateGiftCatalogItem={updateGiftCatalogItem}
           />
         ) : null}
 
