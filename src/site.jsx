@@ -7937,7 +7937,6 @@ export default function ThailandPantiesMarketSite() {
   );
   const homeAllFeedPreviewPosts = useMemo(() => {
     const sellerRows = (sellerFeedPosts || [])
-      .filter((post) => !isSellerPostPrivate(post))
       .map((post) => ({
         ...post,
         feedType: 'seller',
@@ -17594,10 +17593,21 @@ export default function ThailandPantiesMarketSite() {
                           </span>
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <button onClick={() => navigate('/seller-feed')} className="mt-3 block aspect-[4/5] w-full">
-                          <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} top mediaType={post.mediaType} />
+                        <button onClick={() => navigate('/seller-feed')} className="relative mt-3 block aspect-[4/5] w-full">
+                          <div className={isSellerFeedPost && !canViewSellerPost(post) ? 'blur-sm' : ''}>
+                            <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} top mediaType={post.mediaType} />
+                          </div>
+                          {isSellerFeedPost && !canViewSellerPost(post) && isSellerPostPrivate(post) ? (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
+                                {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
+                              </span>
+                            </div>
+                          ) : null}
                         </button>
-                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || publicText.noCaption}</p>
+                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">
+                          {isSellerFeedPost && !canViewSellerPost(post) ? publicText.privatePostUnlock : (post.caption || publicText.noCaption)}
+                        </p>
                       </article>
                     );
                   })}
@@ -17863,19 +17873,30 @@ export default function ThailandPantiesMarketSite() {
                       const affiliatedSellerIds = new Set(selectedBarAffiliatedSellers.map((s) => s.id));
                       const barOwnPosts = barFeedPosts.filter((post) => post.barId === selectedBar.id).map((p) => ({ ...p, _kind: 'bar' }));
                       const affiliatedSellerPosts = sellerFeedPosts
-                        .filter((post) => affiliatedSellerIds.has(post.sellerId) && !isSellerPostPrivate(post))
+                        .filter((post) => affiliatedSellerIds.has(post.sellerId))
                         .map((p) => ({ ...p, _kind: 'seller' }));
                       const combined = [...barOwnPosts, ...affiliatedSellerPosts].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
                       if (combined.length === 0) return <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{publicText.noBarPhotosYet}</div>;
                       return combined.map((post) => (
                         <article key={post.id} className="rounded-2xl border border-rose-100 p-4">
                           {post.image ? (
-                            <div className="aspect-[4/5]">
-                              <ProductImage src={post.image} label={post.imageName || 'Feed image'} top mediaType={post.mediaType} />
+                            <div className="relative aspect-[4/5]">
+                              <div className={post._kind === 'seller' && !canViewSellerPost(post) ? 'blur-sm h-full' : 'h-full'}>
+                                <ProductImage src={post.image} label={post.imageName || 'Feed image'} top mediaType={post.mediaType} />
+                              </div>
+                              {post._kind === 'seller' && !canViewSellerPost(post) && isSellerPostPrivate(post) ? (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <button onClick={() => { if (!currentUser) { navigate('/login'); return; } unlockPrivatePost(post.id); }} className="rounded-2xl bg-white/95 px-4 py-2 text-xs font-semibold text-rose-700 shadow">
+                                    {publicText.unlockFor} {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
+                                  </button>
+                                </div>
+                              ) : null}
                             </div>
                           ) : null}
                           <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                          <p className="mt-1 text-sm text-slate-700">{post.caption || publicText.noCaption}</p>
+                          <p className="mt-1 text-sm text-slate-700">
+                            {post._kind === 'seller' && !canViewSellerPost(post) ? publicText.privatePostUnlock : (post.caption || publicText.noCaption)}
+                          </p>
                           {post._kind === 'seller' && sellerMap[post.sellerId] ? (
                             <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="mt-2 text-xs font-semibold text-rose-600 hover:underline">
                               {sellerMap[post.sellerId].name}
