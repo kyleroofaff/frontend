@@ -9269,9 +9269,31 @@ export function AdminPage({
                               </button>
                             </>
                           ) : (
-                            <span className={`rounded-xl border px-3 py-2 text-sm font-semibold ${item.requestStatus === "approved" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-700"}`}>
-                              {item.requestStatus === "approved" ? "Approved" : item.requestStatus === "rejected" ? "Rejected" : item.requestStatus}
-                            </span>
+                            <>
+                              <span className={`cursor-default select-none rounded-xl px-3 py-2 text-sm font-semibold ${item.requestStatus === "approved" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
+                                {item.requestStatus === "approved" ? "Approved" : item.requestStatus === "rejected" ? "Rejected" : item.requestStatus}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  if (!respondToBarAffiliationRequest) return;
+                                  respondToBarAffiliationRequest(item.id, "approved");
+                                  setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Re-approved." }));
+                                }}
+                                className="rounded-xl border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700"
+                              >
+                                Re-approve
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (!respondToBarAffiliationRequest) return;
+                                  respondToBarAffiliationRequest(item.id, "rejected");
+                                  setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Rejected." }));
+                                }}
+                                className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+                              >
+                                Reject
+                              </button>
+                            </>
                           )
                         ) : null}
                         <button
