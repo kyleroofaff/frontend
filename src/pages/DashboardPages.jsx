@@ -6859,7 +6859,7 @@ export function AdminPage({
         searchText: `${report.id} ${report.reportType || ""} ${report.targetHandle || ""} ${report.contextDetails || ""} ${report.name || ""} ${report.email || ""}`.toLowerCase(),
       };
     });
-    const barAffiliationEvents = (barAffiliationRequests || []).map((request) => {
+    const barAffiliationEvents = (barAffiliationRequests || []).filter((request) => request.status === "pending").map((request) => {
       const seller = sellerById[request.sellerId];
       const bar = barById[request.barId];
       const sellerUser = seller ? sellerUserBySellerId[seller.id] : null;
@@ -9243,58 +9243,30 @@ export function AdminPage({
                           </>
                         ) : null}
                         {item.type === "bar_affiliation_request" ? (
-                          String(item.requestStatus || "") === "pending" ? (
-                            <>
-                              <button
-                                onClick={() => {
-                                  if (!respondToBarAffiliationRequest) return;
-                                  respondToBarAffiliationRequest(item.id, "approved");
-                                  setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Approved." }));
-                                  updateAdminInboxReview?.(item.itemKey, "resolved");
-                                }}
-                                className="rounded-xl border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700"
-                              >
-                                Approve request
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (!respondToBarAffiliationRequest) return;
-                                  respondToBarAffiliationRequest(item.id, "rejected");
-                                  setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Rejected." }));
-                                  updateAdminInboxReview?.(item.itemKey, "resolved");
-                                }}
-                                className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
-                              >
-                                Reject request
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <span className={`cursor-default select-none rounded-xl px-3 py-2 text-sm font-semibold ${item.requestStatus === "approved" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
-                                {item.requestStatus === "approved" ? "Approved" : item.requestStatus === "rejected" ? "Rejected" : item.requestStatus}
-                              </span>
-                              <button
-                                onClick={() => {
-                                  if (!respondToBarAffiliationRequest) return;
-                                  respondToBarAffiliationRequest(item.id, "approved");
-                                  setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Re-approved." }));
-                                }}
-                                className="rounded-xl border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700"
-                              >
-                                Re-approve
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (!respondToBarAffiliationRequest) return;
-                                  respondToBarAffiliationRequest(item.id, "rejected");
-                                  setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Rejected." }));
-                                }}
-                                className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )
+                          <>
+                            <button
+                              onClick={() => {
+                                if (!respondToBarAffiliationRequest) return;
+                                respondToBarAffiliationRequest(item.id, "approved");
+                                setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Approved." }));
+                                updateAdminInboxReview?.(item.itemKey, "resolved");
+                              }}
+                              className="cursor-pointer rounded-xl border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700"
+                            >
+                              Approved
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!respondToBarAffiliationRequest) return;
+                                respondToBarAffiliationRequest(item.id, "rejected");
+                                setInboxItemMessages((prev) => ({ ...prev, [item.itemKey]: "Rejected." }));
+                                updateAdminInboxReview?.(item.itemKey, "resolved");
+                              }}
+                              className="cursor-pointer rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+                            >
+                              Reject request
+                            </button>
+                          </>
                         ) : null}
                         <button
                           onClick={() => {
