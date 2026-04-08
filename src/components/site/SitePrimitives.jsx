@@ -1,8 +1,21 @@
 import { useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
-export function ProductImage({ src, label = "Product image", contain = false, top = false }) {
+export function ProductImage({ src, label = "Product image", contain = false, top = false, mediaType }) {
   const [isLandscape, setIsLandscape] = useState(false);
+  const isVideo = mediaType === "video" || /\.(mp4|webm|mov)(\?|$)/i.test(String(src || ""));
+  if (src && isVideo) {
+    return (
+      <video
+        src={src}
+        controls
+        playsInline
+        loop
+        muted
+        className="h-full w-full rounded-2xl ring-1 ring-rose-100 object-cover"
+      />
+    );
+  }
   if (src) {
     const forceContain = contain || isLandscape;
     return (

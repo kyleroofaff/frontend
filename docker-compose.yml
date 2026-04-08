@@ -56,6 +56,8 @@ services:
       ATTACHMENT_SCAN_BLOCK_ON_ERROR: "true"
     ports:
       - "4000:4000"
+    volumes:
+      - tp-media-data:/app/data/media
 
   frontend:
     container_name: tp-frontend-local
@@ -72,3 +74,4 @@ services:
 
 volumes:
   tp-postgres-data:
+  tp-media-data:

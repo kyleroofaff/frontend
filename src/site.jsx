@@ -5427,6 +5427,7 @@ export default function ThailandPantiesMarketSite() {
   const [giftModal, setGiftModal] = useState({ open: false, sellerId: '', giftType: '', message: '', isAnonymous: false, sending: false, error: '', success: '' });
   const [sellerSelectedConversationId, setSellerSelectedConversationId] = useState('');
   const [sellerReplyDraft, setSellerReplyDraft] = useState('');
+  const [sellerReplyMedia, setSellerReplyMedia] = useState(null);
   const [sellerCustomRequestDraft, setSellerCustomRequestDraft] = useState({
     name: '',
     email: '',
@@ -6713,19 +6714,41 @@ export default function ThailandPantiesMarketSite() {
       if (!grouped[message.conversationId]) grouped[message.conversationId] = [];
       grouped[message.conversationId].push(message);
     });
-    return Object.values(grouped)
+    const buyerRows = Object.values(grouped)
       .map((conversation) => {
         const sortedConversation = [...conversation].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         const latestMessage = sortedConversation[0];
         const hasUnread = sortedConversation.some((message) => !message.readBySeller);
         return { ...latestMessage, hasUnread };
-      })
-      .sort((a, b) => {
+      });
+
+    const affiliatedBarId = currentSellerProfile?.affiliatedBarId;
+    if (affiliatedBarId) {
+      const barConvId = buildBarConversationId(affiliatedBarId, 'seller', currentUser.id);
+      const barMsgs = (barMessageHistory || []).filter((m) => m.conversationId === barConvId);
+      const barName = barMap[affiliatedBarId]?.name || 'Bar';
+      const latestBarMsg = barMsgs[0];
+      const hasBarUnread = barMsgs.some((m) => m.senderRole === 'bar' && !m.readByParticipant);
+      buyerRows.push({
+        conversationId: barConvId,
+        barId: affiliatedBarId,
+        _isBarThread: true,
+        _barName: barName,
+        body: latestBarMsg?.body || '',
+        createdAt: latestBarMsg?.createdAt || new Date(0).toISOString(),
+        hasUnread: hasBarUnread,
+        senderRole: latestBarMsg?.senderRole || '',
+      });
+    }
+
+    return buyerRows.sort((a, b) => {
+      if (a._isBarThread && !b._isBarThread) return -1;
+      if (!a._isBarThread && b._isBarThread) return 1;
         const unreadPriorityDiff = Number(Boolean(b.hasUnread)) - Number(Boolean(a.hasUnread));
         if (unreadPriorityDiff !== 0) return unreadPriorityDiff;
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
-  }, [messages, currentUser]);
+  }, [messages, currentUser, barMessageHistory, currentSellerProfile, barMap]);
   const sellerMessageHistory = useMemo(() => {
     if (!currentUser || currentUser.role !== 'seller') return [];
     return [...(messages || [])]
@@ -6758,10 +6781,15 @@ export default function ThailandPantiesMarketSite() {
   const sellerActiveConversationId = sellerSelectedConversationId || sellerInbox[0]?.conversationId || '';
   const sellerActiveConversationMessages = useMemo(() => {
     if (!sellerActiveConversationId) return [];
+    if (sellerActiveConversationId.startsWith('barchat__')) {
+      return [...(barMessageHistory || [])]
+        .filter((message) => message.conversationId === sellerActiveConversationId)
+        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
     return [...messages]
       .filter((message) => message.conversationId === sellerActiveConversationId)
       .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  }, [messages, sellerActiveConversationId]);
+  }, [messages, barMessageHistory, sellerActiveConversationId]);
   const unreadMessageCount = useMemo(() => {
     if (!currentUser) return 0;
     if (currentUser.role === 'buyer') {
@@ -12080,18 +12108,16 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function sendSellerReply() {
-    if (!currentUser || currentUser.role !== 'seller' || !sellerActiveConversationId || !sellerReplyDraft.trim()) return;
+    if (!currentUser || currentUser.role !== 'seller' || !sellerActiveConversationId || (!sellerReplyDraft.trim() && !sellerReplyMedia)) return;
     const conversationMessages = messages.filter((message) => message.conversationId === sellerActiveConversationId);
     const latest = conversationMessages[0];
     const buyerId = latest?.buyerId || sellerActiveConversationId.split('__')[0];
     const buyerUser = users.find((user) => user.id === buyerId);
     const now = new Date().toISOString();
     const messageText = sellerReplyDraft.trim();
-    const { sourceLanguage, translations } = await buildMessageTranslationsForRecipient(
-      messageText,
-      currentUser,
-      buyerUser,
-    );
+    const { sourceLanguage, translations } = messageText
+      ? await buildMessageTranslationsForRecipient(messageText, currentUser, buyerUser)
+      : { sourceLanguage: '', translations: {} };
     setDb((prev) => {
       const base = {
         ...prev,
@@ -12108,6 +12134,7 @@ export default function ThailandPantiesMarketSite() {
             bodyOriginal: messageText,
             sourceLanguage,
             translations,
+            ...(sellerReplyMedia ? { mediaUrl: sellerReplyMedia.url, mediaType: sellerReplyMedia.type } : {}),
             feeCharged: 0,
             createdAt: now,
             readByBuyer: false,
@@ -12140,6 +12167,71 @@ export default function ThailandPantiesMarketSite() {
       });
     });
     setSellerReplyDraft('');
+    setSellerReplyMedia(null);
+    markNotificationsReadForConversation(sellerActiveConversationId);
+  }
+
+  async function sendSellerBarReply() {
+    if (!currentUser || currentUser.role !== 'seller' || !sellerActiveConversationId) return;
+    const draft = String(sellerReplyDraft || '').trim();
+    if (!draft && !sellerReplyMedia) return;
+    const conversationMeta = parseBarConversationId(sellerActiveConversationId);
+    if (!conversationMeta) return;
+    const { barId, participantRole, participantUserId } = conversationMeta;
+    const barUser = users.find((u) => u.role === 'bar' && String(u.barId || '').trim() === barId);
+    const { sourceLanguage, translations } = await buildMessageTranslationsForRecipient(draft, currentUser, barUser);
+    const now = new Date().toISOString();
+    const newMessage = {
+      id: `bar_msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      conversationId: sellerActiveConversationId,
+      barId,
+      participantRole,
+      participantUserId,
+      senderId: currentUser.id,
+      senderRole: 'seller',
+      body: draft,
+      bodyOriginal: draft,
+      sourceLanguage,
+      translations,
+      ...(sellerReplyMedia ? { mediaUrl: sellerReplyMedia.url, mediaType: sellerReplyMedia.type } : {}),
+      createdAt: now,
+      readByBar: false,
+      readByParticipant: true,
+    };
+    setDb((prev) => ({
+      ...prev,
+      messages: [...(prev.messages || []), newMessage],
+      notifications: barUser?.id
+        ? [
+            ...(prev.notifications || []),
+            {
+              id: `notif_${Date.now()}_barmsg`,
+              userId: barUser.id,
+              type: 'bar_message',
+              text: `${currentUser.name || 'A seller'} sent you a message.`,
+              conversationId: sellerActiveConversationId,
+              read: false,
+              createdAt: now,
+            },
+          ]
+        : prev.notifications,
+    }));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      try {
+        await fetch(`${API_BASE_URL}/api/messages/bar-send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiAuthToken}` },
+          body: JSON.stringify({
+            conversationId: sellerActiveConversationId,
+            body: draft,
+          }),
+        });
+      } catch (err) {
+        console.error('[sendSellerBarReply] API error:', err);
+      }
+    }
+    setSellerReplyDraft('');
+    setSellerReplyMedia(null);
     markNotificationsReadForConversation(sellerActiveConversationId);
   }
 
@@ -14761,22 +14853,60 @@ export default function ThailandPantiesMarketSite() {
     return { ok: true };
   }
 
+  function validateVideoFile(file) {
+    return new Promise((resolve, reject) => {
+      if (file.size > 10 * 1024 * 1024) { reject('Video must be under 10 MB.'); return; }
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      const objectUrl = URL.createObjectURL(file);
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(objectUrl);
+        if (video.duration > 8) { reject('Video must be 8 seconds or shorter.'); return; }
+        resolve({ duration: video.duration });
+      };
+      video.onerror = () => { URL.revokeObjectURL(objectUrl); reject('Could not read that video file.'); };
+      video.src = objectUrl;
+    });
+  }
+
+  async function uploadMediaFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/api/media/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiAuthToken}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Upload failed');
+    return response.json();
+  }
+
   function handleUploadFile(event) {
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
-    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
     const MAX_DIMENSION = 1200;
     const MAX_IMAGES = 5;
     const currentCount = Array.isArray(uploadDraft.images) ? uploadDraft.images.length : 0;
     const allowed = files.slice(0, MAX_IMAGES - currentCount);
     if (!allowed.length) {
-      setSellerProfileMessage(`Maximum ${MAX_IMAGES} images per product.`);
+      setSellerProfileMessage(`Maximum ${MAX_IMAGES} images/videos per product.`);
       event.target.value = '';
       return;
     }
     allowed.forEach((file) => {
-      if (file.size > MAX_FILE_BYTES) { setSellerProfileMessage('Each image must be under 5 MB.'); return; }
-      if (!file.type.startsWith('image/')) { setSellerProfileMessage('Only image files are accepted.'); return; }
+      if (file.type.startsWith('video/')) {
+        validateVideoFile(file).then(() => uploadMediaFile(file)).then((result) => {
+          const mediaUrl = result.url.startsWith('http') ? result.url : `${API_BASE_URL}${result.url}`;
+          setUploadDraft((prev) => {
+            const nextImages = [...(prev.images || []), { url: mediaUrl, name: file.name, type: 'video' }].slice(0, MAX_IMAGES);
+            return { ...prev, images: nextImages, image: nextImages[0]?.url || '', imageName: nextImages[0]?.name || '' };
+          });
+        }).catch((err) => setSellerProfileMessage(typeof err === 'string' ? err : 'Video upload failed.'));
+        return;
+      }
+      if (!file.type.startsWith('image/')) { setSellerProfileMessage('Only image and video files are accepted.'); return; }
+      if (file.size > MAX_IMAGE_BYTES) { setSellerProfileMessage('Each image must be under 5 MB.'); return; }
       const img = new Image();
       const objectUrl = URL.createObjectURL(file);
       img.onload = () => {
@@ -14793,7 +14923,7 @@ export default function ThailandPantiesMarketSite() {
         ctx.drawImage(img, 0, 0, width, height);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
         setUploadDraft((prev) => {
-          const nextImages = [...(prev.images || []), { url: dataUrl, name: file.name }].slice(0, MAX_IMAGES);
+          const nextImages = [...(prev.images || []), { url: dataUrl, name: file.name, type: 'image' }].slice(0, MAX_IMAGES);
           return {
             ...prev,
             images: nextImages,
@@ -14815,15 +14945,23 @@ export default function ThailandPantiesMarketSite() {
   function handleSellerPostImageUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
     const MAX_DIMENSION = 1200;
-    if (file.size > MAX_FILE_BYTES) {
+    if (file.type.startsWith('video/')) {
+      validateVideoFile(file).then(() => uploadMediaFile(file)).then((result) => {
+        const mediaUrl = result.url.startsWith('http') ? result.url : `${API_BASE_URL}${result.url}`;
+        setSellerPostDraft((prev) => ({ ...prev, image: mediaUrl, imageName: file.name, mediaType: 'video' }));
+      }).catch((err) => setSellerProfileMessage(typeof err === 'string' ? err : 'Video upload failed.'));
+      event.target.value = '';
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
       setSellerProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
       event.target.value = '';
       return;
     }
     if (!file.type.startsWith('image/')) {
-      setSellerProfileMessage('Only image files are accepted.');
+      setSellerProfileMessage('Only image and video files are accepted.');
       event.target.value = '';
       return;
     }
@@ -14846,6 +14984,7 @@ export default function ThailandPantiesMarketSite() {
         ...prev,
         image: dataUrl,
         imageName: file.name,
+        mediaType: 'image',
       }));
       URL.revokeObjectURL(objectUrl);
     };
@@ -14871,6 +15010,7 @@ export default function ThailandPantiesMarketSite() {
       caption: sellerPostDraft.caption.trim().slice(0, 500),
       image: sellerPostDraft.image,
       imageName: sellerPostDraft.imageName,
+      mediaType: sellerPostDraft.mediaType || 'image',
       visibility: effectiveVisibility,
       accessPriceUsd: Number.isFinite(Number(sellerPostDraft.accessPriceUsd)) && Number(sellerPostDraft.accessPriceUsd) >= MIN_FEED_UNLOCK_PRICE_THB
         ? Number(Number(sellerPostDraft.accessPriceUsd).toFixed(2))
@@ -17168,7 +17308,7 @@ export default function ThailandPantiesMarketSite() {
                         {homeProductPreview.slice(0, 4).map((product) => (
                           <div key={product.id} className="overflow-hidden rounded-xl bg-white">
                             <div className="h-20 w-full">
-                              <ProductImage src={product.image} label={product.imageName || product.title} />
+                              <ProductImage src={product.image} label={product.imageName || product.title} mediaType={product.images?.[0]?.type} />
                             </div>
                           </div>
                         ))}
@@ -17289,7 +17429,7 @@ export default function ThailandPantiesMarketSite() {
                     className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                   >
                     <button onClick={() => navigate(`/product/${product.slug}`)} className="block aspect-[4/5] w-full text-left">
-                      <ProductImage src={product.image} label={product.imageName || product.title} top />
+                      <ProductImage src={product.image} label={product.imageName || product.title} top mediaType={product.images?.[0]?.type} />
                     </button>
                     <div className="mt-4">
                       <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left text-lg font-semibold hover:text-rose-700">{product.title}</button>
@@ -17455,7 +17595,7 @@ export default function ThailandPantiesMarketSite() {
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
                         <button onClick={() => navigate('/seller-feed')} className="mt-3 block aspect-[4/5] w-full">
-                          <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} top />
+                          <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} top mediaType={post.mediaType} />
                         </button>
                         <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">{post.caption || publicText.noCaption}</p>
                       </article>
@@ -17731,7 +17871,7 @@ export default function ThailandPantiesMarketSite() {
                         <article key={post.id} className="rounded-2xl border border-rose-100 p-4">
                           {post.image ? (
                             <div className="aspect-[4/5]">
-                              <ProductImage src={post.image} label={post.imageName || 'Feed image'} top />
+                              <ProductImage src={post.image} label={post.imageName || 'Feed image'} top mediaType={post.mediaType} />
                             </div>
                           ) : null}
                           <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
@@ -17962,7 +18102,7 @@ export default function ThailandPantiesMarketSite() {
                     const bundleCoveredInCart = !product.isBundle && cartBundleCoveredItemIds.has(String(product.id || ''));
                     return (
                     <div key={product.id} className="rounded-3xl border border-rose-100 p-4">
-                      <button onClick={() => navigate(`/product/${product.slug}`)} className="aspect-[4/5] w-full"><ProductImage src={product.image} label={product.imageName || product.title} top /></button>
+                      <button onClick={() => navigate(`/product/${product.slug}`)} className="aspect-[4/5] w-full"><ProductImage src={product.image} label={product.imageName || product.title} top mediaType={product.images?.[0]?.type} /></button>
                       <div className="mt-4 flex items-start justify-between gap-3">
                         <div>
                           <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left font-semibold hover:text-rose-700">{product.title}</button>
@@ -18158,7 +18298,7 @@ export default function ThailandPantiesMarketSite() {
                           className="relative mt-3 block aspect-[4/5] w-full text-left"
                         >
                           <div className={canViewSellerPost(post) ? '' : 'blur-sm'}>
-                            <ProductImage src={post.image} label={post.imageName || 'Seller post'} top />
+                            <ProductImage src={post.image} label={post.imageName || 'Seller post'} top mediaType={post.mediaType} />
                           </div>
                           {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                             <div className="absolute inset-0 flex items-center justify-center">
@@ -18200,12 +18340,12 @@ export default function ThailandPantiesMarketSite() {
                   const activeIdx = Math.min(selectedProductImageIndex, allImages.length - 1);
                   return (
                     <>
-                      <div className="aspect-[4/5]"><ProductImage src={allImages[activeIdx]?.url} label={allImages[activeIdx]?.name || selectedProduct.title} top /></div>
+                      <div className="aspect-[4/5]"><ProductImage src={allImages[activeIdx]?.url} label={allImages[activeIdx]?.name || selectedProduct.title} top mediaType={allImages[activeIdx]?.type} /></div>
                       {allImages.length > 1 && (
                         <div className="grid grid-cols-5 gap-3">
                           {allImages.map((img, idx) => (
                             <button key={idx} onClick={() => setSelectedProductImageIndex(idx)} className={`aspect-square rounded-xl ring-2 overflow-hidden ${idx === activeIdx ? 'ring-rose-500' : 'ring-transparent hover:ring-rose-200'}`}>
-                              <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top />
+                              <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top mediaType={img.type} />
                             </button>
                           ))}
                         </div>
@@ -19041,6 +19181,12 @@ export default function ThailandPantiesMarketSite() {
             sellerReplyDraft={sellerReplyDraft}
             setSellerReplyDraft={setSellerReplyDraft}
             sendSellerReply={sendSellerReply}
+            sendBarConversationMessage={sendSellerBarReply}
+            sellerReplyMedia={sellerReplyMedia}
+            setSellerReplyMedia={setSellerReplyMedia}
+            uploadMediaFile={uploadMediaFile}
+            validateVideoFile={validateVideoFile}
+            barMap={barMap}
             sellerLanguage={currentUser?.preferredLanguage || 'en'}
             currentUser={currentUser}
             navigate={navigate}
@@ -19241,7 +19387,7 @@ export default function ThailandPantiesMarketSite() {
                     ) : barDashboardPosts.map((post) => (
                       <article key={post.id} className="rounded-2xl border border-rose-100 p-3">
                         <div className="aspect-[4/5]">
-                          <ProductImage src={post.image} label={post.imageName || 'Bar post'} top />
+                          <ProductImage src={post.image} label={post.imageName || 'Bar post'} top mediaType={post.mediaType} />
                         </div>
                         <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
                         <div className="mt-1 text-sm text-slate-700">{post.caption || barT.noCaption}</div>

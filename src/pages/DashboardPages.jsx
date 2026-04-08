@@ -12,6 +12,7 @@ import {
   LogOut,
   MapPin,
   MessageSquare,
+  Paperclip,
   Pencil,
   Package,
   Shield,
@@ -3959,7 +3960,7 @@ export function SellerUploadPage({
                 </select>
               </label>
             </div>
-            <input id="seller-product-image-input-page" type="file" accept="image/*" multiple onChange={handleUploadFile} className="sr-only" />
+            <input id="seller-product-image-input-page" type="file" accept="image/*,video/*" multiple onChange={handleUploadFile} className="sr-only" />
             <div className="flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
               <label htmlFor="seller-product-image-input-page" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">{t("chooseFile")}</label>
               <span className="text-xs text-slate-600">{uploadDraft.images?.length ? `${uploadDraft.images.length} / 5 images` : t("noFileChosen")}</span>
@@ -3967,7 +3968,7 @@ export function SellerUploadPage({
             <div className="grid grid-cols-3 gap-3 max-w-md">
               {(uploadDraft.images || []).map((img, idx) => (
                 <div key={idx} className="relative aspect-[4/5]">
-                  <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top />
+                  <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top mediaType={img.type} />
                   <button onClick={() => setUploadDraft((prev) => {
                     const next = prev.images.filter((_, i) => i !== idx);
                     return { ...prev, images: next, image: next[0]?.url || '', imageName: next[0]?.name || '' };
@@ -4145,7 +4146,7 @@ export function SellerFeedWorkspacePage({
                 <input
                   id="seller-post-image-input"
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   onChange={handleSellerPostImageUpload}
                   className="sr-only"
                 />
@@ -4164,11 +4165,11 @@ export function SellerFeedWorkspacePage({
                   <div className="space-y-3">
                     <div>
                       <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain /></div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain mediaType={sellerPostDraft.mediaType} /></div>
                     </div>
                     <div>
                       <div className="mb-1 text-[11px] font-medium text-slate-500">{t("whatBuyersWillSeeShort")}</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} top /></div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} top mediaType={sellerPostDraft.mediaType} /></div>
                     </div>
                   </div>
                 ) : (
@@ -4355,7 +4356,7 @@ export function SellerFeedWorkspacePage({
                       ) : null}
                     </div>
                     <div className="mt-2 text-sm text-slate-700">{post.caption || t("noCaption")}</div>
-                    <div className="mt-3 aspect-[4/5] max-w-xs">{post.image ? <ProductImage src={post.image} label={post.imageName || "Feed image"} top /> : <ProductImage label={t("noImage")} />}</div>
+                    <div className="mt-3 aspect-[4/5] max-w-xs">{post.image ? <ProductImage src={post.image} label={post.imageName || "Feed image"} top mediaType={post.mediaType} /> : <ProductImage label={t("noImage")} />}</div>
                   </div>
                 ))}
               </div>
@@ -4412,6 +4413,12 @@ export function SellerMessagesPage({
   sellerReplyDraft,
   setSellerReplyDraft,
   sendSellerReply,
+  sendBarConversationMessage,
+  sellerReplyMedia,
+  setSellerReplyMedia,
+  uploadMediaFile,
+  validateVideoFile,
+  barMap,
   sellerLanguage,
   currentUser,
   navigate
@@ -4446,7 +4453,8 @@ export function SellerMessagesPage({
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   };
   const activeSellerConversation = safeSellerInbox.find((row) => row.conversationId === sellerActiveConversationId) || null;
-  const activeSellerConversationLabel = resolveBuyerDisplayName(activeSellerConversation);
+  const isActiveBarThread = Boolean(activeSellerConversation?._isBarThread);
+  const activeSellerConversationLabel = isActiveBarThread ? (activeSellerConversation?._barName || "Bar") : resolveBuyerDisplayName(activeSellerConversation);
   const activeSellerConversationInitials = getConversationInitials(activeSellerConversationLabel);
   const resolveConversationMessageBody = (message) => {
     const original = String(message?.bodyOriginal || message?.body || "");
@@ -4526,16 +4534,17 @@ export function SellerMessagesPage({
         <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-3">
             {safeSellerInbox.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noMessages")}</div> : safeSellerInbox.map((message) => {
-              const buyerName = resolveBuyerDisplayName(message);
+              const isBarThread = Boolean(message._isBarThread);
+              const buyerName = isBarThread ? (message._barName || "Bar") : resolveBuyerDisplayName(message);
               const buyerInitials = getConversationInitials(buyerName);
               return (
-                <button key={message.id} onClick={() => { setSellerSelectedConversationId(message.conversationId); markNotificationsReadForConversation(message.conversationId); }} className={`block w-full rounded-2xl p-4 text-left ring-1 ${message.hasUnread ?? !message.readBySeller ? "ring-amber-200 bg-amber-50" : "ring-rose-100"} ${sellerActiveConversationId === message.conversationId ? 'bg-rose-50' : ''}`}>
+                <button key={message.conversationId || message.id} onClick={() => { setSellerSelectedConversationId(message.conversationId); markNotificationsReadForConversation(message.conversationId); }} className={`block w-full rounded-2xl p-4 text-left ring-1 ${message.hasUnread ?? !message.readBySeller ? "ring-amber-200 bg-amber-50" : "ring-rose-100"} ${sellerActiveConversationId === message.conversationId ? 'bg-rose-50' : ''}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex items-start gap-2">
-                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">{buyerInitials}</span>
+                      <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${isBarThread ? "bg-amber-100 text-amber-700" : "bg-indigo-100 text-indigo-700"}`}>{buyerInitials}</span>
                       <div className="min-w-0">
                         <div className="truncate font-semibold">{buyerName}</div>
-                        <div className="mt-0.5 text-xs text-slate-500">{t("customerConversation")}</div>
+                        <div className="mt-0.5 text-xs text-slate-500">{isBarThread ? "Bar conversation" : t("customerConversation")}</div>
                         <div className="mt-1 truncate text-sm text-slate-500">{message.body}</div>
                       </div>
                     </div>
@@ -4554,7 +4563,12 @@ export function SellerMessagesPage({
                 </div>
                 <div className="max-h-64 space-y-3 overflow-y-auto">
                   {safeSellerActiveConversationMessages.map((message) => (
-                    <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === 'seller' ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                    <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${(message.senderRole === 'seller' || (isActiveBarThread && message.senderRole !== 'bar')) ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                      {message.mediaUrl ? (
+                        message.mediaType === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(message.mediaUrl)
+                          ? <video src={message.mediaUrl} controls playsInline loop muted className="mb-2 max-h-48 rounded-xl" />
+                          : <img src={message.mediaUrl} alt="" className="mb-2 max-h-48 rounded-xl object-cover" />
+                      ) : null}
                       {resolveConversationMessageBody(message)}
                       {canToggleConversationTranslation(message) ? (
                         <button
@@ -4591,8 +4605,30 @@ export function SellerMessagesPage({
                   </div>
                 </div>
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                  <textarea value={sellerReplyDraft} onChange={(e) => setSellerReplyDraft(e.target.value)} className="min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm sm:flex-1" placeholder={t("replyPlaceholder")} />
-                  <button onClick={sendSellerReply} className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto sm:self-end">{t("reply")}</button>
+                  <div className="flex-1 space-y-2">
+                    <textarea value={sellerReplyDraft} onChange={(e) => setSellerReplyDraft(e.target.value)} className="min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={t("replyPlaceholder")} />
+                    {sellerReplyMedia ? (
+                      <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600 ring-1 ring-slate-200">
+                        {sellerReplyMedia.type === "video" ? <span>Video: {sellerReplyMedia.name}</span> : <img src={sellerReplyMedia.url} alt="" className="h-10 w-10 rounded object-cover" />}
+                        <button onClick={() => setSellerReplyMedia(null)} className="ml-auto text-rose-600 font-semibold text-xs">Remove</button>
+                      </div>
+                    ) : null}
+                    <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-rose-200 hover:text-rose-600">
+                      <Paperclip className="h-3.5 w-3.5" />
+                      <span>Attach</span>
+                      <input type="file" accept="image/*,video/*" className="hidden" onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        e.target.value = "";
+                        try {
+                          if (file.type.startsWith("video/")) { await validateVideoFile(file); }
+                          const result = await uploadMediaFile(file);
+                          setSellerReplyMedia({ url: result.url, type: result.type, name: file.name });
+                        } catch (err) { window.alert(typeof err === "string" ? err : "Upload failed."); }
+                      }} />
+                    </label>
+                  </div>
+                  <button onClick={() => { if (isActiveBarThread && sendBarConversationMessage) { sendBarConversationMessage(); } else { sendSellerReply(); } }} className="w-full rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white sm:w-auto sm:self-end">{t("reply")}</button>
                 </div>
               </>
             )}
@@ -4787,6 +4823,11 @@ export function BarMessagesPage({
                     <div className="text-sm text-slate-500">No messages yet. Send the first message.</div>
                   ) : (barMessageActiveConversationMessages || []).map((message) => (
                     <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${message.senderId === currentUser?.id ? "ml-auto bg-rose-600 text-white" : "bg-slate-100 text-slate-700"}`}>
+                      {message.mediaUrl ? (
+                        message.mediaType === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(message.mediaUrl)
+                          ? <video src={message.mediaUrl} controls playsInline loop muted className="mb-2 max-h-48 rounded-xl" />
+                          : <img src={message.mediaUrl} alt="" className="mb-2 max-h-48 rounded-xl object-cover" />
+                      ) : null}
                       {message.body}
                       {message.senderId !== currentUser?.id && String(message.senderRole || "").toLowerCase() === "bar" ? (
                         <div className="mt-2">
@@ -13967,6 +14008,11 @@ export function BuyerMessagesPage({
                 <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noMessagesInThread")}</div>
               ) : buyerDashboardConversationMessages.map((message) => (
                 <div key={message.id} className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === "buyer" ? "ml-auto bg-rose-100 text-rose-900 ring-1 ring-rose-200" : "bg-slate-100 text-slate-700"}`}>
+                  {message.mediaUrl ? (
+                    message.mediaType === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(message.mediaUrl)
+                      ? <video src={message.mediaUrl} controls playsInline loop muted className="mb-2 max-h-48 rounded-xl" />
+                      : <img src={message.mediaUrl} alt="" className="mb-2 max-h-48 rounded-xl object-cover" />
+                  ) : null}
                   <div>{resolveConversationMessageBody(message)}</div>
                   <div className={`mt-1 text-[11px] ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}>
                     {formatTimeNoSeconds(message.createdAt)}
