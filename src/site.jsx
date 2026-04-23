@@ -18105,8 +18105,7 @@ export default function ThailandPantiesMarketSite() {
                   });
                   const visibleGifts = mergedCatalog.filter((g) =>
                     g.isActive !== false &&
-                    !sellerDisabled.includes(g.type) &&
-                    (g.fulfillmentType !== 'drink' || selectedSeller.affiliatedBarId)
+                    !sellerDisabled.includes(g.type)
                   );
                   if (visibleGifts.length === 0) return null;
                   return (
@@ -18170,6 +18169,18 @@ export default function ThailandPantiesMarketSite() {
                                 Wallet balance: <span className="font-semibold">฿{balance.toFixed(2)}</span>
                                 {balance < gift.price && <span className="ml-2 text-red-500 font-medium">(need ฿{(gift.price - balance).toFixed(2)} more)</span>}
                               </div>
+                              {balance < gift.price && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setGiftModal((prev) => ({ ...prev, open: false }));
+                                    navigate('/account');
+                                  }}
+                                  className="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700"
+                                >
+                                  Top up wallet
+                                </button>
+                              )}
                             </>
                           ) : (
                             <div className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-600">
