@@ -12173,7 +12173,7 @@ export function AccountPage({
   };
   useEffect(() => {
     if (currentUser?.role !== "buyer") return;
-    if (walletTopUpContext?.source !== "checkout") return;
+    if (!walletTopUpContext?.source) return;
     const contextKey = [
       String(walletTopUpContext?.source || ""),
       String(walletTopUpContext?.topupRequired || ""),

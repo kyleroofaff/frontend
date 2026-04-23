@@ -1833,6 +1833,15 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                         )}
                       </div>
                       {!canAffordMessageAction && !isSellerView ? <div className="mt-2 text-[11px] text-amber-700">{t.addWalletToSend} {formatPriceTHB(MESSAGE_FEE_THB)} {t.toWalletSend}</div> : null}
+                      {!canAffordMessageAction && !isSellerView && openWalletTopUpForFlow ? (
+                        <button
+                          type="button"
+                          onClick={() => openWalletTopUpForFlow(MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0), '/custom-requests', 'custom-request')}
+                          className="mt-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
+                        >
+                          Top up wallet
+                        </button>
+                      ) : null}
                     </div>
                     {!isSellerView && Number(request.quotedPriceThb || 0) > 0 ? (
                       <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
@@ -1916,6 +1925,15 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                               </button>
                             </div>
                             {!canAffordMessageAction ? <div className="mt-1 text-[11px] text-amber-700">{t.counterRequiresFee} {formatPriceTHB(MESSAGE_FEE_THB)}.</div> : null}
+                            {!canAffordMessageAction && openWalletTopUpForFlow ? (
+                              <button
+                                type="button"
+                                onClick={() => openWalletTopUpForFlow(MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0), '/custom-requests', 'custom-request')}
+                                className="mt-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
+                              >
+                                Top up wallet
+                              </button>
+                            ) : null}
                           </>
                         )}
                       </div>
@@ -1961,6 +1979,15 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
               {t.sendRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
             </button>
             {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
+            {!canAffordNewRequest && openWalletTopUpForFlow ? (
+              <button
+                type="button"
+                onClick={() => openWalletTopUpForFlow(CUSTOM_REQUEST_FEE_THB - Number(currentUser?.walletBalance || 0), '/custom-requests', 'custom-request')}
+                className="mt-1 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+              >
+                Top up wallet
+              </button>
+            ) : null}
             {requestMessage ? <div className="text-sm font-medium text-rose-700">{requestMessage}</div> : null}
           </div>
         </div>

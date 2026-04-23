@@ -8204,10 +8204,22 @@ export default function ThailandPantiesMarketSite() {
   const total = subtotal + shippingFee;
 
   function navigate(path) {
-    setRoute(path);
+    const hashIndex = path.indexOf('#');
+    const pathOnly = hashIndex >= 0 ? path.slice(0, hashIndex) : path;
+    const hash = hashIndex >= 0 ? path.slice(hashIndex + 1) : '';
+    setRoute(pathOnly || '/');
     if (typeof window !== 'undefined') {
       window.history.pushState({}, '', path);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (hash) {
+        requestAnimationFrame(() => {
+          const el = document.getElementById(hash);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
     setMobileMenuOpen(false);
     setAccountMenuOpen(false);
@@ -17646,7 +17658,7 @@ export default function ThailandPantiesMarketSite() {
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.total || 0} {publicText.listingsLabel}</span>
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.types?.size || 0} {publicText.typesLabel}</span>
                       </div>
-                      <button onClick={() => navigate(currentUser ? `/seller/${seller.id}` : '/login')} className="mt-4 w-full rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">
+                      <button onClick={() => navigate(currentUser ? `/seller/${seller.id}#messages` : '/login')} className="mt-4 w-full rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">
                         {publicText.messageSellerTitle}
                       </button>
                       <button onClick={() => navigate(`/seller/${seller.id}`)} className="mt-2 w-full rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
@@ -18188,7 +18200,7 @@ export default function ThailandPantiesMarketSite() {
                                   type="button"
                                   onClick={() => {
                                     setGiftModal((prev) => ({ ...prev, open: false }));
-                                    navigate('/account');
+                                    openWalletTopUpForFlow(gift.price - balance, '/seller/' + selectedSeller.id, 'gift');
                                   }}
                                   className="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700"
                                 >
@@ -18296,15 +18308,15 @@ export default function ThailandPantiesMarketSite() {
               </div>
               <div className="space-y-6 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                 <SellerQrCard seller={selectedSeller} t={publicText} />
-                <div className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
+                <div id="messages" className="rounded-3xl border border-rose-100 bg-slate-50 p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <h3 className="text-xl font-semibold">{publicText.messageSellerTitle}</h3>
                       <p className="mt-1 text-sm text-slate-600">{publicText.buyerMessagesCostPrefix} {formatPriceTHB(MESSAGE_FEE_THB)} {publicText.buyerMessagesCostSuffix}</p>
+                      {currentUser?.role === 'buyer' ? <p className="mt-1 text-xs text-slate-400">Messages refresh automatically every 2.5 seconds.</p> : null}
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-rose-100">{publicText.balanceLabel}: {formatPriceTHB(currentWalletBalance)}</div>
-                      {currentUser?.role === 'buyer' ? <div className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{publicText.autoRefreshOn}</div> : null}
                     </div>
                   </div>
                   {!currentUser ? (
@@ -18342,6 +18354,15 @@ export default function ThailandPantiesMarketSite() {
                           {publicText.send} ({formatPriceTHB(MESSAGE_FEE_THB)})
                         </button>
                         {currentWalletBalance < MESSAGE_FEE_THB ? <div className="mt-2 text-xs text-amber-700">{publicText.walletNeedsAtLeastPrefix} {formatPriceTHB(MESSAGE_FEE_THB)} {publicText.walletNeedsAtLeastSuffix}</div> : null}
+                        {currentUser?.role === 'buyer' && currentWalletBalance < MESSAGE_FEE_THB ? (
+                          <button
+                            type="button"
+                            onClick={() => openWalletTopUpForFlow(MESSAGE_FEE_THB - currentWalletBalance, '/seller/' + selectedSeller.id + '#messages', 'message')}
+                            className="mt-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+                          >
+                            Top up wallet
+                          </button>
+                        ) : null}
                       </div>
                       {messageError ? <div className="mt-3 text-sm font-medium text-rose-600">{messageError}</div> : null}
                       <button onClick={() => markNotificationsReadForConversation(selectedConversationId)} className="mt-3 text-sm font-semibold text-rose-700">{publicText.markThreadRead}</button>
@@ -18416,6 +18437,15 @@ export default function ThailandPantiesMarketSite() {
                       {publicText.sendCustomRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
                     </button>
                     {currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? <div className="mt-2 text-xs text-amber-700">{publicText.walletNeedsAtLeastPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {publicText.walletNeedsAtLeastSuffix}</div> : null}
+                    {currentUser?.role === 'buyer' && currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? (
+                      <button
+                        type="button"
+                        onClick={() => openWalletTopUpForFlow(CUSTOM_REQUEST_FEE_THB - currentWalletBalance, '/seller/' + selectedSeller.id, 'custom-request')}
+                        className="mt-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+                      >
+                        Top up wallet
+                      </button>
+                    ) : null}
                     {sellerCustomRequestMessage ? <div className="mt-2 text-sm font-medium text-rose-700">{sellerCustomRequestMessage}</div> : null}
                   </div>
                   <h3 className="mt-8 text-xl font-semibold">{publicText.lifestylePostsByPrefix} {selectedSeller.name}</h3>
