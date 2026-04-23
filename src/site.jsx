@@ -5005,6 +5005,85 @@ function getShippingRateByCountry(countryValue) {
   return { destinationLabel: 'Unsupported destination', standard: 0, express: 0, supported: false };
 }
 
+function WalletTopUpReturnPage({ apiRequestJson, navigate, primaryShellRoute, setDb, normalizeDbState, appMode }) {
+  const [status, setStatus] = useState('polling');
+  const [balance, setBalance] = useState(null);
+  const polled = useRef(false);
+
+  useEffect(() => {
+    if (polled.current) return;
+    polled.current = true;
+    const txnId = (() => { try { return sessionStorage.getItem('pendingTopUpTxnId'); } catch { return null; } })();
+    if (!txnId) { setStatus('unknown'); return; }
+    let attempts = 0;
+    const maxAttempts = 20;
+    const interval = 3000;
+    const poll = async () => {
+      try {
+        const { ok, payload } = await apiRequestJson(`/api/wallet/top-up-status/${encodeURIComponent(txnId)}`, { method: 'GET' });
+        if (ok && payload?.status === 'completed') {
+          setStatus('success');
+          setBalance(payload.walletBalance);
+          try { sessionStorage.removeItem('pendingTopUpTxnId'); } catch {}
+          return;
+        }
+        if (ok && payload?.status === 'failed') {
+          setStatus('failed');
+          try { sessionStorage.removeItem('pendingTopUpTxnId'); } catch {}
+          return;
+        }
+      } catch {}
+      attempts += 1;
+      if (attempts < maxAttempts) {
+        setTimeout(poll, interval);
+      } else {
+        setStatus('timeout');
+      }
+    };
+    poll();
+  }, [apiRequestJson]);
+
+  if (status === 'polling') {
+    return (
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
+          <h2 className="mt-5 text-2xl font-bold tracking-tight">Processing your top-up&hellip;</h2>
+          <p className="mt-3 text-slate-600">Please wait while we confirm your payment. This usually takes a few seconds.</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (status === 'success') {
+    return (
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
+          <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
+          <h2 className="mt-5 text-3xl font-bold tracking-tight">Wallet topped up</h2>
+          <p className="mt-3 text-slate-600">Your payment was successful.{balance != null ? ` Your new wallet balance is ${balance.toLocaleString()} THB.` : ''}</p>
+          <button onClick={() => navigate(primaryShellRoute)} className="mt-6 rounded-2xl bg-rose-600 px-6 py-3 font-semibold text-white">Go to account</button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mx-auto max-w-4xl px-6 py-16">
+      <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-2xl font-bold">!</div>
+        <h2 className="mt-5 text-3xl font-bold tracking-tight">{status === 'failed' ? 'Top-up failed' : 'Payment status unknown'}</h2>
+        <p className="mt-3 text-slate-600">
+          {status === 'failed'
+            ? 'The payment could not be processed. Please try again.'
+            : 'We could not confirm your payment status. If you were charged, your balance will update shortly. Contact support if it does not.'}
+        </p>
+        <button onClick={() => navigate(primaryShellRoute)} className="mt-6 rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">Return to account</button>
+      </div>
+    </section>
+  );
+}
+
 function parseRoute(pathname) {
   if (pathname === '/') return { name: 'home' };
   if (pathname === '/find') return { name: 'find' };
@@ -5047,6 +5126,9 @@ function parseRoute(pathname) {
   if (pathname === '/order-help') return { name: 'order-help' };
   if (pathname === '/safety-report') return { name: 'safety-report' };
   if (pathname === '/privacy-packaging') return { name: 'privacy-packaging' };
+  if (pathname === '/wallet-top-up-complete') return { name: 'wallet-top-up-complete' };
+  if (pathname === '/wallet-top-up-cancelled') return { name: 'wallet-top-up-cancelled' };
+  if (pathname === '/wallet-top-up-failed') return { name: 'wallet-top-up-failed' };
   if (pathname.startsWith('/product/')) return { name: 'product', slug: pathname.replace('/product/', '') };
   if (pathname.startsWith('/bar/')) return { name: 'bar', id: pathname.replace('/bar/', '') };
   if (pathname.startsWith('/seller/')) return { name: 'seller', id: pathname.replace('/seller/', '') };
@@ -5426,6 +5508,25 @@ export default function ThailandPantiesMarketSite() {
   const [topUpAmount, setTopUpAmount] = useState(500);
   const [walletStatus, setWalletStatus] = useState('idle');
   const [walletTopUpContext, setWalletTopUpContext] = useState(null);
+  const [exchangeRate, setExchangeRate] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/exchange-rate`);
+        const data = await res.json();
+        if (!cancelled && data?.ok && data.rate > 0) setExchangeRate(data.rate);
+      } catch {}
+    })();
+    const tid = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/exchange-rate`);
+        const data = await res.json();
+        if (!cancelled && data?.ok && data.rate > 0) setExchangeRate(data.rate);
+      } catch {}
+    }, 30 * 60 * 1000);
+    return () => { cancelled = true; clearInterval(tid); };
+  }, []);
   const [giftModal, setGiftModal] = useState({ open: false, sellerId: '', giftType: '', message: '', isAnonymous: false, sending: false, error: '', success: '' });
   const [sellerSelectedConversationId, setSellerSelectedConversationId] = useState('');
   const [sellerReplyDraft, setSellerReplyDraft] = useState('');
@@ -14521,19 +14622,15 @@ export default function ThailandPantiesMarketSite() {
     setWalletStatus('processing');
     if (backendStatus === 'connected' && apiAuthToken) {
       try {
-        const { ok, payload } = await apiRequestJson('/api/wallet/top-up', {
+        const { ok, payload } = await apiRequestJson('/api/wallet/create-top-up-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: { amountThb: normalizedAmount },
-          idempotencyScope: `wallet_top_up_${currentUser.id}_${normalizedAmount}`,
-          stableIdempotency: true,
         });
-        if (ok) {
-          if (payload?.db) {
-            setDb(normalizeDbState(payload.db, appMode));
-          }
-          setWalletStatus('success');
-          return { ok: true };
+        if (ok && payload?.redirectUrl) {
+          try { sessionStorage.setItem('pendingTopUpTxnId', payload.pendingTxnId); } catch {}
+          window.location.href = payload.redirectUrl;
+          return { ok: true, redirecting: true };
         }
         setWalletStatus('idle');
         return {
@@ -19654,6 +19751,32 @@ export default function ThailandPantiesMarketSite() {
           </section>
         ) : null}
 
+        {routeInfo.name === 'wallet-top-up-complete' ? (
+          <WalletTopUpReturnPage apiRequestJson={apiRequestJson} navigate={navigate} primaryShellRoute={primaryShellRoute} setDb={setDb} normalizeDbState={normalizeDbState} appMode={appMode} />
+        ) : null}
+
+        {routeInfo.name === 'wallet-top-up-cancelled' ? (
+          <section className="mx-auto max-w-4xl px-6 py-16">
+            <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-2xl font-bold">!</div>
+              <h2 className="mt-5 text-3xl font-bold tracking-tight">Top-up cancelled</h2>
+              <p className="mt-3 text-slate-600">You cancelled the payment. No charge has been made to your card.</p>
+              <button onClick={() => navigate(primaryShellRoute)} className="mt-6 rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">Return to account</button>
+            </div>
+          </section>
+        ) : null}
+
+        {routeInfo.name === 'wallet-top-up-failed' ? (
+          <section className="mx-auto max-w-4xl px-6 py-16">
+            <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 text-2xl font-bold">&times;</div>
+              <h2 className="mt-5 text-3xl font-bold tracking-tight">Top-up failed</h2>
+              <p className="mt-3 text-slate-600">The payment could not be processed. Please try again or use a different payment method.</p>
+              <button onClick={() => navigate(primaryShellRoute)} className="mt-6 rounded-2xl border border-rose-200 px-6 py-3 font-semibold text-rose-700">Return to account</button>
+            </div>
+          </section>
+        ) : null}
+
         {routeInfo.name === 'login' ? (
           <PageShell title={loginText.title} subtitle={loginText.subtitle}>
             <form onSubmit={loginWithCredentials} className="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
@@ -20272,6 +20395,7 @@ export default function ThailandPantiesMarketSite() {
             topUpAmount={topUpAmount}
             walletTopUpContext={walletTopUpContext}
             clearWalletTopUpContext={() => setWalletTopUpContext(null)}
+            exchangeRate={exchangeRate}
             markAllNotificationsRead={markAllNotificationsRead}
             markNotificationRead={markNotificationRead}
             buyerLedger={buyerLedger}

@@ -11928,11 +11928,16 @@ export function AccountPage({
   accountCredentialTone,
   resendOrderReceipt,
   fetchOrderTracking,
+  exchangeRate,
   uiLanguage = "en",
   navigate
 }) {
   const accountText = ACCOUNT_PAGE_I18N[uiLanguage] || ACCOUNT_PAGE_I18N.en;
   const tx = (key) => accountText[key] || ACCOUNT_PAGE_I18N.en[key] || key;
+  const formatUsdFromThb = (thb) => {
+    if (!exchangeRate || exchangeRate <= 0) return null;
+    return `~$${(Number(thb) / exchangeRate).toFixed(2)} USD`;
+  };
   const effectivePromptPayReceiverMobile = String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE).trim() || DEFAULT_PROMPTPAY_RECEIVER_MOBILE;
   const localizePaymentStatus = (status) => {
     switch (String(status || "").toLowerCase()) {
@@ -12869,7 +12874,7 @@ export function AccountPage({
                           }}
                           className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700"
                         >
-                          {tx("add")} {formatPriceTHB(amount)}
+                          {tx("add")} {formatPriceTHB(amount)}{formatUsdFromThb(amount) ? ` (${formatUsdFromThb(amount)})` : ''}
                         </button>
                       ))}
                     </div>
@@ -12950,7 +12955,8 @@ export function AccountPage({
                                 className="w-full rounded-2xl border border-slate-200 py-2 pl-8 pr-4 text-sm"
                               />
                             </div>
-                            <div className="mt-1 text-xs text-slate-500">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.</div>
+                            <div className="mt-1 text-xs text-slate-500">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.{formatUsdFromThb(Number(topUpDraftAmount || 0)) ? <> Your card will be charged <span className="font-semibold">{formatUsdFromThb(Number(topUpDraftAmount || 0))}</span>.</> : null}</div>
+                            {exchangeRate ? <div className="mt-1 text-[11px] text-slate-400">Card charges are processed in USD at the current exchange rate.</div> : null}
                           </div>
                           <div className="mt-5">
                             <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Payment method</label>
