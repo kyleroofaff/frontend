@@ -11278,6 +11278,74 @@ export function AdminPage({
   );
 }
 
+function WalletTopUpModal({ open, draftAmount, setDraftAmount, paymentError, setPaymentError, walletStatus, exchangeRate, formatPriceTHB, formatUsdFromThb, onSubmit, onClose }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/50 px-4">
+      <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h4 className="text-lg font-semibold text-slate-900">Top up wallet</h4>
+            <p className="mt-1 text-sm text-slate-600">Confirm the amount, then proceed to our secure payment page.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:text-slate-700"
+            aria-label="Close top-up modal"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="mt-4">
+          <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Top-up amount (THB)</label>
+          <div className="relative mt-2">
+            <span className="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-sm font-semibold text-slate-500">฿</span>
+            <input
+              type="number"
+              min={MIN_WALLET_TOP_UP_THB}
+              step="1"
+              value={draftAmount}
+              onChange={(event) => {
+                setPaymentError("");
+                setDraftAmount(event.target.value);
+              }}
+              className="w-full rounded-2xl border border-slate-200 py-2 pl-8 pr-4 text-sm"
+            />
+          </div>
+          <div className="mt-1 text-xs text-slate-500">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.{formatUsdFromThb(Number(draftAmount || 0)) ? <> Your card will be charged <span className="font-semibold">{formatUsdFromThb(Number(draftAmount || 0))}</span>.</> : null}</div>
+          {exchangeRate ? <div className="mt-1 text-[11px] text-slate-400">Card charges are processed in USD at the current exchange rate.</div> : null}
+        </div>
+        <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+          You will be redirected to a secure payment page to enter your card details. After payment, you will be returned here automatically.
+        </div>
+        {paymentError ? (
+          <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+            {paymentError}
+          </div>
+        ) : null}
+        <div className="mt-5 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={walletStatus === "processing"}
+            className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {walletStatus === "processing" ? "Processing..." : "Continue to payment"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CheckoutPage({
   setCheckoutAuthModalOpen,
   currentUser,
@@ -11307,7 +11375,10 @@ export function CheckoutPage({
   checkoutAuthModalOpen,
   onOpenLogin,
   onOpenRegister,
-  onOpenWalletTopUp
+  onOpenWalletTopUp,
+  runWalletTopUp,
+  walletStatus,
+  exchangeRate
 }) {
   const [attemptedStepOneContinue, setAttemptedStepOneContinue] = useState(false);
   const [attemptedStepTwoContinue, setAttemptedStepTwoContinue] = useState(false);
@@ -11351,6 +11422,38 @@ export function CheckoutPage({
   const walletShortfall = Math.max(0, Number((total - Number(currentWalletBalance || 0)).toFixed(2)));
   const requiredTopUpAmount = getRequiredTopUpAmount(walletShortfall);
   const shouldShowTopUpPrompt = currentUser?.role === "buyer" && walletShortfall > 0;
+  const [checkoutTopUpModalOpen, setCheckoutTopUpModalOpen] = useState(false);
+  const [checkoutTopUpDraftAmount, setCheckoutTopUpDraftAmount] = useState(String(MIN_WALLET_TOP_UP_THB));
+  const [checkoutTopUpError, setCheckoutTopUpError] = useState("");
+  const formatUsdFromThb = (thb) => {
+    if (!exchangeRate || exchangeRate <= 0) return null;
+    return `~$${(Number(thb) / exchangeRate).toFixed(2)} USD`;
+  };
+  const openCheckoutTopUpModal = (amount) => {
+    const resolved = Math.max(MIN_WALLET_TOP_UP_THB, Math.ceil(Number(amount || 0) || MIN_WALLET_TOP_UP_THB));
+    setCheckoutTopUpDraftAmount(String(resolved));
+    setCheckoutTopUpError("");
+    setCheckoutTopUpModalOpen(true);
+  };
+  const closeCheckoutTopUpModal = () => {
+    if (walletStatus === "processing") return;
+    setCheckoutTopUpModalOpen(false);
+    setCheckoutTopUpError("");
+  };
+  const submitCheckoutTopUp = async () => {
+    const amount = Number(checkoutTopUpDraftAmount || 0);
+    if (!isValidWalletTopUpAmount(amount)) {
+      setCheckoutTopUpError(`Top-up amount must be at least ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
+      return;
+    }
+    setCheckoutTopUpError("");
+    const result = await runWalletTopUp(amount);
+    if (!result?.ok) {
+      setCheckoutTopUpError(result?.error || "Top-up failed. Please try again.");
+      return;
+    }
+    setCheckoutTopUpModalOpen(false);
+  };
   return (
     <>
       <style>{CHECKOUT_SHAKE_KEYFRAMES}</style>
@@ -11400,7 +11503,7 @@ export function CheckoutPage({
                         Top up required: {formatPriceTHB(requiredTopUpAmount)}. Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.
                       </div>
                       <button
-                        onClick={() => onOpenWalletTopUp(requiredTopUpAmount)}
+                        onClick={() => openCheckoutTopUpModal(requiredTopUpAmount)}
                         className="mt-2 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
                       >
                         Top up now ({formatPriceTHB(requiredTopUpAmount)})
@@ -11470,7 +11573,7 @@ export function CheckoutPage({
                         Top up required: {formatPriceTHB(requiredTopUpAmount)}. Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.
                       </div>
                       <button
-                        onClick={() => onOpenWalletTopUp(requiredTopUpAmount)}
+                        onClick={() => openCheckoutTopUpModal(requiredTopUpAmount)}
                         className="mt-2 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
                       >
                         Top up now ({formatPriceTHB(requiredTopUpAmount)})
@@ -11646,9 +11749,6 @@ export function CheckoutPage({
                 <div className="grid gap-4">
                   <h3 className="text-xl font-semibold">Payment</h3>
                   <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">Wallet balance available: {formatPriceTHB(currentWalletBalance)}</div>
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900">
-                    Test mode card (Stripe): use <span className="font-semibold">4242 4242 4242 4242</span>, any future expiry, any CVC, and any ZIP/postal code.
-                  </div>
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-xs text-sky-900">
                     Policy note: refunds require order evidence and are reviewed case-by-case. Before you pay, double-check your items, shipping address, and contact details.
                   </div>
@@ -11659,7 +11759,7 @@ export function CheckoutPage({
                         Top up required: {formatPriceTHB(requiredTopUpAmount)}. Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.
                       </div>
                       <button
-                        onClick={() => onOpenWalletTopUp(requiredTopUpAmount)}
+                        onClick={() => openCheckoutTopUpModal(requiredTopUpAmount)}
                         className="mt-2 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800"
                       >
                         Top up now ({formatPriceTHB(requiredTopUpAmount)})
@@ -11686,7 +11786,7 @@ export function CheckoutPage({
                     {currentUser?.role === "buyer" ? (
                       walletShortfall > 0 ? (
                         <button
-                          onClick={() => onOpenWalletTopUp(requiredTopUpAmount)}
+                          onClick={() => openCheckoutTopUpModal(requiredTopUpAmount)}
                           className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-3 font-semibold text-amber-800"
                         >
                           Top up now ({formatPriceTHB(requiredTopUpAmount)})
@@ -11857,6 +11957,22 @@ export function CheckoutPage({
           </div>
         </div>
       ) : null}
+
+      {currentUser?.role === "buyer" ? (
+        <WalletTopUpModal
+          open={checkoutTopUpModalOpen}
+          draftAmount={checkoutTopUpDraftAmount}
+          setDraftAmount={setCheckoutTopUpDraftAmount}
+          paymentError={checkoutTopUpError}
+          setPaymentError={setCheckoutTopUpError}
+          walletStatus={walletStatus}
+          exchangeRate={exchangeRate}
+          formatPriceTHB={formatPriceTHB}
+          formatUsdFromThb={formatUsdFromThb}
+          onSubmit={submitCheckoutTopUp}
+          onClose={closeCheckoutTopUpModal}
+        />
+      ) : null}
     </>
   );
 }
@@ -11938,7 +12054,6 @@ export function AccountPage({
     if (!exchangeRate || exchangeRate <= 0) return null;
     return `~$${(Number(thb) / exchangeRate).toFixed(2)} USD`;
   };
-  const effectivePromptPayReceiverMobile = String(promptPayReceiverMobile || DEFAULT_PROMPTPAY_RECEIVER_MOBILE).trim() || DEFAULT_PROMPTPAY_RECEIVER_MOBILE;
   const localizePaymentStatus = (status) => {
     switch (String(status || "").toLowerCase()) {
       case "paid":
@@ -11978,13 +12093,8 @@ export function AccountPage({
   const [customTopUpAmount, setCustomTopUpAmount] = useState("500");
   const [customTopUpError, setCustomTopUpError] = useState("");
   const [topUpModalOpen, setTopUpModalOpen] = useState(false);
-  const [topUpMethod, setTopUpMethod] = useState("credit_card");
   const [topUpDraftAmount, setTopUpDraftAmount] = useState(String(MIN_WALLET_TOP_UP_THB));
   const [topUpPaymentError, setTopUpPaymentError] = useState("");
-  const [cardHolderName, setCardHolderName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
   const [showCheckoutTopUpSuccessPopup, setShowCheckoutTopUpSuccessPopup] = useState(false);
   const [resendingReceiptOrderId, setResendingReceiptOrderId] = useState("");
   const [receiptActionMessage, setReceiptActionMessage] = useState("");
@@ -12054,7 +12164,6 @@ export function AccountPage({
     setTopUpDraftAmount(String(Math.max(MIN_WALLET_TOP_UP_THB, Math.ceil(resolvedAmount))));
     setTopUpPaymentError("");
     setCustomTopUpError("");
-    setTopUpMethod("credit_card");
     setTopUpModalOpen(true);
   };
   const closeTopUpModal = () => {
@@ -12080,40 +12189,11 @@ export function AccountPage({
       : Number(walletTopUpContext?.topupRequired || 0);
     openTopUpModal(nextAmount > 0 ? nextAmount : MIN_WALLET_TOP_UP_THB);
   }, [currentUser?.role, walletTopUpContext?.source, walletTopUpContext?.topupRequired, walletTopUpContext?.returnTo, checkoutRequiredTopUpAmount]);
-  const promptPayPayload = useMemo(
-    () =>
-      buildPromptPayPayload({
-        mobileNumber: effectivePromptPayReceiverMobile,
-        amount: topUpDraftAmount,
-      }),
-    [topUpDraftAmount, effectivePromptPayReceiverMobile]
-  );
   const submitTopUpFromModal = async () => {
     const amount = Number(topUpDraftAmount || 0);
     if (!isValidWalletTopUpAmount(amount)) {
       setTopUpPaymentError(`Top-up amount must be at least ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
       return;
-    }
-    if (topUpMethod === "credit_card") {
-      const normalizedCardNumber = cardNumber.replace(/\s+/g, "");
-      const normalizedCvc = cardCvc.replace(/\D+/g, "");
-      const expiryIsValid = /^(0[1-9]|1[0-2])\/\d{2}$/.test(String(cardExpiry || "").trim());
-      if (!String(cardHolderName || "").trim()) {
-        setTopUpPaymentError("Enter the cardholder name.");
-        return;
-      }
-      if (!/^\d{12,19}$/.test(normalizedCardNumber)) {
-        setTopUpPaymentError("Enter a valid card number.");
-        return;
-      }
-      if (!expiryIsValid) {
-        setTopUpPaymentError("Enter expiry as MM/YY.");
-        return;
-      }
-      if (!/^\d{3,4}$/.test(normalizedCvc)) {
-        setTopUpPaymentError("Enter a valid CVC.");
-        return;
-      }
     }
     setTopUpPaymentError("");
     const result = await runWalletTopUp(amount);
@@ -12910,7 +12990,7 @@ export function AccountPage({
                         }}
                         className="w-full rounded-2xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 sm:w-auto"
                       >
-                        {currentUser.role === "buyer" ? "Choose payment method" : "Add custom amount"}
+                        {currentUser.role === "buyer" ? "Top up with card" : "Add custom amount"}
                       </button>
                     </div>
                     {customTopUpError ? <div className="mt-2 text-sm font-medium text-rose-600">{customTopUpError}</div> : null}
@@ -12922,178 +13002,20 @@ export function AccountPage({
                         Top-up complete. Returning to checkout...
                       </div>
                     ) : null}
-                    {currentUser.role === "buyer" && topUpModalOpen ? (
-                      <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/50 px-4">
-                        <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <h4 className="text-lg font-semibold text-slate-900">Top up wallet</h4>
-                              <p className="mt-1 text-sm text-slate-600">Choose how you want to pay, then confirm your top-up.</p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={closeTopUpModal}
-                              className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:text-slate-700"
-                              aria-label="Close top-up modal"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <div className="mt-4">
-                            <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Top-up amount (THB)</label>
-                            <div className="relative mt-2">
-                              <span className="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-sm font-semibold text-slate-500">฿</span>
-                              <input
-                                type="number"
-                                min={MIN_WALLET_TOP_UP_THB}
-                                step="1"
-                                value={topUpDraftAmount}
-                                onChange={(event) => {
-                                  setTopUpPaymentError("");
-                                  setTopUpDraftAmount(event.target.value);
-                                }}
-                                className="w-full rounded-2xl border border-slate-200 py-2 pl-8 pr-4 text-sm"
-                              />
-                            </div>
-                            <div className="mt-1 text-xs text-slate-500">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.{formatUsdFromThb(Number(topUpDraftAmount || 0)) ? <> Your card will be charged <span className="font-semibold">{formatUsdFromThb(Number(topUpDraftAmount || 0))}</span>.</> : null}</div>
-                            {exchangeRate ? <div className="mt-1 text-[11px] text-slate-400">Card charges are processed in USD at the current exchange rate.</div> : null}
-                          </div>
-                          <div className="mt-5">
-                            <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Payment method</label>
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setTopUpPaymentError("");
-                                  setTopUpMethod("credit_card");
-                                }}
-                                className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${topUpMethod === "credit_card" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
-                              >
-                                Credit Card
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setTopUpPaymentError("");
-                                  setTopUpMethod("promptpay");
-                                }}
-                                className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${topUpMethod === "promptpay" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
-                              >
-                                PromptPay
-                              </button>
-                            </div>
-                          </div>
-                          {topUpMethod === "promptpay" ? (
-                            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                              <div className="text-sm font-semibold text-slate-800">PromptPay QR</div>
-                              <div className="mt-3 flex justify-center">
-                                <div className="rounded-2xl border border-slate-200 bg-white p-3">
-                                  {promptPayPayload ? (
-                                    <QRCodeSVG value={promptPayPayload} size={176} includeMargin />
-                                  ) : (
-                                    <div className="flex h-44 w-44 items-center justify-center text-xs text-slate-500">
-                                      Enter a valid amount to generate QR.
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              <p className="mt-3 text-xs text-slate-600">
-                                Scan with a Thai banking app to pay {formatPriceTHB(Number(topUpDraftAmount || 0))} via PromptPay.
-                              </p>
-                              <p className="mt-1 text-[11px] text-slate-500">Receiver: {effectivePromptPayReceiverMobile}</p>
-                            </div>
-                          ) : (
-                            <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                              <div>
-                                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cardholder name</label>
-                                <input
-                                  type="text"
-                                  value={cardHolderName}
-                                  onChange={(event) => {
-                                    setTopUpPaymentError("");
-                                    setCardHolderName(event.target.value);
-                                  }}
-                                  placeholder="Name on card"
-                                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Card number</label>
-                                <input
-                                  type="text"
-                                  value={cardNumber}
-                                  onChange={(event) => {
-                                    setTopUpPaymentError("");
-                                    const digitsOnly = event.target.value.replace(/\D+/g, "").slice(0, 19);
-                                    const grouped = digitsOnly.replace(/(.{4})/g, "$1 ").trim();
-                                    setCardNumber(grouped);
-                                  }}
-                                  placeholder="1234 5678 9012 3456"
-                                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Expiry (MM/YY)</label>
-                                  <input
-                                    type="text"
-                                    value={cardExpiry}
-                                    onChange={(event) => {
-                                      setTopUpPaymentError("");
-                                      let nextValue = event.target.value.replace(/[^\d/]/g, "").slice(0, 5);
-                                      if (nextValue.length === 2 && !nextValue.includes("/")) {
-                                        nextValue = `${nextValue}/`;
-                                      }
-                                      setCardExpiry(nextValue);
-                                    }}
-                                    placeholder="MM/YY"
-                                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">CVC</label>
-                                  <input
-                                    type="text"
-                                    value={cardCvc}
-                                    onChange={(event) => {
-                                      setTopUpPaymentError("");
-                                      setCardCvc(event.target.value.replace(/\D+/g, "").slice(0, 4));
-                                    }}
-                                    placeholder="123"
-                                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {topUpPaymentError ? (
-                            <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
-                              {topUpPaymentError}
-                            </div>
-                          ) : null}
-                          <div className="mt-5 flex items-center justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={closeTopUpModal}
-                              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="button"
-                              onClick={submitTopUpFromModal}
-                              disabled={walletStatus === "processing"}
-                              className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {walletStatus === "processing"
-                                ? "Processing..."
-                                : topUpMethod === "promptpay"
-                                  ? "I scanned and paid"
-                                  : "Pay with card"}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                    {currentUser.role === "buyer" ? (
+                      <WalletTopUpModal
+                        open={topUpModalOpen}
+                        draftAmount={topUpDraftAmount}
+                        setDraftAmount={setTopUpDraftAmount}
+                        paymentError={topUpPaymentError}
+                        setPaymentError={setTopUpPaymentError}
+                        walletStatus={walletStatus}
+                        exchangeRate={exchangeRate}
+                        formatPriceTHB={formatPriceTHB}
+                        formatUsdFromThb={formatUsdFromThb}
+                        onSubmit={submitTopUpFromModal}
+                        onClose={closeTopUpModal}
+                      />
                     ) : null}
                   </>
                 ) : null}

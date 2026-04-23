@@ -19714,6 +19714,9 @@ export default function ThailandPantiesMarketSite() {
             onOpenLogin={() => navigate('/login')}
             onOpenRegister={() => navigate('/register')}
             onOpenWalletTopUp={openWalletTopUpFromCheckout}
+            runWalletTopUp={runWalletTopUp}
+            walletStatus={walletStatus}
+            exchangeRate={exchangeRate}
           />
         ) : null}
 
