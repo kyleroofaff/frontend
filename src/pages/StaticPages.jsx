@@ -598,7 +598,9 @@ const SUPPORT_STATIC_I18N = {
       "If a buyer is blocked by two sellers, the buyer account is blocked from the site.",
       "Payment charges appear on card statements as Siam Second Story.",
       "Thailand Panties is owned and operated by Siam Second Story, located at 30 N Gould Street Ste R, Sheridan, Wyoming 82801, United States.",
-    ], body: "Shipping usually happens within 1-3 business days after the order is placed and confirmed, but it can take longer depending on the seller's location." },
+    ],
+    shippingCards: [
+      { title: "Shipping time", body: "Shipping usually happens within 1-3 business days after the order is placed and confirmed, but it can take longer depending on the seller's location." },
       { title: "Carrier", body: "All shipments are sent with international carriers and include tracking once sent." },
       { title: "Shipping cost", body: "Buyers pay the exact shipping cost shown at checkout for their destination." },
       { title: "Coverage and packaging", body: "We ship worldwide with discreet external packaging (no identifying branding). Every package includes a t-shirt, stickers, and a gift, and customs forms are marked as apparel/promotional gift materials." },
@@ -639,7 +641,9 @@ const SUPPORT_STATIC_I18N = {
       "หากผู้ซื้อถูกบล็อกโดยผู้ขายสองราย บัญชีผู้ซื้อจะถูกบล็อกจากเว็บไซต์",
       "รายการชำระเงินบนบัตรจะแสดงเป็น Siam Second Story",
       "Thailand Panties เป็นของและดำเนินการโดย Siam Second Story ตั้งอยู่ที่ 30 N Gould Street Ste R, Sheridan, Wyoming 82801 สหรัฐอเมริกา",
-    ], body: "โดยปกติคำสั่งซื้อจะจัดส่งภายใน 1-3 วันทำการหลังยืนยันคำสั่งซื้อ แต่อาจใช้เวลานานกว่านี้ตามตำแหน่งที่ตั้งของผู้ขาย" },
+    ],
+    shippingCards: [
+      { title: "ช่วงเวลาจัดส่ง", body: "โดยปกติคำสั่งซื้อจะจัดส่งภายใน 1-3 วันทำการหลังยืนยันคำสั่งซื้อ แต่อาจใช้เวลานานกว่านี้ตามตำแหน่งที่ตั้งของผู้ขาย" },
       { title: "ผู้ให้บริการขนส่ง", body: "ทุกพัสดุจัดส่งผ่านผู้ให้บริการระหว่างประเทศและมีเลขติดตามหลังส่ง" },
       { title: "ค่าจัดส่ง", body: "ผู้ซื้อชำระค่าจัดส่งตามจริงที่แสดงในขั้นตอนเช็กเอาต์ตามปลายทาง" },
       { title: "พื้นที่จัดส่งและบรรจุภัณฑ์", body: "เราจัดส่งทั่วโลกด้วยบรรจุภัณฑ์ภายนอกแบบไม่เปิดเผยตัวตน (ไม่มีโลโก้ระบุตัวสินค้า) ทุกพัสดุมีเสื้อยืด สติกเกอร์ และของขวัญ พร้อมระบุในเอกสารศุลกากรเป็นเสื้อผ้า/สื่อโปรโมชัน/ของขวัญ" },
@@ -680,7 +684,9 @@ const SUPPORT_STATIC_I18N = {
       "Buyer ကို seller နှစ်ဦးက block လုပ်ပါက buyer account ကို site မှ block လုပ်ပါမည်။",
       "Card statement တွင် Siam Second Story ဟု ပြသပါမည်။",
       "Thailand Panties သည် Siam Second Story မှ ပိုင်ဆိုင်ပြီး လုပ်ငန်းဆောင်ရွက်ပါသည်။ လိပ်စာ - 30 N Gould Street Ste R, Sheridan, Wyoming 82801, United States။",
-    ], body: "Order ကိုအတည်ပြုပြီးနောက် ပုံမှန်အားဖြင့် 1-3 business days အတွင်း ပို့ဆောင်ပါသည်။ သို့သော် seller ၏ တည်နေရာအပေါ်မူတည်၍ ပို့ဆောင်ချိန် ပိုကြာနိုင်ပါသည်။" },
+    ],
+    shippingCards: [
+      { title: "ပို့ဆောင်ချိန်", body: "Order ကိုအတည်ပြုပြီးနောက် ပုံမှန်အားဖြင့် 1-3 business days အတွင်း ပို့ဆောင်ပါသည်။ သို့သော် seller ၏ တည်နေရာအပေါ်မူတည်၍ ပို့ဆောင်ချိန် ပိုကြာနိုင်ပါသည်။" },
       { title: "Carrier", body: "ပို့ဆောင်မှုအားလုံးကို international carrier များဖြင့်လုပ်ဆောင်ပြီး dispatch ပြီးသည်နှင့် tracking ပေးပါသည်။" },
       { title: "ပို့ဆောင်စရိတ်", body: "Checkout တွင်ပြထားသော destination အလိုက် exact shipping cost ကို buyer ကပေးဆောင်ပါသည်။" },
       { title: "Coverage နှင့် Packaging", body: "ကမ္ဘာတစ်ဝှမ်း ပို့ဆောင်ပြီး အပြင်ထုပ်ပိုးမှုမှာ branding မပါသော discreet format သုံးပါသည်။ Package တိုင်းတွင် t-shirt, stickers နှင့် gift ပါဝင်ပြီး customs forms တွင် apparel/promotional gift materials အဖြစ် မှတ်သားပါသည်။" },
@@ -721,7 +727,9 @@ const SUPPORT_STATIC_I18N = {
       "Если покупателя блокируют два продавца, аккаунт покупателя блокируется на сайте.",
       "В выписке по карте списания отображаются как Siam Second Story.",
       "Thailand Panties принадлежит и управляется компанией Siam Second Story, расположенной по адресу: 30 N Gould Street Ste R, Sheridan, Wyoming 82801, США.",
-    ], body: "Обычно заказы отправляются в течение 1-3 рабочих дней после оформления и подтверждения, но срок может быть дольше в зависимости от локации продавца." },
+    ],
+    shippingCards: [
+      { title: "Срок отправки", body: "Обычно заказы отправляются в течение 1-3 рабочих дней после оформления и подтверждения, но срок может быть дольше в зависимости от локации продавца." },
       { title: "Перевозчик", body: "Все отправления выполняются международными перевозчиками и сопровождаются трекингом после отправки." },
       { title: "Стоимость доставки", body: "Покупатель оплачивает точную стоимость доставки, указанную на этапе checkout для своего направления." },
       { title: "Покрытие и упаковка", body: "Мы отправляем по всему миру в дискретной внешней упаковке без идентифицирующей маркировки. В каждую посылку добавляются футболка, стикеры и подарок, а в таможенных формах указывается категория «одежда/промо-материалы/подарок»." },
