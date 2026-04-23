@@ -81,12 +81,12 @@ import {
 import { formatDateTimeNoSeconds, normalizeTimeFormat, setStoredTimeFormat } from './utils/timeFormat.js';
 import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB } from './utils/walletTopUp.js';
 
-const SellerFeedPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerFeedPage })));
+const StoriesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.StoriesPage })));
 const SellerDashboardPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerDashboardPage })));
 const SellerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerMessagesPage })));
 const BuyerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BuyerMessagesPage })));
 const BarMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BarMessagesPage })));
-const SellerFeedWorkspacePage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerFeedWorkspacePage })));
+const StoriesWorkspacePage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.StoriesWorkspacePage })));
 const SellerUploadPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerUploadPage })));
 const AdminPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.AdminPage })));
 const CheckoutPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.CheckoutPage })));
@@ -219,10 +219,10 @@ function buildAdminPermissions(user) {
 }
 
 const SHARED_NAV_I18N = {
-  en: { home: 'Home', sellers: 'Sellers', bars: 'Bars', find: 'Find', sellerFeed: 'Seller Feed', customRequests: 'Custom Requests', faq: 'FAQ', contact: 'Contact', account: 'Account', dashboard: 'Dashboard', messages: 'Messages', login: 'Login', register: 'Register', logout: 'Logout' },
-  th: { home: 'หน้าแรก', sellers: 'ผู้ขาย', bars: 'บาร์', find: 'ค้นหา', sellerFeed: 'ฟีดผู้ขาย', customRequests: 'คำขอพิเศษ', faq: 'คำถามที่พบบ่อย', contact: 'ติดต่อ', account: 'บัญชี', dashboard: 'แดชบอร์ด', messages: 'ข้อความ', login: 'เข้าสู่ระบบ', register: 'สมัครสมาชิก', logout: 'ออกจากระบบ' },
-  my: { home: 'ပင်မ', sellers: 'ရောင်းသူများ', bars: 'bars', find: 'ရှာဖွေရန်', sellerFeed: 'seller feed', customRequests: 'custom request များ', faq: 'မေးလေ့ရှိသော မေးခွန်းများ', contact: 'ဆက်သွယ်ရန်', account: 'အကောင့်', dashboard: 'ဒက်ရှ်ဘုတ်', messages: 'မက်ဆေ့ချ်များ', login: 'အကောင့်ဝင်ရန်', register: 'စာရင်းသွင်းရန်', logout: 'ထွက်ရန်' },
-  ru: { home: 'Главная', sellers: 'Продавцы', bars: 'Бары', find: 'Поиск', sellerFeed: 'Лента продавцов', customRequests: 'Индивидуальные запросы', faq: 'FAQ', contact: 'Контакты', account: 'Аккаунт', dashboard: 'Панель', messages: 'Сообщения', login: 'Войти', register: 'Регистрация', logout: 'Выйти' },
+  en: { home: 'Home', sellers: 'Sellers', bars: 'Bars', find: 'Find', sellerFeed: 'Stories', customRequests: 'Custom Requests', faq: 'FAQ', contact: 'Contact', account: 'Account', dashboard: 'Dashboard', messages: 'Messages', login: 'Login', register: 'Register', logout: 'Logout' },
+  th: { home: 'หน้าแรก', sellers: 'ผู้ขาย', bars: 'บาร์', find: 'ค้นหา', sellerFeed: 'สตอรี่', customRequests: 'คำขอพิเศษ', faq: 'คำถามที่พบบ่อย', contact: 'ติดต่อ', account: 'บัญชี', dashboard: 'แดชบอร์ด', messages: 'ข้อความ', login: 'เข้าสู่ระบบ', register: 'สมัครสมาชิก', logout: 'ออกจากระบบ' },
+  my: { home: 'ပင်မ', sellers: 'ရောင်းသူများ', bars: 'bars', find: 'ရှာဖွေရန်', sellerFeed: 'Stories', customRequests: 'custom request များ', faq: 'မေးလေ့ရှိသော မေးခွန်းများ', contact: 'ဆက်သွယ်ရန်', account: 'အကောင့်', dashboard: 'ဒက်ရှ်ဘုတ်', messages: 'မက်ဆေ့ချ်များ', login: 'အကောင့်ဝင်ရန်', register: 'စာရင်းသွင်းရန်', logout: 'ထွက်ရန်' },
+  ru: { home: 'Главная', sellers: 'Продавцы', bars: 'Бары', find: 'Поиск', sellerFeed: 'Истории', customRequests: 'Индивидуальные запросы', faq: 'FAQ', contact: 'Контакты', account: 'Аккаунт', dashboard: 'Панель', messages: 'Сообщения', login: 'Войти', register: 'Регистрация', logout: 'Выйти' },
 };
 
 const BAR_DASHBOARD_I18N = {
@@ -253,12 +253,12 @@ const BAR_DASHBOARD_I18N = {
     chooseImage: 'Choose image',
     noFileSelected: 'No file selected',
     closeSectionLabel: 'Close',
-    feedTitle: 'Bar Feed',
-    feedSubtitle: 'Use this like the live feed: post photos, updates, and specials from your venue.',
+    feedTitle: 'Bar Stories',
+    feedSubtitle: 'Use this like the live stories: post photos, updates, and specials from your venue.',
     feedPlaceholder: "Share tonight's vibe, specials, or event updates...",
     preview: 'Bar post preview',
-    postButton: 'Post to bar feed',
-    watchFeeds: 'Watch Feeds',
+    postButton: 'Post to bar stories',
+    watchFeeds: 'Watch Stories',
     posting: 'Posting...',
     noPosts: 'No bar posts yet. Create your first post above.',
     noCaption: 'No caption added.',
@@ -352,12 +352,12 @@ const BAR_DASHBOARD_I18N = {
     chooseImage: 'เลือกรูปภาพ',
     noFileSelected: 'ยังไม่ได้เลือกไฟล์',
     closeSectionLabel: 'ปิด',
-    feedTitle: 'ฟีดภาพบาร์',
-    feedSubtitle: 'ใช้งานเหมือนฟีดสด: โพสต์รูปภาพ อัปเดต และโปรโมชั่นจากร้านคุณ',
+    feedTitle: 'สตอรี่ภาพบาร์',
+    feedSubtitle: 'ใช้งานเหมือนสตอรี่สด: โพสต์รูปภาพ อัปเดต และโปรโมชั่นจากร้านคุณ',
     feedPlaceholder: 'แชร์บรรยากาศคืนนี้ โปรโมชั่น หรืออัปเดตงานอีเวนต์...',
     preview: 'ตัวอย่างโพสต์บาร์',
-    postButton: 'โพสต์ลงฟีดบาร์',
-    watchFeeds: 'ดูฟีด',
+    postButton: 'โพสต์ลงสตอรี่บาร์',
+    watchFeeds: 'ดูสตอรี่',
     posting: 'กำลังโพสต์...',
     noPosts: 'ยังไม่มีโพสต์บาร์ สร้างโพสต์แรกของคุณได้ด้านบน',
     noCaption: 'ยังไม่มีคำบรรยาย',
@@ -451,12 +451,12 @@ const BAR_DASHBOARD_I18N = {
     chooseImage: 'ပုံရွေးမည်',
     noFileSelected: 'ဖိုင်မရွေးထားပါ',
     closeSectionLabel: 'ပိတ်မည်',
-    feedTitle: 'bar ဓာတ်ပုံဖိဒ်',
-    feedSubtitle: 'live feed လို အသုံးပြုပါ - ဓာတ်ပုံများ၊ updates နှင့် specials မျှဝေပါ',
+    feedTitle: 'bar ဓာတ်ပုံ Stories',
+    feedSubtitle: 'live stories လို အသုံးပြုပါ - ဓာတ်ပုံများ၊ updates နှင့် specials မျှဝေပါ',
     feedPlaceholder: 'ယနေ့ည vibe၊ specials သို့မဟုတ် event updates မျှဝေပါ...',
     preview: 'bar post preview',
-    postButton: 'bar feed သို့ တင်မည်',
-    watchFeeds: 'feeds များကြည့်မည်',
+    postButton: 'bar stories သို့ တင်မည်',
+    watchFeeds: 'Stories များကြည့်မည်',
     posting: 'တင်နေသည်...',
     noPosts: 'bar posts မရှိသေးပါ။ အပေါ်တွင် ပထမ post တင်ပါ။',
     noCaption: 'caption မရှိပါ',
@@ -550,12 +550,12 @@ const BAR_DASHBOARD_I18N = {
     chooseImage: 'Выбрать изображение',
     noFileSelected: 'Файл не выбран',
     closeSectionLabel: 'Закрыть',
-    feedTitle: 'Фото-лента бара',
-    feedSubtitle: 'Используйте как live-ленту: публикуйте фото, обновления и акции.',
+    feedTitle: 'Фото-истории бара',
+    feedSubtitle: 'Используйте как live-истории: публикуйте фото, обновления и акции.',
     feedPlaceholder: 'Поделитесь атмосферой вечера, акциями или обновлениями событий...',
     preview: 'Предпросмотр поста бара',
-    postButton: 'Опубликовать в ленту бара',
-    watchFeeds: 'Смотреть ленты',
+    postButton: 'Опубликовать в истории бара',
+    watchFeeds: 'Смотреть истории',
     posting: 'Публикация...',
     noPosts: 'Постов бара пока нет. Создайте первый пост выше.',
     noCaption: 'Подпись не добавлена.',
@@ -770,9 +770,9 @@ const PUBLIC_SITE_I18N = {
     viewSellerDirectory: 'View seller directory',
     listingsLabel: 'listings',
     typesLabel: 'types',
-    allFeed: 'All feed',
+    allFeed: 'All stories',
     latestFromSellersAndBars: 'Latest from sellers and bars',
-    noRecentFeedPostsHome: 'No recent feed posts yet.',
+    noRecentFeedPostsHome: 'No recent stories yet.',
     findABar: 'Find a bar',
     findABarSubtitle: 'Discover bars with the latest activity and specials.',
     noRecentBarsHome: 'No recent bar activity yet.',
@@ -796,20 +796,20 @@ const PUBLIC_SITE_I18N = {
     inCartLabel: 'Added',
     addedToCartNotice: 'Added to cart.',
     alreadyInCartNotice: 'This item is already in your cart.',
-    sellerFeed: 'Seller Feed',
+    sellerFeed: 'Stories',
     latestSellerUpdates: 'Latest seller updates',
     recentLifestylePosts: 'Recent posts from active sellers.',
-    viewFullFeed: 'View full feed',
+    viewFullFeed: 'View all stories',
     noRecentSellerPosts: 'No recent seller posts yet.',
     unlockFor: 'Unlock for',
     privatePostUnlock: 'Private post. Unlock to view.',
     savePost: 'Save post',
     saved: 'Saved',
-    savedFeed: 'Saved Feed',
+    savedFeed: 'Saved stories',
     yourSavedSellerPosts: 'Your saved seller posts',
     quickAccessBookmarked: 'Quick access to bookmarked posts.',
     openSavedTab: 'Open saved tab',
-    noSavedPostsHome: 'No saved posts yet. Tap "Save post" on feed cards.',
+    noSavedPostsHome: 'No saved posts yet. Tap "Save post" on stories cards.',
     bars: 'Bars',
     partnerBars: 'Partner bars',
     barsSubtitle: 'Discover bars, specials, and locations connected to seller profiles.',
@@ -828,7 +828,7 @@ const PUBLIC_SITE_I18N = {
     openMap: 'Open map',
     messageThisBar: 'Message this bar',
     noCaption: 'No caption added.',
-    barPhotoFeed: 'Bar photo feed',
+    barPhotoFeed: 'Bar photos',
     noBarPhotosYet: 'No bar photos yet.',
     barPrefix: 'Bar:',
     liveNights: 'Live nights',
@@ -916,9 +916,9 @@ const PUBLIC_SITE_I18N = {
     viewSellerDirectory: 'ดูรายชื่อผู้ขาย',
     listingsLabel: 'รายการ',
     typesLabel: 'ประเภท',
-    allFeed: 'ฟีดทั้งหมด',
+    allFeed: 'สตอรี่ทั้งหมด',
     latestFromSellersAndBars: 'ล่าสุดจากผู้ขายและบาร์',
-    noRecentFeedPostsHome: 'ยังไม่มีโพสต์ล่าสุดในฟีด',
+    noRecentFeedPostsHome: 'ยังไม่มีสตอรี่ล่าสุด',
     findABar: 'หาบาร์',
     findABarSubtitle: 'ค้นพบบาร์ที่มีความเคลื่อนไหวและโปรล่าสุด',
     noRecentBarsHome: 'ยังไม่มีกิจกรรมล่าสุดจากบาร์',
@@ -942,20 +942,20 @@ const PUBLIC_SITE_I18N = {
     inCartLabel: 'เพิ่มแล้ว',
     addedToCartNotice: 'เพิ่มลงตะกร้าแล้ว',
     alreadyInCartNotice: 'สินค้านี้อยู่ในตะกร้าแล้ว',
-    sellerFeed: 'ฟีดผู้ขาย',
+    sellerFeed: 'สตอรี่',
     latestSellerUpdates: 'อัปเดตล่าสุดจากผู้ขาย',
     recentLifestylePosts: 'โพสต์ล่าสุดจากผู้ขายที่ใช้งานอยู่',
-    viewFullFeed: 'ดูฟีดทั้งหมด',
+    viewFullFeed: 'ดูสตอรี่ทั้งหมด',
     noRecentSellerPosts: 'ยังไม่มีโพสต์ล่าสุดจากผู้ขาย',
     unlockFor: 'ปลดล็อกในราคา',
     privatePostUnlock: 'โพสต์ส่วนตัว ปลดล็อกเพื่อดู',
     savePost: 'บันทึกโพสต์',
     saved: 'บันทึกแล้ว',
-    savedFeed: 'ฟีดที่บันทึก',
+    savedFeed: 'สตอรี่ที่บันทึก',
     yourSavedSellerPosts: 'โพสต์ผู้ขายที่คุณบันทึก',
     quickAccessBookmarked: 'เข้าถึงโพสต์ที่บันทึกไว้อย่างรวดเร็ว',
     openSavedTab: 'เปิดแท็บที่บันทึก',
-    noSavedPostsHome: 'ยังไม่มีโพสต์ที่บันทึก กด "บันทึกโพสต์" ที่การ์ดฟีด',
+    noSavedPostsHome: 'ยังไม่มีโพสต์ที่บันทึก กด "บันทึกโพสต์" ที่การ์ดสตอรี่',
     bars: 'บาร์',
     partnerBars: 'บาร์พาร์ทเนอร์',
     barsSubtitle: 'ค้นพบบาร์ โปรโมชั่น และสถานที่ที่เชื่อมกับโปรไฟล์ผู้ขาย',
@@ -974,7 +974,7 @@ const PUBLIC_SITE_I18N = {
     openMap: 'เปิดแผนที่',
     messageThisBar: 'ส่งข้อความถึงบาร์นี้',
     noCaption: 'ยังไม่มีคำบรรยาย',
-    barPhotoFeed: 'ฟีดภาพบาร์',
+    barPhotoFeed: 'ภาพบาร์',
     noBarPhotosYet: 'ยังไม่มีภาพบาร์',
     barPrefix: 'บาร์:',
     liveNights: 'คืนไลฟ์',
@@ -1062,9 +1062,9 @@ const PUBLIC_SITE_I18N = {
     viewSellerDirectory: 'ရောင်းသူစာရင်း ကြည့်ရန်',
     listingsLabel: 'ကြော်ငြာ',
     typesLabel: 'အမျိုးအစား',
-    allFeed: 'ဖိဒ်အားလုံး',
+    allFeed: 'Stories အားလုံး',
     latestFromSellersAndBars: 'ရောင်းသူများနှင့် ဘားများမှ နောက်ဆုံးတင်ထားမှုများ',
-    noRecentFeedPostsHome: 'ဖိဒ်ပို့စ်အသစ်များ မရှိသေးပါ',
+    noRecentFeedPostsHome: 'Stories အသစ်များ မရှိသေးပါ',
     findABar: 'ဘားရှာရန်',
     findABarSubtitle: 'နောက်ဆုံးလှုပ်ရှားမှုနှင့် အထူးအစီအစဉ်ရှိသော ဘားများကို ရှာဖွေပါ',
     noRecentBarsHome: 'ဘားလှုပ်ရှားမှုအသစ်များ မရှိသေးပါ',
@@ -1088,20 +1088,20 @@ const PUBLIC_SITE_I18N = {
     inCartLabel: 'ထည့်ပြီး',
     addedToCartNotice: 'Cart ထဲသို့ ထည့်ပြီးပါပြီ',
     alreadyInCartNotice: 'ဤပစ္စည်းသည် cart ထဲတွင် ရှိနေပြီးဖြစ်သည်',
-    sellerFeed: 'Seller Feed',
+    sellerFeed: 'Stories',
     latestSellerUpdates: 'Seller update အသစ်များ',
     recentLifestylePosts: 'active seller များ၏ post အသစ်များ',
-    viewFullFeed: 'Feed အပြည့်ကြည့်ရန်',
+    viewFullFeed: 'Stories အပြည့်ကြည့်ရန်',
     noRecentSellerPosts: 'seller post အသစ် မရှိသေးပါ',
     unlockFor: 'Unlock for',
     privatePostUnlock: 'Private post ဖြစ်သည်။ ကြည့်ရန် unlock လုပ်ပါ။',
     savePost: 'Post သိမ်းရန်',
     saved: 'သိမ်းပြီး',
-    savedFeed: 'Saved Feed',
+    savedFeed: 'Saved Stories',
     yourSavedSellerPosts: 'သင်သိမ်းထားသော seller post များ',
     quickAccessBookmarked: 'bookmark လုပ်ထားသော post များကို မြန်မြန်ဝင်ရောက်နိုင်သည်',
     openSavedTab: 'Saved tab ဖွင့်ရန်',
-    noSavedPostsHome: 'သိမ်းထားသော post မရှိသေးပါ။ feed card တွင် "Save post" ကိုနှိပ်ပါ။',
+    noSavedPostsHome: 'သိမ်းထားသော post မရှိသေးပါ။ stories card တွင် "Save post" ကိုနှိပ်ပါ။',
     bars: 'Bars',
     partnerBars: 'Partner bars',
     barsSubtitle: 'seller profile များနှင့်ဆက်စပ်သော bar များ၊ special များနှင့် location များကို ရှာဖွေပါ',
@@ -1120,7 +1120,7 @@ const PUBLIC_SITE_I18N = {
     openMap: 'Map ဖွင့်ရန်',
     messageThisBar: 'ဤ bar သို့ message ပို့ရန်',
     noCaption: 'caption မရှိပါ',
-    barPhotoFeed: 'Bar photo feed',
+    barPhotoFeed: 'Bar photos',
     noBarPhotosYet: 'bar photo မရှိသေးပါ',
     barPrefix: 'Bar:',
     liveNights: 'Live nights',
@@ -1208,9 +1208,9 @@ const PUBLIC_SITE_I18N = {
     viewSellerDirectory: 'Открыть каталог продавцов',
     listingsLabel: 'листингов',
     typesLabel: 'типов',
-    allFeed: 'Общая лента',
+    allFeed: 'Все истории',
     latestFromSellersAndBars: 'Последнее от продавцов и баров',
-    noRecentFeedPostsHome: 'Пока нет свежих постов в ленте.',
+    noRecentFeedPostsHome: 'Пока нет свежих историй.',
     findABar: 'Найти бар',
     findABarSubtitle: 'Откройте бары с самой свежей активностью и акциями.',
     noRecentBarsHome: 'Пока нет свежей активности баров.',
@@ -1234,20 +1234,20 @@ const PUBLIC_SITE_I18N = {
     inCartLabel: 'Уже добавлено',
     addedToCartNotice: 'Добавлено в корзину.',
     alreadyInCartNotice: 'Этот товар уже в корзине.',
-    sellerFeed: 'Лента продавцов',
+    sellerFeed: 'Истории',
     latestSellerUpdates: 'Последние обновления продавцов',
     recentLifestylePosts: 'Свежие посты активных продавцов.',
-    viewFullFeed: 'Смотреть всю ленту',
+    viewFullFeed: 'Смотреть все истории',
     noRecentSellerPosts: 'Пока нет свежих постов продавцов.',
     unlockFor: 'Разблокировать за',
     privatePostUnlock: 'Приватный пост. Разблокируйте для просмотра.',
     savePost: 'Сохранить пост',
     saved: 'Сохранено',
-    savedFeed: 'Сохраненная лента',
+    savedFeed: 'Сохраненные истории',
     yourSavedSellerPosts: 'Ваши сохраненные посты продавцов',
     quickAccessBookmarked: 'Быстрый доступ к сохраненным постам.',
     openSavedTab: 'Открыть сохраненные',
-    noSavedPostsHome: 'Пока нет сохраненных постов. Нажмите "Сохранить пост" в карточках ленты.',
+    noSavedPostsHome: 'Пока нет сохраненных постов. Нажмите "Сохранить пост" в карточках историй.',
     bars: 'Бары',
     partnerBars: 'Партнерские бары',
     barsSubtitle: 'Откройте бары, акции и локации, связанные с профилями продавцов.',
@@ -1266,7 +1266,7 @@ const PUBLIC_SITE_I18N = {
     openMap: 'Открыть карту',
     messageThisBar: 'Написать этому бару',
     noCaption: 'Подпись не добавлена.',
-    barPhotoFeed: 'Фото-лента бара',
+    barPhotoFeed: 'Фото бара',
     noBarPhotosYet: 'Пока нет фото бара.',
     barPrefix: 'Бар:',
     liveNights: 'Живые ночи',
@@ -1958,7 +1958,7 @@ const FOOTER_I18N = {
   en: {
     brandTitle: 'Thailand Panties',
     description: 'A trusted marketplace for premium used underwear from Thailand, with discreet checkout, secure messaging, and tools designed for professional private shopping.',
-    copyright: '© 2026 Thailand Panties, operated by Siam Second Story. All rights reserved.',
+    copyright: '© 2026 Thailand Panties, operated by Siam Second Story LLC. All rights reserved.',
     groups: [
       {
         title: 'Marketplace',
@@ -2006,7 +2006,7 @@ const FOOTER_I18N = {
   th: {
     brandTitle: 'Thailand Panties',
     description: 'ตลาดที่เชื่อถือได้สำหรับชุดชั้นในมือสองพรีเมียมจากประเทศไทย พร้อมการชำระเงินแบบเป็นส่วนตัว ข้อความที่ปลอดภัย และเครื่องมือสำหรับการช้อปส่วนตัวอย่างมืออาชีพ',
-    copyright: '© 2026 Thailand Panties ดำเนินการโดย Siam Second Story สงวนลิขสิทธิ์',
+    copyright: '© 2026 Thailand Panties ดำเนินการโดย Siam Second Story LLC สงวนลิขสิทธิ์',
     groups: [
       {
         title: 'ตลาด',
@@ -2054,7 +2054,7 @@ const FOOTER_I18N = {
   my: {
     brandTitle: 'Thailand Panties',
     description: 'ယုံကြည်စရာ ဈေးကွက် — ထိုင်းမှ အသုံးပြုပြီးပန်တီများ၊ လျှို့ဝှက်ငွေပေးချေမှု၊ လုံခြုံသော မက်ဆေ့ခ်ျနှင့် ပရိုဖက်ရှင်နယ် ပရိုင်ဗိတ် ဈေးဝယ်ကိရိယာများ',
-    copyright: '© 2026 Thailand Panties, Siam Second Story မှ လုပ်ငန်းဆောင်ရွက်သည်။ မူပိုင်ခွင့်ရှိသည်',
+    copyright: '© 2026 Thailand Panties, Siam Second Story LLC မှ လုပ်ငန်းဆောင်ရွက်သည်။ မူပိုင်ခွင့်ရှိသည်',
     groups: [
       {
         title: 'ဈေးကွက်',
@@ -2102,7 +2102,7 @@ const FOOTER_I18N = {
   ru: {
     brandTitle: 'Thailand Panties',
     description: 'Надёжный маркетплейс премиального белья из Таиланда: конфиденциальная оплата, безопасные сообщения и инструменты для приватных покупок.',
-    copyright: '© 2026 Thailand Panties, управляется Siam Second Story. Все права защищены.',
+    copyright: '© 2026 Thailand Panties, управляется Siam Second Story LLC. Все права защищены.',
     groups: [
       {
         title: 'Маркетплейс',
@@ -2249,7 +2249,7 @@ const LOGIN_I18N = {
     homeCtaBarButton: 'สมัครบัญชีบาร์',
     barLoginRequiredTitle: 'ต้องเข้าสู่ระบบด้วยบัญชีบาร์',
     barLoginProfileSubtitle: 'ใช้บัญชีบาร์เพื่อจัดการข้อมูลโปรไฟล์และโพสต์รูปภาพของบาร์',
-    barLoginFeedSubtitle: 'ใช้บัญชีบาร์เพื่อสร้างและจัดการโพสต์ฟีดของบาร์',
+    barLoginFeedSubtitle: 'ใช้บัญชีบาร์เพื่อสร้างและจัดการโพสต์สตอรี่ของบาร์',
     loginBuyerToMessage: 'กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อเพื่อส่งข้อความ',
     loginBuyerToCustomRequest: 'กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อเพื่อส่งคำขอพิเศษ',
     loginBuyerToRefundEvidence: 'กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อเพื่อส่งหลักฐานการขอคืนเงิน',
@@ -2307,7 +2307,7 @@ const LOGIN_I18N = {
     homeCtaBarButton: 'bar အကောင့် စာရင်းသွင်းရန်',
     barLoginRequiredTitle: 'bar အကောင့်ဖြင့် ဝင်ရန်လိုအပ်သည်',
     barLoginProfileSubtitle: 'bar profile အသေးစိတ်နှင့် ဓာတ်ပုံပို့စ်များကို စီမံရန် bar အကောင့်ကို အသုံးပြုပါ',
-    barLoginFeedSubtitle: 'bar feed posts များကို ဖန်တီး/စီမံရန် bar အကောင့်ကို အသုံးပြုပါ',
+    barLoginFeedSubtitle: 'bar stories posts များကို ဖန်တီး/စီမံရန် bar အကောင့်ကို အသုံးပြုပါ',
     loginBuyerToMessage: 'မက်ဆေ့ချ်ပို့ရန် buyer အကောင့်ဖြင့် ဝင်ပါ',
     loginBuyerToCustomRequest: 'custom request ပို့ရန် buyer အကောင့်ဖြင့် ဝင်ပါ',
     loginBuyerToRefundEvidence: 'refund evidence တင်ရန် buyer အကောင့်ဖြင့် ဝင်ပါ',
@@ -2389,7 +2389,7 @@ const SELLER_STATUS_I18N = {
     profileSaved: 'Profile updates saved.',
     languageUpdated: 'Language preference updated.',
     uploadImageBeforePost: 'Please upload an image before publishing your post.',
-    postPublished: 'Post published to seller feed.',
+    postPublished: 'Post published to Stories.',
     postScheduled: ({ when }) => `Post scheduled for ${when}.`,
     postSavedLocal: 'Post saved locally. It will sync when the connection is restored.',
     publishPostFailed: 'Could not publish seller post.',
@@ -2399,7 +2399,7 @@ const SELLER_STATUS_I18N = {
     productDeleted: 'Product deleted successfully.',
     productDeletedLocal: 'Product deleted locally. Server sync is pending.',
     deleteProductFailed: 'Could not delete product.',
-    deletePostConfirm: 'Delete this seller feed post?',
+    deletePostConfirm: 'Delete this Stories post?',
     postDeleted: 'Post deleted successfully.',
     postDeletedLocal: 'Post deleted locally. Server sync is pending.',
     deleteSellerPostFailed: 'Could not delete seller post.',
@@ -2426,9 +2426,9 @@ const SELLER_STATUS_I18N = {
     affiliationRejected: ({ barName }) => `Affiliation request for ${barName} was rejected.`,
     affiliationRequestCancelled: 'Affiliation request cancelled.',
     affiliationRemoved: ({ barName }) => `Removed affiliation with ${barName}.`,
-    feedPrivate: 'Entire feed set to private.',
-    feedPublic: 'Entire feed set to public.',
-    feedPerPost: 'Feed set to choose-per-post mode.',
+    feedPrivate: 'Entire stories set to private.',
+    feedPublic: 'Entire stories set to public.',
+    feedPerPost: 'Stories set to choose-per-post mode.',
     postPrivate: 'Post set to private.',
     postPublic: 'Post set to public.',
     privatePricesUpdated: ({ amount }) => `Updated all private post prices to ${amount}.`,
@@ -2463,7 +2463,7 @@ const SELLER_STATUS_I18N = {
     profileSaved: 'บันทึกการอัปเดตโปรไฟล์แล้ว',
     languageUpdated: 'อัปเดตภาษาที่ต้องการแล้ว',
     uploadImageBeforePost: 'โปรดอัปโหลดรูปภาพก่อนเผยแพร่โพสต์',
-    postPublished: 'เผยแพร่โพสต์ไปยังฟีดผู้ขายแล้ว',
+    postPublished: 'เผยแพร่โพสต์ไปยังสตอรี่แล้ว',
     postSavedLocal: 'บันทึกโพสต์ในเครื่องแล้ว ระบบจะซิงก์เมื่อเชื่อมต่ออีกครั้ง',
     publishPostFailed: 'ไม่สามารถเผยแพร่โพสต์ผู้ขายได้',
     completeOnboarding: ({ items }) => `กรุณาทำขั้นตอนเริ่มต้นให้ครบก่อน: ${items}.`,
@@ -2472,7 +2472,7 @@ const SELLER_STATUS_I18N = {
     productDeleted: 'ลบสินค้าเรียบร้อยแล้ว',
     productDeletedLocal: 'ลบสินค้าในเครื่องแล้ว การซิงก์กับเซิร์ฟเวอร์กำลังรออยู่',
     deleteProductFailed: 'ไม่สามารถลบสินค้าได้',
-    deletePostConfirm: 'ลบโพสต์ฟีดผู้ขายนี้หรือไม่?',
+    deletePostConfirm: 'ลบโพสต์สตอรี่นี้หรือไม่?',
     postDeleted: 'ลบโพสต์เรียบร้อยแล้ว',
     postDeletedLocal: 'ลบโพสต์ในเครื่องแล้ว การซิงก์กับเซิร์ฟเวอร์กำลังรออยู่',
     deleteSellerPostFailed: 'ไม่สามารถลบโพสต์ผู้ขายได้',
@@ -2499,9 +2499,9 @@ const SELLER_STATUS_I18N = {
     affiliationRejected: ({ barName }) => `คำขอเชื่อมโยงกับ ${barName} ถูกปฏิเสธ`,
     affiliationRequestCancelled: 'ยกเลิกคำขอเชื่อมโยงแล้ว',
     affiliationRemoved: ({ barName }) => `ยกเลิกการเชื่อมโยงกับ ${barName} แล้ว`,
-    feedPrivate: 'ตั้งค่าฟีดทั้งหมดเป็นส่วนตัวแล้ว',
-    feedPublic: 'ตั้งค่าฟีดทั้งหมดเป็นสาธารณะแล้ว',
-    feedPerPost: 'ตั้งค่าฟีดเป็นแบบเลือกต่อโพสต์แล้ว',
+    feedPrivate: 'ตั้งค่าสตอรี่ทั้งหมดเป็นส่วนตัวแล้ว',
+    feedPublic: 'ตั้งค่าสตอรี่ทั้งหมดเป็นสาธารณะแล้ว',
+    feedPerPost: 'ตั้งค่าสตอรี่เป็นแบบเลือกต่อโพสต์แล้ว',
     postPrivate: 'ตั้งค่าโพสต์เป็นส่วนตัวแล้ว',
     postPublic: 'ตั้งค่าโพสต์เป็นสาธารณะแล้ว',
     privatePricesUpdated: ({ amount }) => `อัปเดตราคาโพสต์ส่วนตัวทั้งหมดเป็น ${amount} แล้ว`,
@@ -2536,7 +2536,7 @@ const SELLER_STATUS_I18N = {
     profileSaved: 'ပရိုဖိုင် ပြင်ဆင်ချက်များကို သိမ်းပြီးပါပြီ',
     languageUpdated: 'ဘာသာစကားရွေးချယ်မှုကို အပ်ဒိတ်လုပ်ပြီးပါပြီ',
     uploadImageBeforePost: 'post တင်မည့်အချိန်တွင် ပုံတင်ပေးပါ',
-    postPublished: 'seller feed သို့ post တင်ပြီးပါပြီ',
+    postPublished: 'Stories သို့ post တင်ပြီးပါပြီ',
     postSavedLocal: 'post ကို local တွင် သိမ်းထားပြီး connection ပြန်ရလာသည့်အခါ sync လုပ်ပါမည်',
     publishPostFailed: 'seller post ကို မတင်နိုင်ပါ',
     completeOnboarding: ({ items }) => `onboarding ကို အရင်ပြီးအောင်လုပ်ပါ: ${items}.`,
@@ -2545,7 +2545,7 @@ const SELLER_STATUS_I18N = {
     productDeleted: 'product ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ',
     productDeletedLocal: 'product ကို local တွင် ဖျက်ပြီး server sync ကို စောင့်နေသည်',
     deleteProductFailed: 'product ကို မဖျက်နိုင်ပါ',
-    deletePostConfirm: 'ဒီ seller feed post ကို ဖျက်မလား?',
+    deletePostConfirm: 'ဒီ Stories post ကို ဖျက်မလား?',
     postDeleted: 'post ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ',
     postDeletedLocal: 'post ကို local တွင် ဖျက်ပြီး server sync ကို စောင့်နေသည်',
     deleteSellerPostFailed: 'seller post ကို မဖျက်နိုင်ပါ',
@@ -2572,9 +2572,9 @@ const SELLER_STATUS_I18N = {
     affiliationRejected: ({ barName }) => `${barName} အတွက် affiliation request ကို ငြင်းပယ်ခဲ့သည်`,
     affiliationRequestCancelled: 'affiliation request ကို ပယ်ဖျက်ပြီးပါပြီ',
     affiliationRemoved: ({ barName }) => `${barName} နှင့် affiliation ကို ဖယ်ရှားပြီးပါပြီ`,
-    feedPrivate: 'feed တစ်ခုလုံးကို private အဖြစ် သတ်မှတ်ပြီးပါပြီ',
-    feedPublic: 'feed တစ်ခုလုံးကို public အဖြစ် သတ်မှတ်ပြီးပါပြီ',
-    feedPerPost: 'feed ကို post တစ်ခုစီအလိုက် ရွေးချယ်မည့် mode သို့ ပြောင်းထားသည်',
+    feedPrivate: 'stories တစ်ခုလုံးကို private အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    feedPublic: 'stories တစ်ခုလုံးကို public အဖြစ် သတ်မှတ်ပြီးပါပြီ',
+    feedPerPost: 'stories ကို post တစ်ခုစီအလိုက် ရွေးချယ်မည့် mode သို့ ပြောင်းထားသည်',
     postPrivate: 'post ကို private အဖြစ် သတ်မှတ်ပြီးပါပြီ',
     postPublic: 'post ကို public အဖြစ် သတ်မှတ်ပြီးပါပြီ',
     privatePricesUpdated: ({ amount }) => `private post စျေးနှုန်းများအားလုံးကို ${amount} သို့ အပ်ဒိတ်လုပ်ပြီးပါပြီ`,
@@ -2609,7 +2609,7 @@ const SELLER_STATUS_I18N = {
     profileSaved: 'Изменения профиля сохранены.',
     languageUpdated: 'Язык интерфейса обновлен.',
     uploadImageBeforePost: 'Пожалуйста, загрузите изображение перед публикацией поста.',
-    postPublished: 'Пост опубликован в ленте продавца.',
+    postPublished: 'Пост опубликован в Истории.',
     postSavedLocal: 'Пост сохранен локально. Синхронизация выполнится после восстановления соединения.',
     publishPostFailed: 'Не удалось опубликовать пост продавца.',
     completeOnboarding: ({ items }) => `Сначала завершите онбординг: ${items}.`,
@@ -2618,7 +2618,7 @@ const SELLER_STATUS_I18N = {
     productDeleted: 'Товар успешно удален.',
     productDeletedLocal: 'Товар удален локально. Синхронизация с сервером ожидается.',
     deleteProductFailed: 'Не удалось удалить товар.',
-    deletePostConfirm: 'Удалить этот пост из ленты продавца?',
+    deletePostConfirm: 'Удалить этот пост из Историй?',
     postDeleted: 'Пост успешно удален.',
     postDeletedLocal: 'Пост удален локально. Синхронизация с сервером ожидается.',
     deleteSellerPostFailed: 'Не удалось удалить пост продавца.',
@@ -2645,9 +2645,9 @@ const SELLER_STATUS_I18N = {
     affiliationRejected: ({ barName }) => `Запрос на связь с ${barName} был отклонен.`,
     affiliationRequestCancelled: 'Запрос на связь отменен.',
     affiliationRemoved: ({ barName }) => `Связь с ${barName} удалена.`,
-    feedPrivate: 'Вся лента переведена в приватный режим.',
-    feedPublic: 'Вся лента переведена в публичный режим.',
-    feedPerPost: 'Лента переведена в режим выбора для каждого поста.',
+    feedPrivate: 'Все истории переведены в приватный режим.',
+    feedPublic: 'Все истории переведены в публичный режим.',
+    feedPerPost: 'Истории переведены в режим выбора для каждого поста.',
     postPrivate: 'Пост переведен в приватный режим.',
     postPublic: 'Пост переведен в публичный режим.',
     privatePricesUpdated: ({ amount }) => `Цены всех приватных постов обновлены до ${amount}.`,
@@ -5018,11 +5018,13 @@ function parseRoute(pathname) {
   if (pathname === '/seller-messages') return { name: 'seller-messages' };
   if (pathname === '/buyer-messages') return { name: 'buyer-messages' };
   if (pathname === '/bar-messages') return { name: 'bar-messages' };
-  if (pathname === '/seller-feed-workspace') return { name: 'seller-feed-workspace' };
+  if (pathname === '/seller-feed-workspace') return { name: 'stories-workspace', redirect: '/stories-workspace' };
   if (pathname === '/seller-upload') return { name: 'seller-upload' };
   if (pathname === '/bar-feed-workspace') return { name: 'bar-feed-workspace' };
   if (pathname === '/bar-dashboard') return { name: 'bar-dashboard' };
-  if (pathname === '/seller-feed') return { name: 'seller-feed' };
+  if (pathname === '/seller-feed') return { name: 'stories', redirect: '/stories' };
+  if (pathname === '/stories-workspace') return { name: 'stories-workspace' };
+  if (pathname === '/stories') return { name: 'stories' };
   if (pathname === '/account') return { name: 'account' };
   if (pathname === '/bars') return { name: 'bars' };
   if (pathname === '/appeals') return { name: 'appeals' };
@@ -10819,7 +10821,7 @@ export default function ThailandPantiesMarketSite() {
                 id: `notif_${Date.now()}`,
                 userId: sellerUserId,
                 type: 'engagement',
-                text: `${currentUser.name || 'A user'} liked your seller feed post.`,
+                text: `${currentUser.name || 'A user'} liked your Stories post.`,
                 read: false,
                 createdAt,
               },
@@ -10940,7 +10942,7 @@ export default function ThailandPantiesMarketSite() {
               id: `notif_${Date.now()}`,
               userId: sellerUserId,
               type: 'engagement',
-              text: `${currentUser.name || 'A user'} commented on your seller feed post.`,
+              text: `${currentUser.name || 'A user'} commented on your Stories post.`,
               read: false,
               createdAt,
             },
@@ -17026,9 +17028,8 @@ export default function ThailandPantiesMarketSite() {
                 ThP
               </span>
               <span>Thailand Panties</span>
-              <span className="block text-xs font-normal text-slate-400">Owned and operated by Siam Second Story</span>
             </button>
-            <div className="hidden text-xs text-slate-500 lg:block">Premium used underwear from Thailand with discreet, professional fulfillment</div>
+            <div className="hidden text-xs text-slate-500 lg:block">Owned and operated by Siam Second Story LLC</div>
             {currentUser?.role === 'admin' ? (
               <div className="hidden text-xs lg:block">
                 <span className={`inline-flex rounded-full px-2 py-1 font-semibold ${backendStatus === 'connected' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
@@ -17043,7 +17044,7 @@ export default function ThailandPantiesMarketSite() {
             <button onClick={() => navigate('/seller-portfolios')} className="whitespace-nowrap transition hover:text-rose-600">{navText.sellers}</button>
             <button onClick={() => navigate('/bars')} className="whitespace-nowrap transition hover:text-rose-600">{navText.bars}</button>
             <button onClick={() => navigate('/find')} className="whitespace-nowrap transition hover:text-rose-600">{navText.find}</button>
-            <button onClick={() => navigate('/seller-feed')} className="whitespace-nowrap transition hover:text-rose-600">{currentUser?.role === 'bar' ? barT.watchFeeds : navText.sellerFeed}</button>
+            <button onClick={() => navigate('/stories')} className="whitespace-nowrap transition hover:text-rose-600">{currentUser?.role === 'bar' ? barT.watchFeeds : navText.sellerFeed}</button>
             <button onClick={() => navigate('/custom-requests')} className="whitespace-nowrap transition hover:text-rose-600">{navText.customRequests}</button>
             <button onClick={() => navigate('/faq')} className="whitespace-nowrap transition hover:text-rose-600">{navText.faq}</button>
             <button onClick={() => navigate('/contact')} className="hidden whitespace-nowrap transition hover:text-rose-600 2xl:inline-flex">{navText.contact}</button>
@@ -17160,7 +17161,7 @@ export default function ThailandPantiesMarketSite() {
               <button onClick={() => navigate('/seller-portfolios')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.sellers}</button>
               <button onClick={() => navigate('/bars')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.bars}</button>
               <button onClick={() => navigate('/find')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.find}</button>
-              <button onClick={() => navigate('/seller-feed')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{currentUser?.role === 'bar' ? barT.watchFeeds : navText.sellerFeed}</button>
+              <button onClick={() => navigate('/stories')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{currentUser?.role === 'bar' ? barT.watchFeeds : navText.sellerFeed}</button>
               <button onClick={() => navigate('/custom-requests')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.customRequests}</button>
               <button onClick={() => navigate('/faq')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.faq}</button>
               <button onClick={() => navigate('/contact')} className="rounded-xl px-3 py-2 text-left hover:bg-rose-50">{navText.contact}</button>
@@ -17563,7 +17564,7 @@ export default function ThailandPantiesMarketSite() {
                   title={publicText.latestFromSellersAndBars}
                   subtitle={publicText.recentLifestylePosts}
                 />
-                <button onClick={() => navigate('/seller-feed')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
+                <button onClick={() => navigate('/stories')} className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">
                   {publicText.viewFullFeed}
                 </button>
               </div>
@@ -17594,9 +17595,9 @@ export default function ThailandPantiesMarketSite() {
                           </span>
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <button onClick={() => navigate('/seller-feed')} className="relative mt-3 block aspect-[4/5] w-full">
+                        <button onClick={() => navigate('/stories')} className="relative mt-3 block aspect-[4/5] w-full">
                           <div className={isSellerFeedPost && !canViewSellerPost(post) ? 'blur-sm' : ''}>
-                            <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Seller feed image' : 'Bar feed image')} top mediaType={post.mediaType} />
+                            <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Stories image' : 'Bar stories image')} top mediaType={post.mediaType} />
                           </div>
                           {isSellerFeedPost && !canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                             <div className="absolute inset-0 flex items-center justify-center">
@@ -17720,8 +17721,8 @@ export default function ThailandPantiesMarketSite() {
           </>
         ) : null}
 
-        {routeInfo.name === 'seller-feed' ? (
-          <SellerFeedPage
+        {routeInfo.name === 'stories' ? (
+          <StoriesPage
             sellerPosts={sellerFeedPosts}
             barPosts={barFeedPosts}
             sellers={sellers}
@@ -17883,7 +17884,7 @@ export default function ThailandPantiesMarketSite() {
                           {post.image ? (
                             <div className="relative aspect-[4/5]">
                               <div className={post._kind === 'seller' && !canViewSellerPost(post) ? 'blur-sm h-full' : 'h-full'}>
-                                <ProductImage src={post.image} label={post.imageName || 'Feed image'} top mediaType={post.mediaType} />
+                                <ProductImage src={post.image} label={post.imageName || 'Stories image'} top mediaType={post.mediaType} />
                               </div>
                               {post._kind === 'seller' && !canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -18571,7 +18572,7 @@ export default function ThailandPantiesMarketSite() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate('/seller-feed')}
+                    onClick={() => navigate('/stories')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
                     {barT.watchFeeds}
@@ -19263,8 +19264,8 @@ export default function ThailandPantiesMarketSite() {
             navigate={navigate}
           />
         ) : null}
-        {routeInfo.name === 'seller-feed-workspace' ? (
-          <SellerFeedWorkspacePage
+        {routeInfo.name === 'stories-workspace' ? (
+          <StoriesWorkspacePage
             isSeller={isSeller}
             isPendingSeller={isPendingSeller}
             isRejectedSeller={isRejectedSeller}
@@ -19351,7 +19352,7 @@ export default function ThailandPantiesMarketSite() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate('/seller-feed')}
+                    onClick={() => navigate('/stories')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
                     {barT.watchFeeds}

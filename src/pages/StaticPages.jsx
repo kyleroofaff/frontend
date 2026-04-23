@@ -22,7 +22,7 @@ const HELP_I18N = {
     privacyTitle: "Privacy Policy",
     privacySubtitle: "How Thailand Panties collects, uses, and protects customer and seller data.",
     privacyPoints: [
-      "We collect account details, order information, support messages, listing content, and feed interactions needed to operate marketplace features.",
+      "We collect account details, order information, support messages, listing content, and Stories interactions needed to operate marketplace features.",
       "Payment card data is handled by the payment provider. We do not store raw card numbers or security codes on marketplace servers.",
       "Order, wallet, unlock, and moderation records are retained for fulfillment, fraud prevention, policy enforcement, and support.",
       "By using the platform, users agree to moderation and safety logging, including block history and conduct enforcement events."
@@ -59,12 +59,12 @@ const HELP_I18N = {
       { q: "Who pays shipping costs?", a: "Buyers pay the exact shipping cost charged for their destination at checkout." },
       { q: "Do you offer refunds or returns?", a: "All sales are final, except wrong-item cases. If you receive the wrong item, submit evidence through the refund evidence form. We will first try to ship the correct item to you at no additional cost. If that is not possible, we will issue a refund after review." },
       { q: "What is your chargeback policy?", a: "We dispute all chargebacks and provide evidence that includes the buyer's agreement to the Terms of Service and relevant usage activity on the site." },
-      { q: "What appears on my card statement?", a: "The card descriptor appears as Siam Second Story." },
+      { q: "What appears on my card statement?", a: "The card descriptor appears as Siam Second Story LLC." },
       { q: "What currency does the marketplace use?", a: "All listing, wallet, unlock, and message fees are charged in Thai baht (THB). Any non-THB values shown are approximate estimates only." },
-      { q: "How do private seller feed posts work?", a: "Sellers can set posts as private and set a price. Buyers unlock private posts individually from wallet balance." },
-      { q: "Can buyers follow sellers and like products?", a: "Yes. Buyers can follow sellers, use Following feed filters, and like products for quick access from their Liked Products section." },
+      { q: "How do private Stories posts work?", a: "Sellers can set posts as private and set a price. Buyers unlock private posts individually from wallet balance." },
+      { q: "Can buyers follow sellers and like products?", a: "Yes. Buyers can follow sellers, use Following filters, and like products for quick access from their Liked Products section." },
       { q: "Can sellers benefit from follows and likes?", a: "Yes. Seller visibility improves when buyers follow them and like products, and sellers can use this engagement to understand buyer interest." },
-      { q: "Can sellers schedule posts?", a: "Yes. Sellers can schedule feed posts for future publish times and manage schedule from the seller dashboard." },
+      { q: "Can sellers schedule posts?", a: "Yes. Sellers can schedule Stories posts for future publish times and manage schedule from the seller dashboard." },
       { q: "Can sellers control notifications?", a: "Yes. Sellers can filter notifications and toggle message or engagement alerts on/off." },
       { q: "What happens if a seller ships the wrong item?", a: "If a seller ships the wrong item, they must reship the correct item at their own cost. If reship is not completed, the buyer will be refunded and seller commissions for that order will be deducted." },
       { q: "How can sellers appeal strikes or a frozen account?", a: "Sellers can use the seller appeals process page and then submit directly in the appeals center. Include dates, IDs, and what happened so admin can review faster." },
@@ -75,16 +75,16 @@ const HELP_I18N = {
       { q: "How do I report abusive messages or harassment?", a: "Open the message thread and tap Report to flag abusive language, harassment, scam attempts, or off-platform payment requests. Admin reviews reports and applies moderation when needed." },
       { q: "What happens after the first strike versus the second strike?", a: "After a first moderation strike, a warning stays on the account and you can submit an appeal. After a second active strike, the account is automatically frozen until admin review and admin decides an outcome." },
       { q: "Where can I see my strike status and appeal history?", a: "Your dashboard shows active strike notices, and the appeals page shows your submitted appeals and admin decisions." },
-      { q: "Can bars save posts and follow sellers or bars?", a: "Yes. Bars can save feed posts and follow sellers or bars to keep important content easier to find." },
+      { q: "Can bars save posts and follow sellers or bars?", a: "Yes. Bars can save Stories posts and follow sellers or bars to keep important content easier to find." },
       { q: "Who can a bar message?", a: "Bars can reply to buyers or sellers who contacted the bar first. Buyers and sellers can start conversations with bars. Bulk messaging is disabled." }
     ],
     sellerStandardsEyebrow: "Seller Policy",
     sellerStandardsTitle: "Seller Standards",
-    sellerStandardsSubtitle: "Quality, communication, and feed/content requirements for seller participation.",
+    sellerStandardsSubtitle: "Quality, communication, and Stories/content requirements for seller participation.",
     sellerStandardsPoints: [
-      "Listings and feed posts must be accurate, clearly photographed, and categorized with correct details.",
-      "Sellers should maintain responsive communication and keep profile, inventory, and feed status up to date.",
-      "Private feed pricing, custom requests, and messaging behavior must follow platform policies and respectful conduct."
+      "Listings and Stories posts must be accurate, clearly photographed, and categorized with correct details.",
+      "Sellers should maintain responsive communication and keep profile, inventory, and Stories status up to date.",
+      "Private Stories pricing, custom requests, and messaging behavior must follow platform policies and respectful conduct."
     ],
     howToApplyEyebrow: "For Sellers",
     howToApplyTitle: "How to Apply",
@@ -92,22 +92,22 @@ const HELP_I18N = {
     howToApplyPoints: [
       "Complete the seller application with profile details, location, and specialty.",
       "Prepare storefront images, listing examples, and clear policy acknowledgements.",
-      "After approval, configure your dashboard, post settings (public/private), and feed preferences."
+      "After approval, configure your dashboard, post settings (public/private), and Stories preferences."
     ],
     sellerGuidelinesEyebrow: "For Sellers",
     sellerGuidelinesTitle: "Seller Guidelines",
-    sellerGuidelinesSubtitle: "Best practices for trusted listings, seller feed growth, and buyer satisfaction.",
+    sellerGuidelinesSubtitle: "Best practices for trusted listings, Stories growth, and buyer satisfaction.",
     sellerGuidelinesPoints: [
       "Use clear images, accurate sizing, and complete metadata for products and posts.",
-      "Use feed tools responsibly: set private/public visibility intentionally and keep pricing transparent.",
+      "Use Stories tools responsibly: set private/public visibility intentionally and keep pricing transparent.",
       "Respond quickly to messages and custom requests, and keep your notification preferences configured."
     ],
     portfolioSetupEyebrow: "For Sellers",
     portfolioSetupTitle: "Portfolio Setup",
-    portfolioSetupSubtitle: "How to structure your storefront, profile, and seller feed for discoverability.",
+    portfolioSetupSubtitle: "How to structure your storefront, profile, and Stories for discoverability.",
     portfolioSetupPoints: [
       "Add a concise bio, location, languages, and profile image so buyers can trust your page quickly.",
-      "Keep product categories and seller feed content consistent so filtering and discovery work better.",
+      "Keep product categories and Stories content consistent so filtering and discovery work better.",
       "Use scheduled posts, saved content review, and analytics insights to keep your storefront active."
     ]
   },
@@ -116,7 +116,7 @@ const HELP_I18N = {
     privacyTitle: "นโยบายความเป็นส่วนตัว",
     privacySubtitle: "วิธีที่ Thailand Panties เก็บ ใช้งาน และปกป้องข้อมูลผู้ใช้",
     privacyPoints: [
-      "เราเก็บข้อมูลบัญชี คำสั่งซื้อ ข้อความช่วยเหลือ ข้อมูลสินค้า และกิจกรรมฟีดที่จำเป็นต่อการให้บริการ",
+      "เราเก็บข้อมูลบัญชี คำสั่งซื้อ ข้อความช่วยเหลือ ข้อมูลสินค้า และกิจกรรม Stories ที่จำเป็นต่อการให้บริการ",
       "ข้อมูลบัตรชำระเงินถูกจัดการโดยผู้ให้บริการชำระเงิน เราไม่เก็บหมายเลขบัตรเต็มหรือรหัสความปลอดภัย",
       "บันทึกคำสั่งซื้อ กระเป๋าเงิน การปลดล็อกโพสต์ และการดูแลชุมชน ถูกเก็บไว้เพื่อความปลอดภัยและการช่วยเหลือ",
       "การใช้งานแพลตฟอร์มถือว่ายอมรับการบันทึกด้านความปลอดภัยและการบังคับใช้นโยบาย"
@@ -153,9 +153,9 @@ const HELP_I18N = {
       { q: "ใครเป็นผู้จ่ายค่าส่ง?", a: "ผู้ซื้อจ่ายค่าส่งตามจริงตามปลายทางในขั้นตอนเช็กเอาต์" },
       { q: "คืนเงินหรือคืนสินค้าได้ไหม?", a: "คำสั่งซื้อทั้งหมดเป็นแบบขายขาด ยกเว้นกรณีได้รับสินค้าผิด หากได้รับสินค้าผิด โปรดส่งหลักฐานผ่านแบบฟอร์มหลักฐานขอคืนเงิน เราจะพยายามส่งสินค้าที่ถูกต้องให้ใหม่โดยไม่มีค่าใช้จ่ายเพิ่มเติมก่อน หากทำไม่ได้จึงจะคืนเงินหลังการตรวจสอบ" },
       { q: "นโยบายเรื่องการปฏิเสธรายการชำระเงิน (chargeback) คืออะไร?", a: "เราจะโต้แย้ง chargeback ทุกกรณี และส่งหลักฐานที่เกี่ยวข้อง เช่น การยอมรับข้อกำหนดการให้บริการ (Terms of Service) และประวัติการใช้งานบนแพลตฟอร์ม" },
-      { q: "ชื่อที่ขึ้นบัตรคืออะไร?", a: "ชื่อที่ขึ้นบัตรคือ Siam Second Story" },
+      { q: "ชื่อที่ขึ้นบัตรคืออะไร?", a: "ชื่อที่ขึ้นบัตรคือ Siam Second Story LLC" },
       { q: "โพสต์แบบ private ทำงานอย่างไร?", a: "ผู้ขายตั้งโพสต์ private และตั้งราคาได้ ผู้ซื้อปลดล็อกแต่ละโพสต์ด้วยเงินในกระเป๋า" },
-      { q: "ผู้ซื้อสามารถติดตามผู้ขายและกดถูกใจสินค้าได้ไหม?", a: "ได้ ผู้ซื้อสามารถติดตามผู้ขาย ใช้ตัวกรองฟีด Following และกดถูกใจสินค้าเพื่อเข้าถึงได้จากส่วนสินค้าที่ถูกใจ" },
+      { q: "ผู้ซื้อสามารถติดตามผู้ขายและกดถูกใจสินค้าได้ไหม?", a: "ได้ ผู้ซื้อสามารถติดตามผู้ขาย ใช้ตัวกรอง Following และกดถูกใจสินค้าเพื่อเข้าถึงได้จากส่วนสินค้าที่ถูกใจ" },
       { q: "ผู้ขายได้ประโยชน์จากการติดตามและการกดถูกใจหรือไม่?", a: "ได้ การมองเห็นของผู้ขายดีขึ้นเมื่อผู้ซื้อติดตามและกดถูกใจสินค้า และผู้ขายยังใช้สัญญาณเหล่านี้เพื่อเข้าใจความสนใจของผู้ซื้อได้" },
       { q: "ผู้ขายตั้งเวลาโพสต์ได้ไหม?", a: "ได้ ผู้ขายตั้งเวลาโพสต์ล่วงหน้าและจัดการตารางในแดชบอร์ดได้" },
       { q: "ผู้ขายตั้งค่าการแจ้งเตือนได้ไหม?", a: "ได้ ผู้ขายกรองการแจ้งเตือนและเปิด/ปิดการแจ้งเตือนแต่ละประเภทได้" },
@@ -167,16 +167,16 @@ const HELP_I18N = {
       { q: "แจ้งข้อความคุกคามหรือไม่เหมาะสมได้อย่างไร?", a: "ใช้ปุ่ม Report ภายในหน้าข้อความเพื่อแจ้งการคุกคาม คำพูดไม่เหมาะสม การหลอกลวง หรือการชวนจ่ายเงินนอกระบบ แอดมินจะตรวจสอบและดำเนินการตามนโยบาย" },
       { q: "สไตรก์ครั้งแรกกับครั้งที่สองต่างกันอย่างไร?", a: "สไตรก์ครั้งแรกจะเป็นการเตือนและยังส่งอุทธรณ์ได้ ส่วนสไตรก์ที่สองที่ยัง active จะทำให้บัญชีถูกระงับอัตโนมัติจนกว่าจะผ่านการตรวจสอบและอุทธรณ์" },
       { q: "ดูสถานะสไตรก์และประวัติการอุทธรณ์ได้ที่ไหน?", a: "แดชบอร์ดจะแสดงการแจ้งเตือนสไตรก์ และหน้าศูนย์อุทธรณ์จะแสดงประวัติคำอุทธรณ์และผลการพิจารณาจากแอดมิน" },
-      { q: "บาร์สามารถบันทึกโพสต์และติดตามผู้ขายหรือบาร์ได้ไหม?", a: "ได้ บาร์สามารถบันทึกโพสต์ในฟีด และติดตามทั้งผู้ขายและบาร์เพื่อกลับมาดูเนื้อหาสำคัญได้ง่ายขึ้น" },
+      { q: "บาร์สามารถบันทึกโพสต์และติดตามผู้ขายหรือบาร์ได้ไหม?", a: "ได้ บาร์สามารถบันทึกโพสต์ใน Stories และติดตามทั้งผู้ขายและบาร์เพื่อกลับมาดูเนื้อหาสำคัญได้ง่ายขึ้น" },
       { q: "บาร์ส่งข้อความหาใครได้บ้าง?", a: "บาร์สามารถตอบกลับผู้ซื้อหรือผู้ขายที่ทักหาบาร์ก่อนเท่านั้น โดยผู้ซื้อและผู้ขายสามารถเริ่มบทสนทนากับบาร์ได้ ระบบไม่รองรับการส่งแบบเลือกหลายคน (bulk)" },
       { q: "ถ้าผู้ขายสองคนบล็อกผู้ซื้อจะเกิดอะไรขึ้น?", a: "หากผู้ซื้อถูกผู้ขายบล็อกครบสองคน บัญชีผู้ซื้อนั้นจะถูกบล็อกจากการใช้งานเว็บไซต์" }
     ],
     sellerStandardsEyebrow: "นโยบายผู้ขาย",
     sellerStandardsTitle: "มาตรฐานผู้ขาย",
-    sellerStandardsSubtitle: "มาตรฐานคุณภาพ การสื่อสาร และเนื้อหาฟีดสำหรับผู้ขาย",
+    sellerStandardsSubtitle: "มาตรฐานคุณภาพ การสื่อสาร และเนื้อหา Stories สำหรับผู้ขาย",
     sellerStandardsPoints: [
       "ข้อมูลสินค้าและโพสต์ต้องชัดเจน ถูกต้อง และจัดหมวดหมู่ครบถ้วน",
-      "ตอบลูกค้าให้รวดเร็ว และอัปเดตข้อมูลโปรไฟล์/สต็อก/สถานะฟีดสม่ำเสมอ",
+      "ตอบลูกค้าให้รวดเร็ว และอัปเดตข้อมูลโปรไฟล์/สต็อก/สถานะ Stories สม่ำเสมอ",
       "การตั้งราคา private และการสื่อสารต้องเป็นไปตามนโยบายและสุภาพ"
     ],
     howToApplyEyebrow: "สำหรับผู้ขาย",
@@ -192,15 +192,15 @@ const HELP_I18N = {
     sellerGuidelinesSubtitle: "แนวทางเพื่อเพิ่มความน่าเชื่อถือและประสบการณ์ที่ดีของผู้ซื้อ",
     sellerGuidelinesPoints: [
       "ใช้รูปชัดเจน ระบุไซซ์/รายละเอียดให้ครบถ้วน",
-      "ใช้เครื่องมือฟีดอย่างโปร่งใส โดยเฉพาะการตั้งค่า private/public และราคา",
+      "ใช้เครื่องมือ Stories อย่างโปร่งใส โดยเฉพาะการตั้งค่า private/public และราคา",
       "ตอบข้อความและคำขอพิเศษอย่างรวดเร็ว พร้อมตั้งค่าการแจ้งเตือนให้เหมาะสม"
     ],
     portfolioSetupEyebrow: "สำหรับผู้ขาย",
     portfolioSetupTitle: "ตั้งค่าโปรไฟล์ร้าน",
-    portfolioSetupSubtitle: "จัดโครงสร้างหน้าร้าน โปรไฟล์ และฟีดให้ค้นหาเจอง่าย",
+    portfolioSetupSubtitle: "จัดโครงสร้างหน้าร้าน โปรไฟล์ และStories ให้ค้นหาเจอง่าย",
     portfolioSetupPoints: [
       "เพิ่มไบโอ ที่ตั้ง ภาษา และรูปโปรไฟล์เพื่อเพิ่มความน่าเชื่อถือ",
-      "ทำหมวดสินค้าและเนื้อหาฟีดให้สอดคล้องกันเพื่อการค้นหา/กรองที่ดีขึ้น",
+      "ทำหมวดสินค้าและเนื้อหา Stories ให้สอดคล้องกันเพื่อการค้นหา/กรองที่ดีขึ้น",
       "ใช้โพสต์แบบตั้งเวลาและข้อมูลเชิงลึกเพื่อรักษาความเคลื่อนไหวของร้าน"
     ]
   },
@@ -209,7 +209,7 @@ const HELP_I18N = {
     privacyTitle: "ကိုယ်ရေးကိုယ်တာ မူဝါဒ",
     privacySubtitle: "Thailand Panties တွင် data ကို စုဆောင်း၊ အသုံးပြု၊ ကာကွယ်ပုံ",
     privacyPoints: [
-      "Marketplace လည်ပတ်ရန်လိုအပ်သော account, order, support message, listing နှင့် feed interaction data များကို စုဆောင်းပါသည်",
+      "Marketplace လည်ပတ်ရန်လိုအပ်သော account, order, support message, listing နှင့် Stories interaction data များကို စုဆောင်းပါသည်",
       "Card payment data ကို payment provider က ကိုင်တွယ်ပါသည်။ Card number အပြည့်နှင့် security code များကို မသိမ်းဆည်းပါ",
       "Order, wallet, unlock နှင့် moderation record များကို လုံခြုံရေးနှင့် support အတွက် သိမ်းဆည်းပါသည်",
       "Platform အသုံးပြုခြင်းဖြင့် moderation/safety logging ကို သဘောတူသည်ဟု မှတ်ယူပါသည်"
@@ -246,9 +246,9 @@ const HELP_I18N = {
       { q: "ပို့ဆောင်ခကို ဘယ်သူပေးမလဲ?", a: "ဝယ်သူက checkout တွင်ပြထားသည့် ပို့ဆောင်ခအတိုင်း ပေးဆောင်ပါသည်" },
       { q: "ပြန်အမ်း/ပြန်လဲ ရနိုင်ပါသလား?", a: "Order အားလုံး final sale ဖြစ်ပါသည်။ သို့သော် wrong-item case တွင် refund evidence form မှတဆင့် သက်သေတင်နိုင်သည်။ ပထမဦးစွာ မှန်ကန်သော item ကို အပိုကုန်ကျစရိတ်မရှိဘဲ ပြန်ပို့ပေးရန် ကြိုးစားမည်ဖြစ်ပြီး မဖြစ်နိုင်ပါက စိစစ်ပြီးနောက် refund ပေးပါမည်။" },
       { q: "Chargeback မူဝါဒက ဘာလဲ?", a: "ကျွန်ုပ်တို့သည် chargeback အမှုများကို အမြဲအတိုက်အခံဖြေရှင်းပြီး Terms of Service ကို ဝယ်သူက သဘောတူထားမှုနှင့် platform အသုံးပြုမှုမှတ်တမ်းတို့အပါအဝင် သက်သေအထောက်အထားများကို တင်ပြပါသည်။" },
-      { q: "Card statement ပေါ်မှာ ဘာနာမည်ပေါ်မလဲ?", a: "Card descriptor အဖြစ် Siam Second Story လို့ပြသပါမည်။" },
+      { q: "Card statement ပေါ်မှာ ဘာနာမည်ပေါ်မလဲ?", a: "Card descriptor အဖြစ် Siam Second Story LLC လို့ပြသပါမည်။" },
       { q: "Private post တွေဘယ်လိုလုပ်သလဲ?", a: "Seller က private + စျေးနှုန်း သတ်မှတ်နိုင်ပြီး buyer က wallet ဖြင့် post တစ်ခုပြီးတစ်ခု unlock လုပ်နိုင်သည်" },
-      { q: "Buyer တွေက seller ကို follow လုပ်ပြီး product တွေကို Like လုပ်နိုင်လား?", a: "ရနိုင်ပါတယ်။ Buyer များသည် seller များကို follow လုပ်နိုင်ပြီး Following feed filter ကိုသုံးနိုင်သလို product များကို Like လုပ်ထားပြီး Liked Products section မှ ပြန်ဝင်ကြည့်နိုင်ပါသည်။" },
+      { q: "Buyer တွေက seller ကို follow လုပ်ပြီး product တွေကို Like လုပ်နိုင်လား?", a: "ရနိုင်ပါတယ်။ Buyer များသည် seller များကို follow လုပ်နိုင်ပြီး Following filter ကိုသုံးနိုင်သလို product များကို Like လုပ်ထားပြီး Liked Products section မှ ပြန်ဝင်ကြည့်နိုင်ပါသည်။" },
       { q: "Seller တွေအတွက် follow နဲ့ like တွေက အကျိုးရှိလား?", a: "ရှိပါတယ်။ Buyer များက follow လုပ်ခြင်းနဲ့ product like လုပ်ခြင်းက seller visibility ကိုတိုးစေပြီး buyer စိတ်ဝင်စားမှုကို နားလည်ရန် အထောက်အကူပြုပါသည်။" },
       { q: "Seller တွေက post schedule လုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Seller dashboard မှာ post ကို အနာဂတ်အချိန်အတွက် schedule သတ်မှတ်နိုင်ပါတယ်။" },
       { q: "Seller တွေက notification ကိုထိန်းချုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Message/engagement notification များကို filter လုပ်ပြီး on/off ပြောင်းနိုင်ပါတယ်။" },
@@ -261,16 +261,16 @@ const HELP_I18N = {
       { q: "အနိုင်ကျင့်/မသင့်လျော်သော message ကို ဘယ်လို report လုပ်မလဲ?", a: "Message thread ကိုဖွင့်ပြီး Report ကိုနှိပ်ကာ harassment၊ abusive language၊ scam သို့မဟုတ် off-platform payment တောင်းဆိုချက်များကို report လုပ်နိုင်ပါတယ်။ Admin က စိစစ်ပြီး moderation အရေးယူပါမည်။" },
       { q: "ပထမ strike နဲ့ ဒုတိယ strike က ဘာကွာလဲ?", a: "ပထမ strike တွင် account အပေါ်သတိပေးချက်ရှိနေပြီး appeal တင်နိုင်ပါသည်။ ဒုတိယ active strike ရောက်ပါက account ကို အလိုအလျောက် frozen လုပ်ပြီး admin review + appeal outcome အထိ စောင့်ရပါမည်။" },
       { q: "Strike status နဲ့ appeal history ကို ဘယ်မှာကြည့်နိုင်မလဲ?", a: "Dashboard တွင် active strike notice ကိုမြင်နိုင်ပြီး appeals page တွင် တင်ထားသော appeal များနှင့် admin ဆုံးဖြတ်ချက်များကို ကြည့်နိုင်ပါသည်။" },
-      { q: "Bar က post save လုပ်ပြီး seller/bar ကို follow လုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Bar များသည် feed post များကို save လုပ်နိုင်ပြီး seller နှင့် bar နှစ်မျိုးလုံးကို follow လုပ်နိုင်ပါသည်။" },
+      { q: "Bar က post save လုပ်ပြီး seller/bar ကို follow လုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Bar များသည် Stories post များကို save လုပ်နိုင်ပြီး seller နှင့် bar နှစ်မျိုးလုံးကို follow လုပ်နိုင်ပါသည်။" },
       { q: "Bar က ဘယ်သူတွေကို message ပို့နိုင်လဲ?", a: "Bar များသည် bar ကိုအရင်ဆက်သွယ်ထားသော buyer သို့မဟုတ် seller များကိုသာ ပြန်လည် message ပို့နိုင်ပါသည်။ Buyer နှင့် seller များက bar ကို စတင်ဆက်သွယ်နိုင်ပါသည်။ Bulk messaging ကိုမခွင့်ပြုပါ။" },
       { q: "Seller နှစ်ယောက်က buyer ကို block လုပ်ရင်ဘာဖြစ်မလဲ?", a: "Buyer တစ်ယောက်ကို seller နှစ်ယောက် block လုပ်ပါက အဆိုပါ buyer account ကို site မှ block လုပ်ပါသည်။" }
     ],
     sellerStandardsEyebrow: "Seller Policy",
     sellerStandardsTitle: "Seller စံနှုန်းများ",
-    sellerStandardsSubtitle: "အရည်အသွေး၊ ဆက်သွယ်မှုနှင့် feed/content စံနှုန်းများ",
+    sellerStandardsSubtitle: "အရည်အသွေး၊ ဆက်သွယ်မှုနှင့် Stories/content စံနှုန်းများ",
     sellerStandardsPoints: [
       "စာရင်းနှင့် post အချက်အလက်များကို မှန်ကန်ပြီး ရှင်းလင်းစွာ တင်ရန်",
-      "ဝယ်သူနှင့် မြန်ဆန်စွာ ဆက်သွယ်ပြီး profile/feed ကို update လုပ်ရန်",
+      "ဝယ်သူနှင့် မြန်ဆန်စွာ ဆက်သွယ်ပြီး profile/Stories ကို update လုပ်ရန်",
       "Private pricing နှင့် ဆက်သွယ်ရေးများကို policy နှင့်အညီ လိုက်နာရန်"
     ],
     howToApplyEyebrow: "Seller များအတွက်",
@@ -286,15 +286,15 @@ const HELP_I18N = {
     sellerGuidelinesSubtitle: "ယုံကြည်ရသော listing နှင့် buyer အတွေ့အကြုံအတွက် အကောင်းဆုံးလမ်းညွှန်",
     sellerGuidelinesPoints: [
       "ပုံများကိုရှင်းလင်းစွာတင်ပြီး metadata ကိုပြည့်စုံစွာထည့်ပါ",
-      "Public/Private feed settings နှင့် စျေးနှုန်းကို ပွင့်လင်းစွာ စီမံပါ",
+      "Public/Private Stories settings နှင့် စျေးနှုန်းကို ပွင့်လင်းစွာ စီမံပါ",
       "Message နှင့် custom request များကို မြန်ဆန်စွာတုံ့ပြန်ပါ"
     ],
     portfolioSetupEyebrow: "Seller များအတွက်",
     portfolioSetupTitle: "Portfolio Setup",
-    portfolioSetupSubtitle: "Storefront နှင့် feed ကို ရှာဖွေရလွယ်ကူအောင် စီမံနည်း",
+    portfolioSetupSubtitle: "Storefront နှင့် Stories ကို ရှာဖွေရလွယ်ကူအောင် စီမံနည်း",
     portfolioSetupPoints: [
       "Bio, location, language, profile image ထည့်သွင်းပါ",
-      "Product category နှင့် feed content တစ်သမတ်တည်းထားပါ",
+      "Product category နှင့် Stories content တစ်သမတ်တည်းထားပါ",
       "Scheduled post နှင့် analytics ကိုအသုံးပြု၍ storefront ကို active ထားပါ"
     ]
   },
@@ -303,7 +303,7 @@ const HELP_I18N = {
     privacyTitle: "Политика конфиденциальности",
     privacySubtitle: "Как Thailand Panties собирает, использует и защищает данные пользователей.",
     privacyPoints: [
-      "Мы собираем данные аккаунта, заказов, обращений в поддержку, контента объявлений и активности в ленте, необходимые для работы платформы.",
+      "Мы собираем данные аккаунта, заказов, обращений в поддержку, контента объявлений и активности в Stories, необходимые для работы платформы.",
       "Платежные данные карты обрабатываются платежным провайдером. Мы не храним полный номер карты и CVV.",
       "Данные заказов, кошелька, разблокировок и модерации сохраняются для безопасности, исполнения заказов и поддержки.",
       "Используя платформу, пользователь соглашается с журналированием событий безопасности и модерации."
@@ -340,9 +340,9 @@ const HELP_I18N = {
       { q: "Кто оплачивает доставку?", a: "Покупатель оплачивает точную стоимость доставки по своему направлению." },
       { q: "Есть ли возвраты?", a: "Все продажи окончательные, кроме случаев wrong-item. Если вы получили не тот товар, отправьте доказательства через форму возврата. Сначала мы попробуем отправить правильный товар за наш счет без дополнительных расходов для покупателя. Если это невозможно, после проверки будет оформлен возврат." },
       { q: "Какая у вас политика по чарджбэкам (chargeback)?", a: "Мы оспариваем все чарджбэки и предоставляем доказательства, включая согласие покупателя с Terms of Service и релевантную активность на платформе." },
-      { q: "Что отображается в выписке по карте?", a: "Дескриптор платежа отображается как Siam Second Story." },
+      { q: "Что отображается в выписке по карте?", a: "Дескриптор платежа отображается как Siam Second Story LLC." },
       { q: "Как работают private-посты?", a: "Продавец может сделать пост приватным и задать цену, покупатель разблокирует пост из баланса кошелька." },
-      { q: "Могут ли покупатели подписываться на продавцов и ставить Like товарам?", a: "Да. Покупатели могут подписываться на продавцов, использовать фильтры Following в ленте и ставить Like товарам для быстрого доступа в разделе «Понравившиеся товары»." },
+      { q: "Могут ли покупатели подписываться на продавцов и ставить Like товарам?", a: "Да. Покупатели могут подписываться на продавцов, использовать фильтры Following в Stories и ставить Like товарам для быстрого доступа в разделе «Понравившиеся товары»." },
       { q: "Полезны ли продавцам подписки и лайки?", a: "Да. Видимость продавца растет, когда покупатели подписываются и ставят Like товарам, а сами продавцы могут использовать эти сигналы, чтобы лучше понимать интерес покупателей." },
       { q: "Могут ли продавцы планировать посты?", a: "Да. Продавцы могут заранее планировать публикации в панели продавца." },
       { q: "Могут ли продавцы управлять уведомлениями?", a: "Да. Продавцы могут фильтровать уведомления и включать/выключать типы оповещений." },
@@ -354,13 +354,13 @@ const HELP_I18N = {
       { q: "Как пожаловаться на оскорбительные сообщения или harassment?", a: "Используйте кнопку Report внутри диалога, чтобы отправить жалобу на оскорбления, преследование, мошенничество или попытки увести оплату вне платформы. Админ проверяет жалобы и применяет модерацию." },
       { q: "Что происходит после первого и второго страйка?", a: "После первого страйка аккаунт получает предупреждение, и вы можете подать апелляцию. После второго активного страйка аккаунт автоматически замораживается до решения по апелляции." },
       { q: "Где посмотреть статус страйков и историю апелляций?", a: "На дашборде отображаются активные уведомления о страйках, а на странице апелляций — поданные апелляции и решения администратора." },
-      { q: "Могут ли бары сохранять посты и подписываться на продавцов или бары?", a: "Да. Бары могут сохранять посты ленты и подписываться как на продавцов, так и на бары." },
+      { q: "Могут ли бары сохранять посты и подписываться на продавцов или бары?", a: "Да. Бары могут сохранять посты Stories и подписываться как на продавцов, так и на бары." },
       { q: "Кому бар может писать сообщения?", a: "Бар может отвечать только покупателям или продавцам, которые написали бару первыми. Покупатели и продавцы могут сами начинать диалог с баром. Массовая рассылка отключена." },
       { q: "Что будет, если два продавца заблокируют покупателя?", a: "Если покупателя заблокируют два продавца, аккаунт покупателя блокируется на сайте." }
     ],
     sellerStandardsEyebrow: "Политика продавцов",
     sellerStandardsTitle: "Стандарты продавца",
-    sellerStandardsSubtitle: "Качество, коммуникация и правила контента/ленты.",
+    sellerStandardsSubtitle: "Качество, коммуникация и правила контента/Stories.",
     sellerStandardsPoints: [
       "Карточки и посты должны быть точными, понятными и корректно заполненными.",
       "Продавец должен быстро отвечать и регулярно обновлять профиль/статус.",
@@ -384,10 +384,10 @@ const HELP_I18N = {
     ],
     portfolioSetupEyebrow: "Для продавцов",
     portfolioSetupTitle: "Настройка портфолио",
-    portfolioSetupSubtitle: "Как оформить профиль, витрину и ленту для лучшей видимости.",
+    portfolioSetupSubtitle: "Как оформить профиль, витрину и Stories для лучшей видимости.",
     portfolioSetupPoints: [
       "Добавьте био, локацию, языки и фото профиля.",
-      "Сохраняйте единый стиль категорий и контента в ленте.",
+      "Сохраняйте единый стиль категорий и контента в Stories.",
       "Используйте отложенные посты и аналитику для активного профиля."
     ]
   }
@@ -571,7 +571,7 @@ const SUPPORT_STATIC_I18N = {
   en: {
     termsEyebrow: "Legal",
     termsTitle: "Terms of Service",
-    termsSubtitle: "The Thailand Panties rules for buyers, sellers, and platform usage.",
+    termsSubtitle: "Please read these Terms of Service carefully before using thailandpanties.com, operated by Siam Second Story LLC.",
     shippingEyebrow: "Policy",
     shippingTitle: "Shipping Policy",
     shippingSubtitle: "How orders are sent, priced, and delivered worldwide from Thailand.",
@@ -587,17 +587,22 @@ const SUPPORT_STATIC_I18N = {
     refundEvidenceEyebrow: "Support",
     refundEvidenceTitle: "Refund Evidence Form",
     refundEvidenceSubtitle: "Submit wrong-item evidence for refund review.",
-    termsPoints: [
-      "Users must provide accurate account information and follow all marketplace policies for listing quality, communication, and safety.",
-      "All orders are final sale, except wrong-item cases with reviewable evidence submitted through the refund evidence form.",
-      "For wrong-item cases, we first attempt to ship the correct item at no additional cost to the buyer. If that is not possible, a refund is issued after review.",
-      "If a seller ships the wrong item, the seller must reship the correct item at their own cost. If reship is not completed, the buyer is refunded and the seller commission for that order is deducted.",
-      "All chargebacks are disputed. We submit evidence of the buyer's agreement to these Terms of Service and their usage activity on the site.",
-      "All listed prices, wallet charges, unlock fees, and messaging fees are processed in Thai baht (THB). Any converted non-THB values shown on the site are estimates only and may vary by provider rates.",
-      "Abusive or offensive language is prohibited. The platform enforces a two-strikes conduct policy and may suspend accounts for violations.",
-      "If a buyer is blocked by two sellers, the buyer account is blocked from the site.",
-      "Payment charges appear on card statements as Siam Second Story.",
-      "Thailand Panties is owned and operated by Siam Second Story, located at 30 N Gould Street Ste R, Sheridan, Wyoming 82801, United States.",
+    termsSections: [
+      { heading: "1. Acceptance of Terms", body: "By accessing or using thailandpanties.com (the \"Site\"), you agree to be bound by these Terms of Service (\"Terms\"). If you do not agree to these Terms, you must not use the Site. Your continued use of the Site following any changes to these Terms constitutes acceptance of those changes." },
+      { heading: "2. Eligibility", body: "You must be at least 18 years of age to use this Site. By using the Site, you represent and warrant that you are at least 18 years old and have the legal capacity to enter into these Terms." },
+      { heading: "3. Account Responsibilities", body: "You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must provide accurate and complete account information and keep it up to date. Each person may maintain only one account. You agree to follow all marketplace policies regarding listing quality, communication, and safety." },
+      { heading: "4. Marketplace Transactions", body: "All orders placed on the Site are final sale. The sole exception is wrong-item cases where the buyer submits reviewable photographic evidence through the designated refund evidence form. For verified wrong-item cases, we first attempt to reship the correct item at no additional cost to the buyer. If reship is not possible, a refund is issued after review. If a seller ships the wrong item, the seller must reship the correct item at their own cost. If the seller fails to reship, the buyer is refunded and the seller's commission for that order is deducted." },
+      { heading: "5. Pricing and Currency", body: "All listed prices, wallet charges, content unlock fees, and messaging fees are denominated and processed in Thai baht (THB). Any values displayed in other currencies are approximate estimates only and may vary depending on your payment provider's exchange rates. Siam Second Story LLC is not responsible for exchange rate differences." },
+      { heading: "6. Payment and Billing", body: "Charges from the Site will appear on your credit or debit card statement as \"Siam Second Story LLC\". By completing a purchase, you authorize Siam Second Story LLC to charge your selected payment method for the total amount of your order, including applicable shipping costs. Wallet top-ups, content unlocks, and messaging fees are also charged under this descriptor." },
+      { heading: "7. Refunds and Chargebacks", body: "Except as described in Section 4 (wrong-item cases), all sales are final and no refunds are issued. All chargebacks are disputed. In the event of a chargeback, we submit evidence of the buyer's agreement to these Terms of Service, transaction records, and relevant usage activity on the Site. Filing a fraudulent chargeback may result in permanent account suspension." },
+      { heading: "8. Conduct and Moderation", body: "Abusive, threatening, discriminatory, or offensive language is strictly prohibited in all messages, requests, and support interactions. The platform enforces a two-strikes conduct policy. A first strike results in a warning on the account. A second active strike results in automatic account suspension pending administrative review. If a buyer is blocked by two separate sellers, the buyer's account is blocked from the Site." },
+      { heading: "9. Content and Intellectual Property", body: "Users retain ownership of content they submit to the Site, but grant Siam Second Story LLC a non-exclusive, royalty-free, worldwide license to use, display, and distribute such content in connection with operating the Site. All Site design, branding, software, and proprietary materials are the intellectual property of Siam Second Story LLC and may not be copied, modified, or distributed without prior written consent." },
+      { heading: "10. Privacy", body: "Your use of the Site is also governed by our Privacy Policy, which describes how we collect, use, and protect your personal information. By using the Site, you consent to the practices described in the Privacy Policy." },
+      { heading: "11. Disclaimers and Limitation of Liability", body: "The Site and all services are provided on an \"as is\" and \"as available\" basis without warranties of any kind, either express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement. To the fullest extent permitted by law, Siam Second Story LLC shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, arising from your use of the Site. Our total aggregate liability for any claims arising from these Terms or your use of the Site shall not exceed the amount you paid to Siam Second Story LLC in the twelve (12) months preceding the claim." },
+      { heading: "12. Indemnification", body: "You agree to indemnify, defend, and hold harmless Siam Second Story LLC, its officers, directors, employees, and agents from and against any and all claims, liabilities, damages, losses, and expenses (including reasonable attorneys' fees) arising out of or in any way connected with your access to or use of the Site, your violation of these Terms, or your violation of any third-party rights." },
+      { heading: "13. Governing Law and Jurisdiction", body: "These Terms shall be governed by and construed in accordance with the laws of the State of Wyoming, United States, without regard to its conflict of law provisions. Any disputes arising under or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts located in Sheridan County, Wyoming." },
+      { heading: "14. Changes to These Terms", body: "Siam Second Story LLC reserves the right to modify these Terms at any time. Changes will be effective immediately upon posting to the Site. Your continued use of the Site after any such changes constitutes your acceptance of the revised Terms. We encourage you to review these Terms periodically." },
+      { heading: "15. Contact and Company Information", body: "Thailand Panties is owned and operated by Siam Second Story LLC, located at 30 N Gould Street Ste R, Sheridan, Wyoming 82801, United States. For questions or concerns regarding these Terms, please use the Contact page on the Site." },
     ],
     shippingCards: [
       { title: "Shipping time", body: "Shipping usually happens within 1-3 business days after the order is placed and confirmed, but it can take longer depending on the seller's location." },
@@ -624,23 +629,28 @@ const SUPPORT_STATIC_I18N = {
     ],
   },
   th: {
-    termsEyebrow: "กฎหมาย", termsTitle: "ข้อกำหนดการให้บริการ", termsSubtitle: "กติกา Thailand Panties สำหรับผู้ซื้อ ผู้ขาย และการใช้งานแพลตฟอร์ม",
+    termsEyebrow: "กฎหมาย", termsTitle: "ข้อกำหนดการให้บริการ", termsSubtitle: "กรุณาอ่านข้อกำหนดการให้บริการอย่างละเอียดก่อนใช้งาน thailandpanties.com ดำเนินการโดย Siam Second Story LLC",
     shippingEyebrow: "นโยบาย", shippingTitle: "นโยบายการจัดส่ง", shippingSubtitle: "วิธีการจัดส่ง ราคา และการส่งทั่วโลกจากประเทศไทย",
     communityEyebrow: "นโยบาย", communityTitle: "มาตรฐานชุมชน", communitySubtitle: "กฎการสื่อสารอย่างสุภาพระหว่างผู้ซื้อ ผู้ขาย และฝ่ายช่วยเหลือ",
     worldwideEyebrow: "มาร์เก็ตเพลส", worldwideTitle: "การจัดส่งทั่วโลก", worldwideSubtitle: "จัดส่งทั่วโลกผ่านผู้ให้บริการระหว่างประเทศอย่างเป็นส่วนตัวและโปร่งใส",
     packagingEyebrow: "ช่วยเหลือ", packagingTitle: "มาตรฐานบรรจุภัณฑ์", packagingSubtitle: "วิธีแพ็กสินค้าเพื่อความปลอดภัยในการขนส่งและความเป็นส่วนตัว",
     refundEvidenceEyebrow: "ช่วยเหลือ", refundEvidenceTitle: "แบบฟอร์มหลักฐานขอคืนเงิน", refundEvidenceSubtitle: "ส่งหลักฐานกรณีได้รับสินค้าผิดเพื่อให้ตรวจสอบ",
-    termsPoints: [
-      "ผู้ใช้ต้องให้ข้อมูลบัญชีที่ถูกต้องและปฏิบัติตามนโยบายของแพลตฟอร์มเรื่องคุณภาพสินค้า การสื่อสาร และความปลอดภัย",
-      "คำสั่งซื้อทั้งหมดถือเป็นการขายขาด ยกเว้นกรณีได้รับสินค้าผิดและส่งหลักฐานที่ตรวจสอบได้ผ่านแบบฟอร์มหลักฐานขอคืนเงิน",
-      "กรณีได้รับสินค้าผิด เราจะพยายามส่งสินค้าที่ถูกต้องให้ใหม่โดยไม่มีค่าใช้จ่ายเพิ่มเติมสำหรับผู้ซื้อก่อน หากทำไม่ได้จึงจะคืนเงินหลังการตรวจสอบ",
-      "หากผู้ขายส่งสินค้าผิด ผู้ขายต้องส่งสินค้าที่ถูกต้องใหม่โดยรับผิดชอบค่าใช้จ่ายเอง หากไม่ดำเนินการ ผู้ซื้อจะได้รับเงินคืน และค่าคอมมิชชั่นของผู้ขายจากคำสั่งซื้อนั้นจะถูกหัก",
-      "เราโต้แย้ง chargeback ทุกกรณี และส่งหลักฐานการยอมรับข้อกำหนดของผู้ซื้อรวมถึงกิจกรรมการใช้งานบนเว็บไซต์",
-      "ราคา ค่ากระเป๋าเงิน ค่าปลดล็อก และค่าข้อความทั้งหมดคิดเป็นเงินบาท (THB) มูลค่าสกุลอื่นที่แสดงเป็นเพียงการประมาณการ",
-      "ห้ามใช้ถ้อยคำคุกคามหรือไม่เหมาะสม แพลตฟอร์มใช้กฎสองสไตรก์และอาจระงับบัญชีเมื่อฝ่าฝืน",
-      "หากผู้ซื้อถูกบล็อกโดยผู้ขายสองราย บัญชีผู้ซื้อจะถูกบล็อกจากเว็บไซต์",
-      "รายการชำระเงินบนบัตรจะแสดงเป็น Siam Second Story",
-      "Thailand Panties เป็นของและดำเนินการโดย Siam Second Story ตั้งอยู่ที่ 30 N Gould Street Ste R, Sheridan, Wyoming 82801 สหรัฐอเมริกา",
+    termsSections: [
+      { heading: "1. การยอมรับข้อกำหนด", body: "การเข้าถึงหรือใช้งาน thailandpanties.com (\"เว็บไซต์\") ถือว่าคุณยอมรับข้อกำหนดการให้บริการนี้ หากคุณไม่ยอมรับ กรุณาอย่าใช้เว็บไซต์ การใช้งานต่อเนื่องหลังจากมีการเปลี่ยนแปลงข้อกำหนดถือว่าคุณยอมรับข้อกำหนดที่เปลี่ยนแปลง" },
+      { heading: "2. คุณสมบัติ", body: "คุณต้องมีอายุอย่างน้อย 18 ปีจึงจะใช้เว็บไซต์นี้ได้ การใช้เว็บไซต์แสดงว่าคุณรับรองว่าคุณมีอายุอย่างน้อย 18 ปีและมีความสามารถทางกฎหมาย" },
+      { heading: "3. ความรับผิดชอบของบัญชี", body: "คุณต้องรักษาความลับของข้อมูลรับรองบัญชี ให้ข้อมูลบัญชีที่ถูกต้องและเป็นปัจจุบัน แต่ละคนสามารถมีได้เพียงหนึ่งบัญชี คุณยินยอมปฏิบัติตามนโยบายของแพลตฟอร์มเรื่องคุณภาพสินค้า การสื่อสาร และความปลอดภัย" },
+      { heading: "4. การทำธุรกรรมในตลาด", body: "คำสั่งซื้อทั้งหมดถือเป็นการขายขาด ยกเว้นกรณีได้รับสินค้าผิดที่มีหลักฐานภาพถ่าย กรณีสินค้าผิดที่ยืนยันแล้ว เราจะพยายามส่งสินค้าที่ถูกต้องให้ใหม่โดยไม่มีค่าใช้จ่ายเพิ่ม หากทำไม่ได้จะคืนเงิน หากผู้ขายส่งสินค้าผิด ต้องส่งสินค้าที่ถูกต้องใหม่โดยรับผิดชอบค่าใช้จ่ายเอง" },
+      { heading: "5. ราคาและสกุลเงิน", body: "ราคา ค่ากระเป๋าเงิน ค่าปลดล็อกเนื้อหา และค่าข้อความทั้งหมดคิดเป็นเงินบาท (THB) มูลค่าสกุลอื่นที่แสดงเป็นเพียงการประมาณการ Siam Second Story LLC ไม่รับผิดชอบต่อความแตกต่างของอัตราแลกเปลี่ยน" },
+      { heading: "6. การชำระเงินและการเรียกเก็บเงิน", body: "รายการชำระเงินจะแสดงบนใบแจ้งยอดบัตรเป็น \"Siam Second Story LLC\" การทำรายการซื้อถือว่าคุณอนุญาตให้เรียกเก็บเงินจากวิธีการชำระเงินที่เลือก" },
+      { heading: "7. การคืนเงินและ Chargeback", body: "ยกเว้นกรณีสินค้าผิดตามข้อ 4 การขายทั้งหมดถือเป็นที่สิ้นสุด เราโต้แย้ง chargeback ทุกกรณีและส่งหลักฐานการยอมรับข้อกำหนดและกิจกรรมการใช้งาน การยื่น chargeback เท็จอาจทำให้บัญชีถูกระงับถาวร" },
+      { heading: "8. ความประพฤติและการดูแล", body: "ห้ามใช้ถ้อยคำคุกคาม เลือกปฏิบัติ หรือไม่เหมาะสม แพลตฟอร์มใช้กฎสองสไตรก์ สไตรก์แรกจะมีคำเตือน สไตรก์ที่สองจะระงับบัญชีอัตโนมัติ หากผู้ซื้อถูกบล็อกโดยผู้ขายสองรายจะถูกบล็อกจากเว็บไซต์" },
+      { heading: "9. เนื้อหาและทรัพย์สินทางปัญญา", body: "ผู้ใช้ยังคงเป็นเจ้าของเนื้อหาที่ส่ง แต่อนุญาตให้ Siam Second Story LLC ใช้ แสดง และเผยแพร่เนื้อหาดังกล่าว การออกแบบ แบรนด์ ซอฟต์แวร์ และสื่อทั้งหมดของเว็บไซต์เป็นทรัพย์สินของ Siam Second Story LLC" },
+      { heading: "10. ความเป็นส่วนตัว", body: "การใช้เว็บไซต์อยู่ภายใต้นโยบายความเป็นส่วนตัวของเราด้วย การใช้เว็บไซต์ถือว่าคุณยินยอมตามแนวปฏิบัติที่อธิบายไว้ในนโยบายความเป็นส่วนตัว" },
+      { heading: "11. ข้อจำกัดความรับผิดชอบ", body: "เว็บไซต์และบริการทั้งหมดให้บริการ \"ตามสภาพ\" โดยไม่มีการรับประกันใดๆ Siam Second Story LLC จะไม่รับผิดต่อความเสียหายทางอ้อม พิเศษ หรือเป็นผลสืบเนื่อง ความรับผิดรวมสูงสุดจำกัดไม่เกินจำนวนเงินที่คุณจ่ายในช่วง 12 เดือนก่อนหน้า" },
+      { heading: "12. การชดใช้ค่าเสียหาย", body: "คุณตกลงที่จะชดใช้และปกป้อง Siam Second Story LLC จากการเรียกร้อง ความรับผิด ความเสียหาย และค่าใช้จ่ายทั้งหมดที่เกิดจากการใช้เว็บไซต์หรือการละเมิดข้อกำหนดเหล่านี้" },
+      { heading: "13. กฎหมายที่ใช้บังคับ", body: "ข้อกำหนดเหล่านี้อยู่ภายใต้กฎหมายของรัฐไวโอมิง สหรัฐอเมริกา ข้อพิพาทใดๆ จะอยู่ภายใต้เขตอำนาจศาลของศาลใน Sheridan County รัฐไวโอมิง" },
+      { heading: "14. การเปลี่ยนแปลงข้อกำหนด", body: "Siam Second Story LLC สงวนสิทธิ์ในการแก้ไขข้อกำหนดเหล่านี้ได้ตลอดเวลา การเปลี่ยนแปลงจะมีผลทันทีเมื่อเผยแพร่บนเว็บไซต์ การใช้งานต่อเนื่องถือว่ายอมรับข้อกำหนดที่แก้ไข" },
+      { heading: "15. ข้อมูลติดต่อและบริษัท", body: "Thailand Panties เป็นของและดำเนินการโดย Siam Second Story LLC ตั้งอยู่ที่ 30 N Gould Street Ste R, Sheridan, Wyoming 82801 สหรัฐอเมริกา สำหรับคำถามกรุณาใช้หน้าติดต่อบนเว็บไซต์" },
     ],
     shippingCards: [
       { title: "ช่วงเวลาจัดส่ง", body: "โดยปกติคำสั่งซื้อจะจัดส่งภายใน 1-3 วันทำการหลังยืนยันคำสั่งซื้อ แต่อาจใช้เวลานานกว่านี้ตามตำแหน่งที่ตั้งของผู้ขาย" },
@@ -667,23 +677,28 @@ const SUPPORT_STATIC_I18N = {
     ],
   },
   my: {
-    termsEyebrow: "ဥပဒေ", termsTitle: "အသုံးပြုမှုစည်းမျဉ်း", termsSubtitle: "Thailand Panties ကိုအသုံးပြုရာတွင် buyer/seller များအတွက် စည်းမျဉ်းများ",
+    termsEyebrow: "ဥပဒေ", termsTitle: "အသုံးပြုမှုစည်းမျဉ်း", termsSubtitle: "thailandpanties.com ကို အသုံးမပြုမီ ဤစည်းမျဉ်းများကို သေချာဖတ်ပါ။ Siam Second Story LLC မှ လုပ်ငန်းဆောင်ရွက်သည်။",
     shippingEyebrow: "မူဝါဒ", shippingTitle: "ပို့ဆောင်ရေး မူဝါဒ", shippingSubtitle: "ထိုင်းနိုင်ငံမှ ကမ္ဘာတစ်ဝှမ်း ပို့ဆောင်ပုံနှင့် စရိတ်သတ်မှတ်ပုံ",
     communityEyebrow: "မူဝါဒ", communityTitle: "အသိုင်းအဝိုင်း စံနှုန်း", communitySubtitle: "buyer၊ seller နှင့် support ကြား လေးစားသော ဆက်သွယ်ရေးစည်းကမ်းများ",
     worldwideEyebrow: "Marketplace", worldwideTitle: "ကမ္ဘာတစ်ဝှမ်း ပို့ဆောင်မှု", worldwideSubtitle: "နိုင်ငံတကာ carrier များဖြင့် လျှို့ဝှက်ပို့ဆောင်မှုနှင့် စရိတ်တိတိကျကျ",
     packagingEyebrow: "အကူအညီ", packagingTitle: "ထုပ်ပိုးမှု စံနှုန်း", packagingSubtitle: "ပို့ဆောင်ရာတွင် လုံခြုံပြီး လျှို့ဝှက်မှုကောင်းရန် ထုပ်ပိုးနည်း",
     refundEvidenceEyebrow: "အကူအညီ", refundEvidenceTitle: "Refund Evidence Form", refundEvidenceSubtitle: "wrong-item case အတွက် သက်သေအထောက်အထား တင်ပြရန်",
-    termsPoints: [
-      "အသုံးပြုသူများသည် account အချက်အလက်မှန်ကန်စွာပေးပြီး listing quality၊ ဆက်သွယ်မှု နှင့် safety policy များကို လိုက်နာရမည်။",
-      "Order အားလုံး final sale ဖြစ်ပြီး wrong-item case တွင်သာ refund evidence form မှတဆင့် အထောက်အထားတင်ပြ၍ စိစစ်နိုင်သည်။",
-      "Wrong-item case တွင် buyer အတွက် အပိုကုန်ကျစရိတ်မရှိဘဲ မှန်ကန်သော item ကို ပထမဦးစွာ ပြန်ပို့ပေးရန် ကြိုးစားမည်ဖြစ်ပြီး မဖြစ်နိုင်ပါက စိစစ်ပြီးနောက် refund ပေးပါမည်။",
-      "Seller က wrong item ပို့မိပါက seller ကိုယ်ပိုင်ကုန်ကျစရိတ်ဖြင့် မှန်ကန်သော item ကို ပြန်ပို့ရပါမည်။ မဆောင်ရွက်ပါက buyer ကို refund ပေးမည်ဖြစ်ပြီး အဆိုပါ order အတွက် seller commission ကို ဖြတ်တောက်မည်ဖြစ်သည်။",
-      "Chargeback များအားလုံးကို အပြန်အလှန်အငြင်းပွားတင်ပြပြီး Terms ကိုသဘောတူထားမှုနှင့် site usage activity အထောက်အထားများတင်ပြပါသည်။",
-      "Listing price, wallet charge, unlock fee, message fee အားလုံးကို THB ဖြင့်တွက်ချက်ပြီး အခြားငွေကြေးတန်ဖိုးများမှာ ခန့်မှန်းတန်ဖိုးသာဖြစ်သည်။",
-      "အပြောအဆိုအရိုင်းအမိုက် သို့မဟုတ် မလျော်ကန်သော language များကို ခွင့်မပြုပါ။ two-strike policy ဖြင့် အကောင့်ရပ်ဆိုင်းနိုင်သည်။",
-      "Buyer ကို seller နှစ်ဦးက block လုပ်ပါက buyer account ကို site မှ block လုပ်ပါမည်။",
-      "Card statement တွင် Siam Second Story ဟု ပြသပါမည်။",
-      "Thailand Panties သည် Siam Second Story မှ ပိုင်ဆိုင်ပြီး လုပ်ငန်းဆောင်ရွက်ပါသည်။ လိပ်စာ - 30 N Gould Street Ste R, Sheridan, Wyoming 82801, United States။",
+    termsSections: [
+      { heading: "1. စည်းမျဉ်းများ လက်ခံခြင်း", body: "thailandpanties.com (\"Site\") ကို အသုံးပြုခြင်းဖြင့် ဤစည်းမျဉ်းများကို လက်ခံရန် သဘောတူပါသည်။ သဘောမတူပါက Site ကို အသုံးမပြုပါနှင့်။ စည်းမျဉ်းပြောင်းလဲမှုများပြီးနောက် ဆက်လက်အသုံးပြုခြင်းသည် ပြောင်းလဲမှုများကို လက်ခံသည်ဟု ယူဆပါသည်။" },
+      { heading: "2. အရည်အချင်း", body: "ဤ Site ကို အသုံးပြုရန် အသက် 18 နှစ်ပြည့်ပြီးဖြစ်ရမည်။ Site ကို အသုံးပြုခြင်းဖြင့် အသက် 18 နှစ်ပြည့်ပြီးကြောင်း အာမခံပါသည်။" },
+      { heading: "3. အကောင့်တာဝန်ဝတ္တရားများ", body: "အကောင့် credentials များကို လျှို့ဝှက်ထားရှိရန်နှင့် account အချက်အလက်မှန်ကန်စွာ ပေးရပါမည်။ တစ်ဦးလျှင် အကောင့်တစ်ခုသာ ရှိနိုင်သည်။ listing quality၊ ဆက်သွယ်မှု နှင့် safety policy များကို လိုက်နာရမည်။" },
+      { heading: "4. Marketplace လုပ်ငန်းစဉ်များ", body: "Order အားလုံး final sale ဖြစ်သည်။ Wrong-item case တွင်သာ refund evidence form မှတဆင့် စိစစ်နိုင်သည်။ Wrong-item ဖြစ်ပါက buyer အတွက် အပိုကုန်ကျစရိတ်မရှိဘဲ ပြန်ပို့ပေးရန် ကြိုးစားမည်။ Seller က wrong item ပို့မိပါက ကိုယ်ပိုင်ကုန်ကျစရိတ်ဖြင့် ပြန်ပို့ရပါမည်။" },
+      { heading: "5. စျေးနှုန်းနှင့် ငွေကြေး", body: "စျေးနှုန်း၊ wallet charge၊ unlock fee၊ message fee အားလုံးကို THB ဖြင့်တွက်ချက်ပြီး အခြားငွေကြေးတန်ဖိုးများမှာ ခန့်မှန်းတန်ဖိုးသာဖြစ်သည်။ Siam Second Story LLC သည် exchange rate ကွာခြားမှုများအတွက် တာဝန်မရှိပါ။" },
+      { heading: "6. ငွေပေးချေမှုနှင့် ငွေတောင်းခံမှု", body: "Card statement တွင် \"Siam Second Story LLC\" ဟု ပြသပါမည်။ ဝယ်ယူမှုပြုလုပ်ခြင်းဖြင့် ရွေးချယ်ထားသော payment method မှ ငွေဖြတ်ယူခွင့် ပေးပါသည်။" },
+      { heading: "7. Refund နှင့် Chargeback", body: "Section 4 (wrong-item) မှလွဲ၍ sale အားလုံး final ဖြစ်သည်။ Chargeback များအားလုံးကို dispute လုပ်ပြီး Terms သဘောတူမှုနှင့် usage activity အထောက်အထားများ တင်ပြပါသည်။ Chargeback အတုတင်ပြမှုသည် account ရပ်ဆိုင်းခံရနိုင်သည်။" },
+      { heading: "8. အပြုအမူနှင့် ကြီးကြပ်မှု", body: "အကြမ်းဖက်၊ ခြိမ်းခြောက်မှု၊ မလျော်ကန်သော language များကို ခွင့်မပြုပါ။ Two-strike policy ဖြင့် ပထမ strike တွင် သတိပေးပြီး ဒုတိယ strike တွင် account ရပ်ဆိုင်းပါမည်။ Seller နှစ်ဦးက block လုပ်ပါက buyer account ကို site မှ block လုပ်ပါမည်။" },
+      { heading: "9. Content နှင့် Intellectual Property", body: "User များသည် တင်သွင်းသော content ကို ပိုင်ဆိုင်ဆဲဖြစ်သော်လည်း Siam Second Story LLC အား Site လုပ်ငန်းဆောင်ရွက်ရန် အသုံးပြုခွင့် ပေးပါသည်။ Site ၏ ဒီဇိုင်း၊ branding၊ software များသည် Siam Second Story LLC ၏ ပိုင်ဆိုင်မှုဖြစ်သည်။" },
+      { heading: "10. ကိုယ်ရေးလုံခြုံမှု", body: "Site အသုံးပြုမှုသည် Privacy Policy အောက်တွင်လည်း ရှိပါသည်။ Site အသုံးပြုခြင်းဖြင့် Privacy Policy ကို သဘောတူပါသည်။" },
+      { heading: "11. ကန့်သတ်ချက်များနှင့် တာဝန်ယူမှုကန့်သတ်ချက်", body: "Site နှင့် ဝန်ဆောင်မှုများကို \"ရှိသည့်အတိုင်း\" ပေးပါသည်။ Siam Second Story LLC သည် သွယ်ဝိုက်သော ဆုံးရှုံးမှုများအတွက် တာဝန်မရှိပါ။ စုစုပေါင်း တာဝန်ယူမှုသည် ယခင် 12 လအတွင်း ပေးချေခဲ့သော ငွေပမာဏထက် မပိုပါ။" },
+      { heading: "12. နစ်နာကြေးပေးခြင်း", body: "Site အသုံးပြုမှု သို့မဟုတ် ဤစည်းမျဉ်းချိုးဖောက်မှုကြောင့် ဖြစ်ပေါ်လာသော claims၊ ဆုံးရှုံးမှုများအားလုံးအတွက် Siam Second Story LLC ကို ကာကွယ်ပေးရန် သဘောတူပါသည်။" },
+      { heading: "13. သက်ဆိုင်ရာ ဥပဒေ", body: "ဤစည်းမျဉ်းများသည် United States၊ Wyoming ပြည်နယ် ဥပဒေအောက်တွင် ရှိပါသည်။ အငြင်းပွားမှုများသည် Sheridan County၊ Wyoming ၏ တရားရုံးများတွင် ဖြေရှင်းရပါမည်။" },
+      { heading: "14. စည်းမျဉ်းပြောင်းလဲမှုများ", body: "Siam Second Story LLC သည် ဤစည်းမျဉ်းများကို အချိန်မရွေး ပြင်ဆင်နိုင်သည်။ ပြောင်းလဲမှုများသည် Site တွင် ဖော်ပြပြီးချိန်မှ အသက်ဝင်ပါမည်။ ဆက်လက်အသုံးပြုခြင်းသည် ပြင်ဆင်ထားသော စည်းမျဉ်းများကို လက်ခံသည်ဟု ယူဆပါသည်။" },
+      { heading: "15. ဆက်သွယ်ရန်နှင့် ကုမ္ပဏီအချက်အလက်", body: "Thailand Panties သည် Siam Second Story LLC မှ ပိုင်ဆိုင်ပြီး လုပ်ငန်းဆောင်ရွက်ပါသည်။ လိပ်စာ - 30 N Gould Street Ste R, Sheridan, Wyoming 82801, United States။ မေးခွန်းများအတွက် Site ရှိ Contact page ကို အသုံးပြုပါ။" },
     ],
     shippingCards: [
       { title: "ပို့ဆောင်ချိန်", body: "Order ကိုအတည်ပြုပြီးနောက် ပုံမှန်အားဖြင့် 1-3 business days အတွင်း ပို့ဆောင်ပါသည်။ သို့သော် seller ၏ တည်နေရာအပေါ်မူတည်၍ ပို့ဆောင်ချိန် ပိုကြာနိုင်ပါသည်။" },
@@ -710,23 +725,28 @@ const SUPPORT_STATIC_I18N = {
     ],
   },
   ru: {
-    termsEyebrow: "Юридическое", termsTitle: "Условия сервиса", termsSubtitle: "Правила Thailand Panties для покупателей, продавцов и использования платформы.",
+    termsEyebrow: "Юридическое", termsTitle: "Условия сервиса", termsSubtitle: "Пожалуйста, внимательно прочитайте Условия использования перед использованием thailandpanties.com, управляемого Siam Second Story LLC.",
     shippingEyebrow: "Политика", shippingTitle: "Политика доставки", shippingSubtitle: "Как отправляются заказы, формируется стоимость и выполняется доставка по миру.",
     communityEyebrow: "Политика", communityTitle: "Стандарты сообщества", communitySubtitle: "Правила уважительного общения между покупателями, продавцами и поддержкой.",
     worldwideEyebrow: "Маркетплейс", worldwideTitle: "Доставка по всему миру", worldwideSubtitle: "Международная доставка с дискретной упаковкой и прозрачной стоимостью.",
     packagingEyebrow: "Поддержка", packagingTitle: "Стандарты упаковки", packagingSubtitle: "Как мы упаковываем заказы для защиты в пути и конфиденциальности.",
     refundEvidenceEyebrow: "Поддержка", refundEvidenceTitle: "Форма доказательств для возврата", refundEvidenceSubtitle: "Отправьте доказательства при доставке не того товара.",
-    termsPoints: [
-      "Пользователи обязаны указывать корректные данные аккаунта и соблюдать правила площадки по качеству листингов, коммуникации и безопасности.",
-      "Все заказы являются окончательной продажей, кроме случаев wrong-item при предоставлении проверяемых доказательств через форму возврата.",
-      "В случаях wrong-item мы сначала пытаемся отправить правильный товар без дополнительных расходов для покупателя. Если это невозможно, после проверки оформляется возврат.",
-      "Если продавец отправил не тот товар, он обязан переслать правильный товар за свой счет. Если пересылка не выполнена, покупателю оформляется возврат, а комиссия продавца по этому заказу удерживается.",
-      "Все чарджбэки оспариваются. Мы предоставляем доказательства согласия покупателя с Условиями и его активности на сайте.",
-      "Все цены, списания кошелька, разблокировки и комиссии сообщений рассчитываются в THB. Значения в других валютах являются ориентировочными.",
-      "Оскорбительное и агрессивное общение запрещено. На платформе действует политика двух страйков, возможна блокировка аккаунта.",
-      "Если покупателя блокируют два продавца, аккаунт покупателя блокируется на сайте.",
-      "В выписке по карте списания отображаются как Siam Second Story.",
-      "Thailand Panties принадлежит и управляется компанией Siam Second Story, расположенной по адресу: 30 N Gould Street Ste R, Sheridan, Wyoming 82801, США.",
+    termsSections: [
+      { heading: "1. Принятие условий", body: "Используя thailandpanties.com (\"Сайт\"), вы соглашаетесь с настоящими Условиями. Если вы не согласны, не используйте Сайт. Продолжение использования Сайта после внесения изменений означает принятие обновлённых Условий." },
+      { heading: "2. Правоспособность", body: "Вам должно быть не менее 18 лет для использования Сайта. Используя Сайт, вы подтверждаете, что вам исполнилось 18 лет и вы обладаете дееспособностью." },
+      { heading: "3. Ответственность за аккаунт", body: "Вы несёте ответственность за сохранность учётных данных и всю активность в вашем аккаунте. Необходимо указывать точную и актуальную информацию. Каждый пользователь может иметь только один аккаунт. Вы обязуетесь соблюдать правила площадки." },
+      { heading: "4. Сделки на маркетплейсе", body: "Все заказы являются окончательной продажей. Исключение — случаи получения не того товара с предоставлением фотодоказательств. В подтверждённых случаях мы сначала пытаемся отправить правильный товар без дополнительных расходов для покупателя. Если это невозможно, оформляется возврат. Продавец обязан переслать правильный товар за свой счёт." },
+      { heading: "5. Цены и валюта", body: "Все цены, списания кошелька, разблокировки и комиссии рассчитываются в THB. Значения в других валютах являются ориентировочными. Siam Second Story LLC не несёт ответственности за разницу курсов." },
+      { heading: "6. Оплата и выставление счетов", body: "Списания отображаются в выписке по карте как \"Siam Second Story LLC\". Совершая покупку, вы авторизуете списание с выбранного способа оплаты." },
+      { heading: "7. Возвраты и чарджбэки", body: "За исключением случаев, описанных в разделе 4, все продажи окончательны. Все чарджбэки оспариваются с предоставлением доказательств согласия покупателя с Условиями и его активности на Сайте. Подача ложного чарджбэка может привести к блокировке аккаунта." },
+      { heading: "8. Поведение и модерация", body: "Оскорбительное, угрожающее или дискриминационное общение строго запрещено. Действует политика двух страйков: первый — предупреждение, второй — автоматическая блокировка аккаунта. Если покупателя блокируют два продавца, аккаунт покупателя блокируется на Сайте." },
+      { heading: "9. Контент и интеллектуальная собственность", body: "Пользователи сохраняют права на загруженный контент, но предоставляют Siam Second Story LLC неисключительную лицензию на его использование. Дизайн, бренд, программное обеспечение и материалы Сайта являются собственностью Siam Second Story LLC." },
+      { heading: "10. Конфиденциальность", body: "Использование Сайта также регулируется нашей Политикой конфиденциальности. Используя Сайт, вы соглашаетесь с описанными в ней практиками." },
+      { heading: "11. Отказ от гарантий и ограничение ответственности", body: "Сайт и все услуги предоставляются «как есть» без каких-либо гарантий. Siam Second Story LLC не несёт ответственности за косвенные, случайные или штрафные убытки. Совокупная ответственность ограничена суммой, уплаченной вами за последние 12 месяцев." },
+      { heading: "12. Возмещение убытков", body: "Вы обязуетесь возместить и оградить Siam Second Story LLC от любых претензий, убытков и расходов, связанных с вашим использованием Сайта или нарушением настоящих Условий." },
+      { heading: "13. Применимое право", body: "Настоящие Условия регулируются законодательством штата Вайоминг, США. Любые споры подлежат рассмотрению в судах округа Шеридан, штат Вайоминг." },
+      { heading: "14. Изменение условий", body: "Siam Second Story LLC оставляет за собой право изменять настоящие Условия в любое время. Изменения вступают в силу сразу после публикации на Сайте. Продолжение использования Сайта означает принятие изменённых Условий." },
+      { heading: "15. Контактная информация и данные компании", body: "Thailand Panties принадлежит и управляется компанией Siam Second Story LLC, расположенной по адресу: 30 N Gould Street Ste R, Sheridan, Wyoming 82801, США. По вопросам используйте страницу контактов на Сайте." },
     ],
     shippingCards: [
       { title: "Срок отправки", body: "Обычно заказы отправляются в течение 1-3 рабочих дней после оформления и подтверждения, но срок может быть дольше в зависимости от локации продавца." },
@@ -870,8 +890,14 @@ export function TermsPage({ uiLanguage = "en", navigate }) {
     <PageShell eyebrow={t.termsEyebrow} title={t.termsTitle} subtitle={t.termsSubtitle}>
       <StaticLanguageSelect value={locale} onChange={setPageLanguage} uiLanguage={locale} />
       <BackToFaqButton navigate={navigate} uiLanguage={locale} />
-      <div className="space-y-6 rounded-3xl bg-white p-8 text-slate-600 shadow-md ring-1 ring-rose-100">
-        {(t.termsPoints || SUPPORT_STATIC_I18N.en.termsPoints).map((point) => (
+      <div className="space-y-8 rounded-3xl bg-white p-8 text-slate-600 shadow-md ring-1 ring-rose-100">
+        {(t.termsSections || SUPPORT_STATIC_I18N.en.termsSections) ? (t.termsSections || SUPPORT_STATIC_I18N.en.termsSections).map((section) => (
+          <div key={section.heading}>
+            <h3 className="mb-2 text-lg font-semibold text-slate-800">{section.heading}</h3>
+            {section.body ? <p className="leading-7">{section.body}</p> : null}
+            {section.points ? section.points.map((p) => <p key={p} className="ml-4 leading-7">{p}</p>) : null}
+          </div>
+        )) : (t.termsPoints || SUPPORT_STATIC_I18N.en.termsPoints).map((point) => (
           <p key={point}>{point}</p>
         ))}
       </div>
@@ -1064,7 +1090,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
   const text = helpText(locale);
   const allFaqs = Array.isArray(text.faqs) ? text.faqs : [];
   const barSignals = /(bar|bars|bar messages|bar dashboard|บาร์|ข้อความบาร์|แดชบอร์ดบาร์|ဘား|bar ကို|бар|бары|сообщения бара)/i;
-  const sellerSignals = /(seller|sellers|seller dashboard|seller feed|ผู้ขาย|แดชบอร์ดผู้ขาย|ရောင်းသူ|seller\s*dashboard|продав|панель продавца)/i;
+  const sellerSignals = /(seller|sellers|seller dashboard|stories|seller feed|ผู้ขาย|แดชบอร์ดผู้ขาย|ရောင်းသူ|seller\s*dashboard|продав|панель продавца)/i;
   const buyerPrioritySignals = /(independent seller|independent means|အလိုအလျောက် seller|seller ကိုယ်တိုင်|อิสระ|независим|real person|fake profile|\bai\b|คนจริง|โปรไฟล์ปลอม|ลวง|လူအစစ်|အတု profile|реальным человеком|фейковым профилем)/i;
   const buyerQuestionPrioritySignals = /(how quickly are orders shipped|จัดส่งเร็วแค่ไหน|ပို့ဆောင်ချိန်ဘယ်လောက်|как быстро отправляются заказы)/i;
   const classifyFaq = (faq) => {
@@ -1101,7 +1127,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
       "/refund-policy": "Open refund policy",
       "/appeals": "Open appeals page",
       "/custom-requests": "Open custom requests",
-      "/seller-feed": "Open seller feed",
+      "/stories": "Open Stories",
       "/seller-dashboard": "Open seller dashboard",
       "/account": "Open account",
       "/order-help": "Open order help",
@@ -1121,7 +1147,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
       "/refund-policy": "เปิดนโยบายการคืนเงิน",
       "/appeals": "เปิดหน้าศูนย์อุทธรณ์",
       "/custom-requests": "เปิดคำขอพิเศษ",
-      "/seller-feed": "เปิดฟีดผู้ขาย",
+      "/stories": "เปิด Stories",
       "/seller-dashboard": "เปิดแดชบอร์ดผู้ขาย",
       "/account": "เปิดบัญชี",
       "/order-help": "เปิดช่วยเหลือคำสั่งซื้อ",
@@ -1141,7 +1167,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
       "/refund-policy": "Refund policy ဖွင့်မည်",
       "/appeals": "Appeals page ဖွင့်မည်",
       "/custom-requests": "Custom requests ဖွင့်မည်",
-      "/seller-feed": "Seller feed ဖွင့်မည်",
+      "/stories": "Stories ဖွင့်မည်",
       "/seller-dashboard": "Seller dashboard ဖွင့်မည်",
       "/account": "Account ဖွင့်မည်",
       "/order-help": "Order help ဖွင့်မည်",
@@ -1161,7 +1187,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
       "/refund-policy": "Открыть политику возврата",
       "/appeals": "Открыть страницу апелляций",
       "/custom-requests": "Открыть индивидуальные запросы",
-      "/seller-feed": "Открыть ленту продавцов",
+      "/stories": "Открыть Stories",
       "/seller-dashboard": "Открыть панель продавца",
       "/account": "Открыть аккаунт",
       "/order-help": "Открыть помощь по заказу",
@@ -1193,7 +1219,7 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
     if (/(appeals|strike|frozen account|account frozen|อุทธรณ์|สไตรก์|ระงับบัญชี|အယူခံ|strike|frozen|апелляц|страйк|заморож)/i.test(raw)) add("/appeals");
     if (/(seller appeal|appeal.*seller|ผู้ขาย.*อุทธรณ์|seller.*အယူခံ|апелляц.*продав)/i.test(raw)) add("/seller-appeals");
     if (/(custom request|คำขอพิเศษ|စိတ်ကြိုက်|индивидуальн)/i.test(raw)) add("/custom-requests");
-    if (/(private.*post|unlock|following feed|save posts|like products|liked products|seller feed|โพสต์.*private|ปลดล็อก|фид продавцов|private-пост)/i.test(raw)) add("/seller-feed");
+    if (/(private.*post|unlock|following feed|save posts|like products|liked products|stories|seller feed|โพสต์.*private|ปลดล็อก|фид продавцов|private-пост)/i.test(raw)) add("/stories");
     if (/(bar.*save|bars?.*save|follow.*bar|follow.*seller|บาร์.*บันทึกโพสต์|บาร์.*ติดตาม|bar.*follow|бар.*подпис)/i.test(raw)) add("/bars");
     if (/(bar.*message|eligible contact|affiliate seller|bulk messaging|บาร์.*ข้อความ|ผู้ติดต่อที่มีสิทธิ์|bar.*message|бар.*сообщен|аффили)/i.test(raw)) add("/bar-messages");
     if (/(schedule posts|notifications|seller dashboard|แดชบอร์ดผู้ขาย|панель продавца)/i.test(raw)) add("/seller-dashboard");
@@ -1362,7 +1388,7 @@ const CUSTOM_REQUESTS_I18N = {
     needWalletSubmitPrefix: "You need at least",
     needWalletSubmitSuffix: "in your wallet to submit this request.",
     awaitingBuyerPayment: "awaiting buyer payment",
-    sellerFeed: "Seller feed",
+    sellerFeed: "Stories",
   },
   th: {
     eyebrow: "ตลาด",
@@ -1417,7 +1443,7 @@ const CUSTOM_REQUESTS_I18N = {
     needWalletSubmitPrefix: "คุณต้องมีอย่างน้อย",
     needWalletSubmitSuffix: "ในกระเป๋าเพื่อส่งคำขอนี้",
     awaitingBuyerPayment: "รอผู้ซื้อชำระเงิน",
-    sellerFeed: "ฟีดผู้ขาย",
+    sellerFeed: "Stories",
     profile: "โปรไฟล์",
     messages: "ข้อความ",
     customRequests: "คำขอพิเศษ",
@@ -1475,7 +1501,7 @@ const CUSTOM_REQUESTS_I18N = {
     needWalletSubmitPrefix: "ဒီ request ပို့ရန် wallet ထဲ အနည်းဆုံး",
     needWalletSubmitSuffix: "ရှိရန် လိုအပ်ပါသည်။",
     awaitingBuyerPayment: "ဝယ်သူ ငွေချေရန် စောင့်နေသည်",
-    sellerFeed: "seller feed",
+    sellerFeed: "Stories",
     profile: "ပရိုဖိုင်",
     messages: "မက်ဆေ့ချ်များ",
     customRequests: "custom request များ",
@@ -1533,7 +1559,7 @@ const CUSTOM_REQUESTS_I18N = {
     needWalletSubmitPrefix: "Для отправки запроса в кошельке должно быть минимум",
     needWalletSubmitSuffix: ".",
     awaitingBuyerPayment: "ожидание оплаты покупателем",
-    sellerFeed: "Лента продавцов",
+    sellerFeed: "Stories",
     profile: "Профиль",
     messages: "Сообщения",
     customRequests: "Индивидуальные запросы",
@@ -1653,10 +1679,10 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
           </button>
           <button
             type="button"
-            onClick={() => navigate?.("/seller-feed-workspace")}
+            onClick={() => navigate?.("/stories-workspace")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            {t.sellerFeed || "Seller feed"}
+            {t.sellerFeed || "Stories"}
           </button>
         </div>
       ) : isBuyerView ? (
@@ -1683,10 +1709,10 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
           </button>
           <button
             type="button"
-            onClick={() => navigate?.("/seller-feed")}
+            onClick={() => navigate?.("/stories")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            {t.sellerFeed || "Seller feed"}
+            {t.sellerFeed || "Stories"}
           </button>
         </div>
       ) : null}

@@ -254,10 +254,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "Messaging center",
     perMessage: "per message",
     messagingHelp: "Connect with sellers, ask questions, and continue conversations in one secure thread.",
-    sellerFeed: "Seller feed",
+    sellerFeed: "Stories",
     barProfile: "Bar profile",
-    barFeedTab: "Bar Feed",
-    watchFeeds: "Watch feeds",
+    barFeedTab: "Bar Stories",
+    watchFeeds: "Watch Stories",
     findSellers: "Find sellers",
     searchSellers: "Search sellers",
     noSellerSearchResults: "No sellers match your search.",
@@ -308,9 +308,9 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedSuffix: "to your wallet.",
     walletPresetHelp: "Minimum top-up is 500 baht.",
     favoritesHelp: "Favorite sellers for quick profile and messaging access.",
-    noFavorites: "No favorite sellers yet. Use Favorite in the quick finder or Follow in seller feed.",
-    favoriteBarsHelp: "Follow bars to keep their feed posts close and easy to find.",
-    noFavoriteBars: "No favorite bars yet. Use Follow bar on bar feed cards.",
+    noFavorites: "No favorite sellers yet. Use Favorite in the quick finder or Follow in stories.",
+    favoriteBarsHelp: "Follow bars to keep their stories posts close and easy to find.",
+    noFavoriteBars: "No favorite bars yet. Use Follow bar on bar stories cards.",
     watchedProductsHelp: "Like products you want to revisit later from listing and product pages.",
     noWatchedProducts: "No liked products yet. Tap Like on product cards.",
     locationNotSet: "Location not set",
@@ -404,10 +404,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "ศูนย์ข้อความ",
     perMessage: "ต่อข้อความ",
     messagingHelp: "เชื่อมต่อกับผู้ขาย ถามคำถาม และสนทนาต่อในเธรดเดียวอย่างปลอดภัย",
-    sellerFeed: "ฟีดผู้ขาย",
+    sellerFeed: "เรื่องราว",
     barProfile: "โปรไฟล์บาร์",
-    barFeedTab: "ฟีดบาร์",
-    watchFeeds: "ดูฟีด",
+    barFeedTab: "เรื่องราวบาร์",
+    watchFeeds: "ดูเรื่องราว",
     findSellers: "ค้นหาผู้ขาย",
     searchSellers: "ค้นหาผู้ขาย",
     noSellerSearchResults: "ไม่พบผู้ขายที่ตรงกับคำค้นหา",
@@ -452,7 +452,7 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedSuffix: "เข้าสู่กระเป๋าเงินของคุณแล้ว",
     walletPresetHelp: "ยอดเติมขั้นต่ำคือ 500 บาท",
     favoritesHelp: "บันทึกผู้ขายไว้เพื่อเข้าถึงโปรไฟล์และข้อความได้รวดเร็ว",
-    noFavorites: "ยังไม่มีผู้ขายที่ชื่นชอบ ใช้ Favorite ใน quick finder หรือ Follow ในฟีดผู้ขาย",
+    noFavorites: "ยังไม่มีผู้ขายที่ชื่นชอบ ใช้ Favorite ใน quick finder หรือ Follow ในเรื่องราว",
     watchedProductsHelp: "กดถูกใจสินค้าเพื่อกลับมาดูได้ภายหลังจากหน้ารายการหรือหน้าสินค้า",
     noWatchedProducts: "ยังไม่มีสินค้าที่ถูกใจ กด Like บนการ์ดสินค้าได้เลย",
     locationNotSet: "ยังไม่ได้ระบุที่อยู่",
@@ -542,10 +542,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "မက်ဆေ့ချ်စင်တာ",
     perMessage: "တစ်မက်ဆေ့ချ်လျှင်",
     messagingHelp: "seller များနှင့် ဆက်သွယ်ပြီး မေးခွန်းမေးကာ conversation ကို တစ်နေရာတည်းတွင် ဆက်လက်လုပ်ဆောင်နိုင်သည်။",
-    sellerFeed: "seller feed",
+    sellerFeed: "stories",
     barProfile: "bar ပရိုဖိုင်",
-    barFeedTab: "bar feed",
-    watchFeeds: "feed များကြည့်မည်",
+    barFeedTab: "bar stories",
+    watchFeeds: "stories များကြည့်မည်",
     findSellers: "seller ရှာရန်",
     searchSellers: "seller ရှာရန်",
     noSellerSearchResults: "ရှာဖွေမှုနှင့် ကိုက်ညီသော seller မရှိပါ။",
@@ -590,7 +590,7 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedSuffix: "သင့် wallet ထဲသို့ ရောက်ရှိပါပြီ။",
     walletPresetHelp: "အနည်းဆုံး top-up ပမာဏသည် 500 ဘတ် ဖြစ်သည်။",
     favoritesHelp: "profile နှင့် messaging ကို မြန်မြန်ဝင်ကြည့်ရန် seller များကို bookmark လုပ်ပါ။",
-    noFavorites: "အကြိုက်ဆုံး seller မရှိသေးပါ။ quick finder တွင် Favorite သို့မဟုတ် seller feed တွင် Follow ကို သုံးပါ။",
+    noFavorites: "အကြိုက်ဆုံး seller မရှိသေးပါ။ quick finder တွင် Favorite သို့မဟုတ် stories တွင် Follow ကို သုံးပါ။",
     watchedProductsHelp: "Listing နှင့် product စာမျက်နှာများမှ ပြန်ကြည့်ချင်သော product များကို Like လုပ်ထားနိုင်သည်။",
     noWatchedProducts: "Like လုပ်ထားသော product မရှိသေးပါ။ Product card များပေါ်ရှိ Like ကိုနှိပ်ပါ။",
     locationNotSet: "တည်နေရာ မသတ်မှတ်ရသေး",
@@ -680,10 +680,10 @@ const ACCOUNT_PAGE_I18N = {
     messagingCenter: "Центр сообщений",
     perMessage: "за сообщение",
     messagingHelp: "Связывайтесь с продавцами, задавайте вопросы и продолжайте диалоги в одном безопасном чате.",
-    sellerFeed: "Лента продавцов",
+    sellerFeed: "Истории",
     barProfile: "Профиль бара",
-    barFeedTab: "Лента бара",
-    watchFeeds: "Смотреть ленты",
+    barFeedTab: "Истории бара",
+    watchFeeds: "Смотреть истории",
     findSellers: "Найти продавцов",
     searchSellers: "Поиск продавцов",
     noSellerSearchResults: "По вашему запросу продавцы не найдены.",
@@ -728,7 +728,7 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedSuffix: "в ваш кошелек.",
     walletPresetHelp: "Минимальное пополнение — 500 бат.",
     favoritesHelp: "Добавляйте продавцов в закладки для быстрого доступа к профилю и сообщениям.",
-    noFavorites: "Пока нет избранных продавцов. Используйте Favorite в быстром поиске или Follow в ленте продавца.",
+    noFavorites: "Пока нет избранных продавцов. Используйте Favorite в быстром поиске или Follow в историях.",
     watchedProductsHelp: "Отмечайте товары Like, чтобы быстро возвращаться к ним со страниц каталога и товара.",
     noWatchedProducts: "Пока нет понравившихся товаров. Нажмите Like на карточке товара.",
     locationNotSet: "Локация не указана",
@@ -950,7 +950,7 @@ const ADMIN_TAB_CONFIG = [
   { key: "auth", label: "Seller Applications", description: "Approve/reject seller onboarding", icon: Lock },
   { key: "bars", label: "Bars", description: "Manage bars and seller affiliations", icon: MapPin },
   { key: "users", label: "Users and Appeals", description: "Search users, strikes, and appeals", icon: Users },
-  { key: "social", label: "Social Moderation", description: "Reports, comments, and feed safety", icon: Shield },
+  { key: "social", label: "Social Moderation", description: "Reports, comments, and stories safety", icon: Shield },
   { key: "products", label: "Product Catalog", description: "Browse seller listings and status", icon: Package },
   { key: "sales", label: "Sales Performance", description: "Revenue and seller leaderboard", icon: ShoppingBag },
   { key: "email_inbox", label: "Email Inbox", description: "Manage shared support and admin mailbox threads", icon: MessageSquare },
@@ -1353,14 +1353,14 @@ const SELLER_I18N = {
     selectConversation: "Select a conversation to reply.",
     replyPlaceholder: "Reply to buyer",
     reply: "Reply",
-    createFeedPost: "Create post",
-    createFeedPostHelp: "Share an update on your public seller feed so buyers can get to know your brand.",
+    createFeedPost: "Create stories post",
+    createFeedPostHelp: "Share an update on your public stories so buyers can get to know your brand.",
     captionPlaceholder: "Write a caption about your day, mood, or style...",
     postImagePreview: "Post image preview",
     posting: "Posting...",
-    postToFeed: "Post",
-    yourFeedPosts: "Your posts",
-    noPosts: "You have not posted yet. Create your first feed post above.",
+    postToFeed: "Post to Stories",
+    yourFeedPosts: "Your Stories posts",
+    noPosts: "You have not posted yet. Create your first stories post above.",
     noCaption: "No caption added.",
     noImage: "No image",
     notifications: "Notifications",
@@ -1375,11 +1375,11 @@ const SELLER_I18N = {
     viewListing: "View listing",
     delete: "Delete",
     deleting: "Deleting...",
-    feedEyebrow: "Seller feed",
-    feedTitle: "See what your favorite seller is up to",
-    feedSubtitle: "Browse seller posts, behind-the-scenes photos, and day-to-day updates.",
-    noFeedPosts: "No feed posts yet. Check back soon for new updates.",
-    feedImage: "Feed image",
+    feedEyebrow: "Stories",
+    feedTitle: "Stories",
+    feedSubtitle: "Browse seller stories, behind-the-scenes photos, and day-to-day updates.",
+    noFeedPosts: "No stories yet. Check back soon for new updates.",
+    feedImage: "Stories image",
     specialty: "Specialty",
     whatBuyersWillSee: "What buyers will see (profile card)",
     whatBuyersWillSeeShort: "What buyers will see",
@@ -1406,7 +1406,7 @@ const SELLER_I18N = {
   deleteComment: "Delete",
   noFollowingPosts: "No posts from followed sellers yet.",
   noAffiliatesPosts: "No posts from your affiliated sellers yet.",
-  noBarsPosts: "No bar feed posts yet.",
+  noBarsPosts: "No bar stories yet.",
   noFavoriteBarsPosts: "No posts from your favorite bars yet.",
   noSavedPosts: "No saved posts yet.",
   noCommentsYet: "No comments yet.",
@@ -1414,12 +1414,12 @@ const SELLER_I18N = {
   newest: "Newest",
   mostEngaged: "Most engaged",
   followers: "followers",
-  searchFeedPlaceholder: "Search seller or caption",
+  searchFeedPlaceholder: "Search stories",
   clearSearch: "Clear",
   noSearchResults: "No posts match your search.",
-  watchFeeds: "Watch feeds",
+  watchFeeds: "Watch Stories",
   barProfile: "Bar profile",
-  barFeedTab: "Bar Feed",
+  barFeedTab: "Bar Stories",
     reportCount: "report(s)",
     reasonInappropriate: "Inappropriate content",
     reasonHarassment: "Harassment or abuse",
@@ -1505,7 +1505,7 @@ const SELLER_I18N = {
     sellerPresence: "Seller presence",
     online: "Online",
     offline: "Offline",
-    feedVisibilityMode: "Feed visibility mode",
+    feedVisibilityMode: "Stories visibility mode",
     publicAllPosts: "Public all posts",
     privateAllPosts: "Private all posts",
     chooseEachPost: "Choose each post",
@@ -1519,7 +1519,7 @@ const SELLER_I18N = {
     scheduleOptional: "Schedule (optional)",
     futureTimeOnly: "Future time only. Leave blank to publish now.",
     postVisibility: "Post visibility",
-    controlledByFeedMode: "Controlled by feed mode",
+    controlledByFeedMode: "Controlled by stories mode",
     privateUnlockPrice: "Private unlock price (THB)",
     lockedPosts: "Locked posts",
     paidUnlocks: "Paid unlocks",
@@ -1646,24 +1646,24 @@ const SELLER_I18N = {
     imagePreview: "ตัวอย่างรูปภาพ", createDraft: "สร้างรายการแบบร่าง", inbox: "กล่องข้อความผู้ขาย",
     liveUpdates: "อัปเดตสด", conversations: "บทสนทนา", noMessages: "ยังไม่มีข้อความ",
     customerConversation: "บทสนทนาลูกค้า", chattingWith: "กำลังแชทกับ", unknownBuyer: "ผู้ซื้อที่ไม่ทราบชื่อ", selectConversation: "เลือกบทสนทนาเพื่อตอบกลับ",
-    replyPlaceholder: "ตอบกลับผู้ซื้อ", reply: "ตอบกลับ", createFeedPost: "สร้างโพสต์",
-    createFeedPostHelp: "แชร์โพสต์ไลฟ์สไตล์ในฟีดสาธารณะของคุณเพื่อให้ผู้ซื้อรู้จักแบรนด์มากขึ้น",
+    replyPlaceholder: "ตอบกลับผู้ซื้อ", reply: "ตอบกลับ", createFeedPost: "สร้างโพสต์เรื่องราว",
+    createFeedPostHelp: "แชร์โพสต์ไลฟ์สไตล์ในเรื่องราวสาธารณะของคุณเพื่อให้ผู้ซื้อรู้จักแบรนด์มากขึ้น",
     captionPlaceholder: "เขียนแคปชันเกี่ยวกับวันของคุณ อารมณ์ หรือสไตล์...",
-    postImagePreview: "ตัวอย่างรูปโพสต์", posting: "กำลังโพสต์...", postToFeed: "โพสต์",
-    yourFeedPosts: "โพสต์ของคุณ", noPosts: "คุณยังไม่มีโพสต์ สร้างโพสต์แรกด้านบนได้เลย",
+    postImagePreview: "ตัวอย่างรูปโพสต์", posting: "กำลังโพสต์...", postToFeed: "โพสต์ไปยังเรื่องราว",
+    yourFeedPosts: "โพสต์เรื่องราวของคุณ", noPosts: "คุณยังไม่มีโพสต์ สร้างโพสต์แรกด้านบนได้เลย",
     noCaption: "ไม่มีแคปชัน", noImage: "ไม่มีรูปภาพ", notifications: "การแจ้งเตือน",
     markAllRead: "อ่านทั้งหมด", noNotifications: "ไม่มีการแจ้งเตือน", listingLibrary: "คลังรายการสินค้า",
     items: "รายการ", noAsset: "ไม่มีไฟล์", worn: "สวมใส่", notSpecified: "ไม่ระบุ",
     publish: "เผยแพร่", viewListing: "ดูรายการ", delete: "ลบ", deleting: "กำลังลบ...",
-    feedEyebrow: "ฟีดผู้ขาย", feedTitle: "ดูว่า ผู้ขายคนโปรดของคุณกำลังทำอะไรอยู่",
+    feedEyebrow: "เรื่องราว", feedTitle: "เรื่องราว",
     feedSubtitle: "ดูโพสต์ไลฟ์สไตล์ เบื้องหลัง และอัปเดตประจำวันจากผู้ขาย",
-    noFeedPosts: "ยังไม่มีโพสต์ฟีด กลับมาตรวจสอบอีกครั้งเร็วๆ นี้",
-    feedImage: "รูปฟีด", specialty: "ความถนัด", whatBuyersWillSee: "สิ่งที่ผู้ซื้อจะเห็น (การ์ดโปรไฟล์)", whatBuyersWillSeeShort: "สิ่งที่ผู้ซื้อจะเห็น", removeImage: "ลบรูปภาพ", reportCount: "รายงาน",
+    noFeedPosts: "ยังไม่มีเรื่องราว กลับมาตรวจสอบอีกครั้งเร็วๆ นี้",
+    feedImage: "รูปเรื่องราว", specialty: "ความถนัด", whatBuyersWillSee: "สิ่งที่ผู้ซื้อจะเห็น (การ์ดโปรไฟล์)", whatBuyersWillSeeShort: "สิ่งที่ผู้ซื้อจะเห็น", removeImage: "ลบรูปภาพ", reportCount: "รายงาน",
     reasonInappropriate: "เนื้อหาไม่เหมาะสม", reasonHarassment: "คุกคามหรือกลั่นแกล้ง",
     reasonSpam: "สแปม", reasonImpersonation: "แอบอ้างตัวตน", reasonOther: "อื่นๆ",
     customReason: "เหตุผลเพิ่มเติม", report: "รายงาน", reporting: "กำลังรายงาน...", loadMorePosts: "โหลดโพสต์เพิ่มเติม",
     quickProfile: "โปรไฟล์", quickNewListing: "ลงสินค้าใหม่", quickInbox: "กล่องข้อความ", messagesTab: "ข้อความ", customRequestsTab: "คำขอพิเศษ", unreadChatsCount: "แชทยังไม่อ่าน", openRequestsCount: "คำขอที่เปิดอยู่", quickNewPost: "โพสต์ใหม่", quickListings: "รายการสินค้า",
-    watchFeeds: "ดูฟีด", barProfile: "โปรไฟล์บาร์", barFeedTab: "ฟีดบาร์",
+    watchFeeds: "ดูเรื่องราว", barProfile: "โปรไฟล์บาร์", barFeedTab: "เรื่องราวบาร์",
     showTranslation: "แสดงคำแปล", showOriginal: "แสดงต้นฉบับ",
     addWalletReplyPrefix: "เติมอย่างน้อย", addWalletReplySuffix: "ลงในกระเป๋าเพื่อส่งข้อความตอบกลับ",
     languages: "ภาษา",
@@ -1728,7 +1728,7 @@ const SELLER_I18N = {
     sellerPresence: "สถานะผู้ขาย",
     online: "ออนไลน์",
     offline: "ออฟไลน์",
-    feedVisibilityMode: "โหมดการมองเห็นฟีด",
+    feedVisibilityMode: "โหมดการมองเห็นเรื่องราว",
     publicAllPosts: "โพสต์สาธารณะทั้งหมด",
     privateAllPosts: "โพสต์ส่วนตัวทั้งหมด",
     chooseEachPost: "เลือกทีละโพสต์",
@@ -1742,7 +1742,7 @@ const SELLER_I18N = {
     scheduleOptional: "ตั้งเวลา (ไม่บังคับ)",
     futureTimeOnly: "ตั้งเวลาในอนาคตเท่านั้น เว้นว่างเพื่อโพสต์ตอนนี้",
     postVisibility: "การมองเห็นโพสต์",
-    controlledByFeedMode: "ควบคุมโดยโหมดฟีด",
+    controlledByFeedMode: "ควบคุมโดยโหมดเรื่องราว",
     privateUnlockPrice: "ราคาปลดล็อกโพสต์ส่วนตัว (THB)",
     lockedPosts: "โพสต์ล็อก",
     paidUnlocks: "การปลดล็อกแบบชำระเงิน",
@@ -1868,24 +1868,24 @@ const SELLER_I18N = {
     imagePreview: "ပုံကြိုတင်ကြည့်ရှုမှု", createDraft: "မူကြမ်းစာရင်း ဖန်တီးမည်", inbox: "ရောင်းသူ စာဝင်ပုံး",
     liveUpdates: "တိုက်ရိုက်အပ်ဒိတ်", conversations: "စကားဝိုင်း", noMessages: "မက်ဆေ့ချ် မရှိသေးပါ",
     customerConversation: "ဝယ်သူနှင့် စကားဝိုင်း", chattingWith: "စကားပြောနေသူ", unknownBuyer: "ဝယ်သူအမည်မသိ", selectConversation: "ပြန်ရန် စကားဝိုင်းတစ်ခု ရွေးပါ",
-    replyPlaceholder: "ဝယ်သူသို့ ပြန်စာရေးရန်", reply: "ပြန်ပို့မည်", createFeedPost: "Post ဖန်တီးမည်",
-    createFeedPostHelp: "သင့် public seller feed တွင် update မျှဝေပြီး ဝယ်သူများကို မိတ်ဆက်ပါ",
+    replyPlaceholder: "ဝယ်သူသို့ ပြန်စာရေးရန်", reply: "ပြန်ပို့မည်", createFeedPost: "stories post ဖန်တီးမည်",
+    createFeedPostHelp: "သင့် public stories တွင် update မျှဝေပြီး ဝယ်သူများကို မိတ်ဆက်ပါ",
     captionPlaceholder: "သင့်နေ့စဉ်အကြောင်း၊ စိတ်နေစိတ်ထား သို့မဟုတ် စတိုင်ကို ရေးပါ...",
-    postImagePreview: "post ပုံကြိုတင်ကြည့်ရှုမှု", posting: "တင်နေသည်...", postToFeed: "တင်မည်",
-    yourFeedPosts: "သင့် post များ", noPosts: "post မရှိသေးပါ။ အပေါ်တွင် ပထမဆုံး post တင်ပါ",
+    postImagePreview: "post ပုံကြိုတင်ကြည့်ရှုမှု", posting: "တင်နေသည်...", postToFeed: "stories သို့တင်မည်",
+    yourFeedPosts: "သင့် stories post များ", noPosts: "post မရှိသေးပါ။ အပေါ်တွင် ပထမဆုံး post တင်ပါ",
     noCaption: "စာတန်းမရှိ", noImage: "ပုံမရှိ", notifications: "အသိပေးချက်များ",
     markAllRead: "အားလုံးကို ဖတ်ပြီးအဖြစ် မှတ်ရန်", noNotifications: "အသိပေးချက်မရှိပါ",
     listingLibrary: "စာရင်းစာအုပ်", items: "ခု", noAsset: "ဖိုင်မရှိ", worn: "ဝတ်ထားသည့်ကာလ",
     notSpecified: "မသတ်မှတ်ထား", publish: "တင်မည်", viewListing: "စာရင်းကြည့်မည်", delete: "ဖျက်မည်", deleting: "ဖျက်နေသည်...",
-    feedEyebrow: "seller feed", feedTitle: "သင်နှစ်သက်သော seller ဘာလုပ်နေလဲ ကြည့်ပါ",
+    feedEyebrow: "stories", feedTitle: "stories",
     feedSubtitle: "seller post များ၊ နောက်ကွယ်ပုံများနှင့် နေ့စဉ် update များကို ကြည့်ရှုပါ",
-    noFeedPosts: "feed post မရှိသေးပါ။ နောက်ပိုင်းတွင် ပြန်စစ်ပါ",
-    feedImage: "feed ပုံ", specialty: "အထူးပြုအမျိုးအစား", whatBuyersWillSee: "ဝယ်သူမြင်ရမည့်အရာ (ပရိုဖိုင်ကတ်)", whatBuyersWillSeeShort: "ဝယ်သူမြင်ရမည့်အရာ", removeImage: "ပုံဖယ်ရှားမည်", reportCount: "report",
+    noFeedPosts: "stories မရှိသေးပါ။ နောက်ပိုင်းတွင် ပြန်စစ်ပါ",
+    feedImage: "stories ပုံ", specialty: "အထူးပြုအမျိုးအစား", whatBuyersWillSee: "ဝယ်သူမြင်ရမည့်အရာ (ပရိုဖိုင်ကတ်)", whatBuyersWillSeeShort: "ဝယ်သူမြင်ရမည့်အရာ", removeImage: "ပုံဖယ်ရှားမည်", reportCount: "report",
     reasonInappropriate: "မသင့်လျော်သော အကြောင်းအရာ", reasonHarassment: "အနှောင့်အယှက် သို့မဟုတ် အနိုင်ကျင့်မှု",
     reasonSpam: "spam", reasonImpersonation: "အယောင်ဆောင်မှု", reasonOther: "အခြား",
     customReason: "စိတ်ကြိုက် အကြောင်းပြချက်", report: "report", reporting: "report လုပ်နေသည်...", loadMorePosts: "post များထပ်ဖွင့်မည်",
     quickProfile: "ပရိုဖိုင်", quickNewListing: "စာရင်းသစ်", quickInbox: "စာဝင်ပုံး", messagesTab: "မက်ဆေ့ချ်များ", customRequestsTab: "စိတ်ကြိုက်တောင်းဆိုချက်များ", unreadChatsCount: "မဖတ်ရသေးသော chat", openRequestsCount: "ဖွင့်ထားသော request များ", quickNewPost: "post အသစ်", quickListings: "စာရင်းများ",
-    watchFeeds: "feed များကြည့်မည်", barProfile: "bar ပရိုဖိုင်", barFeedTab: "bar feed",
+    watchFeeds: "stories များကြည့်မည်", barProfile: "bar ပရိုဖိုင်", barFeedTab: "bar stories",
     showTranslation: "ဘာသာပြန်ကိုပြရန်", showOriginal: "မူရင်းကိုပြရန်",
     addWalletReplyPrefix: "အနည်းဆုံး", addWalletReplySuffix: "ကို wallet ထဲ ထည့်ပြီးမှ reply ပို့နိုင်ပါမည်။",
     languages: "ဘာသာစကားများ",
@@ -1950,7 +1950,7 @@ const SELLER_I18N = {
     sellerPresence: "seller အခြေအနေ",
     online: "အွန်လိုင်း",
     offline: "အော့ဖ်လိုင်း",
-    feedVisibilityMode: "feed မြင်နိုင်မှုမုဒ်",
+    feedVisibilityMode: "stories မြင်နိုင်မှုမုဒ်",
     publicAllPosts: "post အားလုံး public",
     privateAllPosts: "post အားလုံး private",
     chooseEachPost: "post တစ်ခုချင်းရွေးမည်",
@@ -1964,7 +1964,7 @@ const SELLER_I18N = {
     scheduleOptional: "အချိန်ဇယား (ရွေးချယ်နိုင်)",
     futureTimeOnly: "အနာဂတ်အချိန်ကိုသာ ရွေးပါ။ ယခုပဲတင်လိုပါက ကွက်လပ်ထားပါ",
     postVisibility: "post မြင်နိုင်မှု",
-    controlledByFeedMode: "feed mode ဖြင့် ထိန်းချုပ်သည်",
+    controlledByFeedMode: "stories mode ဖြင့် ထိန်းချုပ်သည်",
     privateUnlockPrice: "private unlock စျေး (THB)",
     lockedPosts: "locked post များ",
     paidUnlocks: "ငွေပေး unlock များ",
@@ -2090,24 +2090,24 @@ const SELLER_I18N = {
     imagePreview: "Предпросмотр изображения", createDraft: "Создать черновик", inbox: "Входящие продавца",
     liveUpdates: "Онлайн-обновления", conversations: "диалог(ов)", noMessages: "Сообщений пока нет.",
     customerConversation: "Диалог с покупателем", chattingWith: "Чат с", unknownBuyer: "Неизвестный покупатель", selectConversation: "Выберите диалог для ответа",
-    replyPlaceholder: "Ответ покупателю", reply: "Ответить", createFeedPost: "Создать пост",
-    createFeedPostHelp: "Публикуйте обновления в ленте продавца, чтобы покупатели узнавали ваш бренд.",
+    replyPlaceholder: "Ответ покупателю", reply: "Ответить", createFeedPost: "Создать пост в истории",
+    createFeedPostHelp: "Публикуйте обновления в историях, чтобы покупатели узнавали ваш бренд.",
     captionPlaceholder: "Напишите подпись к посту...",
-    postImagePreview: "Предпросмотр поста", posting: "Публикация...", postToFeed: "Опубликовать",
-    yourFeedPosts: "Ваши посты", noPosts: "Постов пока нет. Создайте первый пост выше.",
+    postImagePreview: "Предпросмотр поста", posting: "Публикация...", postToFeed: "Опубликовать в истории",
+    yourFeedPosts: "Ваши посты в историях", noPosts: "Постов пока нет. Создайте первый пост выше.",
     noCaption: "Подпись не добавлена.", noImage: "Нет изображения", notifications: "Уведомления",
     markAllRead: "Отметить все прочитанным", noNotifications: "Нет уведомлений.",
     listingLibrary: "Библиотека объявлений", items: "шт.", noAsset: "Нет файла", worn: "Ношение",
     notSpecified: "Не указано", publish: "Опубликовать", viewListing: "Открыть объявление", delete: "Удалить", deleting: "Удаление...",
-    feedEyebrow: "Лента продавцов", feedTitle: "Смотрите, чем сейчас занимается ваш любимый продавец",
+    feedEyebrow: "Истории", feedTitle: "Истории",
     feedSubtitle: "Смотрите посты продавцов, закулисные фото и ежедневные обновления.",
-    noFeedPosts: "Постов в ленте пока нет. Загляните позже.",
-    feedImage: "Фото ленты", specialty: "Специализация", whatBuyersWillSee: "Что увидят покупатели (карточка профиля)", whatBuyersWillSeeShort: "Что увидят покупатели", removeImage: "Удалить изображение", reportCount: "жалоб(ы)",
+    noFeedPosts: "Историй пока нет. Загляните позже.",
+    feedImage: "Фото истории", specialty: "Специализация", whatBuyersWillSee: "Что увидят покупатели (карточка профиля)", whatBuyersWillSeeShort: "Что увидят покупатели", removeImage: "Удалить изображение", reportCount: "жалоб(ы)",
     reasonInappropriate: "Неприемлемый контент", reasonHarassment: "Оскорбления или травля",
     reasonSpam: "Спам", reasonImpersonation: "Выдача себя за другого", reasonOther: "Другое",
     customReason: "Своя причина", report: "Пожаловаться", reporting: "Отправка...", loadMorePosts: "Загрузить еще",
     quickProfile: "Профиль", quickNewListing: "Новое объявление", quickInbox: "Входящие", messagesTab: "Сообщения", customRequestsTab: "Индивидуальные запросы", unreadChatsCount: "Непрочитанные чаты", openRequestsCount: "Открытые запросы", quickNewPost: "Новый пост", quickListings: "Объявления",
-    watchFeeds: "Смотреть ленты", barProfile: "Профиль бара", barFeedTab: "Лента бара",
+    watchFeeds: "Смотреть истории", barProfile: "Профиль бара", barFeedTab: "Истории бара",
     showTranslation: "Показать перевод", showOriginal: "Показать оригинал",
     addWalletReplyPrefix: "Добавьте минимум", addWalletReplySuffix: "в кошелек, чтобы ответить.",
     languages: "Языки",
@@ -2172,7 +2172,7 @@ const SELLER_I18N = {
     sellerPresence: "Статус продавца",
     online: "Онлайн",
     offline: "Оффлайн",
-    feedVisibilityMode: "Режим видимости ленты",
+    feedVisibilityMode: "Режим видимости историй",
     publicAllPosts: "Все посты публичные",
     privateAllPosts: "Все посты приватные",
     chooseEachPost: "Выбирать для каждого поста",
@@ -2186,7 +2186,7 @@ const SELLER_I18N = {
     scheduleOptional: "Расписание (необязательно)",
     futureTimeOnly: "Только будущее время. Оставьте пустым, чтобы опубликовать сейчас.",
     postVisibility: "Видимость поста",
-    controlledByFeedMode: "Управляется режимом ленты",
+    controlledByFeedMode: "Управляется режимом историй",
     privateUnlockPrice: "Цена разблокировки приватного поста (THB)",
     lockedPosts: "Закрытые посты",
     paidUnlocks: "Платные разблокировки",
@@ -2877,7 +2877,7 @@ export function SellerDashboardPage({
             </button>
             <button
               type="button"
-              onClick={() => navigate("/seller-feed-workspace")}
+              onClick={() => navigate("/stories-workspace")}
               className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
             >
               {t("feedEyebrow")}
@@ -2896,7 +2896,7 @@ export function SellerDashboardPage({
               <button onClick={() => navigate("/seller-upload")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
               <button onClick={() => navigate("/seller-messages")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
               <button onClick={() => navigate("/custom-requests")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}</button>
-              <button onClick={() => navigate("/seller-feed-workspace")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
+              <button onClick={() => navigate("/stories-workspace")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
               <button onClick={() => scrollToSection("seller-listings")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickListings")}</button>
             </div>
           </div>
@@ -3904,7 +3904,7 @@ export function SellerUploadPage({
             <button type="button" onClick={() => navigate("/seller-dashboard")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("profile")}</button>
             <button type="button" onClick={() => navigate("/seller-messages")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("messages")}</button>
             <button type="button" onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("customRequestsTab")}</button>
-            <button type="button" onClick={() => navigate("/seller-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("sellerFeed")}</button>
+            <button type="button" onClick={() => navigate("/stories-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">{t("sellerFeed")}</button>
             <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">{t("mediaUpload")}</button>
           </div>
           <div className="grid gap-4 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
@@ -4047,7 +4047,7 @@ export function SellerUploadPage({
   );
 }
 
-export function SellerFeedWorkspacePage({
+export function StoriesWorkspacePage({
   isSeller,
   isPendingSeller,
   isRejectedSeller,
@@ -4165,11 +4165,11 @@ export function SellerFeedWorkspacePage({
                   <div className="space-y-3">
                     <div>
                       <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} contain mediaType={sellerPostDraft.mediaType} /></div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Stories image"} contain mediaType={sellerPostDraft.mediaType} /></div>
                     </div>
                     <div>
                       <div className="mb-1 text-[11px] font-medium text-slate-500">{t("whatBuyersWillSeeShort")}</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Feed image"} top mediaType={sellerPostDraft.mediaType} /></div>
+                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Stories image"} top mediaType={sellerPostDraft.mediaType} /></div>
                     </div>
                   </div>
                 ) : (
@@ -4356,7 +4356,7 @@ export function SellerFeedWorkspacePage({
                       ) : null}
                     </div>
                     <div className="mt-2 text-sm text-slate-700">{post.caption || t("noCaption")}</div>
-                    <div className="mt-3 aspect-[4/5] max-w-xs">{post.image ? <ProductImage src={post.image} label={post.imageName || "Feed image"} top mediaType={post.mediaType} /> : <ProductImage label={t("noImage")} />}</div>
+                    <div className="mt-3 aspect-[4/5] max-w-xs">{post.image ? <ProductImage src={post.image} label={post.imageName || "Stories image"} top mediaType={post.mediaType} /> : <ProductImage label={t("noImage")} />}</div>
                   </div>
                 ))}
               </div>
@@ -4507,7 +4507,7 @@ export function SellerMessagesPage({
         <button onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           {t("customRequestsTab")}
         </button>
-        <button onClick={() => navigate("/seller-feed-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+        <button onClick={() => navigate("/stories-workspace")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           {t("feedEyebrow")}
         </button>
       </div>
@@ -4733,7 +4733,7 @@ export function BarMessagesPage({
           <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
             {tx("messages")}
           </button>
-          <button type="button" onClick={() => navigate("/seller-feed")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          <button type="button" onClick={() => navigate("/stories")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
             {tx("watchFeeds")}
           </button>
         </div>
@@ -4745,7 +4745,7 @@ export function BarMessagesPage({
           <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
             Bar messages
           </button>
-          <button type="button" onClick={() => navigate("/seller-feed")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+          <button type="button" onClick={() => navigate("/stories")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
             Watch Feeds
           </button>
         </div>
@@ -4917,7 +4917,7 @@ export function BarMessagesPage({
   );
 }
 
-export function SellerFeedPage({
+export function StoriesPage({
   sellerPosts,
   barPosts,
   sellers,
@@ -11086,7 +11086,7 @@ export function AdminPage({
                   <div>/seller/:id</div>
                   <div>/bar/:id</div>
                   <div>/bars</div>
-                  <div>/seller-feed</div>
+                  <div>/stories</div>
                   <div>/seller-portfolios</div>
                   <div>/checkout</div>
                   <div>/checkout/success</div>
@@ -12534,7 +12534,7 @@ export function AccountPage({
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/seller-feed")}
+                onClick={() => navigate("/stories")}
                 className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto"
               >
                 {tx("sellerFeed")}
@@ -13263,7 +13263,7 @@ export function AccountPage({
                           </div>
                           <div className="mt-3 flex flex-wrap gap-2">
                             <button onClick={() => navigate(`/bar/${bar.id}`)} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">{tx("view")}</button>
-                            <button onClick={() => navigate("/seller-feed")} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">Open feed</button>
+                            <button onClick={() => navigate("/stories")} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">Open Stories</button>
                             <button
                               onClick={() => toggleBarFollow(bar.id)}
                               className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
@@ -13882,7 +13882,7 @@ export function BuyerMessagesPage({
         <button type="button" onClick={() => navigate("/custom-requests")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           {tx("customRequests")}
         </button>
-        <button type="button" onClick={() => navigate("/seller-feed")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
+        <button type="button" onClick={() => navigate("/stories")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           {tx("sellerFeed")}
         </button>
       </div>
