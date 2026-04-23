@@ -1625,6 +1625,8 @@ const REGISTER_I18N = {
     successPopupContinue: 'Continue',
     successPopupSaveCredentialsSignedIn: "You're signed in. Save these credentials somewhere safe if you need them on another device.",
     successPopupGoToLogin: 'Go to login',
+    successPopupVerifyEmail: 'We sent a verification email to your address. Please check your inbox (and spam folder) and click the link to verify before logging in.',
+    successPopupGoToLoginVerified: "I've verified — go to login",
     thaiBraSizes: 'Thai sizes (cm)',
     usBraSizes: 'US sizes',
     pantySizeHint: 'Thai panty sizes run one size larger than US/European. If you are M in Thailand, select S here.',
@@ -1724,6 +1726,8 @@ const REGISTER_I18N = {
     successPopupContinue: 'ดำเนินการต่อ',
     successPopupSaveCredentialsSignedIn: 'คุณเข้าสู่ระบบแล้ว บันทึกข้อมูลเหล่านี้ไว้ในที่ปลอดภัยหากต้องใช้บนอุปกรณ์อื่น',
     successPopupGoToLogin: 'ไปหน้าเข้าสู่ระบบ',
+    successPopupVerifyEmail: 'เราส่งอีเมลยืนยันไปยังที่อยู่ของคุณแล้ว กรุณาตรวจสอบกล่องจดหมาย (และโฟลเดอร์สแปม) แล้วคลิกลิงก์เพื่อยืนยันก่อนเข้าสู่ระบบ',
+    successPopupGoToLoginVerified: 'ยืนยันแล้ว — ไปหน้าเข้าสู่ระบบ',
     thaiBraSizes: 'ขนาดไทย (ซม.)',
     usBraSizes: 'ขนาด US',
     pantySizeHint: 'ไซส์กางเกงในไทยใหญ่กว่า US/ยุโรป 1 ไซส์ ถ้าคุณใส่ M ในไทย ให้เลือก S ที่นี่',
@@ -1823,6 +1827,8 @@ const REGISTER_I18N = {
     successPopupContinue: 'ဆက်လုပ်ရန်',
     successPopupSaveCredentialsSignedIn: 'သင်ဝင်ပြီးပါပြီ။ အခြားစက်တွင် လိုအပ်ပါက ဤအချက်အလက်များကို လုံခြုံစွာ သိမ်းဆည်းပါ',
     successPopupGoToLogin: 'ဝင်ရောက်ရန် သွားမည်',
+    successPopupVerifyEmail: 'သင့်အီးမေးလ်သို့ အတည်ပြုလင့်ခ် ပို့ပြီးပါပြီ။ inbox (နှင့် spam folder) စစ်ဆေးပြီး ဝင်ရောက်ခြင်းမပြုမီ လင့်ခ်ကို နှိပ်၍ အတည်ပြုပါ',
+    successPopupGoToLoginVerified: 'အတည်ပြုပြီး — ဝင်ရောက်ရန်',
     thaiBraSizes: 'ထိုင်းဆိုက် (cm)',
     usBraSizes: 'US ဆိုက်',
     pantySizeHint: 'ထိုင်းပန်တီဆိုက်သည် US/ဥရောပထက် တစ်ဆိုက် ပိုကြီးပါသည်။ ထိုင်းတွင် M ဝတ်ပါက ဤနေရာတွင် S ရွေးပါ',
@@ -1922,6 +1928,8 @@ const REGISTER_I18N = {
     successPopupContinue: 'Продолжить',
     successPopupSaveCredentialsSignedIn: 'Вы уже вошли. Сохраните эти данные в надёжном месте, если понадобятся на другом устройстве.',
     successPopupGoToLogin: 'Перейти к входу',
+    successPopupVerifyEmail: 'Мы отправили письмо с подтверждением на ваш адрес. Проверьте входящие (и папку «Спам») и перейдите по ссылке для подтверждения перед входом.',
+    successPopupGoToLoginVerified: 'Я подтвердил — войти',
     thaiBraSizes: 'Тайские размеры (см)',
     usBraSizes: 'Размеры US',
     pantySizeHint: 'Тайские размеры трусиков на размер больше, чем US/европейские. Если вы носите M в Таиланде, выберите S здесь.',
@@ -8372,6 +8380,9 @@ export default function ThailandPantiesMarketSite() {
         }
       }
       setSession({ userId: user.id });
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('tlm-session', JSON.stringify({ userId: user.id }));
+      }
       setAuthError('');
       setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
       setCheckoutAuthModalOpen(false);
@@ -8442,6 +8453,9 @@ export default function ThailandPantiesMarketSite() {
         }
         setBackendStatus('connected');
         setApiAuthToken(token);
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem('tlm-api-token', JSON.stringify(token));
+        }
         const normalizedAuthUser = normalizeAuthUserRole(authUser);
         setDb((prev) => {
           const existingUsers = Array.isArray(prev.users) ? prev.users : [];
@@ -19953,6 +19967,12 @@ export default function ThailandPantiesMarketSite() {
                     {registerText.successPopupCopyBoth || 'Copy email & password'}
                   </button>
                 </div>
+                {registrationSuccessPopup.role !== 'seller' && registrationSuccessPopup.role !== 'bar' && (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <span className="mr-1.5 inline-block text-base">✉️</span>
+                    {registerText.successPopupVerifyEmail || 'We sent a verification email to your address. Please check your inbox (and spam folder) and click the link to verify before logging in.'}
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -19974,7 +19994,7 @@ export default function ThailandPantiesMarketSite() {
                 >
                   {(registrationSuccessPopup.role === 'seller' || registrationSuccessPopup.role === 'bar')
                     ? (registerText.successPopupContinue || 'Continue')
-                    : (registerText.successPopupGoToLogin || 'Go to login')}
+                    : (registerText.successPopupGoToLoginVerified || registerText.successPopupGoToLogin || "I've verified — go to login")}
                 </button>
               </div>
             ) : (
