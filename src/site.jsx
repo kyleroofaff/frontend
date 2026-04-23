@@ -1958,7 +1958,7 @@ const FOOTER_I18N = {
   en: {
     brandTitle: 'Thailand Panties',
     description: 'A trusted marketplace for premium used underwear from Thailand, with discreet checkout, secure messaging, and tools designed for professional private shopping.',
-    copyright: '© 2026 Thailand Panties. All rights reserved.',
+    copyright: '© 2026 Thailand Panties, operated by Siam Second Story. All rights reserved.',
     groups: [
       {
         title: 'Marketplace',
@@ -2006,7 +2006,7 @@ const FOOTER_I18N = {
   th: {
     brandTitle: 'Thailand Panties',
     description: 'ตลาดที่เชื่อถือได้สำหรับชุดชั้นในมือสองพรีเมียมจากประเทศไทย พร้อมการชำระเงินแบบเป็นส่วนตัว ข้อความที่ปลอดภัย และเครื่องมือสำหรับการช้อปส่วนตัวอย่างมืออาชีพ',
-    copyright: '© 2026 Thailand Panties สงวนลิขสิทธิ์',
+    copyright: '© 2026 Thailand Panties ดำเนินการโดย Siam Second Story สงวนลิขสิทธิ์',
     groups: [
       {
         title: 'ตลาด',
@@ -2054,7 +2054,7 @@ const FOOTER_I18N = {
   my: {
     brandTitle: 'Thailand Panties',
     description: 'ယုံကြည်စရာ ဈေးကွက် — ထိုင်းမှ အသုံးပြုပြီးပန်တီများ၊ လျှို့ဝှက်ငွေပေးချေမှု၊ လုံခြုံသော မက်ဆေ့ခ်ျနှင့် ပရိုဖက်ရှင်နယ် ပရိုင်ဗိတ် ဈေးဝယ်ကိရိယာများ',
-    copyright: '© 2026 Thailand Panties မူပိုင်ခွင့်ရှိသည်',
+    copyright: '© 2026 Thailand Panties, Siam Second Story မှ လုပ်ငန်းဆောင်ရွက်သည်။ မူပိုင်ခွင့်ရှိသည်',
     groups: [
       {
         title: 'ဈေးကွက်',
@@ -2102,7 +2102,7 @@ const FOOTER_I18N = {
   ru: {
     brandTitle: 'Thailand Panties',
     description: 'Надёжный маркетплейс премиального белья из Таиланда: конфиденциальная оплата, безопасные сообщения и инструменты для приватных покупок.',
-    copyright: '© 2026 Thailand Panties. Все права защищены.',
+    copyright: '© 2026 Thailand Panties, управляется Siam Second Story. Все права защищены.',
     groups: [
       {
         title: 'Маркетплейс',
@@ -17026,6 +17026,7 @@ export default function ThailandPantiesMarketSite() {
                 ThP
               </span>
               <span>Thailand Panties</span>
+              <span className="block text-xs font-normal text-slate-400">Owned and operated by Siam Second Story</span>
             </button>
             <div className="hidden text-xs text-slate-500 lg:block">Premium used underwear from Thailand with discreet, professional fulfillment</div>
             {currentUser?.role === 'admin' ? (
