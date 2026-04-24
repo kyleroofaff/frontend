@@ -5517,6 +5517,33 @@ export default function ThailandPantiesMarketSite() {
   const [walletStatus, setWalletStatus] = useState('idle');
   const [walletTopUpContext, setWalletTopUpContext] = useState(null);
   const [exchangeRate, setExchangeRate] = useState(null);
+  const [sellerPageTopUpOpen, setSellerPageTopUpOpen] = useState(false);
+  const [sellerPageTopUpDraft, setSellerPageTopUpDraft] = useState(String(MIN_WALLET_TOP_UP_THB));
+  const [sellerPageTopUpError, setSellerPageTopUpError] = useState('');
+  const sellerPageFormatUsd = (thb) => {
+    if (!exchangeRate || exchangeRate <= 0) return null;
+    return `~$${(Number(thb) / exchangeRate).toFixed(2)} USD`;
+  };
+  function openSellerPageTopUp(shortfall) {
+    const amount = Math.max(MIN_WALLET_TOP_UP_THB, Math.ceil(Number(shortfall || 0) || MIN_WALLET_TOP_UP_THB));
+    setSellerPageTopUpDraft(String(amount));
+    setSellerPageTopUpError('');
+    setSellerPageTopUpOpen(true);
+  }
+  async function submitSellerPageTopUp() {
+    const amount = Number(sellerPageTopUpDraft || 0);
+    if (!isValidWalletTopUpAmount(amount)) {
+      setSellerPageTopUpError(`Top-up amount must be at least ${formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.`);
+      return;
+    }
+    setSellerPageTopUpError('');
+    const result = await runWalletTopUp(amount);
+    if (!result?.ok) {
+      setSellerPageTopUpError(result?.error || 'Top-up failed. Please try again.');
+      return;
+    }
+    setSellerPageTopUpOpen(false);
+  }
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -18200,7 +18227,7 @@ export default function ThailandPantiesMarketSite() {
                                   type="button"
                                   onClick={() => {
                                     setGiftModal((prev) => ({ ...prev, open: false }));
-                                    openWalletTopUpForFlow(gift.price - balance, '/seller/' + selectedSeller.id, 'gift');
+                                    openSellerPageTopUp(gift.price - balance);
                                   }}
                                   className="w-full rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700"
                                 >
@@ -18357,7 +18384,7 @@ export default function ThailandPantiesMarketSite() {
                           {currentUser?.role === 'buyer' && currentWalletBalance < 100 ? (
                             <button
                               type="button"
-                              onClick={() => openWalletTopUpForFlow(Math.max(0, MESSAGE_FEE_THB - currentWalletBalance), '/seller/' + selectedSeller.id + '#messages', 'message')}
+                              onClick={() => openSellerPageTopUp(Math.max(0, MESSAGE_FEE_THB - currentWalletBalance))}
                               className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
                             >
                               Top up wallet
@@ -18442,7 +18469,7 @@ export default function ThailandPantiesMarketSite() {
                       {currentUser?.role === 'buyer' && currentWalletBalance < 100 ? (
                         <button
                           type="button"
-                          onClick={() => openWalletTopUpForFlow(Math.max(0, CUSTOM_REQUEST_FEE_THB - currentWalletBalance), '/seller/' + selectedSeller.id, 'custom-request')}
+                          onClick={() => openSellerPageTopUp(Math.max(0, CUSTOM_REQUEST_FEE_THB - currentWalletBalance))}
                           className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
                         >
                           Top up wallet
@@ -20553,7 +20580,7 @@ export default function ThailandPantiesMarketSite() {
             submitCustomRequest={submitCustomRequest}
             sendCustomRequestMessage={sendCustomRequestMessage}
             respondToCustomRequestPrice={respondToCustomRequestPrice}
-            openWalletTopUpForFlow={openWalletTopUpForFlow}
+            openWalletTopUpForFlow={openSellerPageTopUp}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />
@@ -20617,6 +20644,41 @@ export default function ThailandPantiesMarketSite() {
           </div>
         </div>
       </footer>
+
+      {sellerPageTopUpOpen ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/50 px-4">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h4 className="text-lg font-semibold text-slate-900">Top up wallet</h4>
+                <p className="mt-1 text-sm text-slate-600">Confirm the amount, then proceed to our secure payment page.</p>
+              </div>
+              <button type="button" onClick={() => { if (walletStatus !== 'processing') setSellerPageTopUpOpen(false); }} className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:text-slate-700" aria-label="Close top-up modal">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-4">
+              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Top-up amount (THB)</label>
+              <div className="relative mt-2">
+                <span className="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-sm font-semibold text-slate-500">฿</span>
+                <input type="number" min={MIN_WALLET_TOP_UP_THB} step="1" value={sellerPageTopUpDraft} onChange={(e) => { setSellerPageTopUpError(''); setSellerPageTopUpDraft(e.target.value); }} className="w-full rounded-2xl border border-slate-200 py-2 pl-8 pr-4 text-sm" />
+              </div>
+              <div className="mt-1 text-xs text-slate-500">Minimum top-up is {formatPriceTHB(MIN_WALLET_TOP_UP_THB)}.{sellerPageFormatUsd(Number(sellerPageTopUpDraft || 0)) ? <> Your card will be charged <span className="font-semibold">{sellerPageFormatUsd(Number(sellerPageTopUpDraft || 0))}</span>.</> : null}</div>
+              {exchangeRate ? <div className="mt-1 text-[11px] text-slate-400">Card charges are processed in USD at the current exchange rate.</div> : null}
+            </div>
+            <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+              You will be redirected to a secure payment page to enter your card details. After payment, you will be returned here automatically.
+            </div>
+            {sellerPageTopUpError ? <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">{sellerPageTopUpError}</div> : null}
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button type="button" onClick={() => { if (walletStatus !== 'processing') setSellerPageTopUpOpen(false); }} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button>
+              <button type="button" onClick={submitSellerPageTopUp} disabled={walletStatus === 'processing'} className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60">
+                {walletStatus === 'processing' ? 'Processing...' : 'Continue to payment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
