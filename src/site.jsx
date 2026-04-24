@@ -17985,7 +17985,7 @@ export default function ThailandPantiesMarketSite() {
                   <ProductImage src={selectedBar.profileImage} label={selectedBar.profileImageName || `${selectedBar.name} image`} top />
                 </div>
                 <h2 className="mt-5 text-3xl font-bold tracking-tight">{selectedBar.name}</h2>
-                <p className="mt-2 text-slate-500">{selectedBar.location || publicText.locationComingSoon}</p>
+                <p className="mt-2 text-slate-500">{selectedBar.location || (selectedBar.mapEmbedUrl ? '' : publicText.locationComingSoon)}</p>
                 <p className="mt-4 leading-7 text-slate-600">{selectedBar.about || publicText.barProfileSoon}</p>
                 {(currentUser?.role === 'buyer' || (currentUser?.role === 'seller' && String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim() === selectedBar.id)) ? (
                   <div className="mt-4">
