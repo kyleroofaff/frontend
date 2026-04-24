@@ -10538,7 +10538,17 @@ export default function ThailandPantiesMarketSite() {
       mapLink: nextMap.mapLink,
       mapEmbedUrl: nextMap.mapEmbedUrl,
     }));
-    if (nextMap.mapEmbedUrl) {
+    if (nextMap.mapEmbedUrl && currentBarId) {
+      setDb((prev) => ({
+        ...prev,
+        bars: (prev.bars || []).map((bar) => bar.id === currentBarId ? { ...bar, mapLink: nextMap.mapLink, mapEmbedUrl: nextMap.mapEmbedUrl } : bar),
+      }));
+      if (backendStatus === 'connected' && apiAuthToken) {
+        apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, {
+          method: 'PUT',
+          body: { mapEmbedUrl: nextMap.mapEmbedUrl, mapLink: nextMap.mapLink },
+        }).catch(() => {});
+      }
       setBarProfileMessage(barT.mapLocationTitle + ' ✓');
     } else if (nextMap.mapLink) {
       setBarProfileMessage('Link saved but map preview needs a bar location name above.');
@@ -17936,7 +17946,14 @@ export default function ThailandPantiesMarketSite() {
             <SectionTitle eyebrow={publicText.bars} title={publicText.partnerBars} subtitle={publicText.barsSubtitle} />
             <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {Object.values(localizedBarMap).map((bar) => (
-                <article key={bar.id} className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100">
+                <article
+                  key={bar.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/bar/${bar.id}`)}
+                  onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigate(`/bar/${bar.id}`); } }}
+                  className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                >
                   <div className="aspect-[4/5]">
                     <ProductImage src={bar.profileImage} label={bar.profileImageName || `${bar.name} cover`} top />
                   </div>
@@ -19077,17 +19094,24 @@ export default function ThailandPantiesMarketSite() {
                           <li>{barT.mapStep3}</li>
                         </ol>
                         {barProfileDraft.mapEmbedUrl ? (
-                          <div className="mt-2 flex items-center gap-3">
-                            <div className="text-xs font-medium text-emerald-700">✓ {barProfileDraft.mapLink}</div>
+                          <div className="mt-2">
+                            <div className="text-xs font-medium text-emerald-700">✓ Map location set</div>
                             <button
                               type="button"
                               onClick={() => {
                                 setBarProfileDraft((prev) => ({ ...prev, mapLink: '', mapEmbedUrl: '' }));
+                                if (currentBarId && backendStatus === 'connected' && apiAuthToken) {
+                                  setDb((prev) => ({
+                                    ...prev,
+                                    bars: (prev.bars || []).map((bar) => bar.id === currentBarId ? { ...bar, mapLink: '', mapEmbedUrl: '' } : bar),
+                                  }));
+                                  apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, { method: 'PUT', body: { mapEmbedUrl: '', mapLink: '' } }).catch(() => {});
+                                }
                                 setBarProfileMessage('');
                               }}
-                              className="text-xs font-semibold text-rose-600"
+                              className="mt-1 text-xs font-semibold text-rose-600"
                             >
-                              Remove
+                              Remove location
                             </button>
                           </div>
                         ) : null}
