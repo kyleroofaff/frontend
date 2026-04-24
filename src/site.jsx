@@ -19361,42 +19361,6 @@ export default function ThailandPantiesMarketSite() {
                       </div>
                     </div>
                   </details>
-                  <details className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
-                    <summary className="cursor-pointer list-none">
-                      <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-xl font-semibold">{barT.affiliationNotificationsTitle}</h3>
-                        <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
-                      </div>
-                    </summary>
-                    <p className="mt-1 text-sm text-slate-600">{barT.affiliationNotificationsSubtitle}</p>
-                    <div className="mt-4 space-y-3">
-                      {barDashboardNotifications.length === 0 ? (
-                        <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{barT.noAffiliationNotifications}</div>
-                      ) : barDashboardNotifications.map((notification) => (
-                        <div key={notification.id} className="rounded-2xl bg-slate-50 p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">{barT.engagementBadge}</span>
-                              {!notification.read ? (
-                                <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">{barT.unreadBadge}</span>
-                              ) : null}
-                            </div>
-                            {!notification.read ? (
-                              <button
-                                type="button"
-                                onClick={() => markNotificationRead(notification.id)}
-                                className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700"
-                              >
-                                {barT.markRead}
-                              </button>
-                            ) : null}
-                          </div>
-                          <div className="mt-2 text-sm text-slate-700">{notification.text}</div>
-                          <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(notification.createdAt || Date.now())}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
                 </div>
               </>
             )}
