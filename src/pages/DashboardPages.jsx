@@ -4091,17 +4091,18 @@ export function StoriesWorkspacePage({
                       <input
                         type="text"
                         inputMode="numeric"
-                        value={sellerPostDraft.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB}
+                        value={sellerPostDraft.accessPriceUsd ?? ""}
                         onChange={(event) =>
                           setSellerPostDraft((prev) => ({
                             ...prev,
-                            accessPriceUsd: Number.isFinite(Number(event.target.value)) && Number(event.target.value) >= MIN_FEED_UNLOCK_PRICE_THB
-                              ? Number(Number(event.target.value).toFixed(2))
-                              : MIN_FEED_UNLOCK_PRICE_THB,
+                            accessPriceUsd: event.target.value,
                           }))
                         }
-                        className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                        className={`rounded-2xl border px-4 py-3 text-sm ${Number(sellerPostDraft.accessPriceUsd) < MIN_FEED_UNLOCK_PRICE_THB ? "border-rose-400" : "border-slate-200"}`}
                       />
+                      {Number(sellerPostDraft.accessPriceUsd) < MIN_FEED_UNLOCK_PRICE_THB ? (
+                        <span className="text-xs text-rose-600">{t("privateUnlockPrice")} must be at least {MIN_FEED_UNLOCK_PRICE_THB} THB</span>
+                      ) : null}
                     </label>
                   ) : <div />}
                 </div>
@@ -5146,8 +5147,8 @@ export function StoriesPage({
                   ) : null}
                 </div>
                 <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                <div className="mt-3 h-72">
-                  <ProductImage src={post.image} label={post.imageName || t("feedImage")} />
+                <div className="mt-3 aspect-[4/5]">
+                  <ProductImage src={post.image} label={post.imageName || t("feedImage")} top />
                 </div>
                 {post.caption ? <p className="mt-3 text-sm leading-6 text-slate-700">{post.caption}</p> : null}
                 <div className="mt-3 text-xs text-slate-500">
@@ -5188,7 +5189,7 @@ export function StoriesPage({
                 </span>
               </div>
               <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-              <div className="mt-3 h-72">
+              <div className="mt-3 aspect-[4/5]">
                 <button
                   onClick={() => {
                     if (!canViewSellerPost(post) && isSellerPostPrivate(post) && !currentUser) {
@@ -5201,8 +5202,8 @@ export function StoriesPage({
                   }}
                   className="relative block h-full w-full text-left"
                 >
-                  <div className={canViewSellerPost(post) ? "" : "blur-sm"}>
-                    <ProductImage src={post.image} label={post.imageName || t("feedImage")} />
+                  <div className={canViewSellerPost(post) ? "" : "blur-xl"}>
+                    <ProductImage src={post.image} label={post.imageName || t("feedImage")} top />
                   </div>
                   {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
                     <div className="absolute inset-0 flex items-center justify-center">

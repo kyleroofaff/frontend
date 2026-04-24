@@ -15225,6 +15225,10 @@ export default function ThailandPantiesMarketSite() {
     if (creatingSellerPost) return;
 
     const draftVisibility = sellerPostDraft.visibility === 'private' ? 'private' : 'public';
+    if (draftVisibility === 'private' && (!Number.isFinite(Number(sellerPostDraft.accessPriceUsd)) || Number(sellerPostDraft.accessPriceUsd) < MIN_FEED_UNLOCK_PRICE_THB)) {
+      setSellerProfileMessage(`Price must be at least ${MIN_FEED_UNLOCK_PRICE_THB} THB for private posts.`);
+      return;
+    }
     const effectiveVisibility = draftVisibility;
     const basePostPayload = {
       sellerId: currentSellerId,
