@@ -9661,7 +9661,6 @@ export default function ThailandPantiesMarketSite() {
 
   async function handleSellerAffiliationRequestImagesUpload(fileList) {
     const MAX_FILE_BYTES = 5 * 1024 * 1024;
-    const MAX_DIMENSION = 1200;
     const files = Array.from(fileList || []).slice(0, 4);
     if (!files.length) return;
     const skipped = [];
@@ -9679,18 +9678,12 @@ export default function ThailandPantiesMarketSite() {
         const img = new Image();
         const objectUrl = URL.createObjectURL(file);
         img.onload = () => {
-          let { width, height } = img;
-          if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-            const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-            width = Math.round(width * ratio);
-            height = Math.round(height * ratio);
-          }
           const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
+          canvas.width = img.width;
+          canvas.height = img.height;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          ctx.drawImage(img, 0, 0, img.width, img.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
           URL.revokeObjectURL(objectUrl);
           resolve({
             id: makeRuntimeId('affiliation_image'),
@@ -10678,7 +10671,6 @@ export default function ThailandPantiesMarketSite() {
     const file = event.target.files?.[0];
     if (!file) return;
     const MAX_FILE_BYTES = 5 * 1024 * 1024;
-    const MAX_DIMENSION = 800;
     if (file.size > MAX_FILE_BYTES) {
       setBarProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
       event.target.value = '';
@@ -10692,18 +10684,12 @@ export default function ThailandPantiesMarketSite() {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     img.onload = () => {
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = img.width;
+      canvas.height = img.height;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
       setBarProfileDraft((prev) => ({
         ...prev,
         profileImage: dataUrl,
@@ -10723,7 +10709,6 @@ export default function ThailandPantiesMarketSite() {
     const file = event.target.files?.[0];
     if (!file) return;
     const MAX_FILE_BYTES = 5 * 1024 * 1024;
-    const MAX_DIMENSION = 1200;
     if (file.size > MAX_FILE_BYTES) {
       setBarProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
       event.target.value = '';
@@ -10737,18 +10722,12 @@ export default function ThailandPantiesMarketSite() {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     img.onload = () => {
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = img.width;
+      canvas.height = img.height;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
       setBarPostDraft((prev) => ({
         ...prev,
         image: dataUrl,
@@ -10808,7 +10787,6 @@ export default function ThailandPantiesMarketSite() {
     const file = event.target.files?.[0];
     if (!file) return;
     const MAX_FILE_BYTES = 5 * 1024 * 1024;
-    const MAX_DIMENSION = 800;
     if (file.size > MAX_FILE_BYTES) {
       setSellerProfileMessage('Image must be under 5 MB. Please choose a smaller file.');
       event.target.value = '';
@@ -10822,18 +10800,12 @@ export default function ThailandPantiesMarketSite() {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     img.onload = () => {
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = img.width;
+      canvas.height = img.height;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
       setSellerProfileDraft((prev) => ({
         ...prev,
         profileImage: dataUrl,
@@ -15107,7 +15079,6 @@ export default function ThailandPantiesMarketSite() {
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
     const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-    const MAX_DIMENSION = 1200;
     const MAX_IMAGES = 5;
     const currentCount = Array.isArray(uploadDraft.images) ? uploadDraft.images.length : 0;
     const allowed = files.slice(0, MAX_IMAGES - currentCount);
@@ -15132,18 +15103,12 @@ export default function ThailandPantiesMarketSite() {
       const img = new Image();
       const objectUrl = URL.createObjectURL(file);
       img.onload = () => {
-        let { width, height } = img;
-        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-          const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-          width = Math.round(width * ratio);
-          height = Math.round(height * ratio);
-        }
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = img.width;
+        canvas.height = img.height;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
         setUploadDraft((prev) => {
           const nextImages = [...(prev.images || []), { url: dataUrl, name: file.name, type: 'image' }].slice(0, MAX_IMAGES);
           return {
@@ -15190,18 +15155,12 @@ export default function ThailandPantiesMarketSite() {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     img.onload = () => {
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = img.width;
+      canvas.height = img.height;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
       setSellerPostDraft((prev) => ({
         ...prev,
         image: dataUrl,
@@ -18098,7 +18057,7 @@ export default function ThailandPantiesMarketSite() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold">{publicText.barPhotoFeed}</h3>
-                  <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
+                  <div className="mt-3 grid gap-4 md:grid-cols-2">
                     {(() => {
                       const affiliatedSellerIds = new Set(selectedBarAffiliatedSellers.map((s) => s.id));
                       const barOwnPosts = barFeedPosts.filter((post) => post.barId === selectedBar.id).map((p) => ({ ...p, _kind: 'bar' }));
