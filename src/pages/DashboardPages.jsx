@@ -2931,147 +2931,40 @@ export function SellerDashboardPage({
               </div>
             </div>
           </div>
-          <div className="mb-6 rounded-3xl border border-rose-100 bg-slate-50 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-rose-600" />
-                <h3 className="text-xl font-semibold">{t("notifications")}</h3>
-                {!unreadNotificationCount ? null : (
-                  <span className="rounded-full bg-rose-600 px-2 py-0.5 text-xs font-bold text-white">
-                    {unreadNotificationCount}
-                  </span>
-                )}
-              </div>
-              <button onClick={markAllNotificationsRead} className="text-sm font-semibold text-rose-700">{t("markAllRead")}</button>
+          <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-rose-100 bg-slate-50 px-4 py-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <Bell className="h-4 w-4 text-rose-600" />
+              {t("notifications")}
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button onClick={() => setNotificationFilter("all")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("allLabel")} ({sellerNotifications.length})</button>
-              <button onClick={() => setNotificationFilter("unread")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("unreadLabel")} ({unreadNotificationCount})</button>
-              <button onClick={() => setNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("messagesLabel")}</button>
-              <button onClick={() => setNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${notificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>{t("engagementLabel")}</button>
-              <button
-                onClick={() => setSellerDiscreetNotificationText((prev) => !prev)}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold ${sellerDiscreetNotificationText ? "bg-slate-800 text-white" : "border border-slate-200 text-slate-700"}`}
-              >
-                {t("notificationDiscreetMode")}: {sellerDiscreetNotificationText ? t("onLabel") : t("offLabel")}
-              </button>
-              <button
-                onClick={() => setSellerNotificationCompactMode((prev) => !prev)}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold ${sellerNotificationCompactMode ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}
-              >
-                {t("viewModeLabel")}: {sellerNotificationCompactMode ? t("compactLabel") : t("comfortLabel")}
-              </button>
-            </div>
-            <p className="mt-2 text-xs text-slate-500">
-              {t("discreetMessagesHelp")}
-            </p>
-            <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => {
-                    const nextEnabled = !inAppAllEnabled;
-                    updateNotificationPreference("message", nextEnabled);
-                    updateNotificationPreference("engagement", nextEnabled);
-                  }}
-                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
-                >
-                  {t("emailNotifications")}: {inAppAllEnabled ? t("onLabel") : t("offLabel")}
-                </button>
-                <button
-                  onClick={() => {
-                    const nextEnabled = !pushAllEnabled;
-                    updatePushNotificationPreference("message", nextEnabled);
-                    updatePushNotificationPreference("engagement", nextEnabled);
-                    if (currentUser?.role === "admin") {
-                      updatePushNotificationPreference("adminOps", nextEnabled);
-                    }
-                  }}
-                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
-                >
-                  {t("browserNotifications")}: {pushAllEnabled ? t("onLabel") : t("offLabel")}
-                </button>
-              </div>
-            </div>
+            <button
+              onClick={() => {
+                const nextEnabled = !inAppAllEnabled;
+                updateNotificationPreference("message", nextEnabled);
+                updateNotificationPreference("engagement", nextEnabled);
+              }}
+              className={`rounded-xl px-3 py-2 text-sm font-semibold ${inAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+            >
+              {t("emailNotifications")}: {inAppAllEnabled ? t("onLabel") : t("offLabel")}
+            </button>
+            <button
+              onClick={() => {
+                const nextEnabled = !pushAllEnabled;
+                updatePushNotificationPreference("message", nextEnabled);
+                updatePushNotificationPreference("engagement", nextEnabled);
+                if (currentUser?.role === "admin") {
+                  updatePushNotificationPreference("adminOps", nextEnabled);
+                }
+              }}
+              className={`rounded-xl px-3 py-2 text-sm font-semibold ${pushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
+            >
+              {t("browserNotifications")}: {pushAllEnabled ? t("onLabel") : t("offLabel")}
+            </button>
             {!pushSupported ? (
-              <div className="mt-2 text-xs text-amber-700">{t("pushNotSupported")}</div>
+              <span className="text-xs text-amber-700">{t("pushNotSupported")}</span>
             ) : null}
             {pushSupported && pushPermission === "denied" ? (
-              <div className="mt-2 text-xs text-amber-700">{t("pushBlockedEnableSettings")}</div>
+              <span className="text-xs text-amber-700">{t("pushBlockedEnableSettings")}</span>
             ) : null}
-            <div className="mt-4 space-y-4">
-              {groupedSellerNotifications.length === 0 ? <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noNotifications")}</div> : groupedSellerNotifications.map((group) => (
-                <div key={group.label}>
-                  <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{group.label}</div>
-                  <div className="space-y-3">
-                    {group.items.map((notification) => (
-                      <div key={notification.id} className={`rounded-2xl ${sellerNotificationCompactMode ? "p-3" : "p-4"} ring-1 ${notification.read ? "bg-white ring-rose-100" : "border border-rose-200 bg-rose-50/40 ring-rose-200"}`}>
-                        <div className="flex items-start gap-3">
-                          {(() => {
-                            const meta = sellerNotificationTypeMeta(notification.type);
-                            const MetaIcon = meta.icon;
-                            return (
-                              <div className={`mt-0.5 inline-flex ${sellerNotificationCompactMode ? "h-7 w-7" : "h-8 w-8"} shrink-0 items-center justify-center rounded-full ${meta.iconWrapClassName}`}>
-                                <MetaIcon className={sellerNotificationCompactMode ? "h-3.5 w-3.5" : "h-4 w-4"} />
-                              </div>
-                            );
-                          })()}
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="flex flex-wrap items-center gap-2">
-                                {(() => {
-                                  const meta = sellerNotificationTypeMeta(notification.type);
-                                  return <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${meta.chipClassName}`}>{meta.label}</span>;
-                                })()}
-                                {!notification.read ? <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">{t("unreadLabel")}</span> : null}
-                              </div>
-                              <div className="text-[11px] text-slate-500" title={formatDateTimeNoSeconds(notification.createdAt || Date.now())}>
-                                {formatRelativeTimeLabel(notification.createdAt || Date.now())}
-                              </div>
-                            </div>
-                            <div className={`${sellerNotificationCompactMode ? "mt-1.5 text-[13px] leading-5" : "mt-2 text-sm leading-6"} text-slate-700`}>
-                              {getDiscreetNotificationText(notification.text, notification.type, sellerDiscreetNotificationText)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className={`${sellerNotificationCompactMode ? "mt-2.5" : "mt-3"} flex flex-wrap items-center justify-end gap-2`}>
-                          <div className="flex flex-wrap gap-2">
-                            {!notification.read ? (
-                              <button onClick={() => markNotificationRead(notification.id)} className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700">{t("markRead")}</button>
-                            ) : null}
-                            {resolveNotificationActionPath(notification) ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (!notification.read) {
-                                    markNotificationRead(notification.id);
-                                  }
-                                  navigate(resolveNotificationActionPath(notification));
-                                }}
-                                className="rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-amber-800"
-                              >
-                                {notification.actionLabel || t("appealNow")}
-                              </button>
-                            ) : null}
-                            {notification.conversationId ? (
-                              <button
-                                onClick={() => {
-                                  setSellerSelectedConversationId(notification.conversationId);
-                                  markNotificationsReadForConversation(notification.conversationId);
-                                  navigate("/seller-messages");
-                                }}
-                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-slate-700"
-                              >
-                                {t("openThread")}
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
           <div className="space-y-8">
             {sellerMap[currentSellerId] ? (
