@@ -10478,24 +10478,28 @@ export default function ThailandPantiesMarketSite() {
     const locationLooksLikeUrl = /^https?:\/\//i.test(locationRaw);
     const mapLink = mapLinkRaw || (locationLooksLikeUrl ? locationRaw : `https://maps.google.com/?q=${encodeURIComponent(locationRaw)}`);
     let query = '';
+    let coords = '';
     let queryFromStructuredUrl = false;
     try {
       const parsed = new URL(mapLink);
+      const decodedPath = decodeURIComponent(parsed.pathname || '');
+      const coordMatch = decodedPath.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (coordMatch) coords = `${coordMatch[1]},${coordMatch[2]}`;
       query = String(parsed.searchParams.get('q') || parsed.searchParams.get('query') || '').trim();
       if (query) queryFromStructuredUrl = true;
       if (!query) {
-        const placeMatch = decodeURIComponent(parsed.pathname || '').match(/\/place\/([^/@]+)/);
+        const placeMatch = decodedPath.match(/\/place\/([^/@]+)/);
         if (placeMatch) {
           query = placeMatch[1].replace(/\+/g, ' ');
           queryFromStructuredUrl = true;
         }
       }
-      if (!query) {
-        const coordMatch = decodeURIComponent(parsed.pathname || '').match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (coordMatch) {
-          query = `${coordMatch[1]},${coordMatch[2]}`;
-          queryFromStructuredUrl = true;
-        }
+      if (!query && coords) {
+        query = coords;
+        queryFromStructuredUrl = true;
+      }
+      if (query && coords && query !== coords) {
+        query = `${query} @${coords}`;
       }
     } catch {
       // not a valid URL at all
