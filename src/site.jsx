@@ -5783,6 +5783,7 @@ export default function ThailandPantiesMarketSite() {
   const userStrikes = db.userStrikes || [];
   const userAppeals = db.userAppeals || [];
   const postUnlocks = db.postUnlocks || [];
+  const buyerUnlockedPostIds = currentUser ? new Set(postUnlocks.filter((u) => u.buyerUserId === currentUser.id).map((u) => u.postId)) : new Set();
   const sellerPostLikes = db.sellerPostLikes || [];
   const sellerPostComments = db.sellerPostComments || [];
   const sellerFollows = db.sellerFollows || [];
@@ -8093,6 +8094,7 @@ export default function ThailandPantiesMarketSite() {
   const sellerFeedPosts = useMemo(
     () =>
       sellerAllPosts.filter((post) => {
+        if (post.deletedAt) return false;
         if (!post?.scheduledFor) return true;
         return new Date(post.scheduledFor).getTime() <= feedNow;
       }),
@@ -8157,7 +8159,7 @@ export default function ThailandPantiesMarketSite() {
     return `${Math.ceil(vettedCount / 10) * 10}+`;
   }, [users]);
   const sellerDashboardPosts = useMemo(
-    () => sellerAllPosts.filter((post) => post.sellerId === currentSellerId),
+    () => sellerAllPosts.filter((post) => post.sellerId === currentSellerId && !post.deletedAt),
     [sellerAllPosts, currentSellerId],
   );
   const sellerPostAnalytics = useMemo(() => {
@@ -8450,6 +8452,28 @@ export default function ThailandPantiesMarketSite() {
       setSession({ userId: user.id });
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('tlm-session', JSON.stringify({ userId: user.id }));
+      }
+      if (user.role === 'buyer' && backendStatus === 'connected' && apiAuthToken) {
+        apiRequestJson(`${API_BASE_URL}/api/post-unlocks`, {
+          headers: getApiHeaders(),
+        }).then((payload) => {
+          if (payload?.unlocks) {
+            setDb((prev) => {
+              const existingIds = new Set((prev.postUnlocks || []).map((u) => u.id));
+              const newUnlocks = payload.unlocks.filter((u) => u?.id && !existingIds.has(u.id));
+              const existingPostIds = new Set((prev.sellerPosts || []).map((p) => p.id));
+              const newPosts = Array.isArray(payload.posts)
+                ? payload.posts.filter((p) => p?.id && !existingPostIds.has(p.id))
+                : [];
+              if (newUnlocks.length === 0 && newPosts.length === 0) return prev;
+              return {
+                ...prev,
+                postUnlocks: [...newUnlocks, ...(prev.postUnlocks || [])],
+                sellerPosts: [...(prev.sellerPosts || []), ...newPosts],
+              };
+            });
+          }
+        }).catch(() => {});
       }
       setAuthError('');
       setAuthSuccess(`${loginText.welcomeBack}, ${user.name}.`);
@@ -11007,11 +11031,17 @@ export default function ThailandPantiesMarketSite() {
 
   function canViewSellerPost(post) {
     if (!post) return false;
+    const hasUnlock = currentUser && postUnlocks.some((entry) => entry.postId === post.id && entry.buyerUserId === currentUser.id);
+    if (post.deletedAt) {
+      if (currentUser?.role === 'admin') return true;
+      if (currentUser?.role === 'seller' && currentUser.sellerId === post.sellerId) return true;
+      return hasUnlock;
+    }
     if (!isSellerPostPrivate(post)) return true;
     if (!currentUser) return false;
     if (currentUser.role === 'admin') return true;
     if (currentUser.role === 'seller' && currentUser.sellerId === post.sellerId) return true;
-    return postUnlocks.some((entry) => entry.postId === post.id && entry.buyerUserId === currentUser.id);
+    return hasUnlock;
   }
 
   function toggleSellerPostLike(postId) {
@@ -11365,7 +11395,7 @@ export default function ThailandPantiesMarketSite() {
     return true;
   }
 
-  function unlockPrivatePost(postId) {
+  async function unlockPrivatePost(postId) {
     const post = sellerPosts.find((candidate) => candidate.id === postId);
     if (!post || !isSellerPostPrivate(post)) return;
     const unlockPrice = Math.max(MIN_FEED_UNLOCK_PRICE_THB, Number(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB));
@@ -11385,106 +11415,32 @@ export default function ThailandPantiesMarketSite() {
       }
       return;
     }
-    const now = new Date().toISOString();
-    const sellerUser = users.find((entry) => entry.sellerId === post.sellerId);
-    const sellerUserId = sellerUser?.id;
-    setDb((prev) => {
-      const buyerBefore = Number((prev.users || []).find((user) => user.id === currentUser.id)?.walletBalance || 0);
-      const buyerAfter = Number((buyerBefore - unlockPrice).toFixed(2));
-      const payout = calculateSellerRevenueSplit(prev, {
-        sellerId: post.sellerId,
-        grossAmount: unlockPrice,
+    try {
+      const response = await apiRequestJson(`${API_BASE_URL}/api/post-unlocks`, {
+        method: 'POST',
+        headers: getApiHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ postId }),
       });
-      const recipient = (prev.users || []).find((entry) => entry.id === sellerUserId);
-      const base = {
-        ...prev,
-        users: (prev.users || []).map((user) => {
-          if (user.id === currentUser.id) {
-            return { ...user, walletBalance: buyerAfter };
-          }
-          if (payout.sellerUserId && user.id === payout.sellerUserId && payout.sellerAmount > 0 && user.id !== currentUser.id) {
-            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.sellerAmount).toFixed(2)) };
-          }
-          if (payout.barUserId && user.id === payout.barUserId && payout.barAmount > 0 && user.id !== currentUser.id) {
-            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.barAmount).toFixed(2)) };
-          }
-          if (payout.adminUserId && user.id === payout.adminUserId && payout.adminAmount > 0 && user.id !== currentUser.id) {
-            return { ...user, walletBalance: Number(((user.walletBalance || 0) + payout.adminAmount).toFixed(2)) };
-          }
-          return user;
-        }),
-        walletTransactions: [
-          ...(payout.sellerUserId && payout.sellerAmount > 0 && payout.sellerUserId !== currentUser.id
-            ? [{
-                id: `txn_${Date.now()}_seller_unlock`,
-                userId: payout.sellerUserId,
-                type: 'post_unlock',
-                amount: payout.sellerAmount,
-                description: `Post unlock earning from ${currentUser.name || 'Buyer'}`,
-                createdAt: now,
-              }]
-            : []),
-          ...(payout.barUserId && payout.barAmount > 0 && payout.barUserId !== currentUser.id
-            ? [{
-                id: `txn_${Date.now()}_bar_unlock`,
-                userId: payout.barUserId,
-                type: 'post_unlock',
-                amount: payout.barAmount,
-                description: 'Bar commission from post unlock',
-                createdAt: now,
-              }]
-            : []),
-          ...(payout.adminUserId && payout.adminAmount > 0 && payout.adminUserId !== currentUser.id
-            ? [{
-                id: `txn_${Date.now()}_admin_unlock`,
-                userId: payout.adminUserId,
-                type: 'post_unlock',
-                amount: payout.adminAmount,
-                description: 'Platform commission from post unlock',
-                createdAt: now,
-              }]
-            : []),
-          {
-            id: `txn_${Date.now()}_buyer_unlock`,
-            userId: currentUser.id,
-            type: 'post_unlock',
-            amount: -unlockPrice,
-            description: `Private post unlock (${postId})`,
-            createdAt: now,
-          },
-          ...(prev.walletTransactions || []),
-        ],
-        postUnlocks: [
-          {
-            id: `post_unlock_${Date.now()}`,
-            postId,
-            buyerUserId: currentUser.id,
-            amount: unlockPrice,
-            createdAt: now,
-          },
-          ...(prev.postUnlocks || []),
-        ],
-        notifications: sellerUserId && sellerUserId !== currentUser.id && shouldSendNotificationForType(recipient, 'engagement')
-          ? [
-              {
-                id: `notif_${Date.now()}_unlock`,
-                userId: sellerUserId,
-                type: 'engagement',
-                text: `${currentUser.name || 'A buyer'} unlocked your private post.`,
-                read: false,
-                createdAt: now,
-              },
-              ...(prev.notifications || []),
-            ]
-          : prev.notifications,
-      };
-      return appendLowBalanceEmailIfNeeded(base, {
-        userId: currentUser.id,
-        beforeBalance: buyerBefore,
-        afterBalance: buyerAfter,
-      });
-    });
-    if (typeof window !== 'undefined') window.alert(`${loginText.postUnlockedPrefix || 'Post unlocked for'} ${formatPriceTHB(unlockPrice)}.`);
+      if (response?.ok || response?.alreadyUnlocked) {
+        if (response.unlock) {
+          setDb((prev) => ({
+            ...prev,
+            postUnlocks: [response.unlock, ...(prev.postUnlocks || [])],
+            users: (prev.users || []).map((u) =>
+              u.id === currentUser.id
+                ? { ...u, walletBalance: response.walletBalance ?? u.walletBalance }
+                : u
+            ),
+          }));
+        }
+        if (typeof window !== 'undefined') window.alert(`${loginText.postUnlockedPrefix || 'Post unlocked for'} ${formatPriceTHB(unlockPrice)}.`);
+      } else {
+        const errMsg = response?.error || 'Failed to unlock post.';
+        if (typeof window !== 'undefined') window.alert(errMsg);
+      }
+    } catch {
+      if (typeof window !== 'undefined') window.alert('Failed to unlock post. Please try again.');
+    }
   }
 
   function saveAccountDetails() {
@@ -15679,6 +15635,22 @@ export default function ThailandPantiesMarketSite() {
         const payload = await response.json().catch(() => ({}));
         if (response.ok) {
           deletedOnBackend = true;
+          if (payload.softDeleted) {
+            setDb((prev) => ({
+              ...prev,
+              sellerPosts: (prev.sellerPosts || []).map((post) =>
+                post.id === postId ? { ...post, deletedAt: new Date().toISOString() } : post
+              ),
+              adminActions: currentUser?.role === 'admin'
+                ? [
+                    ...(prev.adminActions || []),
+                    { id: `admin_action_${Date.now()}`, type: 'delete_seller_post', targetPostId: postId, adminUserId: currentUser.id, createdAt: new Date().toISOString() },
+                  ]
+                : prev.adminActions,
+            }));
+            setSellerProfileMessage(sellerStatus('postDeleted'));
+            return;
+          }
         } else if (response.status !== 404) {
           throw new Error(localizeSellerApiError(payload?.error, 'deleteSellerPostFailed'));
         }
