@@ -10510,14 +10510,29 @@ export default function ThailandPantiesMarketSite() {
     return { mapLink, mapEmbedUrl };
   }
 
-  function autofillBarMapFromLocation() {
+  const SHORT_MAP_HOSTS = /^(maps\.app\.goo\.gl|goo\.gl|share\.google)$/i;
+
+  async function autofillBarMapFromLocation() {
     const mapLinkText = String(barProfileDraft.mapLink || '').trim();
     const locationText = String(barProfileDraft.location || '').trim();
     if (!mapLinkText && !locationText) {
       setBarProfileMessage(barStatus('addLocationBeforeAutofill'));
       return;
     }
-    const nextMap = buildBarMapFields(mapLinkText, locationText);
+    let resolvedLink = mapLinkText;
+    if (mapLinkText) {
+      try {
+        const hostname = new URL(mapLinkText).hostname;
+        if (SHORT_MAP_HOSTS.test(hostname)) {
+          setBarProfileMessage('Resolving short link...');
+          const resp = await apiRequestJson(`/api/resolve-map-url?url=${encodeURIComponent(mapLinkText)}`);
+          if (resp?.ok && resp?.payload?.resolvedUrl) {
+            resolvedLink = resp.payload.resolvedUrl;
+          }
+        }
+      } catch { /* not a valid URL or fetch failed, continue with original */ }
+    }
+    const nextMap = buildBarMapFields(resolvedLink, locationText);
     setBarProfileDraft((prev) => ({
       ...prev,
       mapLink: nextMap.mapLink,
@@ -19061,7 +19076,7 @@ export default function ThailandPantiesMarketSite() {
                           <li>{barT.mapStep2}</li>
                           <li>{barT.mapStep3}</li>
                         </ol>
-                        {barProfileDraft.mapLink ? (
+                        {barProfileDraft.mapEmbedUrl ? (
                           <div className="mt-2 flex items-center gap-3">
                             <div className="text-xs font-medium text-emerald-700">✓ {barProfileDraft.mapLink}</div>
                             <button
