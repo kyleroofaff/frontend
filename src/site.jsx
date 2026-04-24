@@ -9119,7 +9119,7 @@ export default function ThailandPantiesMarketSite() {
       apiRequestJson(`/api/admin/users/${encodeURIComponent(userId)}/approve-seller`, {
         method: 'POST',
         idempotencyScope: 'approve_seller',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[approveSellerAccount] API sync failed:', err));
     }
     if (approvedUser?.id) {
       Promise.resolve(dispatchManagedNotification({
@@ -9240,7 +9240,7 @@ export default function ThailandPantiesMarketSite() {
           mapEmbedUrl: mapFields.mapEmbedUrl,
           mapLink: mapFields.mapLink,
         },
-      }).catch(() => {});
+      }).catch((err) => console.warn('[updateBarProfileByAdmin] API sync failed:', err));
     }
   }
 
@@ -9317,7 +9317,7 @@ export default function ThailandPantiesMarketSite() {
       apiRequestJson(`/api/sellers/${encodeURIComponent(sellerId)}`, {
         method: 'PUT',
         body: { affiliatedBarId: normalizedBarId },
-      }).catch(() => {});
+      }).catch((err) => console.warn('[setSellerBarAffiliationByAdmin] API sync failed:', err));
     }
     setAdminAuthActionMessage(normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent'));
     Promise.resolve(dispatchManagedNotification({
@@ -10124,7 +10124,7 @@ export default function ThailandPantiesMarketSite() {
           sellerImages: requestImages.map((img) => img.image),
         },
         idempotencyScope: 'affiliation_request',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[requestSellerBarAffiliation] API sync failed:', err));
     }
   }
 
@@ -10367,7 +10367,7 @@ export default function ThailandPantiesMarketSite() {
         method: 'PATCH',
         body: { decision },
         idempotencyScope: 'affiliation_respond',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[respondToBarAffiliationRequest] API sync failed:', err));
     }
   }
 
@@ -10413,7 +10413,7 @@ export default function ThailandPantiesMarketSite() {
         method: 'PATCH',
         body: { decision: 'cancelled' },
         idempotencyScope: 'affiliation_cancel',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[cancelBarAffiliationRequest] API sync failed:', err));
     }
   }
 
@@ -10597,7 +10597,7 @@ export default function ThailandPantiesMarketSite() {
         apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, {
           method: 'PUT',
           body: { mapEmbedUrl: nextMap.mapEmbedUrl, mapLink: nextMap.mapLink },
-        }).catch(() => {});
+        }).catch((err) => console.warn('[autofillBarMapFromLocation] API sync failed:', err));
       }
       setBarProfileMessage(barT.mapLocationTitle + ' ✓');
     } else if (nextMap.mapLink) {
@@ -10701,7 +10701,7 @@ export default function ThailandPantiesMarketSite() {
         apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, {
           method: 'PUT',
           body: updatedBar,
-        }).catch(() => {});
+        }).catch((err) => console.warn('[saveBarProfile] API sync failed:', err));
       }
       setBarProfileMessage(barT.profileSaved);
     } catch {
@@ -10824,7 +10824,7 @@ export default function ThailandPantiesMarketSite() {
             }));
           }
         })
-        .catch(() => {});
+        .catch((err) => console.warn('[createBarPost] API sync failed:', err));
     }
   }
 
@@ -10839,7 +10839,7 @@ export default function ThailandPantiesMarketSite() {
     setBarProfileMessage(barStatus('postRemoved'));
     setDeletingBarPostId(null);
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson(`/api/bar-posts/${encodeURIComponent(postId)}`, { method: 'DELETE' }).catch(() => {});
+      apiRequestJson(`/api/bar-posts/${encodeURIComponent(postId)}`, { method: 'DELETE' }).catch((err) => console.warn('[deleteBarPost] API sync failed:', err));
     }
   }
 
@@ -10908,7 +10908,7 @@ export default function ThailandPantiesMarketSite() {
       ),
     }));
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson('/api/auth/language', { method: 'PATCH', body: { language: nextLanguage } }).catch(() => {});
+      apiRequestJson('/api/auth/language', { method: 'PATCH', body: { language: nextLanguage } }).catch((err) => console.warn('[updateBarLanguage] API sync failed:', err));
     }
     setBarProfileMessage(barStatus('languageUpdated'));
   }
@@ -11277,7 +11277,7 @@ export default function ThailandPantiesMarketSite() {
         method: 'POST',
         body: { sellerId },
         idempotencyScope: 'seller_follow',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[toggleSellerFollow] API sync failed:', err));
     }
     return true;
   }
@@ -11314,7 +11314,7 @@ export default function ThailandPantiesMarketSite() {
         method: 'POST',
         body: { barId: normalizedBarId },
         idempotencyScope: 'bar_follow',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[toggleBarFollow] API sync failed:', err));
     }
     return true;
   }
@@ -12262,7 +12262,7 @@ export default function ThailandPantiesMarketSite() {
           translations,
         },
         idempotencyScope: 'bar_message',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[sendBarConversationMessage] API sync failed:', err));
     }
     setBarMessagesDraft('');
     setBarMessagesError('');
@@ -13627,7 +13627,7 @@ export default function ThailandPantiesMarketSite() {
       apiRequestJson('/api/push/preferences', {
         method: 'POST',
         body: { push: next }
-      }).catch(() => {});
+      }).catch((err) => console.warn('[updateNotificationPreference] API sync failed:', err));
     }
   }
 
@@ -13666,7 +13666,7 @@ export default function ThailandPantiesMarketSite() {
         body: {
           push: payload
         }
-      }).catch(() => {});
+      }).catch((err) => console.warn('[syncPushPreferenceToApi] API sync failed:', err));
     };
 
     if (enabled) {
@@ -15215,6 +15215,7 @@ export default function ThailandPantiesMarketSite() {
 
       if (backendStatus === 'connected') {
         try {
+          console.log('[createSellerPost] Calling POST /api/seller-posts, backendStatus:', backendStatus);
           const response = await fetch(`${API_BASE_URL}/api/seller-posts`, {
             method: 'POST',
             headers: getApiHeaders({ 'Content-Type': 'application/json' }),
@@ -15229,9 +15230,12 @@ export default function ThailandPantiesMarketSite() {
           } else {
             persistedToSeed = false;
           }
-        } catch {
+        } catch (err) {
+          console.warn('[createSellerPost] API sync failed:', err);
           persistedToSeed = false;
         }
+      } else {
+        console.warn('[createSellerPost] Skipping API call, backendStatus:', backendStatus);
       }
 
       const normalizedPost = {
@@ -15343,7 +15347,7 @@ export default function ThailandPantiesMarketSite() {
           extras: newProduct.features || [],
         },
         idempotencyScope: 'create_product',
-      }).catch(() => {});
+      }).catch((err) => console.warn('[createProductFromUpload] API sync failed:', err));
     }
     setUploadDraft({
       title: '',
@@ -16536,14 +16540,14 @@ export default function ThailandPantiesMarketSite() {
               : `Ваш заказ ${orderId} отправлен.`,
           },
           kind: 'buyer_order_shipped',
-        })).catch(() => {});
+        })).catch((err) => console.warn('[updateOrderShipment] push notification failed:', err));
       }
       if (backendStatus === 'connected' && apiAuthToken && normalizedTrackingNumber) {
         apiRequestJson(`/api/orders/${orderId}/tracking`, {
           method: 'POST',
           body: { trackingNumber: normalizedTrackingNumber, slug: normalizedTrackingCarrier || undefined },
           idempotencyScope: `order-tracking-${orderId}`,
-        }).catch(() => {});
+        }).catch((err) => console.warn('[updateOrderShipment] API sync failed:', err));
       }
     } finally {
       setUpdatingOrderId(null);
@@ -19136,7 +19140,7 @@ export default function ThailandPantiesMarketSite() {
                                         ...prev,
                                         bars: (prev.bars || []).map((bar) => bar.id === currentBarId ? { ...bar, mapLink: '', mapEmbedUrl: '' } : bar),
                                       }));
-                                      apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, { method: 'PUT', body: { mapEmbedUrl: '', mapLink: '' } }).catch(() => {});
+                                      apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, { method: 'PUT', body: { mapEmbedUrl: '', mapLink: '' } }).catch((err) => console.warn('[removeBarLocation] API sync failed:', err));
                                     }
                                     setBarProfileMessage('');
                                   }}
