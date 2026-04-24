@@ -10614,8 +10614,23 @@ export default function ThailandPantiesMarketSite() {
     if (savingBarProfile) return;
     setSavingBarProfile(true);
     try {
+      let specialsText = String(barProfileDraft.specials || '').trim();
+      if (barSpecialPresetSelections.length > 0) {
+        const locale = BAR_DASHBOARD_I18N[uiLanguage] ? uiLanguage : 'en';
+        const t = BAR_DASHBOARD_I18N[locale] || BAR_DASHBOARD_I18N.en;
+        const labels = barSpecialPresetSelections
+          .map((selectedId) => BAR_PROFILE_SPECIAL_PRESET_OPTIONS.find((option) => option.id === selectedId))
+          .filter(Boolean)
+          .map((option) => option.labels?.[locale] || option.labels?.en || option.id);
+        const generatedLine = `${t.highlightsPrefix || 'Highlights'}: ${labels.join(', ')}.`;
+        const cleanedLines = specialsText
+          .split('\n')
+          .map((line) => line.trimEnd())
+          .filter((line) => line && !line.trim().toLowerCase().startsWith('highlights:'));
+        specialsText = [...cleanedLines, generatedLine].join('\n').trim();
+        setBarProfileDraft((prev) => ({ ...prev, specials: specialsText }));
+      }
       const aboutText = String(barProfileDraft.about || '').trim();
-      const specialsText = String(barProfileDraft.specials || '').trim();
       const [aboutI18n, specialsI18n] = await Promise.all([
         buildTextTranslations(aboutText),
         buildTextTranslations(specialsText),
@@ -10860,6 +10875,9 @@ export default function ThailandPantiesMarketSite() {
           : user
       ),
     }));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson('/api/auth/language', { method: 'PATCH', body: { language: nextLanguage } }).catch(() => {});
+    }
     setBarProfileMessage(barStatus('languageUpdated'));
   }
 
@@ -19061,164 +19079,187 @@ export default function ThailandPantiesMarketSite() {
                   </div>
                 </details>
                 <div className="mt-6 space-y-8">
-                  <details id="bar-profile" className="overflow-hidden rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100" open>
-                    <summary className="cursor-pointer list-none">
+                  <details id="bar-profile" className="overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-rose-100" open>
+                    <summary className="cursor-pointer list-none p-6">
                       <div className="flex items-center justify-between gap-3">
                         <h3 className="text-xl font-semibold">{barT.profileTitle}</h3>
                         <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{barT.closeSectionLabel}</span>
                       </div>
                     </summary>
-                    <div className="mt-4 aspect-[4/5] max-w-xs">
-                      <ProductImage
-                        src={barProfileDraft.profileImage || currentBarProfile?.profileImage}
-                        label={barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.profileImage}
-                        top
-                      />
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <label className="inline-flex cursor-pointer items-center rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">
-                        <input type="file" accept="image/*" onChange={handleBarProfileImageUpload} className="hidden" />
-                        {barT.chooseImage}
-                      </label>
-                      <span className="text-xs text-slate-500">
-                        {barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.noFileSelected}
-                      </span>
-                    </div>
-                    {(barProfileDraft.profileImage || currentBarProfile?.profileImage) ? (
-                      <div className="mt-1 text-[11px] text-slate-400">Image will be cropped to fit — center the important part</div>
-                    ) : null}
-                    <div className="mt-4 grid gap-3">
-                      <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.locationPlaceholder} />
-                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.mapLocationTitle}</div>
-                        <p className="mt-2 text-xs text-slate-500">
-                          {barT.mapLocationInstructions}
-                        </p>
-                        <input
-                          value={barProfileDraft.mapLink || ''}
-                          onChange={(event) => updateBarProfileField('mapLink', event.target.value)}
-                          className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                          placeholder="https://maps.google.com/..."
-                        />
-                        <button
-                          type="button"
-                          onClick={autofillBarMapFromLocation}
-                          className="mt-2 rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                        >
-                          {barT.addLocationButton}
-                        </button>
-                        <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-slate-500">
-                          <li>{barT.mapStep1}</li>
-                          <li>{barT.mapStep2}</li>
-                          <li>{barT.mapStep3}</li>
-                        </ol>
-                        {barProfileDraft.mapEmbedUrl ? (
-                          <div className="mt-2">
-                            <div className="text-xs font-medium text-emerald-700">✓ Map location set</div>
+                    <div className="px-6 pb-2">
+                      <details className="group rounded-2xl border border-slate-100 bg-slate-50" open>
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3">
+                          <span className="text-sm font-semibold text-slate-700">Cover Image</span>
+                          <span className="text-xs text-slate-400 transition-transform group-open:rotate-180">&#9660;</span>
+                        </summary>
+                        <div className="px-4 pb-4">
+                          <div className="aspect-[4/5] max-w-xs">
+                            <ProductImage
+                              src={barProfileDraft.profileImage || currentBarProfile?.profileImage}
+                              label={barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.profileImage}
+                              top
+                            />
+                          </div>
+                          <div className="mt-3 flex flex-wrap items-center gap-3">
+                            <label className="inline-flex cursor-pointer items-center rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">
+                              <input type="file" accept="image/*" onChange={handleBarProfileImageUpload} className="hidden" />
+                              {barT.chooseImage}
+                            </label>
+                            <span className="text-xs text-slate-500">
+                              {barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.noFileSelected}
+                            </span>
+                          </div>
+                          {(barProfileDraft.profileImage || currentBarProfile?.profileImage) ? (
+                            <div className="mt-1 text-[11px] text-slate-400">Image will be cropped to fit — center the important part</div>
+                          ) : null}
+                        </div>
+                      </details>
+
+                      <details className="group mt-3 rounded-2xl border border-slate-100 bg-slate-50" open>
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3">
+                          <span className="text-sm font-semibold text-slate-700">Location &amp; Map</span>
+                          <span className="text-xs text-slate-400 transition-transform group-open:rotate-180">&#9660;</span>
+                        </summary>
+                        <div className="grid gap-3 px-4 pb-4">
+                          <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.locationPlaceholder} />
+                          <div className="rounded-2xl border border-rose-100 bg-white p-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.mapLocationTitle}</div>
+                            <p className="mt-2 text-xs text-slate-500">
+                              {barT.mapLocationInstructions}
+                            </p>
+                            <input
+                              value={barProfileDraft.mapLink || ''}
+                              onChange={(event) => updateBarProfileField('mapLink', event.target.value)}
+                              className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                              placeholder="https://maps.google.com/..."
+                            />
                             <button
                               type="button"
-                              onClick={() => {
-                                setBarProfileDraft((prev) => ({ ...prev, mapLink: '', mapEmbedUrl: '' }));
-                                if (currentBarId && backendStatus === 'connected' && apiAuthToken) {
-                                  setDb((prev) => ({
-                                    ...prev,
-                                    bars: (prev.bars || []).map((bar) => bar.id === currentBarId ? { ...bar, mapLink: '', mapEmbedUrl: '' } : bar),
-                                  }));
-                                  apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, { method: 'PUT', body: { mapEmbedUrl: '', mapLink: '' } }).catch(() => {});
-                                }
-                                setBarProfileMessage('');
-                              }}
-                              className="mt-1 text-xs font-semibold text-rose-600"
+                              onClick={autofillBarMapFromLocation}
+                              className="mt-2 rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
                             >
-                              Remove location
+                              {barT.addLocationButton}
                             </button>
+                            <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-slate-500">
+                              <li>{barT.mapStep1}</li>
+                              <li>{barT.mapStep2}</li>
+                              <li>{barT.mapStep3}</li>
+                            </ol>
+                            {barProfileDraft.mapEmbedUrl ? (
+                              <div className="mt-2">
+                                <div className="text-xs font-medium text-emerald-700">✓ Map location set</div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setBarProfileDraft((prev) => ({ ...prev, mapLink: '', mapEmbedUrl: '' }));
+                                    if (currentBarId && backendStatus === 'connected' && apiAuthToken) {
+                                      setDb((prev) => ({
+                                        ...prev,
+                                        bars: (prev.bars || []).map((bar) => bar.id === currentBarId ? { ...bar, mapLink: '', mapEmbedUrl: '' } : bar),
+                                      }));
+                                      apiRequestJson(`/api/bars/${encodeURIComponent(currentBarId)}`, { method: 'PUT', body: { mapEmbedUrl: '', mapLink: '' } }).catch(() => {});
+                                    }
+                                    setBarProfileMessage('');
+                                  }}
+                                  className="mt-1 text-xs font-semibold text-rose-600"
+                                >
+                                  Remove location
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </details>
+
+                      <details className="group mt-3 rounded-2xl border border-slate-100 bg-slate-50" open>
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3">
+                          <span className="text-sm font-semibold text-slate-700">About</span>
+                          <span className="text-xs text-slate-400 transition-transform group-open:rotate-180">&#9660;</span>
+                        </summary>
+                        <div className="grid gap-3 px-4 pb-4">
+                          <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.aboutPlaceholder} />
+                          <div className="rounded-2xl border border-rose-100 bg-white p-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.aboutPresetsTitle}</div>
+                            <p className="mt-1 text-xs text-slate-500">{barT.aboutPresetsHelp}</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {BAR_PROFILE_TEXT_PRESET_OPTIONS.about.map((preset) => (
+                                <button
+                                  key={preset.id}
+                                  type="button"
+                                  onClick={() => appendBarProfilePresetText('about', preset.text[uiLanguage] || preset.text.en)}
+                                  className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                                >
+                                  {preset.label[uiLanguage] || preset.label.en}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+
+                      <details className="group mt-3 rounded-2xl border border-slate-100 bg-slate-50" open>
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3">
+                          <span className="text-sm font-semibold text-slate-700">Specials &amp; Amenities</span>
+                          <span className="text-xs text-slate-400 transition-transform group-open:rotate-180">&#9660;</span>
+                        </summary>
+                        <div className="grid gap-3 px-4 pb-4">
+                          <div className="rounded-2xl border border-rose-100 bg-white p-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.specialsPresetsTitle}</div>
+                            <div className="mt-2 flex flex-nowrap gap-2 overflow-x-auto pb-1">
+                              {BAR_PROFILE_TEXT_PRESET_OPTIONS.specials.map((preset) => (
+                                <button
+                                  key={preset.id}
+                                  type="button"
+                                  onClick={() => appendBarProfilePresetText('specials', preset.text[uiLanguage] || preset.text.en)}
+                                  className="shrink-0 rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+                                >
+                                  {preset.label[uiLanguage] || preset.label.en}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.specialsPlaceholder} />
+                          <div className="rounded-2xl border border-rose-100 bg-white p-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.quickPicksTitle}</div>
+                            <p className="mt-2 text-xs text-slate-500">{barT.quickPicksHelp}</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {BAR_PROFILE_SPECIAL_PRESET_OPTIONS.map((option) => {
+                                const isActive = barSpecialPresetSelections.includes(option.id);
+                                const OptionIcon = option.Icon;
+                                return (
+                                  <button
+                                    key={option.id}
+                                    type="button"
+                                    onClick={() => toggleBarSpecialPreset(option.id)}
+                                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${isActive ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 bg-white text-slate-700'}`}
+                                  >
+                                    <span className="inline-flex items-center gap-1">
+                                      <OptionIcon className="h-3.5 w-3.5" />
+                                      {option.labels?.[uiLanguage] || option.labels?.en || option.id}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+                    </div>
+                    <div className="sticky bottom-0 z-10 border-t border-rose-100 bg-white/95 px-6 py-3 backdrop-blur">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={saveBarProfile}
+                          disabled={savingBarProfile}
+                          className={`rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 ${savingBarProfile ? 'cursor-not-allowed opacity-60' : ''}`}
+                        >
+                          {savingBarProfile ? barT.saving : barT.saveProfile}
+                        </button>
+                        {barProfileMessage ? (
+                          <div className={`text-sm font-medium ${barProfileMessage === barT.profileSaved ? 'text-emerald-700' : 'text-rose-700'}`}>
+                            {barProfileMessage}
                           </div>
                         ) : null}
                       </div>
-                      <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.aboutPlaceholder} />
-                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.aboutPresetsTitle}</div>
-                        <p className="mt-1 text-xs text-slate-500">{barT.aboutPresetsHelp}</p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {BAR_PROFILE_TEXT_PRESET_OPTIONS.about.map((preset) => (
-                            <button
-                              key={preset.id}
-                              type="button"
-                              onClick={() => appendBarProfilePresetText('about', preset.text[uiLanguage] || preset.text.en)}
-                              className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                            >
-                              {preset.label[uiLanguage] || preset.label.en}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.specialsPresetsTitle}</div>
-                        <div className="mt-2 flex flex-nowrap gap-2 overflow-x-auto pb-1">
-                          {BAR_PROFILE_TEXT_PRESET_OPTIONS.specials.map((preset) => (
-                            <button
-                              key={preset.id}
-                              type="button"
-                              onClick={() => appendBarProfilePresetText('specials', preset.text[uiLanguage] || preset.text.en)}
-                              className="shrink-0 rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                            >
-                              {preset.label[uiLanguage] || preset.label.en}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <textarea value={barProfileDraft.specials} onChange={(event) => updateBarProfileField('specials', event.target.value)} className="min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.specialsPlaceholder} />
-                      <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.quickPicksTitle}</div>
-                        <p className="mt-2 text-xs text-slate-500">{barT.quickPicksHelp}</p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {BAR_PROFILE_SPECIAL_PRESET_OPTIONS.map((option) => {
-                            const isActive = barSpecialPresetSelections.includes(option.id);
-                            const OptionIcon = option.Icon;
-                            return (
-                              <button
-                                key={option.id}
-                                type="button"
-                                onClick={() => toggleBarSpecialPreset(option.id)}
-                                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${isActive ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 bg-white text-slate-700'}`}
-                              >
-                                <span className="inline-flex items-center gap-1">
-                                  <OptionIcon className="h-3.5 w-3.5" />
-                                  {option.labels?.[uiLanguage] || option.labels?.en || option.id}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={applyBarSpecialPresetsToDraft}
-                            className="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
-                          >
-                            {barT.applyToSpecials}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setBarSpecialPresetSelections([])}
-                            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
-                          >
-                            {barT.clearPicks}
-                          </button>
-                        </div>
-                      </div>
-                      <button
-                        onClick={saveBarProfile}
-                        disabled={savingBarProfile}
-                        className={`inline-flex w-auto justify-self-start rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 ${savingBarProfile ? 'cursor-not-allowed opacity-60' : ''}`}
-                      >
-                        {savingBarProfile ? barT.saving : barT.saveProfile}
-                      </button>
-                      {barProfileMessage ? (
-                        <div className={`text-sm font-medium ${barProfileMessage === barT.profileSaved ? 'text-emerald-700' : 'text-rose-700'}`}>
-                          {barProfileMessage}
-                        </div>
-                      ) : null}
                     </div>
                   </details>
                 </div>
