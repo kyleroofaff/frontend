@@ -246,7 +246,7 @@ const BAR_DASHBOARD_I18N = {
     addLocationButton: 'Add location',
     mapStep1: 'Open Google Maps and search for your bar.',
     mapStep2: 'Tap Share, then Copy link.',
-    mapStep3: 'Paste the link in Bar location above and click Add location.',
+    mapStep3: 'Paste the link above and click Add location.',
     aboutPresetsTitle: 'About presets',
     aboutPresetsHelp: 'Tap any preset to append text, then edit it however you want.',
     specialsPresetsTitle: 'Specials text presets',
@@ -345,7 +345,7 @@ const BAR_DASHBOARD_I18N = {
     addLocationButton: 'เพิ่มตำแหน่ง',
     mapStep1: 'เปิด Google Maps แล้วค้นหาบาร์ของคุณ',
     mapStep2: 'แตะแชร์ แล้วคัดลอกลิงก์',
-    mapStep3: 'วางลิงก์ในช่องที่ตั้งบาร์ด้านบน แล้วกดเพิ่มตำแหน่ง',
+    mapStep3: 'วางลิงก์ด้านบน แล้วกดเพิ่มตำแหน่ง',
     aboutPresetsTitle: 'ข้อความสำเร็จรูป',
     aboutPresetsHelp: 'แตะข้อความสำเร็จรูปเพื่อเพิ่ม แล้วแก้ไขได้ตามต้องการ',
     specialsPresetsTitle: 'ข้อความโปรโมชั่นสำเร็จรูป',
@@ -444,7 +444,7 @@ const BAR_DASHBOARD_I18N = {
     addLocationButton: 'တည်နေရာထည့်မည်',
     mapStep1: 'Google Maps ကိုဖွင့်ပြီး bar ကိုရှာပါ။',
     mapStep2: 'Share ကိုနှိပ်ပြီး link ကို Copy ကူးပါ။',
-    mapStep3: 'link ကို bar တည်နေရာတွင် paste လုပ်ပြီး Add location ကိုနှိပ်ပါ။',
+    mapStep3: 'link ကို အပေါ်တွင် paste လုပ်ပြီး Add location ကိုနှိပ်ပါ။',
     aboutPresetsTitle: 'About presets',
     aboutPresetsHelp: 'preset ကိုနှိပ်ပြီး text ထည့်ပါ၊ ပြီးရင် ကိုယ်လိုသလို ပြင်ဆင်ပါ။',
     specialsPresetsTitle: 'Specials text presets',
@@ -543,7 +543,7 @@ const BAR_DASHBOARD_I18N = {
     addLocationButton: 'Добавить местоположение',
     mapStep1: 'Откройте Google Maps и найдите ваш бар.',
     mapStep2: 'Нажмите Поделиться, затем Копировать ссылку.',
-    mapStep3: 'Вставьте ссылку в поле выше и нажмите Добавить местоположение.',
+    mapStep3: 'Вставьте ссылку выше и нажмите Добавить местоположение.',
     aboutPresetsTitle: 'Шаблоны описания',
     aboutPresetsHelp: 'Нажмите на шаблон, чтобы добавить текст, затем отредактируйте по желанию.',
     specialsPresetsTitle: 'Шаблоны акций',
@@ -10502,12 +10502,13 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function autofillBarMapFromLocation() {
+    const mapLinkText = String(barProfileDraft.mapLink || '').trim();
     const locationText = String(barProfileDraft.location || '').trim();
-    if (!locationText) {
+    if (!mapLinkText && !locationText) {
       setBarProfileMessage(barStatus('addLocationBeforeAutofill'));
       return;
     }
-    const nextMap = buildBarMapFields('', locationText);
+    const nextMap = buildBarMapFields(mapLinkText, locationText);
     setBarProfileDraft((prev) => ({
       ...prev,
       mapLink: nextMap.mapLink,
@@ -19025,12 +19026,18 @@ export default function ThailandPantiesMarketSite() {
                       <div className="mt-1 text-[11px] text-slate-400">Image will be cropped to fit — center the important part</div>
                     ) : null}
                     <div className="mt-4 grid gap-3">
-                      <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="https://maps.google.com/..." />
+                      <input value={barProfileDraft.location} onChange={(event) => updateBarProfileField('location', event.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.locationPlaceholder} />
                       <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.mapLocationTitle}</div>
                         <p className="mt-2 text-xs text-slate-500">
                           {barT.mapLocationInstructions}
                         </p>
+                        <input
+                          value={barProfileDraft.mapLink || ''}
+                          onChange={(event) => updateBarProfileField('mapLink', event.target.value)}
+                          className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                          placeholder="https://maps.google.com/..."
+                        />
                         <button
                           type="button"
                           onClick={autofillBarMapFromLocation}
@@ -19044,7 +19051,19 @@ export default function ThailandPantiesMarketSite() {
                           <li>{barT.mapStep3}</li>
                         </ol>
                         {barProfileDraft.mapLink ? (
-                          <div className="mt-2 text-xs text-emerald-700 font-medium">✓ {barProfileDraft.mapLink}</div>
+                          <div className="mt-2 flex items-center gap-3">
+                            <div className="text-xs font-medium text-emerald-700">✓ {barProfileDraft.mapLink}</div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setBarProfileDraft((prev) => ({ ...prev, mapLink: '', mapEmbedUrl: '' }));
+                                setBarProfileMessage('');
+                              }}
+                              className="text-xs font-semibold text-rose-600"
+                            >
+                              Remove
+                            </button>
+                          </div>
                         ) : null}
                       </div>
                       <textarea value={barProfileDraft.about} onChange={(event) => updateBarProfileField('about', event.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.aboutPlaceholder} />
