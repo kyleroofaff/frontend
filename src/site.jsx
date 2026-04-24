@@ -798,7 +798,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'This item is already in your cart.',
     sellerFeed: 'Stories',
     latestSellerUpdates: 'Latest seller updates',
-    recentLifestylePosts: 'Recent posts from active sellers.',
+    recentLifestylePosts: 'Recent posts from active sellers and bars.',
     viewFullFeed: 'View all stories',
     noRecentSellerPosts: 'No recent seller posts yet.',
     unlockFor: 'Unlock for',
@@ -944,7 +944,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'สินค้านี้อยู่ในตะกร้าแล้ว',
     sellerFeed: 'สตอรี่',
     latestSellerUpdates: 'อัปเดตล่าสุดจากผู้ขาย',
-    recentLifestylePosts: 'โพสต์ล่าสุดจากผู้ขายที่ใช้งานอยู่',
+    recentLifestylePosts: 'โพสต์ล่าสุดจากผู้ขายและบาร์ที่ใช้งานอยู่',
     viewFullFeed: 'ดูสตอรี่ทั้งหมด',
     noRecentSellerPosts: 'ยังไม่มีโพสต์ล่าสุดจากผู้ขาย',
     unlockFor: 'ปลดล็อกในราคา',
@@ -1090,7 +1090,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'ဤပစ္စည်းသည် cart ထဲတွင် ရှိနေပြီးဖြစ်သည်',
     sellerFeed: 'Stories',
     latestSellerUpdates: 'Seller update အသစ်များ',
-    recentLifestylePosts: 'active seller များ၏ post အသစ်များ',
+    recentLifestylePosts: 'active seller နှင့် bar များ၏ post အသစ်များ',
     viewFullFeed: 'Stories အပြည့်ကြည့်ရန်',
     noRecentSellerPosts: 'seller post အသစ် မရှိသေးပါ',
     unlockFor: 'Unlock for',
@@ -1236,7 +1236,7 @@ const PUBLIC_SITE_I18N = {
     alreadyInCartNotice: 'Этот товар уже в корзине.',
     sellerFeed: 'Истории',
     latestSellerUpdates: 'Последние обновления продавцов',
-    recentLifestylePosts: 'Свежие посты активных продавцов.',
+    recentLifestylePosts: 'Свежие посты активных продавцов и баров.',
     viewFullFeed: 'Смотреть все истории',
     noRecentSellerPosts: 'Пока нет свежих постов продавцов.',
     unlockFor: 'Разблокировать за',
@@ -18833,13 +18833,6 @@ export default function ThailandPantiesMarketSite() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate('/stories')}
-                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
-                  >
-                    {barT.watchFeeds}
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => {
                       const ordersSection = typeof document !== 'undefined' ? document.getElementById('bar-orders') : null;
                       if (ordersSection) ordersSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -19623,13 +19616,6 @@ export default function ThailandPantiesMarketSite() {
                   >
                     {navText.messages}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/stories')}
-                    className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
-                  >
-                    {barT.watchFeeds}
-                  </button>
                   <label className="col-span-2 mt-1 flex items-center justify-end gap-2 text-sm text-slate-600 sm:col-auto sm:ml-auto sm:mt-0">
                     {barT.language}
                     <select
@@ -19682,7 +19668,7 @@ export default function ThailandPantiesMarketSite() {
                       <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">{barT.noPosts}</div>
                     ) : barDashboardPosts.map((post) => (
                       <article key={post.id} className="rounded-2xl border border-rose-100 p-3">
-                        <div className="aspect-[4/5]">
+                        <div className="aspect-[4/5] max-w-xs">
                           <ProductImage src={post.image} label={post.imageName || 'Bar post'} top mediaType={post.mediaType} />
                         </div>
                         <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
