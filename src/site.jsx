@@ -7260,6 +7260,15 @@ export default function ThailandPantiesMarketSite() {
                 changed = true;
               }
             }
+            const serverMessages = Array.isArray(payload.db.messages) ? payload.db.messages : [];
+            if (serverMessages.length > 0) {
+              const localMsgIds = new Set((merged.messages || []).map((m) => m?.id));
+              const newMsgs = serverMessages.filter((m) => m?.id && !localMsgIds.has(m.id));
+              if (newMsgs.length > 0) {
+                merged.messages = [...(merged.messages || []), ...newMsgs];
+                changed = true;
+              }
+            }
             return changed ? merged : prev;
           });
         }
@@ -12417,6 +12426,12 @@ export default function ThailandPantiesMarketSite() {
           body: JSON.stringify({
             conversationId: sellerActiveConversationId,
             body: draft,
+            barId,
+            participantRole,
+            participantUserId,
+            sourceLanguage,
+            translations,
+            ...(sellerReplyMedia ? { mediaUrl: sellerReplyMedia.url, mediaType: sellerReplyMedia.type } : {}),
           }),
         });
       } catch (err) {
