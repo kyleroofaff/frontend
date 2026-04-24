@@ -19042,23 +19042,25 @@ export default function ThailandPantiesMarketSite() {
                           <span className="text-xs text-slate-400 transition-transform group-open:rotate-180">&#9660;</span>
                         </summary>
                         <div className="px-4 pb-4">
+                          {barProfileDraft.profileImage ? (
                           <div className="aspect-[4/5] max-w-xs">
                             <ProductImage
-                              src={barProfileDraft.profileImage || currentBarProfile?.profileImage}
-                              label={barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.profileImage}
+                              src={barProfileDraft.profileImage}
+                              label={barProfileDraft.profileImageName || barT.profileImage}
                               top
                             />
                           </div>
+                          ) : null}
                           <div className="mt-3 flex flex-wrap items-center gap-3">
                             <label className="inline-flex cursor-pointer items-center rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">
                               <input type="file" accept="image/*" onChange={handleBarProfileImageUpload} className="hidden" />
                               {barT.chooseImage}
                             </label>
                             <span className="text-xs text-slate-500">
-                              {barProfileDraft.profileImageName || currentBarProfile?.profileImageName || barT.noFileSelected}
+                              {barProfileDraft.profileImageName || barT.noFileSelected}
                             </span>
                           </div>
-                          {(barProfileDraft.profileImage || currentBarProfile?.profileImage) ? (
+                          {barProfileDraft.profileImage ? (
                             <div className="mt-1 flex items-center gap-3">
                               <div className="text-[11px] text-slate-400">Image will be cropped to fit — center the important part</div>
                               <button
