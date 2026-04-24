@@ -3968,8 +3968,6 @@ export function StoriesWorkspacePage({
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
-  const [bulkPrivatePostPrice, setBulkPrivatePostPrice] = useState("1");
-  const [privatePostPricingMode, setPrivatePostPricingMode] = useState("all");
   const draftPostVisibility = sellerPostDraft.visibility === "private" ? "private" : "public";
   const effectiveDraftVisibility = draftPostVisibility;
   const unlockRevenue = Number(sellerPostAnalytics?.unlockRevenue || 0);
@@ -4091,10 +4089,9 @@ export function StoriesWorkspacePage({
                     <label className="grid max-w-sm gap-1 text-sm text-slate-600">
                       <span className="font-medium">{t("privateUnlockPrice")}</span>
                       <input
-                        type="number"
-                        min={MIN_FEED_UNLOCK_PRICE_THB}
-                        step="1"
-                        value={Number(sellerPostDraft.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
+                        type="text"
+                        inputMode="numeric"
+                        value={sellerPostDraft.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB}
                         onChange={(event) =>
                           setSellerPostDraft((prev) => ({
                             ...prev,
@@ -4143,48 +4140,6 @@ export function StoriesWorkspacePage({
                   </div>
                 </div>
               </summary>
-              <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("privatePostPricingMode")}</div>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPrivatePostPricingMode("all")}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
-                  >
-                    {t("samePriceForAllPrivate")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPrivatePostPricingMode("individual")}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold ${privatePostPricingMode === "individual" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
-                  >
-                    {t("individualPricePerPost")}
-                  </button>
-                </div>
-                {privatePostPricingMode === "all" ? (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="w-full text-xs text-slate-500 sm:w-auto">{t("bulkPriceForAllPrivate")}</span>
-                    <input
-                      type="number"
-                      min={MIN_FEED_UNLOCK_PRICE_THB}
-                      step="1"
-                      value={bulkPrivatePostPrice}
-                      onChange={(event) => setBulkPrivatePostPrice(event.target.value)}
-                      className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                    />
-                    <button
-                      onClick={() => updateAllPrivatePostPrices(bulkPrivatePostPrice)}
-                      className="w-full rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 sm:w-auto sm:py-1"
-                    >
-                      {t("applyToAllPrivate")}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="mt-3 text-xs text-slate-500">
-                    {t("individualModeHelp")} ({formatPriceTHB(MIN_FEED_UNLOCK_PRICE_THB)} / {formatPriceTHB(MIN_FEED_UNLOCK_PRICE_THB + 500)}).
-                  </div>
-                )}
-              </div>
               <div className="mt-4 space-y-3">
                 {sellerDashboardPosts.length === 0 ? (
                   <div className="rounded-2xl bg-white p-4 text-sm text-slate-500 ring-1 ring-rose-100">{t("noPosts")}</div>
@@ -4232,20 +4187,14 @@ export function StoriesWorkspacePage({
                         <option value="public">{localizeOptionLabel("Public", locale)}</option>
                         <option value="private">{localizeOptionLabel("Private (paid)", locale)}</option>
                       </select>
-                      {post.visibility === "private" && privatePostPricingMode === "individual" ? (
+                      {post.visibility === "private" ? (
                         <input
-                          type="number"
-                          min={MIN_FEED_UNLOCK_PRICE_THB}
-                          step="1"
-                          value={Number(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
+                          type="text"
+                          inputMode="numeric"
+                          value={post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB}
                           onChange={(event) => updateSellerPostPrice(post.id, event.target.value)}
                           className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs"
                         />
-                      ) : null}
-                      {post.visibility === "private" && privatePostPricingMode === "all" ? (
-                        <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                          {formatPriceTHB(post.accessPriceUsd || MIN_FEED_UNLOCK_PRICE_THB)}
-                        </span>
                       ) : null}
                     </div>
                     <div className="mt-2 text-sm text-slate-700">{post.caption || t("noCaption")}</div>

@@ -17816,7 +17816,7 @@ export default function ThailandPantiesMarketSite() {
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
                         <button onClick={() => navigate('/stories')} className="relative mt-3 block aspect-[4/5] w-full">
-                          <div className={isSellerFeedPost && !canViewSellerPost(post) ? 'blur-sm' : ''}>
+                          <div className={isSellerFeedPost && !canViewSellerPost(post) ? 'blur-xl' : ''}>
                             <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Stories image' : 'Bar stories image')} top mediaType={post.mediaType} />
                           </div>
                           {isSellerFeedPost && !canViewSellerPost(post) && isSellerPostPrivate(post) ? (
@@ -18107,7 +18107,7 @@ export default function ThailandPantiesMarketSite() {
                         <article key={post.id} className="rounded-2xl border border-rose-100 p-4">
                           {post.image ? (
                             <div className="relative aspect-[4/5]">
-                              <div className={post._kind === 'seller' && !canViewSellerPost(post) ? 'blur-sm h-full' : 'h-full'}>
+                              <div className={post._kind === 'seller' && !canViewSellerPost(post) ? 'blur-xl h-full' : 'h-full'}>
                                 <ProductImage src={post.image} label={post.imageName || 'Stories image'} top mediaType={post.mediaType} />
                               </div>
                               {post._kind === 'seller' && !canViewSellerPost(post) && isSellerPostPrivate(post) ? (
@@ -18577,7 +18577,7 @@ export default function ThailandPantiesMarketSite() {
                           }}
                           className="relative mt-3 block aspect-[4/5] w-full text-left"
                         >
-                          <div className={canViewSellerPost(post) ? '' : 'blur-sm'}>
+                          <div className={canViewSellerPost(post) ? '' : 'blur-xl'}>
                             <ProductImage src={post.image} label={post.imageName || 'Seller post'} top mediaType={post.mediaType} />
                           </div>
                           {!canViewSellerPost(post) && isSellerPostPrivate(post) ? (
