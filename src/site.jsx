@@ -15197,13 +15197,13 @@ export default function ThailandPantiesMarketSite() {
         ? Number(Number(sellerPostDraft.accessPriceUsd).toFixed(2))
         : MIN_FEED_UNLOCK_PRICE_THB,
     };
+    setCreatingSellerPost(true);
     const captionI18n = await buildTextTranslations(basePostPayload.caption);
     const scheduledTimestamp = sellerPostDraft.scheduledFor ? new Date(sellerPostDraft.scheduledFor).getTime() : null;
     const hasScheduledTime = Number.isFinite(scheduledTimestamp) && scheduledTimestamp > Date.now();
     const scheduledForIso = hasScheduledTime ? new Date(scheduledTimestamp).toISOString() : '';
     const apiPostPayload = { ...basePostPayload, captionI18n, ...(scheduledForIso ? { scheduledFor: scheduledForIso } : {}) };
 
-    setCreatingSellerPost(true);
     try {
       let createdPost = {
         id: `post-local-${Date.now()}`,
@@ -17803,8 +17803,9 @@ export default function ThailandPantiesMarketSite() {
                             </div>
                           ) : null}
                         </button>
-                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">
-                          {isSellerFeedPost && !canViewSellerPost(post) ? publicText.privatePostUnlock : (post.caption || publicText.noCaption)}
+                        {isSellerFeedPost && !canViewSellerPost(post) && <p className="mt-3 text-xs font-medium text-rose-600/70">{publicText.privatePostUnlock}</p>}
+                        <p className={`${isSellerFeedPost && !canViewSellerPost(post) ? 'mt-1' : 'mt-3'} line-clamp-3 text-sm leading-6 text-slate-700`}>
+                          {post.caption || publicText.noCaption}
                         </p>
                       </article>
                     );
@@ -18096,8 +18097,9 @@ export default function ThailandPantiesMarketSite() {
                             </div>
                           ) : null}
                           <div className="mt-2 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
+                          {post._kind === 'seller' && !canViewSellerPost(post) && <p className="mt-1 text-xs font-medium text-rose-600/70">{publicText.privatePostUnlock}</p>}
                           <p className="mt-1 text-sm text-slate-700">
-                            {post._kind === 'seller' && !canViewSellerPost(post) ? publicText.privatePostUnlock : (post.caption || publicText.noCaption)}
+                            {post.caption || publicText.noCaption}
                           </p>
                           {post._kind === 'seller' && sellerMap[post.sellerId] ? (
                             <button onClick={() => navigate(`/seller/${post.sellerId}`)} className="mt-2 text-xs font-semibold text-rose-600 hover:underline">
@@ -18564,7 +18566,8 @@ export default function ThailandPantiesMarketSite() {
                             </div>
                           ) : null}
                         </button>
-                        {canViewSellerPost(post) ? (post.caption ? <div className="mt-3 text-sm leading-6 text-slate-700">{post.caption}</div> : null) : <div className="mt-3 text-sm text-slate-500">{publicText.privatePostUnlock}</div>}
+                        {!canViewSellerPost(post) && <div className="mt-3 text-xs font-medium text-rose-600/70">{publicText.privatePostUnlock}</div>}
+                        {post.caption ? <div className={`${!canViewSellerPost(post) ? 'mt-1' : 'mt-3'} text-sm leading-6 text-slate-700`}>{post.caption}</div> : null}
                       </div>
                     ))}
                   </div>

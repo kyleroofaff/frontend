@@ -5214,7 +5214,8 @@ export function StoriesPage({
                   ) : null}
                 </button>
               </div>
-              {canViewSellerPost(post) ? (post.caption ? <p className="mt-3 text-sm leading-6 text-slate-700">{post.caption}</p> : null) : <p className="mt-3 text-sm text-slate-500">Private post. Unlock to view.</p>}
+              {!canViewSellerPost(post) && <p className="mt-3 text-xs font-medium text-rose-600/70">Private post. Unlock to view.</p>}
+              {post.caption ? <p className={`${!canViewSellerPost(post) ? 'mt-1' : 'mt-3'} text-sm leading-6 text-slate-700`}>{post.caption}</p> : null}
               {canViewSellerPost(post) ? (
                 <div className="mt-3 rounded-2xl bg-slate-50 p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
