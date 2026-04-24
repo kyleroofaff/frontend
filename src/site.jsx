@@ -9260,6 +9260,12 @@ export default function ThailandPantiesMarketSite() {
         ],
       };
     });
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson(`/api/sellers/${encodeURIComponent(sellerId)}`, {
+        method: 'PUT',
+        body: { affiliatedBarId: normalizedBarId },
+      }).catch(() => {});
+    }
     setAdminAuthActionMessage(normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent'));
     Promise.resolve(dispatchManagedNotification({
       recipientUserIds: adminRecipients,
@@ -10472,27 +10478,30 @@ export default function ThailandPantiesMarketSite() {
     const locationLooksLikeUrl = /^https?:\/\//i.test(locationRaw);
     const mapLink = mapLinkRaw || (locationLooksLikeUrl ? locationRaw : `https://maps.google.com/?q=${encodeURIComponent(locationRaw)}`);
     let query = '';
+    let queryFromStructuredUrl = false;
     try {
       const parsed = new URL(mapLink);
       query = String(parsed.searchParams.get('q') || parsed.searchParams.get('query') || '').trim();
+      if (query) queryFromStructuredUrl = true;
       if (!query) {
         const placeMatch = decodeURIComponent(parsed.pathname || '').match(/\/place\/([^/@]+)/);
         if (placeMatch) {
           query = placeMatch[1].replace(/\+/g, ' ');
+          queryFromStructuredUrl = true;
         }
       }
       if (!query) {
         const coordMatch = decodeURIComponent(parsed.pathname || '').match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
         if (coordMatch) {
           query = `${coordMatch[1]},${coordMatch[2]}`;
+          queryFromStructuredUrl = true;
         }
       }
-      if (!query) {
-        const pathname = decodeURIComponent(parsed.pathname || '').replace(/^\//, '').trim();
-        if (pathname && !pathname.includes('maps')) query = pathname;
-      }
     } catch {
-      query = mapLinkRaw;
+      // not a valid URL at all
+    }
+    if (!queryFromStructuredUrl && locationRaw && !locationLooksLikeUrl) {
+      query = locationRaw;
     }
     if (!query) query = locationRaw;
     const mapEmbedUrl = query
@@ -10514,8 +10523,10 @@ export default function ThailandPantiesMarketSite() {
       mapLink: nextMap.mapLink,
       mapEmbedUrl: nextMap.mapEmbedUrl,
     }));
-    if (nextMap.mapLink) {
+    if (nextMap.mapEmbedUrl) {
       setBarProfileMessage(barT.mapLocationTitle + ' ✓');
+    } else if (nextMap.mapLink) {
+      setBarProfileMessage('Link saved but map preview needs a bar location name above.');
     }
   }
 
