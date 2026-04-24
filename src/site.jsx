@@ -7244,6 +7244,26 @@ export default function ThailandPantiesMarketSite() {
                 changed = true;
               }
             }
+            const serverBarPosts = Array.isArray(payload.db.barPosts) ? payload.db.barPosts : [];
+            if (serverBarPosts.length > 0) {
+              const localBarPostMap = new Map((merged.barPosts || []).map((p) => [p?.id, p]));
+              let barPostsUpdated = false;
+              serverBarPosts.forEach((serverPost) => {
+                if (!serverPost?.id) return;
+                const local = localBarPostMap.get(serverPost.id);
+                if (!local) {
+                  localBarPostMap.set(serverPost.id, serverPost);
+                  barPostsUpdated = true;
+                } else {
+                  localBarPostMap.set(serverPost.id, { ...local, ...serverPost });
+                  barPostsUpdated = true;
+                }
+              });
+              if (barPostsUpdated) {
+                merged.barPosts = Array.from(localBarPostMap.values());
+                changed = true;
+              }
+            }
             const approvedReqs = (merged.barAffiliationRequests || []).filter((r) => r.status === 'approved');
             if (approvedReqs.length > 0) {
               const reconSellerMap = new Map((merged.sellers || []).map((s) => [s.id, s]));
@@ -10752,23 +10772,32 @@ export default function ThailandPantiesMarketSite() {
     if (creatingBarPost) return;
     setCreatingBarPost(true);
     const now = new Date().toISOString();
+    const tempId = `bar_post_${Date.now()}`;
+    const caption = String(barPostDraft.caption || '').trim().slice(0, 500);
+    const image = barPostDraft.image;
+    const imageName = barPostDraft.imageName;
     setDb((prev) => ({
       ...prev,
       barPosts: [
-        {
-          id: `bar_post_${Date.now()}`,
-          barId: currentBarId,
-          caption: String(barPostDraft.caption || '').trim().slice(0, 500),
-          image: barPostDraft.image,
-          imageName: barPostDraft.imageName,
-          createdAt: now,
-        },
+        { id: tempId, barId: currentBarId, caption, image, imageName, createdAt: now },
         ...(prev.barPosts || []),
       ],
     }));
     setBarPostDraft({ caption: '', image: '', imageName: '' });
     setBarProfileMessage(barStatus('photoPosted'));
     setCreatingBarPost(false);
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson('/api/bar-posts', { method: 'POST', body: { image, imageName, caption } })
+        .then((res) => {
+          if (res?.post?.id && res.post.id !== tempId) {
+            setDb((prev) => ({
+              ...prev,
+              barPosts: (prev.barPosts || []).map((p) => (p.id === tempId ? { ...p, id: res.post.id } : p)),
+            }));
+          }
+        })
+        .catch(() => {});
+    }
   }
 
   function deleteBarPost(postId) {
@@ -10781,6 +10810,9 @@ export default function ThailandPantiesMarketSite() {
     }));
     setBarProfileMessage(barStatus('postRemoved'));
     setDeletingBarPostId(null);
+    if (backendStatus === 'connected' && apiAuthToken) {
+      apiRequestJson(`/api/bar-posts/${encodeURIComponent(postId)}`, { method: 'DELETE' }).catch(() => {});
+    }
   }
 
   function handleSellerProfileImageUpload(event) {
@@ -17829,7 +17861,7 @@ export default function ThailandPantiesMarketSite() {
                         className="cursor-pointer rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 transition hover:-translate-y-0.5 hover:ring-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                       >
                         <div className="aspect-[4/5]">
-                          <ProductImage src={latestPost?.image || bar.profileImage} label={latestPost?.imageName || `${bar.name} latest post`} top />
+                          <ProductImage src={bar.profileImage} label={`${bar.name} profile`} top />
                         </div>
                         <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
                         <div className="mt-1 text-sm text-slate-500">{bar.location || (bar.mapEmbedUrl ? '' : publicText.locationComingSoon)}</div>
