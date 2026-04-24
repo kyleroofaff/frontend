@@ -10755,10 +10755,14 @@ export default function ThailandPantiesMarketSite() {
       }));
       setBarProfileMessage('');
       URL.revokeObjectURL(objectUrl);
+      const el = document.getElementById('bar-post-image-input');
+      if (el) el.value = '';
     };
     img.onerror = () => {
       setBarProfileMessage('Could not read that image. Please try a different file.');
       URL.revokeObjectURL(objectUrl);
+      const el = document.getElementById('bar-post-image-input');
+      if (el) el.value = '';
     };
     img.src = objectUrl;
   }
@@ -15200,10 +15204,14 @@ export default function ThailandPantiesMarketSite() {
         mediaType: 'image',
       }));
       URL.revokeObjectURL(objectUrl);
+      const el = document.getElementById('seller-post-image-input');
+      if (el) el.value = '';
     };
     img.onerror = () => {
       setSellerProfileMessage('Could not read that image. Please try a different file.');
       URL.revokeObjectURL(objectUrl);
+      const el = document.getElementById('seller-post-image-input');
+      if (el) el.value = '';
     };
     img.src = objectUrl;
   }
@@ -19631,9 +19639,8 @@ export default function ThailandPantiesMarketSite() {
                 <div className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
                   <h3 className="text-xl font-semibold">{barT.feedTitle}</h3>
                   <p className="mt-2 text-sm text-slate-600">{barT.feedSubtitle}</p>
-                  <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.feedPlaceholder} />
                   <input id="bar-post-image-input" type="file" accept="image/*" onChange={handleBarPostImageUpload} className="sr-only" />
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
                     <label htmlFor="bar-post-image-input" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-2.5 py-1 text-xs font-semibold text-rose-700">
                       {barT.chooseImage || 'Choose image'}
                     </label>
@@ -19658,6 +19665,7 @@ export default function ThailandPantiesMarketSite() {
                   ) : (
                     <div className="mt-3 aspect-[4/5] max-w-xs"><ProductImage label={barT.preview} /></div>
                   )}
+                  <textarea value={barPostDraft.caption} onChange={(event) => setBarPostDraft((prev) => ({ ...prev, caption: event.target.value }))} className="mt-4 min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder={barT.feedPlaceholder} />
                   <button onClick={createBarPost} disabled={creatingBarPost} className="mt-3 inline-flex w-auto rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
                     {creatingBarPost ? barT.posting : barT.postButton}
                   </button>
