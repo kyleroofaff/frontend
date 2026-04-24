@@ -7554,15 +7554,7 @@ export function AdminPage({
     return { ok: true, reason };
   };
   const runAdminAffiliationChange = (sellerId, nextBarId) => {
-    const safety = promptForSafetyReason({
-      actionLabel: "this affiliation change",
-      impactNote: "Impact: this changes seller-bar visibility, reporting, and routing immediately.",
-    });
-    if (!safety.ok) {
-      if (safety.error) setInboxActionMessage(safety.error);
-      return;
-    }
-    const result = setSellerBarAffiliationByAdmin?.(sellerId, nextBarId, safety.reason);
+    const result = setSellerBarAffiliationByAdmin?.(sellerId, nextBarId, 'Admin affiliation change');
     if (result?.ok === false) {
       setInboxActionMessage(result.error || "Could not update affiliation.");
     }

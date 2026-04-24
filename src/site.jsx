@@ -9196,9 +9196,6 @@ export default function ThailandPantiesMarketSite() {
       return { ok: false, error: 'You do not have permission to manage affiliations.' };
     }
     const normalizedReason = String(reason || '').trim();
-    if (normalizedReason.length < 8) {
-      return { ok: false, error: 'Add a short reason (at least 8 characters) before updating affiliation.' };
-    }
     const normalizedBarId = String(barId || '').trim();
     const barExists = !normalizedBarId || (bars || []).some((bar) => bar.id === normalizedBarId);
     if (!barExists) return { ok: false, error: 'The selected bar does not exist.' };
