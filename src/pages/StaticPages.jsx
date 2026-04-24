@@ -1796,6 +1796,15 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                         >
                           {isSellerView ? t.send : `${t.send} (${formatPriceTHB(MESSAGE_FEE_THB)})`}
                         </button>
+                        {!isSellerView && Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
+                          <button
+                            type="button"
+                            onClick={() => openWalletTopUpForFlow(Math.max(0, MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
+                            className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
+                          >
+                            Top up wallet
+                          </button>
+                        ) : null}
                       </div>
                       <div className="mt-2">
                         {request.buyerImageUploadEnabled ? (
@@ -1833,15 +1842,6 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                         )}
                       </div>
                       {!canAffordMessageAction && !isSellerView ? <div className="mt-2 text-[11px] text-amber-700">{t.addWalletToSend} {formatPriceTHB(MESSAGE_FEE_THB)} {t.toWalletSend}</div> : null}
-                      {!canAffordMessageAction && !isSellerView && openWalletTopUpForFlow ? (
-                        <button
-                          type="button"
-                          onClick={() => openWalletTopUpForFlow(MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0), '/custom-requests', 'custom-request')}
-                          className="mt-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
-                        >
-                          Top up wallet
-                        </button>
-                      ) : null}
                     </div>
                     {!isSellerView && Number(request.quotedPriceThb || 0) > 0 ? (
                       <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
@@ -1923,17 +1923,17 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                               >
                                 {t.counterLabel} ({formatPriceTHB(MESSAGE_FEE_THB)} fee)
                               </button>
+                              {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
+                                <button
+                                  type="button"
+                                  onClick={() => openWalletTopUpForFlow(Math.max(0, MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
+                                  className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
+                                >
+                                  Top up wallet
+                                </button>
+                              ) : null}
                             </div>
                             {!canAffordMessageAction ? <div className="mt-1 text-[11px] text-amber-700">{t.counterRequiresFee} {formatPriceTHB(MESSAGE_FEE_THB)}.</div> : null}
-                            {!canAffordMessageAction && openWalletTopUpForFlow ? (
-                              <button
-                                type="button"
-                                onClick={() => openWalletTopUpForFlow(MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0), '/custom-requests', 'custom-request')}
-                                className="mt-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
-                              >
-                                Top up wallet
-                              </button>
-                            ) : null}
                           </>
                         )}
                       </div>
@@ -1962,32 +1962,34 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
             <input value={requestForm.preferredDetails} onChange={(event) => setRequestForm((prev) => ({ ...prev, preferredDetails: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.detailsPlaceholder} />
             <input value={requestForm.shippingCountry} onChange={(event) => setRequestForm((prev) => ({ ...prev, shippingCountry: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.shippingCountry} />
             <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[140px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.requestBodyPlaceholder} />
-            <button
-              onClick={() => {
-                submitCustomRequest(
-                  requestForm,
-                  () => {
-                    setRequestMessage(t.customRequestSubmitted);
-                    setRequestForm((prev) => ({ ...prev, preferredDetails: "", requestBody: "" }));
-                  },
-                  (message) => setRequestMessage(message || ""),
-                );
-              }}
-              disabled={!canAffordNewRequest}
-              className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${!canAffordNewRequest ? "cursor-not-allowed opacity-60" : ""}`}
-            >
-              {t.sendRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
-            </button>
-            {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
-            {!canAffordNewRequest && openWalletTopUpForFlow ? (
+            <div className="flex flex-wrap items-center gap-3">
               <button
-                type="button"
-                onClick={() => openWalletTopUpForFlow(CUSTOM_REQUEST_FEE_THB - Number(currentUser?.walletBalance || 0), '/custom-requests', 'custom-request')}
-                className="mt-1 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+                onClick={() => {
+                  submitCustomRequest(
+                    requestForm,
+                    () => {
+                      setRequestMessage(t.customRequestSubmitted);
+                      setRequestForm((prev) => ({ ...prev, preferredDetails: "", requestBody: "" }));
+                    },
+                    (message) => setRequestMessage(message || ""),
+                  );
+                }}
+                disabled={!canAffordNewRequest}
+                className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${!canAffordNewRequest ? "cursor-not-allowed opacity-60" : ""}`}
               >
-                Top up wallet
+                {t.sendRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
               </button>
-            ) : null}
+              {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
+                <button
+                  type="button"
+                  onClick={() => openWalletTopUpForFlow(Math.max(0, CUSTOM_REQUEST_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
+                  className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+                >
+                  Top up wallet
+                </button>
+              ) : null}
+            </div>
+            {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
             {requestMessage ? <div className="text-sm font-medium text-rose-700">{requestMessage}</div> : null}
           </div>
         </div>

@@ -11422,6 +11422,13 @@ export function CheckoutPage({
   const walletShortfall = Math.max(0, Number((total - Number(currentWalletBalance || 0)).toFixed(2)));
   const requiredTopUpAmount = getRequiredTopUpAmount(walletShortfall);
   const shouldShowTopUpPrompt = currentUser?.role === "buyer" && walletShortfall > 0;
+  const autoSkippedStepOneRef = useRef(false);
+  useEffect(() => {
+    if (currentUser && stepOneComplete && checkoutStep === 1 && !autoSkippedStepOneRef.current) {
+      autoSkippedStepOneRef.current = true;
+      setCheckoutStep(2);
+    }
+  }, [currentUser, stepOneComplete, checkoutStep]);
   const [checkoutTopUpModalOpen, setCheckoutTopUpModalOpen] = useState(false);
   const [checkoutTopUpDraftAmount, setCheckoutTopUpDraftAmount] = useState(String(MIN_WALLET_TOP_UP_THB));
   const [checkoutTopUpError, setCheckoutTopUpError] = useState("");
@@ -11466,11 +11473,13 @@ export function CheckoutPage({
           </div>
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-xl">
-              <div className="flex items-center gap-3 text-sm">
-                <button onClick={() => setCheckoutAuthModalOpen(true)} className="rounded-full bg-white/10 px-4 py-2 font-semibold hover:bg-white/20">
-                  Past customer? Login
-                </button>
-              </div>
+              {!currentUser ? (
+                <div className="flex items-center gap-3 text-sm">
+                  <button onClick={() => setCheckoutAuthModalOpen(true)} className="rounded-full bg-white/10 px-4 py-2 font-semibold hover:bg-white/20">
+                    Past customer? Login
+                  </button>
+                </div>
+              ) : null}
               <h2 className="mt-4 text-3xl font-bold tracking-tight">Secure checkout</h2>
               {currentUser ? <div className="mt-3 text-sm font-medium text-emerald-300">Welcome back, {currentUser.name}</div> : null}
             </div>
@@ -11818,12 +11827,22 @@ export function CheckoutPage({
                 {cartItems.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-white/20 p-5 text-sm text-slate-300">
                     <div>Your cart is empty.</div>
-                    <button
-                      onClick={onContinueShopping}
-                      className="mt-3 rounded-xl border border-white/25 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 hover:border-white/40 hover:text-white"
-                    >
-                      Browse products
-                    </button>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={onContinueShopping}
+                        className="rounded-xl border border-white/25 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 hover:border-white/40 hover:text-white"
+                      >
+                        Browse products
+                      </button>
+                      {currentUser?.role === "buyer" ? (
+                        <button
+                          onClick={() => openCheckoutTopUpModal(MIN_WALLET_TOP_UP_THB)}
+                          className="rounded-xl border border-rose-300/40 bg-rose-500/20 px-3 py-1.5 text-xs font-semibold text-rose-200 hover:border-rose-300/60 hover:text-rose-100"
+                        >
+                          Top up wallet
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
                 {cartItems.map((item, index) => (
