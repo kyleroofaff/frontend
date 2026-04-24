@@ -17840,7 +17840,7 @@ export default function ThailandPantiesMarketSite() {
                           <ProductImage src={latestPost?.image || bar.profileImage} label={latestPost?.imageName || `${bar.name} latest post`} top />
                         </div>
                         <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
-                        <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
+                        <div className="mt-1 text-sm text-slate-500">{bar.location || (bar.mapEmbedUrl ? '' : publicText.locationComingSoon)}</div>
                         <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
                           {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
                         </div>
@@ -17864,7 +17864,7 @@ export default function ThailandPantiesMarketSite() {
                           <ProductImage src={bar.profileImage} label={`${bar.name} profile`} top />
                         </div>
                         <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
-                        <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
+                        <div className="mt-1 text-sm text-slate-500">{bar.location || (bar.mapEmbedUrl ? '' : publicText.locationComingSoon)}</div>
                         <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
                           {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
                         </div>
@@ -17962,7 +17962,7 @@ export default function ThailandPantiesMarketSite() {
                     <ProductImage src={bar.profileImage} label={bar.profileImageName || `${bar.name} cover`} top />
                   </div>
                   <h3 className="mt-4 text-xl font-semibold">{bar.name}</h3>
-                  <div className="mt-1 text-sm text-slate-500">{bar.location || publicText.locationComingSoon}</div>
+                  <div className="mt-1 text-sm text-slate-500">{bar.location || (bar.mapEmbedUrl ? '' : publicText.locationComingSoon)}</div>
                   <div className="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
                     {sellerCountByBarId[bar.id] || 0} {publicText.affiliatedSellersSuffix}
                   </div>
