@@ -71,6 +71,7 @@ import {
   THAI_BRA_CUP_CM_SPAN,
   THAI_TO_US_BRA_SIZE_MAP,
   PANTY_SIZE_OPTIONS,
+  SHARED_SIZE_OPTIONS,
   SELLER_BAR_REGISTRATION_COUNTRIES,
   BUYER_REGISTRATION_COUNTRIES,
   REGISTRATION_COUNTRIES,
@@ -1635,6 +1636,7 @@ const REGISTER_I18N = {
     passwordStepIntro: 'Your password must meet our security rules. Use the checklist below to see what is still needed.',
     stepLocation: 'Your location',
     stepMeasurements: 'Your measurements',
+    stepPantySize: 'Your panty size',
     registerChecklistTitle: 'Signup checklist',
     registerChecklistName: 'Name',
     registerChecklistEmail: 'Email',
@@ -1736,6 +1738,7 @@ const REGISTER_I18N = {
     passwordStepIntro: 'รหัสผ่านต้องเป็นไปตามกฎความปลอดภัย ใช้รายการด้านล่างเพื่อดูว่ายังขาดอะไร',
     stepLocation: 'ที่อยู่ของคุณ',
     stepMeasurements: 'สัดส่วนของคุณ',
+    stepPantySize: 'ขนาดกางเกงในของคุณ',
     registerChecklistTitle: 'รายการตรวจก่อนส่ง',
     registerChecklistName: 'ชื่อ',
     registerChecklistEmail: 'อีเมล',
@@ -1837,6 +1840,7 @@ const REGISTER_I18N = {
     passwordStepIntro: 'စကားဝှက်သည် လုံခြုံရေး စည်းမျဉ်းများနှင့် ကိုက်ညီရမည်။ အောက်ပါစာရင်းဖြင့် မပြည့်မီသေးသည်များ ကြည့်ပါ',
     stepLocation: 'သင့်တည်နေရာ',
     stepMeasurements: 'သင့်အတိုင်းအတာ',
+    stepPantySize: 'သင့်ပန်တီဆိုက်',
     registerChecklistTitle: 'ပို့မီ စစ်ဆေးရမည့်အချက်များ',
     registerChecklistName: 'အမည်',
     registerChecklistEmail: 'အီးမေးလ်',
@@ -1938,6 +1942,7 @@ const REGISTER_I18N = {
     passwordStepIntro: 'Пароль должен соответствовать правилам безопасности. Ниже список того, что ещё нужно выполнить.',
     stepLocation: 'Ваше местоположение',
     stepMeasurements: 'Ваши параметры',
+    stepPantySize: 'Размер трусиков',
     registerChecklistTitle: 'Чеклист перед отправкой',
     registerChecklistName: 'Имя',
     registerChecklistEmail: 'Email',
@@ -6740,6 +6745,15 @@ export default function ThailandPantiesMarketSite() {
   }, [adminSellerReviewFilter, rejectedSellerApplications, approvedTodaySellers, users, pendingSellerApprovals]);
   const currentSellerProfile = rawSellerMap[currentSellerId] || null;
   const currentBarProfile = barMap[currentBarId] || null;
+
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== 'seller') return;
+    const sellerPantySize = currentUser.pantySize || '';
+    if (sellerPantySize && SHARED_SIZE_OPTIONS.includes(sellerPantySize)) {
+      setUploadDraft((prev) => prev.size === SIZE_OPTIONS[2] ? { ...prev, size: sellerPantySize } : prev);
+    }
+  }, [currentUser]);
+
   const sellerProfileChecklist = useMemo(() => {
     if (!currentSellerProfile) return ['Seller profile not found'];
     const checklist = [];
@@ -6747,8 +6761,12 @@ export default function ThailandPantiesMarketSite() {
     if (!(Array.isArray(currentSellerProfile.specialties) && currentSellerProfile.specialties.length > 0) && (!currentSellerProfile.specialty || currentSellerProfile.specialty === 'Pending profile details')) checklist.push('Add specialty');
     if (!(Array.isArray(currentSellerProfile.languages) && currentSellerProfile.languages.length > 0)) checklist.push('Add language');
     if (!currentSellerProfile.bio || currentSellerProfile.bio.length < 20) checklist.push('Add a stronger bio');
+    if (!currentUser?.height) checklist.push('Add your height');
+    if (!currentUser?.weight) checklist.push('Add your weight');
+    if (!currentUser?.hairColor) checklist.push('Add your hair color');
+    if (!currentUser?.braSize) checklist.push('Add your bra size');
     return checklist;
-  }, [currentSellerProfile]);
+  }, [currentSellerProfile, currentUser]);
   const adminSalesSummary = useMemo(() => {
     const productSales = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
     const customRequestSales = customRequests.reduce((sum, request) => {
@@ -8744,9 +8762,8 @@ export default function ThailandPantiesMarketSite() {
       }
     }
     if (registerStep === 5 && registerForm.role === 'seller') {
-      const missingMeasurements = !registerForm.height || !registerForm.weight || !registerForm.hairColor || !registerForm.braSize || !registerForm.pantySize;
-      if (missingMeasurements) {
-        setRegisterStepError(registerText.measurementsRequiredError || 'Please fill in all measurements before continuing.');
+      if (!registerForm.pantySize) {
+        setRegisterStepError(registerText.pantySizeRequiredError || 'Please select your panty size before continuing.');
         return;
       }
     }
@@ -20163,7 +20180,7 @@ export default function ThailandPantiesMarketSite() {
                     if (registerStep === 2) return t.stepDetails || 'Your details';
                     if (registerStep === 3) return t.stepPassword || 'Create a password';
                     if (registerStep === 4) return registerForm.role === 'buyer' ? (t.stepTerms || 'Terms & agreement') : (t.stepLocation || 'Your location');
-                    if (registerStep === 5) return registerForm.role === 'bar' ? (t.stepTerms || 'Terms & agreement') : (t.stepMeasurements || 'Your measurements');
+                    if (registerStep === 5) return registerForm.role === 'bar' ? (t.stepTerms || 'Terms & agreement') : (t.stepPantySize || 'Your panty size');
                     return t.stepTerms || 'Terms & agreement';
                   })()}
                 </div>
@@ -20397,73 +20414,16 @@ export default function ThailandPantiesMarketSite() {
                 </div>
               ) : null}
 
-              {/* ── Step 5a: Measurements (seller — all optional) ── */}
+              {/* ── Step 5a: Measurements (seller — panty size required, rest optional) ── */}
               {registerStep === 5 && registerForm.role === 'seller' ? (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                    {registerText.sellerBodyInfoHint || 'This info is shown on your public profile to help buyers find you.'}
+                    {registerText.sellerBodyInfoHint || 'Select your panty size to get started. You can add more details to your profile later.'}
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <label className="grid gap-1 text-sm text-slate-600">
-                        <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
-                        <div className="flex gap-2">
-                          <input value={registerForm.height} onChange={(event) => setRegisterForm((prev) => ({ ...prev, height: event.target.value }))} type="number" min="0" className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder={registerForm.heightUnit === 'cm' ? '165' : '65'} />
-                          <select value={registerForm.heightUnit} onChange={(event) => setRegisterForm((prev) => ({ ...prev, heightUnit: event.target.value }))} className="rounded-2xl border border-slate-200 px-2 py-2 text-sm">
-                            <option value="cm">cm</option>
-                            <option value="in">in</option>
-                          </select>
-                        </div>
-                      </label>
-                      <label className="grid gap-1 text-sm text-slate-600">
-                        <span className="font-medium">{registerText.weightLabel || 'Weight'}</span>
-                        <div className="flex gap-2">
-                          <input value={registerForm.weight} onChange={(event) => setRegisterForm((prev) => ({ ...prev, weight: event.target.value }))} type="number" min="0" className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder={registerForm.weightUnit === 'kg' ? '55' : '121'} />
-                          <select value={registerForm.weightUnit} onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))} className="rounded-2xl border border-slate-200 px-2 py-2 text-sm">
-                            <option value="kg">{localizeOptionLabel("kg", authLanguage)}</option>
-                            <option value="lbs">{localizeOptionLabel("lbs", authLanguage)}</option>
-                          </select>
-                        </div>
-                      </label>
-                    </div>
-                    <label className="block text-sm text-slate-600">
-                      <span className="font-medium">{registerText.hairColorLabel || 'Hair color'}</span>
-                      <select value={registerForm.hairColor} onChange={(event) => setRegisterForm((prev) => ({ ...prev, hairColor: event.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
-                        <option value="">{registerText.selectHairColor || 'Select hair color'}</option>
-                        {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, authLanguage)}</option>)}
-                      </select>
-                    </label>
-                    <div>
-                      <div className="mb-1 flex items-center gap-2">
-                        <span className="text-sm font-medium text-slate-600">{registerText.braSizeLabel || 'Bra size'}</span>
-                        <button type="button" onClick={() => { setUseBraThaiSizing(true); setRegisterForm((prev) => ({ ...prev, braSize: '' })); setThaiBraBand(''); setThaiBraCup(''); }} className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{registerText.thaiBraSizes || 'Thai sizes (cm)'}</button>
-                        <button type="button" onClick={() => { setUseBraThaiSizing(false); setRegisterForm((prev) => ({ ...prev, braSize: '' })); setThaiBraBand(''); setThaiBraCup(''); }} className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${!useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{registerText.usBraSizes || 'US sizes'}</button>
-                      </div>
-                      {useBraThaiSizing ? (
-                        <div className="grid grid-cols-2 gap-2">
-                          <select value={thaiBraBand} onChange={(event) => { const band = event.target.value; setThaiBraBand(band); if (band && thaiBraCup) { setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[band + thaiBraCup] || '' })); } else { setRegisterForm((prev) => ({ ...prev, braSize: '' })); } }} className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm">
-                            <option value="">{localizeOptionLabel("Select band size", authLanguage)}</option>
-                            {THAI_BRA_BANDS.map((band) => <option key={band} value={band}>{band}</option>)}
-                          </select>
-                          <select value={thaiBraCup} onChange={(event) => { const cup = event.target.value; setThaiBraCup(cup); if (thaiBraBand && cup) { setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[thaiBraBand + cup] || '' })); } else { setRegisterForm((prev) => ({ ...prev, braSize: '' })); } }} className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm">
-                            <option value="">{localizeOptionLabel("Select cup", authLanguage)}</option>
-                            {THAI_BRA_CUPS.map((cup) => { const span = THAI_BRA_CUP_CM_SPAN[cup]; return (<option key={cup} value={cup}>{cup}{span ? ` (${span})` : ''}</option>); })}
-                          </select>
-                        </div>
-                      ) : null}
-                      {useBraThaiSizing && registerText.thaiBraCupDifferenceHint ? (
-                        <div className="mt-2 text-xs text-slate-500">{registerText.thaiBraCupDifferenceHint}</div>
-                      ) : null}
-                      {!useBraThaiSizing ? (
-                        <select value={registerForm.braSize} onChange={(event) => setRegisterForm((prev) => ({ ...prev, braSize: event.target.value }))} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
-                          <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
-                          {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
-                        </select>
-                      ) : null}
-                    </div>
                     <div>
                       <label className="block text-sm text-slate-600">
-                        <span className="font-medium">{registerText.pantySizeLabel || 'Panty size'}</span>
+                        <span className="font-medium">{registerText.pantySizeLabel || 'Panty size'} <span className="text-rose-500">*</span></span>
                         <select value={registerForm.pantySize} onChange={(event) => setRegisterForm((prev) => ({ ...prev, pantySize: event.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
                           <option value="">{registerText.selectPantySize || 'Select panty size'}</option>
                           {PANTY_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
@@ -20471,6 +20431,68 @@ export default function ThailandPantiesMarketSite() {
                       </label>
                       <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{registerText.pantySizeHint || 'Thai panty sizes run one size larger than US/European. If you are M in Thailand, select S here.'}</div>
                     </div>
+                    <details className="group">
+                      <summary className="cursor-pointer text-sm font-medium text-rose-600">Add more details (optional) <span className="text-xs text-slate-400 group-open:hidden">&#9654;</span><span className="text-xs text-slate-400 hidden group-open:inline">&#9660;</span></summary>
+                      <div className="mt-3 space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <label className="grid gap-1 text-sm text-slate-600">
+                            <span className="font-medium">{registerText.heightLabel || 'Height'}</span>
+                            <div className="flex gap-2">
+                              <input value={registerForm.height} onChange={(event) => setRegisterForm((prev) => ({ ...prev, height: event.target.value }))} type="number" min="0" className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder={registerForm.heightUnit === 'cm' ? '165' : '65'} />
+                              <select value={registerForm.heightUnit} onChange={(event) => setRegisterForm((prev) => ({ ...prev, heightUnit: event.target.value }))} className="rounded-2xl border border-slate-200 px-2 py-2 text-sm">
+                                <option value="cm">cm</option>
+                                <option value="in">in</option>
+                              </select>
+                            </div>
+                          </label>
+                          <label className="grid gap-1 text-sm text-slate-600">
+                            <span className="font-medium">{registerText.weightLabel || 'Weight'}</span>
+                            <div className="flex gap-2">
+                              <input value={registerForm.weight} onChange={(event) => setRegisterForm((prev) => ({ ...prev, weight: event.target.value }))} type="number" min="0" className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder={registerForm.weightUnit === 'kg' ? '55' : '121'} />
+                              <select value={registerForm.weightUnit} onChange={(event) => setRegisterForm((prev) => ({ ...prev, weightUnit: event.target.value }))} className="rounded-2xl border border-slate-200 px-2 py-2 text-sm">
+                                <option value="kg">{localizeOptionLabel("kg", authLanguage)}</option>
+                                <option value="lbs">{localizeOptionLabel("lbs", authLanguage)}</option>
+                              </select>
+                            </div>
+                          </label>
+                        </div>
+                        <label className="block text-sm text-slate-600">
+                          <span className="font-medium">{registerText.hairColorLabel || 'Hair color'}</span>
+                          <select value={registerForm.hairColor} onChange={(event) => setRegisterForm((prev) => ({ ...prev, hairColor: event.target.value }))} className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+                            <option value="">{registerText.selectHairColor || 'Select hair color'}</option>
+                            {HAIR_COLOR_OPTIONS.map((color) => <option key={color} value={color}>{localizeOptionLabel(color, authLanguage)}</option>)}
+                          </select>
+                        </label>
+                        <div>
+                          <div className="mb-1 flex items-center gap-2">
+                            <span className="text-sm font-medium text-slate-600">{registerText.braSizeLabel || 'Bra size'}</span>
+                            <button type="button" onClick={() => { setUseBraThaiSizing(true); setRegisterForm((prev) => ({ ...prev, braSize: '' })); setThaiBraBand(''); setThaiBraCup(''); }} className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{registerText.thaiBraSizes || 'Thai sizes (cm)'}</button>
+                            <button type="button" onClick={() => { setUseBraThaiSizing(false); setRegisterForm((prev) => ({ ...prev, braSize: '' })); setThaiBraBand(''); setThaiBraCup(''); }} className={`rounded-lg px-2 py-0.5 text-xs font-semibold ${!useBraThaiSizing ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{registerText.usBraSizes || 'US sizes'}</button>
+                          </div>
+                          {useBraThaiSizing ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              <select value={thaiBraBand} onChange={(event) => { const band = event.target.value; setThaiBraBand(band); if (band && thaiBraCup) { setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[band + thaiBraCup] || '' })); } else { setRegisterForm((prev) => ({ ...prev, braSize: '' })); } }} className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm">
+                                <option value="">{localizeOptionLabel("Select band size", authLanguage)}</option>
+                                {THAI_BRA_BANDS.map((band) => <option key={band} value={band}>{band}</option>)}
+                              </select>
+                              <select value={thaiBraCup} onChange={(event) => { const cup = event.target.value; setThaiBraCup(cup); if (thaiBraBand && cup) { setRegisterForm((prev) => ({ ...prev, braSize: THAI_TO_US_BRA_SIZE_MAP[thaiBraBand + cup] || '' })); } else { setRegisterForm((prev) => ({ ...prev, braSize: '' })); } }} className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm">
+                                <option value="">{localizeOptionLabel("Select cup", authLanguage)}</option>
+                                {THAI_BRA_CUPS.map((cup) => { const span = THAI_BRA_CUP_CM_SPAN[cup]; return (<option key={cup} value={cup}>{cup}{span ? ` (${span})` : ''}</option>); })}
+                              </select>
+                            </div>
+                          ) : null}
+                          {useBraThaiSizing && registerText.thaiBraCupDifferenceHint ? (
+                            <div className="mt-2 text-xs text-slate-500">{registerText.thaiBraCupDifferenceHint}</div>
+                          ) : null}
+                          {!useBraThaiSizing ? (
+                            <select value={registerForm.braSize} onChange={(event) => setRegisterForm((prev) => ({ ...prev, braSize: event.target.value }))} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+                              <option value="">{registerText.selectBraSize || 'Select bra size'}</option>
+                              {BRA_SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
+                            </select>
+                          ) : null}
+                        </div>
+                      </div>
+                    </details>
                   </div>
                 </div>
               ) : null}
