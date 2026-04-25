@@ -2282,12 +2282,12 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
       <div className="grid gap-6 md:grid-cols-3">
         {filteredSellers.map((seller) => (
           <div key={seller.id} className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
-            <div className="h-48">
+            <button onClick={() => navigate(`/seller/${seller.id}`)} className="block h-48 w-full cursor-pointer">
               <ProductImage
                 src={seller.profileImageResolved || seller.profileImage}
                 label={seller.profileImageNameResolved || seller.profileImageName || `${seller.name} portfolio`}
               />
-            </div>
+            </button>
             <div className="mt-4 flex items-start justify-between gap-4">
               <div>
                 <button onClick={() => navigate(`/seller/${seller.id}`)} className="text-left text-xl font-semibold hover:text-rose-700">{seller.name}</button>

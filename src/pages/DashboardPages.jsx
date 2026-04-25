@@ -2552,6 +2552,12 @@ export function SellerDashboardPage({
   }, [sellerSectionStateStorageKey]);
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (window.location.hash === "#seller-listings") {
+      setSellerSectionOpen((prev) => ({ ...prev, listings: true }));
+    }
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     window.localStorage.setItem(sellerSectionStateStorageKey, JSON.stringify(sellerSectionOpen));
   }, [sellerSectionStateStorageKey, sellerSectionOpen]);
   const [notificationFilter, setNotificationFilter] = useState("all");

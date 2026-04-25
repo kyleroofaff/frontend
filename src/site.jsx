@@ -15406,7 +15406,9 @@ export default function ThailandPantiesMarketSite() {
       imageName: '',
       images: [],
     });
-    navigate('/account');
+    setSellerProfileSaveSuccess(true);
+    setSellerProfileMessage('Listing created!');
+    navigate('/account#seller-listings');
   }
 
   async function updateGiftCatalogItem(giftId, patch) {
@@ -18692,11 +18694,11 @@ export default function ThailandPantiesMarketSite() {
                   <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.colorField}:</span> {selectedProduct.color}</div>
                   <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.styleField}:</span> {selectedProduct.style}</div>
                   <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.fabricField}:</span> {selectedProduct.fabric}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.daysWornField}:</span> {selectedProduct.daysWorn || localizeOptionLabel('Not specified', uiLanguage)}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.waistRiseField}:</span> {selectedProduct.waistRise || localizeOptionLabel('Not specified', uiLanguage)}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.coverageField}:</span> {selectedProduct.coverage || localizeOptionLabel('Not specified', uiLanguage)}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.conditionField}:</span> {selectedProduct.condition || localizeOptionLabel('Not specified', uiLanguage)}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.scentLevelField}:</span> {selectedProduct.scentLevel || localizeOptionLabel('Not specified', uiLanguage)}</div>
+                  {selectedProduct.daysWorn && selectedProduct.daysWorn !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.daysWornField}:</span> {selectedProduct.daysWorn}</div> : null}
+                  {selectedProduct.waistRise && selectedProduct.waistRise !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.waistRiseField}:</span> {selectedProduct.waistRise}</div> : null}
+                  {selectedProduct.coverage && selectedProduct.coverage !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.coverageField}:</span> {selectedProduct.coverage}</div> : null}
+                  {selectedProduct.condition && selectedProduct.condition !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.conditionField}:</span> {selectedProduct.condition}</div> : null}
+                  {selectedProduct.scentLevel && selectedProduct.scentLevel !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.scentLevelField}:</span> {selectedProduct.scentLevel}</div> : null}
                 </div>
                 {selectedProductPrimaryBundle ? (
                   <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
