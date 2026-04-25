@@ -109,7 +109,7 @@ const KNOWN_ADMIN_SCOPES = new Set(Object.values(ADMIN_SCOPES));
 const GIFT_CATALOG = [
   { id: 'gift_rose', type: 'rose', name: 'Rose', nameI18n: { en: 'Rose', th: 'กุหลาบ', my: 'နှင်းဆီ', ru: 'Роза' }, price: 200, emoji: '🌹', fulfillmentType: 'physical' },
   { id: 'gift_dozen_roses', type: 'dozen_roses', name: 'Dozen Roses', nameI18n: { en: 'Dozen Roses', th: 'กุหลาบ 12 ดอก', my: 'နှင်းဆီ ၁၂ ပွင့်', ru: '12 Роз' }, price: 2000, emoji: '💐', fulfillmentType: 'physical' },
-  { id: 'gift_chocolate', type: 'chocolate', name: 'Chocolate', nameI18n: { en: 'Chocolate', th: 'ช็อกโกแลต', my: 'ချောကလက်', ru: 'Шоколад' }, price: 1650, emoji: '🍫', fulfillmentType: 'physical' },
+  { id: 'gift_chocolate', type: 'chocolate', name: 'Chocolate', nameI18n: { en: 'Chocolate', th: 'ช็อกโกแลต', my: 'ချောကလက်', ru: 'Шоколад' }, price: 1000, emoji: '🍫', fulfillmentType: 'physical' },
   { id: 'gift_drink', type: 'drink', name: 'Drink', nameI18n: { en: 'Drink', th: 'เครื่องดื่ม', my: 'အချိုရည်', ru: 'Напиток' }, price: 350, emoji: '🍹', fulfillmentType: 'drink' },
 ];
 
@@ -6348,12 +6348,16 @@ export default function ThailandPantiesMarketSite() {
       const bTs = new Date(b?.publishedAt || b?.createdAt || 0).getTime();
       return bTs - aTs;
     });
+  const isPublicProduct = (product) => {
+    const status = String(product?.status || '').toLowerCase();
+    return status !== 'draft';
+  };
   const selectedSellerAllProducts = useMemo(
-    () => (selectedSeller ? sortProductsNewestFirst(products.filter((product) => product.sellerId === selectedSeller.id)) : []),
+    () => (selectedSeller ? sortProductsNewestFirst(products.filter((product) => product.sellerId === selectedSeller.id && isPublicProduct(product))) : []),
     [products, selectedSeller],
   );
   const selectedSellerAvailableProducts = useMemo(
-    () => (selectedSeller ? sortProductsNewestFirst(availableProducts.filter((product) => product.sellerId === selectedSeller.id)) : []),
+    () => (selectedSeller ? sortProductsNewestFirst(availableProducts.filter((product) => product.sellerId === selectedSeller.id && isPublicProduct(product))) : []),
     [availableProducts, selectedSeller],
   );
   const productsById = useMemo(
