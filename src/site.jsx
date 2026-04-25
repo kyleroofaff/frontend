@@ -18601,7 +18601,7 @@ export default function ThailandPantiesMarketSite() {
                           ) : null}
                         </button>
                         {!canViewSellerPost(post) && <div className="mt-3 text-xs font-medium text-rose-600/70">{publicText.privatePostUnlock}</div>}
-                        {post.caption ? <div className={`${!canViewSellerPost(post) ? 'mt-1' : 'mt-2'} text-base leading-6 text-slate-700`}>{post.caption}</div> : null}
+                        {post.caption ? <div className={`${!canViewSellerPost(post) ? 'mt-1' : 'mt-2'} text-lg leading-7 text-slate-700`}>{post.caption}</div> : null}
                       </div>
                     ))}
                   </div>

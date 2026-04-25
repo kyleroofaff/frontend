@@ -3963,16 +3963,7 @@ export function StoriesWorkspacePage({
                   <span className="text-xs text-slate-500">{sellerPostDraft.imageName || t("noFileChosen")}</span>
                 </div>
                 {sellerPostDraft.image ? (
-                  <div className="space-y-3">
-                    <div>
-                      <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Stories image"} contain mediaType={sellerPostDraft.mediaType} /></div>
-                    </div>
-                    <div>
-                      <div className="mb-1 text-[11px] font-medium text-slate-500">{t("whatBuyersWillSeeShort")}</div>
-                      <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Stories image"} top mediaType={sellerPostDraft.mediaType} /></div>
-                    </div>
-                  </div>
+                  <div className="aspect-[4/5] max-w-xs"><ProductImage src={sellerPostDraft.image} label={sellerPostDraft.imageName || "Stories image"} top mediaType={sellerPostDraft.mediaType} /></div>
                 ) : (
                   <div className="aspect-[4/5] max-w-xs"><ProductImage label={t("postImagePreview")} /></div>
                 )}
