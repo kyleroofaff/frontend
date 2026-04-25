@@ -19619,8 +19619,8 @@ export default function ThailandPantiesMarketSite() {
             publishProduct={publishProduct}
             deleteProduct={deleteProduct}
             deletingProductId={deletingProductId}
-            soldProductIds={soldProductIds}
-            isSellerOnline={isSellerOnline}
+            soldProductIds={Array.from(soldProductIdSet)}
+            isSellerOnline={Boolean(currentSellerProfile?.isOnline)}
             sellerLanguage={currentUser?.preferredLanguage || 'en'}
             sellerProfileMessage={sellerProfileMessage}
             navigate={navigate}
