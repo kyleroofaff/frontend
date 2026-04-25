@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Globe, HeartHandshake, Shield } from "lucide-react";
 import { PageShell, ProductImage } from "../components/site/SitePrimitives.jsx";
-import { COLOR_OPTIONS, CONDITION_OPTIONS, CUSTOM_REQUEST_FEE_THB, DAYS_WORN_OPTIONS, FABRIC_OPTIONS, formatPriceTHB, localizeOptionLabel, MESSAGE_FEE_THB, MIN_CUSTOM_REQUEST_PURCHASE_THB, SCENT_LEVEL_OPTIONS, SELLER_SPECIALTY_OPTIONS, SHARED_SIZE_OPTIONS, STYLE_FILTER_OPTIONS, HAIR_COLOR_OPTIONS, formatHeight, formatWeight } from "../productOptions.js";
+import { COLOR_OPTIONS, CONDITION_OPTIONS, CUSTOM_REQUEST_FEE_THB, DAYS_WORN_OPTIONS, FABRIC_OPTIONS, formatPriceTHB, localizeOptionLabel, MESSAGE_FEE_THB, MIN_CUSTOM_REQUEST_PURCHASE_THB, SCENT_LEVEL_OPTIONS, SHARED_SIZE_OPTIONS, STYLE_FILTER_OPTIONS, HAIR_COLOR_OPTIONS, formatHeight, formatWeight } from "../productOptions.js";
 import { formatDateTimeNoSeconds } from "../utils/timeFormat.js";
 import { getRequiredTopUpAmount } from "../utils/walletTopUp.js";
 
@@ -90,7 +90,7 @@ const HELP_I18N = {
     howToApplyTitle: "How to Apply",
     howToApplySubtitle: "Steps for joining Thailand Panties as a seller.",
     howToApplyPoints: [
-      "Complete the seller application with profile details, location, and specialty.",
+      "Complete the seller application with profile details and location.",
       "Prepare storefront images, listing examples, and clear policy acknowledgements.",
       "After approval, configure your dashboard, post settings (public/private), and Stories preferences."
     ],
@@ -183,7 +183,7 @@ const HELP_I18N = {
     howToApplyTitle: "วิธีสมัครผู้ขาย",
     howToApplySubtitle: "ขั้นตอนการเข้าร่วมเป็นผู้ขายใน Thailand Panties",
     howToApplyPoints: [
-      "กรอกข้อมูลโปรไฟล์ผู้ขายให้ครบ เช่น ที่ตั้งและความเชี่ยวชาญ",
+      "กรอกข้อมูลโปรไฟล์ผู้ขายให้ครบ เช่น ที่ตั้ง",
       "เตรียมรูปหน้าร้าน ตัวอย่างสินค้า และยอมรับนโยบายที่เกี่ยวข้อง",
       "เมื่ออนุมัติแล้ว ให้ตั้งค่าแดชบอร์ดและการแสดงผลโพสต์ public/private"
     ],
@@ -277,7 +277,7 @@ const HELP_I18N = {
     howToApplyTitle: "လျှောက်ထားနည်း",
     howToApplySubtitle: "Thailand Panties တွင် seller အဖြစ်ဝင်ရောက်ရန် အဆင့်များ",
     howToApplyPoints: [
-      "Profile, location, specialty အချက်အလက်များကို ဖြည့်သွင်းပါ",
+      "Profile, location အချက်အလက်များကို ဖြည့်သွင်းပါ",
       "Storefront image နှင့် listing နမူနာများကို ပြင်ဆင်ပါ",
       "Approve ဖြစ်ပြီးနောက် dashboard နှင့် post visibility ကို စနစ်တကျ သတ်မှတ်ပါ"
     ],
@@ -370,7 +370,7 @@ const HELP_I18N = {
     howToApplyTitle: "Как подать заявку",
     howToApplySubtitle: "Шаги для подключения к Thailand Panties в роли продавца.",
     howToApplyPoints: [
-      "Заполните профиль продавца: локация, специализация, описание.",
+      "Заполните профиль продавца: локация, описание.",
       "Подготовьте изображения витрины и примеры объявлений.",
       "После одобрения настройте панель продавца и видимость постов."
     ],
@@ -401,7 +401,6 @@ const MARKETPLACE_I18N = {
     searchSellers: "Search sellers",
     searchSellersPlaceholder: "Search seller name, bio, style, or language",
     location: "Location",
-    specialty: "Specialty",
     type: "Type",
     size: "Size",
     color: "Color",
@@ -442,7 +441,6 @@ const MARKETPLACE_I18N = {
     searchSellers: "ค้นหาผู้ขาย",
     searchSellersPlaceholder: "ค้นหาชื่อผู้ขาย ไบโอ สไตล์ หรือภาษา",
     location: "ที่ตั้ง",
-    specialty: "ความเชี่ยวชาญ",
     type: "ประเภท",
     size: "ไซซ์",
     color: "สี",
@@ -483,7 +481,6 @@ const MARKETPLACE_I18N = {
     searchSellers: "seller များ ရှာရန်",
     searchSellersPlaceholder: "seller အမည်၊ bio၊ style သို့မဟုတ် language ဖြင့် ရှာပါ",
     location: "တည်နေရာ",
-    specialty: "အထူးပြု",
     type: "အမျိုးအစား",
     size: "အရွယ်အစား",
     color: "အရောင်",
@@ -524,7 +521,6 @@ const MARKETPLACE_I18N = {
     searchSellers: "Поиск продавцов",
     searchSellersPlaceholder: "Ищите по имени продавца, био, стилю или языку",
     location: "Локация",
-    specialty: "Специализация",
     type: "Тип",
     size: "Размер",
     color: "Цвет",
@@ -2021,7 +2017,6 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
   const [sellerFilters, setSellerFilters] = useState({
     search: "",
     location: "All",
-    specialty: "All",
     type: "All",
     size: "All",
     color: "All",
@@ -2037,7 +2032,6 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
     const normalize = (value) => (value || "").trim();
     const withFallback = (value, fallback = "Not specified") => normalize(value) || fallback;
     const locations = [...new Set((sellers || []).map((seller) => withFallback(seller.location)))];
-    const specialties = SELLER_SPECIALTY_OPTIONS;
     const types = STYLE_FILTER_OPTIONS;
     const sizes = SHARED_SIZE_OPTIONS;
     const colors = COLOR_OPTIONS;
@@ -2050,7 +2044,6 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
     }))];
     return {
       locations: ["All", ...locations],
-      specialties: ["All", ...specialties],
       types,
       sizes: ["All", ...sizes],
       colors: ["All", ...colors],
@@ -2065,16 +2058,6 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
   const filteredSellers = useMemo(() => {
     const query = sellerFilters.search.trim().toLowerCase();
     const normalized = (value, fallback = "Not specified") => (value || "").trim() || fallback;
-    const specialtyCategory = (value) => {
-      const normalizedValue = (value || "").trim().toLowerCase();
-      if (["every day", "everyday", "ทุกวัน", "နေ့စဉ်", "каждый день"].some((term) => normalizedValue.includes(term))) return "every day";
-      if (["sport", "sports", "สปอร์ต", "အားကစား", "спорт"].some((term) => normalizedValue.includes(term))) return "sport";
-      if (["lace", "ลูกไม้", "လေ့စ်", "кружево"].some((term) => normalizedValue.includes(term))) return "lace";
-      if (["risqué", "risque", "ยั่วยวน", "စွဲဆောင်", "провокац"].some((term) => normalizedValue.includes(term))) return "risqué";
-      if (["satin", "ซาติน", "ဆာတင်", "сатин"].some((term) => normalizedValue.includes(term))) return "satin";
-      if (["silk", "ไหม", "ပိုး", "шелк"].some((term) => normalizedValue.includes(term))) return "silk";
-      return "";
-    };
     const sellerProductTypesById = (products || []).reduce((acc, product) => {
       const sellerId = product?.sellerId;
       const type = (product?.style || "").trim();
@@ -2127,14 +2110,9 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
       const sellerLanguages = Array.isArray(seller.languages) && seller.languages.length > 0
         ? seller.languages.map((language) => normalized(language))
         : ["Not specified"];
-      const sellerSpecialties = Array.isArray(seller.specialties) && seller.specialties.length > 0
-        ? seller.specialties.map((item) => normalized(item))
-        : [seller.specialty].filter(Boolean).map((item) => normalized(item));
       const matchesSearch = !query || [
         seller.name,
         seller.location,
-        seller.specialty,
-        ...sellerSpecialties,
         seller.bio,
         ...(seller.highlights || []),
         ...sellerLanguages,
@@ -2143,9 +2121,6 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
         seller.pantySize || '',
       ].some((value) => (value || "").toLowerCase().includes(query));
       const matchesLocation = sellerFilters.location === "All" || normalized(seller.location) === sellerFilters.location;
-      const matchesSpecialty =
-        sellerFilters.specialty === "All" ||
-        sellerSpecialties.some((item) => specialtyCategory(item) === sellerFilters.specialty);
       const sellerTypes = sellerProductTypesById[seller.id] || new Set();
       const matchesType = sellerFilters.type === "All" || sellerTypes.has(sellerFilters.type);
       const sellerSizes = sellerProductSizesById[seller.id] || new Set();
@@ -2164,7 +2139,7 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
         (sellerFilters.online === "Online" && seller.isOnline) ||
         (sellerFilters.online === "Offline" && !seller.isOnline);
       const matchesHairColor = sellerFilters.hairColor === "All" || normalized(seller.hairColor) === sellerFilters.hairColor;
-      return matchesSearch && matchesLocation && matchesSpecialty && matchesType && matchesSize && matchesColor && matchesFabric && matchesDaysWorn && matchesScentLevel && matchesLanguage && matchesOnline && matchesHairColor;
+      return matchesSearch && matchesLocation && matchesType && matchesSize && matchesColor && matchesFabric && matchesDaysWorn && matchesScentLevel && matchesLanguage && matchesOnline && matchesHairColor;
     });
   }, [sellers, products, sellerFilters]);
   const sellerInsightsById = useMemo(() => {
@@ -2183,12 +2158,6 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
     });
     return byId;
   }, [products]);
-  const formatSellerSpecialtyLabel = (seller) => {
-    const raw = (Array.isArray(seller?.specialties) && seller.specialties.length > 0)
-      ? String(seller.specialties[0] || "")
-      : String(seller?.specialty || "");
-    return raw.replace(/\s*·\s*/g, ", ").trim();
-  };
 
   return (
     <PageShell eyebrow={text.marketplace} title={text.sellerPortfoliosTitle} subtitle={text.sellerPortfoliosSubtitle}>
@@ -2207,12 +2176,6 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
             <span className="font-medium">{text.location}</span>
             <select value={sellerFilters.location} onChange={(event) => setSellerFilters((prev) => ({ ...prev, location: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
               {sellerFilterOptions.locations.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-            </select>
-          </label>
-          <label className="grid gap-1 text-sm text-slate-600">
-            <span className="font-medium">{text.specialty}</span>
-            <select value={sellerFilters.specialty} onChange={(event) => setSellerFilters((prev) => ({ ...prev, specialty: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
-              {sellerFilterOptions.specialties.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
             </select>
           </label>
           <label className="grid gap-1 text-sm text-slate-600">
@@ -2271,7 +2234,7 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
           </label>
           <button
             type="button"
-            onClick={() => setSellerFilters({ search: "", location: "All", specialty: "All", type: "All", size: "All", color: "All", fabric: "All", daysWorn: "All", scentLevel: "All", language: "All", online: "All", hairColor: "All" })}
+            onClick={() => setSellerFilters({ search: "", location: "All", type: "All", size: "All", color: "All", fabric: "All", daysWorn: "All", scentLevel: "All", language: "All", online: "All", hairColor: "All" })}
             className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 md:col-span-2 lg:col-span-3 xl:col-span-5"
           >
             {text.clearFilters}
@@ -2296,13 +2259,7 @@ export function SellerPortfoliosPage({ sellers, products, navigate, uiLanguage =
                   {seller.affiliatedBarName ? `${text.barPrefix} ${seller.affiliatedBarName}` : localizeOptionLabel("Independent", uiLanguage)}
                 </p>
               </div>
-              {(() => { const _label = formatSellerSpecialtyLabel(seller); return (_label && _label !== 'Pending profile details') ? (
-              <div className="max-w-full rounded-2xl bg-slate-100 px-3 py-2 text-sm font-semibold leading-5 text-slate-700">
-                {_label}
-              </div>
-              ) : null; })()}
             </div>
-            {(() => { const _raw = (Array.isArray(seller.specialties) && seller.specialties.length > 0) ? seller.specialties.join(" · ") : seller.specialty; return (_raw && _raw !== 'Pending profile details') ? <p className="mt-4 text-sm leading-6 text-slate-600">{_raw}</p> : null; })()}
             <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
               <span className="rounded-full bg-slate-100 px-3 py-1">
                 {(sellerInsightsById[seller.id]?.total || 0)} {text.listings}

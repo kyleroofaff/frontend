@@ -60,7 +60,6 @@ import {
   FABRIC_OPTIONS,
   SCENT_LEVEL_OPTIONS,
   SELLER_LANGUAGE_OPTIONS,
-  SELLER_SPECIALTY_OPTIONS,
   SIZE_OPTIONS,
   STYLE_OPTIONS,
   HAIR_COLOR_OPTIONS,
@@ -2844,7 +2843,6 @@ const SEED_DB = {
       id: 'nina-b',
       name: 'Nina B.',
       location: 'Bangkok, Thailand',
-      specialty: 'Premium used panties · soft cotton collections',
       bio: 'Nina offers premium used panties with clear listing details, discreet handling, and respectful communication.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 2–4 days',
@@ -2863,7 +2861,6 @@ const SEED_DB = {
       id: 'mali-k',
       name: 'Mali K.',
       location: 'Chiang Mai, Thailand',
-      specialty: 'Luxury lace styles · limited premium pairs',
       bio: 'Mali focuses on premium used underwear listings with a polished experience and dependable worldwide fulfillment.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 3–5 days',
@@ -2877,7 +2874,6 @@ const SEED_DB = {
       id: 'prae-s',
       name: 'Prae S.',
       location: 'Phuket, Thailand',
-      specialty: 'Everyday panties · sporty fits',
       bio: 'Prae offers premium everyday used underwear listings, consistent quality notes, and fast discreet dispatch.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 1–3 days',
@@ -2891,7 +2887,6 @@ const SEED_DB = {
       id: 'lila-r',
       name: 'Lila R.',
       location: 'Pattaya, Thailand',
-      specialty: 'Luxury',
       bio: 'Lila curates polished lingerie-inspired listings with elegant details, responsive communication, and discreet worldwide dispatch.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 2-4 days',
@@ -2905,7 +2900,6 @@ const SEED_DB = {
       id: 'anya-v',
       name: 'Anya V.',
       location: 'Hat Yai, Thailand',
-      specialty: 'Everyday',
       bio: 'Anya focuses on daily-wear favorites and comfort-first styles with clear notes and reliable order prep.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 1-3 days',
@@ -2919,7 +2913,6 @@ const SEED_DB = {
       id: 'sora-p',
       name: 'Sora P.',
       location: 'Khon Kaen, Thailand',
-      specialty: 'Premium',
       bio: 'Sora offers premium statement pieces and seasonal collections with a detail-rich listing style.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 2-4 days',
@@ -2933,7 +2926,6 @@ const SEED_DB = {
       id: 'kiko-n',
       name: 'Kiko N.',
       location: 'Bangkok, Thailand',
-      specialty: 'Premium',
       bio: 'Kiko runs a versatile catalog that includes intimates, hosiery, and fashion-layer listings for buyers wanting variety.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 3-5 days',
@@ -2947,7 +2939,6 @@ const SEED_DB = {
       id: 'dao-p',
       name: 'Dao P.',
       location: 'Bangkok, Thailand',
-      specialty: 'Premium',
       bio: 'Dao offers premium used panties with clear listing details, responsive communication, and discreet shipping.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 1-3 days',
@@ -2961,7 +2952,6 @@ const SEED_DB = {
       id: 'lina-cm',
       name: 'Lina',
       location: 'Chiang Mai, Thailand',
-      specialty: 'Premium',
       bio: 'Lina shares premium listings with clear details, friendly communication, and discreet shipping.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 1-3 days',
@@ -2975,7 +2965,6 @@ const SEED_DB = {
       id: 'try-cm',
       name: 'Try',
       location: 'Chiang Mai, Thailand',
-      specialty: 'Everyday',
       bio: 'Try focuses on everyday styles with reliable fulfillment and respectful buyer communication.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 2-4 days',
@@ -2989,7 +2978,6 @@ const SEED_DB = {
       id: 'noi-na-cm',
       name: 'Noi Na',
       location: 'Chiang Mai, Thailand',
-      specialty: 'Luxury',
       bio: 'Noi Na offers premium curated drops with polished presentation and dependable turnaround.',
       shipping: 'Worldwide from Thailand',
       turnaround: 'Ships in 1-3 days',
@@ -3997,7 +3985,6 @@ const CMS_SCHEMA = {
     id: 'string',
     name: 'string',
     location: 'string',
-    specialty: 'string',
     bio: 'text',
     shipping: 'string',
     turnaround: 'string',
@@ -4610,7 +4597,6 @@ function normalizeDbState(nextDb, mode = 'live') {
             birthDay: seller?.birthDay || null,
             birthMonth: seller?.birthMonth || null,
             locationI18n: normalizeLocalizedMap(seller?.locationI18n, seller?.location),
-            specialtyI18n: normalizeLocalizedMap(seller?.specialtyI18n, seller?.specialty),
             shippingI18n: normalizeLocalizedMap(seller?.shippingI18n, seller?.shipping),
             turnaroundI18n: normalizeLocalizedMap(seller?.turnaroundI18n, seller?.turnaround),
             bioI18n: normalizeLocalizedMap(seller?.bioI18n, seller?.bio),
@@ -5581,7 +5567,6 @@ export default function ThailandPantiesMarketSite() {
   const [sellerCustomRequestMessage, setSellerCustomRequestMessage] = useState('');
   const [sellerProfileDraft, setSellerProfileDraft] = useState({
     location: '',
-    specialties: [],
     languages: [],
     bio: '',
     shipping: 'Worldwide from Thailand',
@@ -6295,7 +6280,6 @@ export default function ThailandPantiesMarketSite() {
           {
             ...seller,
             location: resolveLocalizedText(seller?.location, seller?.locationI18n, uiLanguage),
-            specialty: resolveLocalizedText(seller?.specialty, seller?.specialtyI18n, uiLanguage),
             shipping: resolveLocalizedText(seller?.shipping, seller?.shippingI18n, uiLanguage),
             turnaround: resolveLocalizedText(seller?.turnaround, seller?.turnaroundI18n, uiLanguage),
             bio: resolveLocalizedText(seller?.bio, seller?.bioI18n, uiLanguage),
@@ -6489,7 +6473,7 @@ export default function ThailandPantiesMarketSite() {
     const query = accountSearchQuery.trim().toLowerCase();
     const source = query
       ? Object.values(sellerMap).filter((seller) =>
-          [seller.name, seller.location, seller.specialty, seller.bio].some((value) => (value || '').toLowerCase().includes(query)),
+          [seller.name, seller.location, seller.bio].some((value) => (value || '').toLowerCase().includes(query)),
         )
       : Object.values(sellerMap);
     return source.slice(0, query ? 6 : 4);
@@ -6519,7 +6503,7 @@ export default function ThailandPantiesMarketSite() {
     const query = buyerMessageSellerSearch.trim().toLowerCase();
     if (!query) return buyerSellerDirectory.slice(0, 8);
     return buyerSellerDirectory
-      .filter((seller) => [seller.name, seller.location, seller.specialty, seller.bio].some((value) => (value || '').toLowerCase().includes(query)))
+      .filter((seller) => [seller.name, seller.location, seller.bio].some((value) => (value || '').toLowerCase().includes(query)))
       .slice(0, 8);
   }, [buyerSellerDirectory, buyerMessageSellerSearch]);
   const buyerMessageFilterOptions = useMemo(
@@ -6758,7 +6742,6 @@ export default function ThailandPantiesMarketSite() {
     if (!currentSellerProfile) return ['Seller profile not found'];
     const checklist = [];
     if (!currentSellerProfile.location || currentSellerProfile.location === 'To be updated') checklist.push('Add location');
-    if (!(Array.isArray(currentSellerProfile.specialties) && currentSellerProfile.specialties.length > 0) && (!currentSellerProfile.specialty || currentSellerProfile.specialty === 'Pending profile details')) checklist.push('Add specialty');
     if (!(Array.isArray(currentSellerProfile.languages) && currentSellerProfile.languages.length > 0)) checklist.push('Add language');
     if (!currentSellerProfile.bio || currentSellerProfile.bio.length < 20) checklist.push('Add a stronger bio');
     if (!currentUser?.height) checklist.push('Add your height');
@@ -6987,11 +6970,6 @@ export default function ThailandPantiesMarketSite() {
     if (!currentSellerProfile) return;
     setSellerProfileDraft({
       location: currentSellerProfile.location || '',
-      specialties: Array.isArray(currentSellerProfile.specialties) && currentSellerProfile.specialties.length > 0
-        ? currentSellerProfile.specialties.filter(Boolean)
-        : currentSellerProfile.specialty
-          ? [currentSellerProfile.specialty]
-          : [],
       languages: Array.isArray(currentSellerProfile.languages) && currentSellerProfile.languages.length > 0
         ? currentSellerProfile.languages.filter(Boolean)
         : (() => {
@@ -9115,8 +9093,6 @@ export default function ThailandPantiesMarketSite() {
                 id: sellerId,
                 name: user.name || '',
                 location: [user.city, user.country].filter(Boolean).join(', ') || '',
-                specialty: 'Everyday',
-                specialties: ['Everyday'],
                 bio: randomSellerBio(),
                 shipping: 'Worldwide',
                 turnaround: 'Ships in 1-3 days',
@@ -9816,11 +9792,6 @@ export default function ThailandPantiesMarketSite() {
     setIsSavingSellerProfile(true);
     setSellerProfileSaveSuccess(false);
     try {
-    const specialties = (sellerProfileDraft.specialties || [])
-      .map((value) => (value || '').trim())
-      .filter(Boolean)
-      .filter((value, index, arr) => arr.findIndex((entry) => entry.toLowerCase() === value.toLowerCase()) === index)
-      .slice(0, 8);
     const languages = (sellerProfileDraft.languages || [])
       .map((value) => (value || '').trim())
       .filter((value) => SELLER_LANGUAGE_OPTIONS.includes(value));
@@ -9832,13 +9803,11 @@ export default function ThailandPantiesMarketSite() {
     const isLeavingBar = Boolean(!normalizedAffiliatedBarId && previousAffiliatedBarId);
     const now = new Date().toISOString();
     const locationText = String(sellerProfileDraft.location || '').trim();
-    const specialtyText = specialties.join(' · ') || '';
     const bioText = sellerProfileDraft.bio.trim();
     const shippingText = String(sellerProfileDraft.shipping || '').trim() || 'Worldwide via international carriers';
     const turnaroundText = String(sellerProfileDraft.turnaround || '').trim() || 'Ships in 1-3 days';
-    const [locationI18n, specialtyI18n, bioI18n, shippingI18n, turnaroundI18n] = await Promise.all([
+    const [locationI18n, bioI18n, shippingI18n, turnaroundI18n] = await Promise.all([
       buildTextTranslations(locationText),
-      buildTextTranslations(specialtyText),
       buildTextTranslations(bioText),
       buildTextTranslations(shippingText),
       buildTextTranslations(turnaroundText),
@@ -9962,9 +9931,6 @@ export default function ThailandPantiesMarketSite() {
                 ...seller,
                 location: locationText,
                 locationI18n: locationI18n && Object.keys(locationI18n).length > 0 ? locationI18n : normalizeLocalizedMap(seller?.locationI18n, locationText),
-                specialties,
-                specialty: specialtyText,
-                specialtyI18n: specialtyI18n && Object.keys(specialtyI18n).length > 0 ? specialtyI18n : normalizeLocalizedMap(seller?.specialtyI18n, specialtyText),
                 languages,
                 bio: bioText,
                 bioI18n: bioI18n && Object.keys(bioI18n).length > 0 ? bioI18n : normalizeLocalizedMap(seller?.bioI18n, bioText),
@@ -9998,8 +9964,6 @@ export default function ThailandPantiesMarketSite() {
         body: {
           location: locationText,
           locationI18n,
-          specialties,
-          specialtyI18n,
           bio: bioText,
           bioI18n,
           shipping: shippingText,
@@ -17794,7 +17758,7 @@ export default function ThailandPantiesMarketSite() {
                           {seller.isOnline ? localizeOptionLabel('Online', uiLanguage) : localizeOptionLabel('Offline', uiLanguage)}
                         </span>
                       </div>
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{seller.bio || (seller.specialty && seller.specialty !== 'Pending profile details' ? seller.specialty : null) || publicText.sellerFallback}</p>
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{seller.bio || publicText.sellerFallback}</p>
                       <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.total || 0} {publicText.listingsLabel}</span>
                         <span className="rounded-full bg-slate-100 px-3 py-1">{homeSellerInsightsById[seller.id]?.types?.size || 0} {publicText.typesLabel}</span>
@@ -18107,7 +18071,7 @@ export default function ThailandPantiesMarketSite() {
                               <div className="truncate text-sm font-semibold text-slate-800">{seller.name}</div>
                             </div>
                             <p className="mt-1 line-clamp-2 text-xs text-slate-600">
-                              {seller.bio || (seller.specialty && seller.specialty !== 'Pending profile details' ? seller.specialty : null) || publicText.affiliatedSellerFallback}
+                              {seller.bio || publicText.affiliatedSellerFallback}
                             </p>
                           </div>
                         </button>
@@ -18253,7 +18217,6 @@ export default function ThailandPantiesMarketSite() {
                       )}
                     </div>
                   </div>
-                  <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">{selectedSeller.specialty || publicText.sellerFallback}</div>
                 </div>
                 <div className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                   {publicText.followersLabel}: {sellerFollowerCountById[selectedSeller.id] || 0}

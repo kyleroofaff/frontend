@@ -26,7 +26,6 @@ export const STYLE_FILTER_OPTIONS = ["All", ...STYLE_OPTIONS];
 export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "XXL+"];
 const EXCLUDED_FILTER_SIZES = new Set(["34b", "34c", "36c", "38c", "one size"]);
 export const SHARED_SIZE_OPTIONS = SIZE_OPTIONS.filter((size) => !EXCLUDED_FILTER_SIZES.has((size || "").trim().toLowerCase()));
-export const SELLER_SPECIALTY_OPTIONS = ["every day", "sport", "lace", "risqué", "satin", "silk"];
 export const SELLER_LANGUAGE_OPTIONS = ["English", "Thai", "Burmese", "Russian"];
 export const PRIMARY_CURRENCY_CODE = "THB";
 export const PRIMARY_CURRENCY_SYMBOL = "฿";

@@ -37,7 +37,6 @@ import {
   MIN_SELLER_PRICE_THB,
   SCENT_LEVEL_OPTIONS,
   SELLER_LANGUAGE_OPTIONS,
-  SELLER_SPECIALTY_OPTIONS,
   SHARED_SIZE_OPTIONS,
   STYLE_OPTIONS,
   HAIR_COLOR_OPTIONS,
@@ -993,41 +992,33 @@ function formatDurationCompact(ms) {
 const SELLER_PROFILE_SELECT_I18N = {
   en: {
     locationPlaceholder: "Select location",
-    specialtyPlaceholder: "Add your own specialty…",
     shippingPlaceholder: "Select shipping coverage",
     turnaroundPlaceholder: "Select turnaround",
     locations: ["Bangkok, Thailand", "Chiang Mai, Thailand", "Phuket, Thailand", "Pattaya, Thailand", "Khon Kaen, Thailand", "Hat Yai, Thailand"],
-    specialties: ["Premium", "Luxury", "Everyday"],
     shipping: ["Worldwide via international carriers", "Asia + Europe via international carriers", "US + Canada via international carriers", "Selected countries via international carriers"],
     turnaround: ["Ships in 1-3 days", "Ships in 2-4 days", "Ships in 3-5 days", "Ships in 5-7 days"],
   },
   th: {
     locationPlaceholder: "เลือกที่ตั้ง",
-    specialtyPlaceholder: "เพิ่มความถนัดของคุณเอง…",
     shippingPlaceholder: "เลือกพื้นที่จัดส่ง",
     turnaroundPlaceholder: "เลือกระยะเวลาจัดส่ง",
     locations: ["กรุงเทพฯ, ไทย", "เชียงใหม่, ไทย", "ภูเก็ต, ไทย", "พัทยา, ไทย", "ขอนแก่น, ไทย", "หาดใหญ่, ไทย"],
-    specialties: ["พรีเมียม", "ลักชัวรี", "ทุกวัน"],
     shipping: ["จัดส่งทั่วโลกผ่านผู้ให้บริการขนส่งระหว่างประเทศ", "เอเชีย + ยุโรป ผ่านผู้ให้บริการขนส่งระหว่างประเทศ", "สหรัฐฯ + แคนาดา ผ่านผู้ให้บริการขนส่งระหว่างประเทศ", "บางประเทศผ่านผู้ให้บริการขนส่งระหว่างประเทศ"],
     turnaround: ["จัดส่งภายใน 1-3 วัน", "จัดส่งภายใน 2-4 วัน", "จัดส่งภายใน 3-5 วัน", "จัดส่งภายใน 5-7 วัน"],
   },
   my: {
     locationPlaceholder: "တည်နေရာရွေးပါ",
-    specialtyPlaceholder: "ကိုယ်ပိုင် အထူးပြုအမျိုးအစား ထည့်ပါ…",
     shippingPlaceholder: "ပို့ဆောင်ရေးဧရိယာရွေးပါ",
     turnaroundPlaceholder: "ပို့ဆောင်ချိန်ရွေးပါ",
     locations: ["Bangkok, Thailand", "Chiang Mai, Thailand", "Phuket, Thailand", "Pattaya, Thailand", "Khon Kaen, Thailand", "Hat Yai, Thailand"],
-    specialties: ["Premium", "Luxury", "Everyday"],
     shipping: ["International carriers ဖြင့် ကမ္ဘာတစ်ဝန်းပို့ဆောင်", "International carriers ဖြင့် Asia + Europe", "International carriers ဖြင့် US + Canada", "ရွေးချယ်ထားသောနိုင်ငံများသို့ international carriers"],
     turnaround: ["1-3 ရက်အတွင်းပို့မည်", "2-4 ရက်အတွင်းပို့မည်", "3-5 ရက်အတွင်းပို့မည်", "5-7 ရက်အတွင်းပို့မည်"],
   },
   ru: {
     locationPlaceholder: "Выберите локацию",
-    specialtyPlaceholder: "Добавьте свою специализацию…",
     shippingPlaceholder: "Выберите покрытие доставки",
     turnaroundPlaceholder: "Выберите срок отправки",
     locations: ["Бангкок, Таиланд", "Чиангмай, Таиланд", "Пхукет, Таиланд", "Паттайя, Таиланд", "Кхонкэн, Таиланд", "Хатъяй, Таиланд"],
-    specialties: ["Премиум", "Люкс", "Повседневный"],
     shipping: ["Доставка по всему миру через международных перевозчиков", "Азия + Европа через международных перевозчиков", "США + Канада через международных перевозчиков", "Выбранные страны через международных перевозчиков"],
     turnaround: ["Отправка за 1-3 дня", "Отправка за 2-4 дня", "Отправка за 3-5 дней", "Отправка за 5-7 дней"],
   },
@@ -1038,7 +1029,6 @@ const SELLER_WORLDWIDE_SHIPPING_BY_LOCALE = {
   my: "ထိုင်းနိုင်ငံမှ ကမ္ဘာတစ်ဝန်းပို့ဆောင်",
   ru: "Доставка по всему миру из Таиланда",
 };
-const BLOCKED_SELLER_SPECIALTY_PATTERNS = [/premium used panties/i];
 
 const SELLER_WRITING_PRESETS_I18N = {
   en: {
@@ -1380,7 +1370,6 @@ const SELLER_I18N = {
     feedSubtitle: "Browse seller stories, behind-the-scenes photos, and day-to-day updates.",
     noFeedPosts: "No stories yet. Check back soon for new updates.",
     feedImage: "Stories image",
-    specialty: "Specialty",
     whatBuyersWillSee: "What buyers will see (profile card)",
     whatBuyersWillSeeShort: "What buyers will see",
     removeImage: "Remove image",
@@ -1608,7 +1597,6 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "Seller profile image",
     profileImageHelp: "If you skip this, buyers will see your seller name on a default image.",
     shippingScopeFixedHelp: "Shipping scope is fixed for all sellers.",
-    addSpecialtyAriaLabel: "Add specialty",
     stepTwoLabel: "Step 2",
     setBuilderTitle: "Set builder",
     setBuilderHelp: "Create combo products (for example bra + panties, top + skirt, or 4-piece sets) while keeping individual items listed separately.",
@@ -1658,7 +1646,7 @@ const SELLER_I18N = {
     feedEyebrow: "เรื่องราว", feedTitle: "เรื่องราว",
     feedSubtitle: "ดูโพสต์ไลฟ์สไตล์ เบื้องหลัง และอัปเดตประจำวันจากผู้ขาย",
     noFeedPosts: "ยังไม่มีเรื่องราว กลับมาตรวจสอบอีกครั้งเร็วๆ นี้",
-    feedImage: "รูปเรื่องราว", specialty: "ความถนัด", whatBuyersWillSee: "สิ่งที่ผู้ซื้อจะเห็น (การ์ดโปรไฟล์)", whatBuyersWillSeeShort: "สิ่งที่ผู้ซื้อจะเห็น", removeImage: "ลบรูปภาพ", reportCount: "รายงาน",
+    feedImage: "รูปเรื่องราว", whatBuyersWillSee: "สิ่งที่ผู้ซื้อจะเห็น (การ์ดโปรไฟล์)", whatBuyersWillSeeShort: "สิ่งที่ผู้ซื้อจะเห็น", removeImage: "ลบรูปภาพ", reportCount: "รายงาน",
     reasonInappropriate: "เนื้อหาไม่เหมาะสม", reasonHarassment: "คุกคามหรือกลั่นแกล้ง",
     reasonSpam: "สแปม", reasonImpersonation: "แอบอ้างตัวตน", reasonOther: "อื่นๆ",
     customReason: "เหตุผลเพิ่มเติม", report: "รายงาน", reporting: "กำลังรายงาน...", loadMorePosts: "โหลดโพสต์เพิ่มเติม",
@@ -1831,7 +1819,6 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "รูปโปรไฟล์ผู้ขาย",
     profileImageHelp: "หากไม่อัปโหลด ผู้ซื้อจะเห็นชื่อผู้ขายของคุณบนรูปเริ่มต้น",
     shippingScopeFixedHelp: "ขอบเขตการจัดส่งถูกกำหนดคงที่สำหรับผู้ขายทุกคน",
-    addSpecialtyAriaLabel: "เพิ่มความถนัด",
     stepTwoLabel: "ขั้นตอนที่ 2",
     setBuilderTitle: "ตัวสร้างเซ็ตสินค้า",
     setBuilderHelp: "สร้างสินค้าชุด (เช่น บรา + กางเกงใน, เสื้อ + กระโปรง หรือชุด 4 ชิ้น) โดยยังคงแสดงสินค้ารายชิ้นแยกกันได้",
@@ -1880,7 +1867,7 @@ const SELLER_I18N = {
     feedEyebrow: "stories", feedTitle: "stories",
     feedSubtitle: "seller post များ၊ နောက်ကွယ်ပုံများနှင့် နေ့စဉ် update များကို ကြည့်ရှုပါ",
     noFeedPosts: "stories မရှိသေးပါ။ နောက်ပိုင်းတွင် ပြန်စစ်ပါ",
-    feedImage: "stories ပုံ", specialty: "အထူးပြုအမျိုးအစား", whatBuyersWillSee: "ဝယ်သူမြင်ရမည့်အရာ (ပရိုဖိုင်ကတ်)", whatBuyersWillSeeShort: "ဝယ်သူမြင်ရမည့်အရာ", removeImage: "ပုံဖယ်ရှားမည်", reportCount: "report",
+    feedImage: "stories ပုံ", whatBuyersWillSee: "ဝယ်သူမြင်ရမည့်အရာ (ပရိုဖိုင်ကတ်)", whatBuyersWillSeeShort: "ဝယ်သူမြင်ရမည့်အရာ", removeImage: "ပုံဖယ်ရှားမည်", reportCount: "report",
     reasonInappropriate: "မသင့်လျော်သော အကြောင်းအရာ", reasonHarassment: "အနှောင့်အယှက် သို့မဟုတ် အနိုင်ကျင့်မှု",
     reasonSpam: "spam", reasonImpersonation: "အယောင်ဆောင်မှု", reasonOther: "အခြား",
     customReason: "စိတ်ကြိုက် အကြောင်းပြချက်", report: "report", reporting: "report လုပ်နေသည်...", loadMorePosts: "post များထပ်ဖွင့်မည်",
@@ -2053,7 +2040,6 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "seller ပရိုဖိုင်ပုံ",
     profileImageHelp: "ဤနေရာကိုကျော်ခဲ့လျှင် ဝယ်သူများသည် မူလပုံပေါ်တွင် သင့် seller နာမည်ကိုမြင်ရမည်။",
     shippingScopeFixedHelp: "shipping scope ကို seller အားလုံးအတွက် တစ်မျိုးတည်း သတ်မှတ်ထားသည်။",
-    addSpecialtyAriaLabel: "specialty ထည့်ရန်",
     stepTwoLabel: "အဆင့် 2",
     setBuilderTitle: "Set builder",
     setBuilderHelp: "ပစ္စည်းတစ်ခုချင်းစာရင်းကို ထိန်းထားပြီး combo set များ (ဥပမာ bra + panties, top + skirt, 4-piece sets) ဖန်တီးနိုင်သည်။",
@@ -2102,7 +2088,7 @@ const SELLER_I18N = {
     feedEyebrow: "Истории", feedTitle: "Истории",
     feedSubtitle: "Смотрите посты продавцов, закулисные фото и ежедневные обновления.",
     noFeedPosts: "Историй пока нет. Загляните позже.",
-    feedImage: "Фото истории", specialty: "Специализация", whatBuyersWillSee: "Что увидят покупатели (карточка профиля)", whatBuyersWillSeeShort: "Что увидят покупатели", removeImage: "Удалить изображение", reportCount: "жалоб(ы)",
+    feedImage: "Фото истории", whatBuyersWillSee: "Что увидят покупатели (карточка профиля)", whatBuyersWillSeeShort: "Что увидят покупатели", removeImage: "Удалить изображение", reportCount: "жалоб(ы)",
     reasonInappropriate: "Неприемлемый контент", reasonHarassment: "Оскорбления или травля",
     reasonSpam: "Спам", reasonImpersonation: "Выдача себя за другого", reasonOther: "Другое",
     customReason: "Своя причина", report: "Пожаловаться", reporting: "Отправка...", loadMorePosts: "Загрузить еще",
@@ -2275,7 +2261,6 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "Фото профиля продавца",
     profileImageHelp: "Если пропустить, покупатели увидят имя продавца на стандартном изображении.",
     shippingScopeFixedHelp: "Область доставки фиксирована для всех продавцов.",
-    addSpecialtyAriaLabel: "Добавить специализацию",
     stepTwoLabel: "Шаг 2",
     setBuilderTitle: "Конструктор наборов",
     setBuilderHelp: "Создавайте комбинированные товары (например, бюстгальтер + трусики, топ + юбка или наборы из 4 предметов), сохраняя отдельные позиции в каталоге.",
@@ -2406,7 +2391,6 @@ export function SellerDashboardPage({
   });
   const [editingBundleId, setEditingBundleId] = useState("");
   const [bundleMessage, setBundleMessage] = useState("");
-  const [customSpecialtyDraft, setCustomSpecialtyDraft] = useState("");
   const [dashHeightUnit, setDashHeightUnit] = useState("cm");
   const [localHeightIn, setLocalHeightIn] = useState("");
   const [dashWeightUnit, setDashWeightUnit] = useState("kg");
@@ -2483,18 +2467,6 @@ export function SellerDashboardPage({
     && typeof requestSellerBarAffiliation === "function"
   );
   const selectedBarName = barMap?.[selectedAffiliatedBarId]?.name || selectedAffiliatedBarId;
-  const sellerSpecialties = useMemo(
-    () => (Array.isArray(sellerProfileDraft.specialties) ? sellerProfileDraft.specialties : [])
-      .filter((value) => !BLOCKED_SELLER_SPECIALTY_PATTERNS.some((pattern) => pattern.test(String(value || "").trim()))),
-    [sellerProfileDraft.specialties],
-  );
-  const specialtyChipOptions = useMemo(
-    () => [
-      ...SELLER_SPECIALTY_OPTIONS,
-      ...sellerSpecialties.filter((value) => !SELLER_SPECIALTY_OPTIONS.includes(value)),
-    ],
-    [sellerSpecialties],
-  );
   const sellerLanguages = Array.isArray(sellerProfileDraft.languages) ? sellerProfileDraft.languages : [];
   const bundleSourceProducts = useMemo(
     () => (sellerDashboardProducts || []).filter((product) => !product?.isBundle),
@@ -2766,15 +2738,6 @@ export function SellerDashboardPage({
       })),
     );
     setCustomRequestImageDraftById((prev) => ({ ...prev, [requestId]: nextImages.filter((item) => item?.image) }));
-  };
-  const addCustomSpecialty = () => {
-    const value = String(customSpecialtyDraft || "").trim();
-    if (!value) return;
-    const exists = sellerSpecialties.some((entry) => String(entry || "").trim().toLowerCase() === value.toLowerCase());
-    if (!exists) {
-      updateSellerProfileField("specialties", [...sellerSpecialties, value]);
-    }
-    setCustomSpecialtyDraft("");
   };
   return (
     <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
@@ -3242,66 +3205,6 @@ export function SellerDashboardPage({
                         </>
                       );
                     })()}
-                  </div>
-                  <div className="grid gap-1 text-sm text-slate-600">
-                    <span className="font-medium">{t("specialty")}</span>
-                    <div className="rounded-2xl border border-slate-200 px-3 py-3 space-y-3">
-                      <div className="flex flex-wrap gap-2">
-                        {SELLER_SPECIALTY_OPTIONS.map((value) => {
-                          const selected = sellerSpecialties.includes(value);
-                          return (
-                            <button
-                              key={value}
-                              type="button"
-                              onClick={() => updateSellerProfileField("specialties", selected ? sellerSpecialties.filter((item) => item !== value) : [...sellerSpecialties, value])}
-                              className={`rounded-xl px-3 py-2 text-xs font-semibold ${selected ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}
-                            >
-                              {localizeOptionLabel(value, locale)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {sellerSpecialties.filter((s) => !SELLER_SPECIALTY_OPTIONS.includes(s)).length > 0 ? (
-                        <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-2">
-                          {sellerSpecialties.filter((s) => !SELLER_SPECIALTY_OPTIONS.includes(s)).map((value) => (
-                            <span key={value} className="flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
-                              {value}
-                              <button
-                                type="button"
-                                onClick={() => updateSellerProfileField("specialties", sellerSpecialties.filter((item) => item !== value))}
-                                className="ml-0.5 text-slate-400 hover:text-rose-600"
-                                aria-label={`Remove ${value}`}
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                      <div className="flex items-center gap-2 border-t border-slate-100 pt-2">
-                        <input
-                          value={customSpecialtyDraft}
-                          onChange={(event) => setCustomSpecialtyDraft(event.target.value)}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                              event.preventDefault();
-                              addCustomSpecialty();
-                            }
-                          }}
-                          className="flex-1 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-                          placeholder={sellerProfileSelectText.specialtyPlaceholder}
-                        />
-                        <button
-                          type="button"
-                          onClick={addCustomSpecialty}
-                          disabled={!customSpecialtyDraft.trim()}
-                          className={`rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${customSpecialtyDraft.trim() ? "border-rose-200 text-rose-700 hover:bg-rose-50" : "border-slate-200 text-slate-300 cursor-not-allowed"}`}
-                          aria-label={t("addSpecialtyAriaLabel")}
-                        >
-                          + {t("addSpecialtyAriaLabel") || "Add"}
-                        </button>
-                      </div>
-                    </div>
                   </div>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("languages")}</span>
