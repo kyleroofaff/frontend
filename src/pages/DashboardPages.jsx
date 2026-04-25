@@ -1564,8 +1564,9 @@ const SELLER_I18N = {
     quickActionsHelp: "Use these shortcuts to post listings, reply quickly, and manage incoming work.",
     openMessages: "Open messages",
     loginCredentialsTitle: "Login credentials",
-    loginCredentialsSubtitle: "Change your email/password only when needed.",
-    credentialsHelp: "Update your account email or password. Enter your current password to confirm.",
+    loginCredentialsSubtitle: "Change your name, email, or password.",
+    credentialsHelp: "Update your display name freely. To change email or password, enter your current password to confirm.",
+    displayNamePlaceholder: "New display name",
     currentPasswordPlaceholder: "Current password",
     newEmailPlaceholder: "New email",
     newPasswordPlaceholder: "New password",
@@ -1786,8 +1787,9 @@ const SELLER_I18N = {
     quickActionsHelp: "ใช้ปุ่มลัดเหล่านี้เพื่อโพสต์สินค้า ตอบกลับเร็ว และจัดการงานที่เข้ามา",
     openMessages: "เปิดข้อความ",
     loginCredentialsTitle: "ข้อมูลเข้าสู่ระบบ",
-    loginCredentialsSubtitle: "เปลี่ยนอีเมล/รหัสผ่านเมื่อจำเป็นเท่านั้น",
-    credentialsHelp: "อัปเดตอีเมลหรือรหัสผ่านของบัญชี โปรดใส่รหัสผ่านปัจจุบันเพื่อยืนยัน",
+    loginCredentialsSubtitle: "เปลี่ยนชื่อ อีเมล หรือรหัสผ่าน",
+    credentialsHelp: "เปลี่ยนชื่อที่แสดงได้อย่างอิสระ หากต้องการเปลี่ยนอีเมลหรือรหัสผ่าน ให้ใส่รหัสผ่านปัจจุบันเพื่อยืนยัน",
+    displayNamePlaceholder: "ชื่อที่แสดงใหม่",
     currentPasswordPlaceholder: "รหัสผ่านปัจจุบัน",
     newEmailPlaceholder: "อีเมลใหม่",
     newPasswordPlaceholder: "รหัสผ่านใหม่",
@@ -2007,8 +2009,9 @@ const SELLER_I18N = {
     quickActionsHelp: "စာရင်းတင်ခြင်း၊ မြန်မြန်ပြန်ခြင်းနှင့် ဝင်လာသောအလုပ်များကို စီမံရန် shortcut များ",
     openMessages: "မက်ဆေ့ချ်ဖွင့်မည်",
     loginCredentialsTitle: "ဝင်ရောက်မှု အချက်အလက်",
-    loginCredentialsSubtitle: "လိုအပ်သည့်အခါမှသာ email/password ကို ပြောင်းပါ",
-    credentialsHelp: "သင့်အကောင့် email သို့မဟုတ် password ကို update လုပ်ရန် လက်ရှိ password ကိုထည့်ပြီး အတည်ပြုပါ",
+    loginCredentialsSubtitle: "အမည်၊ email သို့မဟုတ် password ပြောင်းပါ",
+    credentialsHelp: "ပြသမည့်အမည်ကို လွတ်လပ်စွာ ပြောင်းလဲနိုင်သည်။ email သို့မဟုတ် password ပြောင်းရန် လက်ရှိ password ထည့်ပြီး အတည်ပြုပါ",
+    displayNamePlaceholder: "ပြသမည့်အမည်အသစ်",
     currentPasswordPlaceholder: "လက်ရှိ password",
     newEmailPlaceholder: "email အသစ်",
     newPasswordPlaceholder: "password အသစ်",
@@ -2228,8 +2231,9 @@ const SELLER_I18N = {
     quickActionsHelp: "Используйте эти кнопки для публикации объявлений, быстрых ответов и управления входящими задачами.",
     openMessages: "Открыть сообщения",
     loginCredentialsTitle: "Данные для входа",
-    loginCredentialsSubtitle: "Меняйте email/пароль только при необходимости.",
-    credentialsHelp: "Обновите email или пароль аккаунта. Для подтверждения введите текущий пароль.",
+    loginCredentialsSubtitle: "Измените имя, email или пароль.",
+    credentialsHelp: "Имя можно изменить свободно. Для смены email или пароля введите текущий пароль.",
+    displayNamePlaceholder: "Новое отображаемое имя",
     currentPasswordPlaceholder: "Текущий пароль",
     newEmailPlaceholder: "Новый email",
     newPasswordPlaceholder: "Новый пароль",
@@ -3584,7 +3588,15 @@ export function SellerDashboardPage({
             </summary>
             <div className="border-t border-rose-100 px-5 pb-5 pt-4">
               <p className="text-sm text-slate-600">{t("credentialsHelp")}</p>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <div className="mt-4 space-y-3">
+                <input
+                  type="text"
+                  value={accountCredentialForm.newDisplayName}
+                  onChange={(event) => setAccountCredentialForm((prev) => ({ ...prev, newDisplayName: event.target.value }))}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                  placeholder={t("displayNamePlaceholder")}
+                />
+                <div className="grid gap-3 md:grid-cols-2">
                 <input
                   type="password"
                   value={accountCredentialForm.currentPassword}
@@ -3613,6 +3625,7 @@ export function SellerDashboardPage({
                   className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                   placeholder={t("confirmPasswordPlaceholder")}
                 />
+                </div>
               </div>
               <div className="mt-2 text-xs text-slate-500">{t("passwordPolicyHelp")}</div>
               <div className="mt-4 flex flex-wrap items-center gap-3">

@@ -5418,6 +5418,7 @@ export default function ThailandPantiesMarketSite() {
   });
   const [accountSaveMessage, setAccountSaveMessage] = useState('');
   const [accountCredentialForm, setAccountCredentialForm] = useState({
+    newDisplayName: '',
     currentPassword: '',
     newEmail: '',
     newPassword: '',
@@ -11482,20 +11483,22 @@ export default function ThailandPantiesMarketSite() {
 
   async function submitAccountCredentialChanges() {
     if (!currentUser || accountCredentialSaving) return;
+    const newDisplayName = String(accountCredentialForm.newDisplayName || '').trim();
     const currentPassword = String(accountCredentialForm.currentPassword || '');
     const newEmail = String(accountCredentialForm.newEmail || '').trim().toLowerCase();
     const newPassword = String(accountCredentialForm.newPassword || '');
     const confirmNewPassword = String(accountCredentialForm.confirmNewPassword || '');
+    const hasNameChange = Boolean(newDisplayName) && newDisplayName !== String(currentUser.name || '').trim();
     const hasEmailChange = Boolean(newEmail) && newEmail !== String(currentUser.email || '').trim().toLowerCase();
     const hasPasswordChange = Boolean(newPassword);
-    if (!hasEmailChange && !hasPasswordChange) {
+    if (!hasNameChange && !hasEmailChange && !hasPasswordChange) {
       setAccountCredentialTone('error');
-      setAccountCredentialMessage('Add a new email or new password to save credential changes.');
+      setAccountCredentialMessage('Add a new name, email, or password to save changes.');
       return;
     }
-    if (!currentPassword) {
+    if ((hasEmailChange || hasPasswordChange) && !currentPassword) {
       setAccountCredentialTone('error');
-      setAccountCredentialMessage('Enter your current password to confirm these changes.');
+      setAccountCredentialMessage('Enter your current password to confirm email/password changes.');
       return;
     }
     if (hasEmailChange && !newEmail.includes('@')) {
@@ -11522,39 +11525,57 @@ export default function ThailandPantiesMarketSite() {
     setAccountCredentialTone('neutral');
     try {
       if (backendStatus === 'connected' && apiAuthToken) {
-        const { ok, payload } = await apiRequestJson('/api/auth/account-credentials', {
-          method: 'POST',
-          body: {
-            currentPassword,
-            ...(hasEmailChange ? { newEmail } : {}),
-            ...(hasPasswordChange ? { newPassword } : {}),
-          },
-        });
-        if (!ok) {
-          setAccountCredentialTone('error');
-          setAccountCredentialMessage(String(payload?.error || 'Could not update credentials right now.'));
-          return;
+        if (hasEmailChange || hasPasswordChange) {
+          const { ok, payload } = await apiRequestJson('/api/auth/account-credentials', {
+            method: 'POST',
+            body: {
+              currentPassword,
+              ...(hasEmailChange ? { newEmail } : {}),
+              ...(hasPasswordChange ? { newPassword } : {}),
+            },
+          });
+          if (!ok) {
+            setAccountCredentialTone('error');
+            setAccountCredentialMessage(String(payload?.error || 'Could not update credentials right now.'));
+            return;
+          }
+          const nextUser = payload?.user || null;
+          if (nextUser?.id) {
+            setDb((prev) => ({
+              ...prev,
+              users: (prev.users || []).map((user) => (
+                user.id === nextUser.id
+                  ? { ...user, ...nextUser }
+                  : user
+              )),
+            }));
+            setAccountForm((prev) => ({ ...prev, email: nextUser.email || prev.email }));
+          }
         }
-        const nextUser = payload?.user || null;
-        if (nextUser?.id) {
+        if (hasNameChange && currentSellerId) {
+          apiRequestJson(`/api/sellers/${encodeURIComponent(currentSellerId)}`, {
+            method: 'PUT',
+            body: { name: newDisplayName },
+          }).catch(() => {});
           setDb((prev) => ({
             ...prev,
-            users: (prev.users || []).map((user) => (
-              user.id === nextUser.id
-                ? { ...user, ...nextUser }
-                : user
-            )),
+            users: (prev.users || []).map((user) =>
+              user.id === currentUser.id ? { ...user, name: newDisplayName } : user
+            ),
+            sellers: (prev.sellers || []).map((seller) =>
+              seller.id === currentSellerId ? { ...seller, name: newDisplayName } : seller
+            ),
           }));
-          setAccountForm((prev) => ({ ...prev, email: nextUser.email || prev.email }));
-          setAccountCredentialForm({
-            currentPassword: '',
-            newEmail: nextUser.email || '',
-            newPassword: '',
-            confirmNewPassword: '',
-          });
         }
+        setAccountCredentialForm({
+          newDisplayName: '',
+          currentPassword: '',
+          newEmail: '',
+          newPassword: '',
+          confirmNewPassword: '',
+        });
         setAccountCredentialTone('success');
-        setAccountCredentialMessage(String(payload?.message || 'Account credentials updated.'));
+        setAccountCredentialMessage('Account updated successfully.');
         return;
       }
 
@@ -11567,7 +11588,7 @@ export default function ThailandPantiesMarketSite() {
         setAccountCredentialMessage(registerText.emailExistsError || 'This email is already registered.');
         return;
       }
-      if (String(currentUser.password || '') !== currentPassword) {
+      if ((hasEmailChange || hasPasswordChange) && String(currentUser.password || '') !== currentPassword) {
         setAccountCredentialTone('error');
         setAccountCredentialMessage('Current password is incorrect.');
         return;
@@ -11578,23 +11599,30 @@ export default function ThailandPantiesMarketSite() {
           user.id === currentUser.id
             ? {
                 ...user,
+                ...(hasNameChange ? { name: newDisplayName } : {}),
                 ...(hasEmailChange ? { email: newEmail } : {}),
                 ...(hasPasswordChange ? { password: newPassword } : {}),
               }
             : user
         )),
+        sellers: hasNameChange && currentSellerId
+          ? (prev.sellers || []).map((seller) =>
+              seller.id === currentSellerId ? { ...seller, name: newDisplayName } : seller
+            )
+          : prev.sellers,
       }));
       if (hasEmailChange) {
         setAccountForm((prev) => ({ ...prev, email: newEmail }));
       }
-      setAccountCredentialForm((prev) => ({
-        ...prev,
+      setAccountCredentialForm({
+        newDisplayName: '',
         currentPassword: '',
+        newEmail: '',
         newPassword: '',
         confirmNewPassword: '',
-      }));
+      });
       setAccountCredentialTone('success');
-      setAccountCredentialMessage('Account credentials updated.');
+      setAccountCredentialMessage('Account updated successfully.');
     } finally {
       setAccountCredentialSaving(false);
     }
