@@ -3090,26 +3090,13 @@ export function SellerDashboardPage({
                 <div className="rounded-2xl border border-rose-100 bg-slate-50 p-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{t("profileImageLabel")}</div>
                   {(sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved) ? (
-                    <div className="mt-3 space-y-3">
-                      <div>
-                        <div className="mb-1 text-[11px] font-medium text-slate-500">Your image</div>
-                        <div className="aspect-[4/5] max-w-xs">
-                          <ProductImage
-                            src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
-                            label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
-                            contain
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-1 text-[11px] font-medium text-slate-500">{t("whatBuyersWillSee")}</div>
-                        <div className="aspect-[4/5] max-w-xs">
-                          <ProductImage
-                            src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
-                            label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
-                            top
-                          />
-                        </div>
+                    <div className="mt-3">
+                      <div className="aspect-[4/5] max-w-xs">
+                        <ProductImage
+                          src={sellerProfileDraft.profileImage || currentSellerProfile?.profileImageResolved}
+                          label={sellerProfileDraft.profileImageName || currentSellerProfile?.profileImageNameResolved || t("sellerProfileImageFallback")}
+                          top
+                        />
                       </div>
                     </div>
                   ) : (

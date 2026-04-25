@@ -2510,9 +2510,9 @@ export function FindPage({ products, sellerMap, navigate, uiLanguage = "en" }) {
             <div className="mt-4">
               <button onClick={() => navigate(`/product/${product.slug}`)} className="text-left text-lg font-semibold hover:text-rose-700">{product.title}</button>
               <div className="mt-1 text-sm text-slate-500">
-                {sellerMap?.[product.sellerId]?.name || product.sellerId} · {product.style || localizeOptionLabel("Not specified", uiLanguage)}
+                {[sellerMap?.[product.sellerId]?.name || product.sellerId, product.style && product.style !== "Not specified" ? product.style : null].filter(Boolean).join(" · ")}
               </div>
-              <div className="mt-1 text-sm text-slate-500">{product.size || localizeOptionLabel("Not specified", uiLanguage)} · {product.color || localizeOptionLabel("Not specified", uiLanguage)}</div>
+              {(product.size && product.size !== "Not specified") || (product.color && product.color !== "Not specified") ? <div className="mt-1 text-sm text-slate-500">{[product.size && product.size !== "Not specified" ? product.size : null, product.color && product.color !== "Not specified" ? product.color : null].filter(Boolean).join(" · ")}</div> : null}
               <div className="mt-3 text-lg font-semibold text-rose-700">{formatPriceTHB(product.price)}</div>
             </div>
           </article>
