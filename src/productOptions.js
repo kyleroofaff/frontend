@@ -37,7 +37,8 @@ export const MESSAGE_FEE_THB = 7;
 export const CUSTOM_REQUEST_FEE_THB = 7;
 export function formatPriceTHB(value) {
   const amount = Number(value || 0);
-  return `${PRIMARY_CURRENCY_SYMBOL}${amount.toFixed(2)}`;
+  const formatted = amount % 1 === 0 ? String(amount) : amount.toFixed(2);
+  return `${PRIMARY_CURRENCY_SYMBOL}${formatted}`;
 }
 export const COLOR_OPTIONS = [
   "Red",

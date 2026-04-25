@@ -110,7 +110,7 @@ const GIFT_CATALOG = [
   { id: 'gift_rose', type: 'rose', name: 'Rose', nameI18n: { en: 'Rose', th: 'กุหลาบ', my: 'နှင်းဆီ', ru: 'Роза' }, price: 200, emoji: '🌹', fulfillmentType: 'physical' },
   { id: 'gift_dozen_roses', type: 'dozen_roses', name: 'Dozen Roses', nameI18n: { en: 'Dozen Roses', th: 'กุหลาบ 12 ดอก', my: 'နှင်းဆီ ၁၂ ပွင့်', ru: '12 Роз' }, price: 2000, emoji: '💐', fulfillmentType: 'physical' },
   { id: 'gift_chocolate', type: 'chocolate', name: 'Chocolate', nameI18n: { en: 'Chocolate', th: 'ช็อกโกแลต', my: 'ချောကလက်', ru: 'Шоколад' }, price: 1000, emoji: '🍫', fulfillmentType: 'physical' },
-  { id: 'gift_drink', type: 'drink', name: 'Drink', nameI18n: { en: 'Drink', th: 'เครื่องดื่ม', my: 'အချိုရည်', ru: 'Напиток' }, price: 350, emoji: '🍹', fulfillmentType: 'drink' },
+  { id: 'gift_drink', type: 'drink', name: 'Drink', nameI18n: { en: 'Drink', th: 'เครื่องดื่ม', my: 'အချိုရည်', ru: 'Напиток' }, price: 300, emoji: '🍹', fulfillmentType: 'drink' },
 ];
 
 function resolveAdminAccess(user) {
@@ -6348,16 +6348,12 @@ export default function ThailandPantiesMarketSite() {
       const bTs = new Date(b?.publishedAt || b?.createdAt || 0).getTime();
       return bTs - aTs;
     });
-  const isPublicProduct = (product) => {
-    const status = String(product?.status || '').toLowerCase();
-    return status !== 'draft';
-  };
   const selectedSellerAllProducts = useMemo(
-    () => (selectedSeller ? sortProductsNewestFirst(products.filter((product) => product.sellerId === selectedSeller.id && isPublicProduct(product))) : []),
+    () => (selectedSeller ? sortProductsNewestFirst(products.filter((product) => product.sellerId === selectedSeller.id)) : []),
     [products, selectedSeller],
   );
   const selectedSellerAvailableProducts = useMemo(
-    () => (selectedSeller ? sortProductsNewestFirst(availableProducts.filter((product) => product.sellerId === selectedSeller.id && isPublicProduct(product))) : []),
+    () => (selectedSeller ? sortProductsNewestFirst(availableProducts.filter((product) => product.sellerId === selectedSeller.id)) : []),
     [availableProducts, selectedSeller],
   );
   const productsById = useMemo(
@@ -15459,7 +15455,7 @@ export default function ThailandPantiesMarketSite() {
     if (!gift) return;
     const balance = Number(currentUser?.walletBalance || 0);
     if (balance < gift.price) {
-      setGiftModal((prev) => ({ ...prev, error: `Insufficient balance. You need ฿${gift.price} but have ฿${balance.toFixed(2)}.` }));
+      setGiftModal((prev) => ({ ...prev, error: `Insufficient balance. You need ${formatPriceTHB(gift.price)} but have ${formatPriceTHB(balance)}.` }));
       return;
     }
     setGiftModal((prev) => ({ ...prev, sending: true, error: '' }));
@@ -18344,8 +18340,8 @@ export default function ThailandPantiesMarketSite() {
                                 Send anonymously
                               </label>
                               <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
-                                Wallet balance: <span className="font-semibold">฿{balance.toFixed(2)}</span>
-                                {balance < gift.price && <span className="ml-2 text-red-500 font-medium">(need ฿{(gift.price - balance).toFixed(2)} more)</span>}
+                                Wallet balance: <span className="font-semibold">{formatPriceTHB(balance)}</span>
+                                {balance < gift.price && <span className="ml-2 text-red-500 font-medium">(need {formatPriceTHB(gift.price - balance)} more)</span>}
                               </div>
                               {balance < gift.price && (
                                 <button
@@ -18640,7 +18636,7 @@ export default function ThailandPantiesMarketSite() {
                           ) : null}
                         </button>
                         {!canViewSellerPost(post) && <div className="mt-3 text-xs font-medium text-rose-600/70">{publicText.privatePostUnlock}</div>}
-                        {post.caption ? <div className={`${!canViewSellerPost(post) ? 'mt-1' : 'mt-3'} text-sm leading-6 text-slate-700`}>{post.caption}</div> : null}
+                        {post.caption ? <div className={`${!canViewSellerPost(post) ? 'mt-1' : 'mt-2'} text-base leading-6 text-slate-700`}>{post.caption}</div> : null}
                       </div>
                     ))}
                   </div>
