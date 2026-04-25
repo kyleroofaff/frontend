@@ -3539,7 +3539,7 @@ export function SellerDashboardPage({
                         </span>
                       </div>
                       <div className="mt-1 text-sm text-slate-500">
-                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? t("soldLabel") : (product.status || t("draftStatusLabel"))} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)} · {t("condition")}: {product.condition || t("notSpecified")}
+                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? t("soldLabel") : (product.status || t("draftStatusLabel"))} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)}{product.condition && product.condition !== 'Not specified' ? ` · ${t("condition")}: ${product.condition}` : ""}
                         {product.isBundle ? ` · ${t("includesLabel")} ${(product.bundleItemIds || []).length} ${t("items")}` : ""}
                       </div>
                     </div>
@@ -3661,6 +3661,11 @@ export function SellerUploadPage({
   createProductFromUpload,
   sellerDashboardProducts,
   upsertBundleProduct,
+  publishProduct,
+  deleteProduct,
+  deletingProductId,
+  soldProductIds,
+  isSellerOnline,
   sellerLanguage,
   sellerProfileMessage,
   navigate,
@@ -3799,7 +3804,7 @@ export function SellerUploadPage({
             </div>
             <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
             {sellerProfileMessage ? (
-              <span className="text-sm font-medium text-rose-600">{sellerProfileMessage}</span>
+              <span className={`text-sm font-medium ${sellerProfileMessage.toLowerCase().includes('created') ? 'text-emerald-600' : 'text-rose-600'}`}>{sellerProfileMessage}</span>
             ) : null}
           </div>
           <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
@@ -3860,6 +3865,61 @@ export function SellerUploadPage({
                 ))}
               </div>
             ) : null}
+          </div>
+
+          <div className="mt-8 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
+            <div className="flex items-center justify-between gap-4">
+              <h3 className="text-xl font-semibold">{t("listingLibrary")}</h3>
+              <div className="text-sm text-slate-500">{(sellerDashboardProducts || []).length} {t("items")}</div>
+            </div>
+            <div className="mt-5 space-y-4">
+              {(sellerDashboardProducts || []).length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/40 p-4 text-sm text-slate-700">
+                  <div className="font-semibold text-slate-900">{t("noListingsYet")}</div>
+                  <div className="mt-1">{t("noListingsYetHelp")}</div>
+                </div>
+              ) : (sellerDashboardProducts || []).map((product) => {
+                const soldProductIdSet = new Set((soldProductIds || []).map(String));
+                const normalizedStatus = String(product?.status || "").toLowerCase();
+                const isSold = soldProductIdSet.has(String(product?.id || "")) || normalizedStatus === "sold";
+                const isPublished = normalizedStatus === "published";
+                return (
+                  <div key={product.id} className={`flex flex-col gap-4 rounded-2xl border p-4 md:flex-row md:items-center md:justify-between ${isSold ? "border-emerald-200 bg-emerald-50/40" : "border-rose-100"}`}>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <div className="font-semibold">{product.title}</div>
+                        {product.isBundle ? <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">{t("setBadgeLabel")}</span> : null}
+                        {isSold ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">{t("soldLabel")}</span> : null}
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${isSellerOnline ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
+                          {isSellerOnline ? t("online") : t("offline")}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-sm text-slate-500">
+                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? t("soldLabel") : (product.status || t("draftStatusLabel"))} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)}{product.condition && product.condition !== 'Not specified' ? ` · ${t("condition")}: ${product.condition}` : ""}
+                        {product.isBundle ? ` · ${t("includesLabel")} ${(product.bundleItemIds || []).length} ${t("items")}` : ""}
+                      </div>
+                    </div>
+                    <div className="flex w-full flex-wrap gap-2 md:w-auto">
+                      <button
+                        onClick={() => publishProduct(product.id)}
+                        disabled={isSold}
+                        className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold md:flex-none ${isSold ? "cursor-not-allowed border-emerald-200 bg-emerald-100 text-emerald-700" : "border-rose-200 text-rose-700"}`}
+                      >
+                        {isSold ? t("soldLabel") : (isPublished ? t("unpublishLabel") : t("publish"))}
+                      </button>
+                      <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none">{t("viewListing")}</button>
+                      <button
+                        onClick={() => deleteProduct(product.id)}
+                        disabled={deletingProductId === product.id}
+                        className={`flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none ${deletingProductId === product.id ? "cursor-not-allowed opacity-60" : ""}`}
+                      >
+                        {deletingProductId === product.id ? t("deleting") : t("delete")}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </>
       )}

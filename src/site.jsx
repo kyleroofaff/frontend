@@ -15345,10 +15345,10 @@ export default function ThailandPantiesMarketSite() {
     const sellerName = sellerMap[currentSellerId]?.name || '';
     const autoTitle = [
       sellerName ? `${sellerName}'s` : '',
-      uploadDraft.color,
-      uploadDraft.fabric,
-      uploadDraft.style,
-      uploadDraft.daysWorn && uploadDraft.daysWorn !== 'Unworn' ? `- ${uploadDraft.daysWorn}` : '',
+      uploadDraft.color && uploadDraft.color !== 'Not specified' ? uploadDraft.color : '',
+      uploadDraft.fabric && uploadDraft.fabric !== 'Not specified' ? uploadDraft.fabric : '',
+      uploadDraft.style && uploadDraft.style !== 'Not specified' ? uploadDraft.style : '',
+      uploadDraft.daysWorn && uploadDraft.daysWorn !== 'Unworn' && uploadDraft.daysWorn !== 'Not specified' ? `- ${uploadDraft.daysWorn}` : '',
     ].filter(Boolean).join(' ');
     const finalTitle = uploadDraft.title.trim() || autoTitle || 'Untitled listing';
     const slug = finalTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -15420,9 +15420,7 @@ export default function ThailandPantiesMarketSite() {
       imageName: '',
       images: [],
     });
-    setSellerProfileSaveSuccess(true);
     setSellerProfileMessage('Listing created!');
-    navigate('/account#seller-listings');
   }
 
   async function updateGiftCatalogItem(giftId, patch) {
@@ -19618,6 +19616,11 @@ export default function ThailandPantiesMarketSite() {
             createProductFromUpload={createProductFromUpload}
             sellerDashboardProducts={sellerDashboardProducts}
             upsertBundleProduct={upsertBundleProduct}
+            publishProduct={publishProduct}
+            deleteProduct={deleteProduct}
+            deletingProductId={deletingProductId}
+            soldProductIds={soldProductIds}
+            isSellerOnline={isSellerOnline}
             sellerLanguage={currentUser?.preferredLanguage || 'en'}
             sellerProfileMessage={sellerProfileMessage}
             navigate={navigate}
