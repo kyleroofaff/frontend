@@ -3726,7 +3726,8 @@ export function SellerUploadPage({
               </label>
               <label className="grid gap-1 text-sm text-slate-600">
                 <span className="font-medium">{t("type")}</span>
-                <select value={normalizeLegacyLocalizedValue(uploadDraft.style, STYLE_OPTIONS, STYLE_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, style: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                <select value={uploadDraft.style || ''} onChange={(e) => setUploadDraft((prev) => ({ ...prev, style: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  <option value="">Select type...</option>
                   {STYLE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                 </select>
               </label>
@@ -3734,7 +3735,8 @@ export function SellerUploadPage({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label className="grid gap-1 text-sm text-slate-600">
                 <span className="font-medium">{t("color")}</span>
-                <select value={normalizeLegacyLocalizedValue(uploadDraft.color, COLOR_OPTIONS, COLOR_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, color: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                <select value={uploadDraft.color || ''} onChange={(e) => setUploadDraft((prev) => ({ ...prev, color: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                  <option value="">Select color...</option>
                   {COLOR_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                 </select>
               </label>
@@ -3749,25 +3751,29 @@ export function SellerUploadPage({
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("size")}</span>
-                    <select value={normalizeLegacyLocalizedValue(uploadDraft.size, SHARED_SIZE_OPTIONS, SHARED_SIZE_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                    <select value={uploadDraft.size || ''} onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                      <option value="">Select size...</option>
                       {SHARED_SIZE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("daysWorn")}</span>
-                    <select value={normalizeLegacyLocalizedValue(uploadDraft.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                    <select value={uploadDraft.daysWorn || ''} onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                      <option value="">Select...</option>
                       {DAYS_WORN_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("fabric")}</span>
-                    <select value={normalizeLegacyLocalizedValue(uploadDraft.fabric, FABRIC_OPTIONS, FABRIC_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, fabric: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                    <select value={uploadDraft.fabric || ''} onChange={(e) => setUploadDraft((prev) => ({ ...prev, fabric: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                      <option value="">Select fabric...</option>
                       {FABRIC_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("condition")}</span>
-                    <select value={normalizeLegacyLocalizedValue(uploadDraft.condition, CONDITION_OPTIONS, CONDITION_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, condition: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                    <select value={uploadDraft.condition || ''} onChange={(e) => setUploadDraft((prev) => ({ ...prev, condition: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                      <option value="">Select condition...</option>
                       {CONDITION_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
                   </label>
@@ -3775,7 +3781,8 @@ export function SellerUploadPage({
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm text-slate-600">
                     <span className="font-medium">{t("scentLevel")}</span>
-                    <select value={normalizeLegacyLocalizedValue(uploadDraft.scentLevel, SCENT_LEVEL_OPTIONS, SCENT_LEVEL_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, scentLevel: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                    <select value={uploadDraft.scentLevel || ''} onChange={(e) => setUploadDraft((prev) => ({ ...prev, scentLevel: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                      <option value="">Select scent level...</option>
                       {SCENT_LEVEL_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
                   </label>
@@ -3785,8 +3792,9 @@ export function SellerUploadPage({
             <input id="seller-product-image-input-page" type="file" accept="image/*,video/*" multiple onChange={handleUploadFile} className="hidden" />
             <div className="flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
               <button type="button" onClick={() => document.getElementById('seller-product-image-input-page')?.click()} className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">{t("chooseFile")}</button>
-              <span className="text-xs text-slate-600">{uploadDraft.images?.length ? `${uploadDraft.images.length} / 5 images` : t("noFileChosen")}</span>
+              <span className="text-xs text-slate-600">{uploadDraft.images?.length ? `${uploadDraft.images.length} / 5 files` : t("noFileChosen")}</span>
             </div>
+            <p className="text-xs text-slate-400">Upload up to 5 images or short videos (max 8 seconds per video, 5 MB per image).</p>
             <div className="grid grid-cols-3 gap-3 max-w-md">
               {(uploadDraft.images || []).map((img, idx) => (
                 <div key={idx} className="relative aspect-[4/5]">
@@ -3795,7 +3803,6 @@ export function SellerUploadPage({
                     const next = prev.images.filter((_, i) => i !== idx);
                     return { ...prev, images: next, image: next[0]?.url || '', imageName: next[0]?.name || '' };
                   })} className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow">&times;</button>
-                  {idx === 0 && <span className="absolute left-1 bottom-1 rounded bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">Cover</span>}
                 </div>
               ))}
               {(!uploadDraft.images?.length) && (

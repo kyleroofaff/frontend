@@ -5332,13 +5332,13 @@ export default function ThailandPantiesMarketSite() {
     title: '',
     sellerId: 'nina-b',
     price: '',
-    size: SIZE_OPTIONS[2],
-    color: COLOR_OPTIONS[0],
-    style: STYLE_OPTIONS[0],
-    fabric: FABRIC_OPTIONS[0],
-    daysWorn: 'Not specified',
-    condition: 'Not specified',
-    scentLevel: 'Not specified',
+    size: '',
+    color: '',
+    style: '',
+    fabric: '',
+    daysWorn: '',
+    condition: '',
+    scentLevel: '',
     image: '',
     imageName: '',
     images: [],
@@ -15368,15 +15368,19 @@ export default function ThailandPantiesMarketSite() {
       style: uploadDraft.style,
       fabric: uploadDraft.fabric,
       daysWorn: normalizeProductDaysWornValue(uploadDraft.daysWorn),
-      scentLevel: uploadDraft.scentLevel,
+      scentLevel: uploadDraft.scentLevel || '',
       shipping: 'Worldwide',
-      condition: uploadDraft.condition,
-      description: `${uploadDraft.style} listing with ${uploadDraft.fabric.toLowerCase()} fabric and ${uploadDraft.scentLevel.toLowerCase()} scent level.`,
+      condition: uploadDraft.condition || '',
+      description: [
+        uploadDraft.style ? `${uploadDraft.style} listing` : 'Listing',
+        uploadDraft.fabric ? `with ${uploadDraft.fabric.toLowerCase()} fabric` : '',
+        uploadDraft.scentLevel ? `and ${uploadDraft.scentLevel.toLowerCase()} scent level` : '',
+      ].filter(Boolean).join(' ') + '.',
       features: [
-        `${uploadDraft.style} style`,
-        `${uploadDraft.fabric} fabric`,
-        `${uploadDraft.scentLevel} scent level`,
-      ],
+        uploadDraft.style ? `${uploadDraft.style} style` : '',
+        uploadDraft.fabric ? `${uploadDraft.fabric} fabric` : '',
+        uploadDraft.scentLevel ? `${uploadDraft.scentLevel} scent level` : '',
+      ].filter(Boolean),
       image: productImages[0]?.url || uploadDraft.image,
       imageName: productImages[0]?.name || uploadDraft.imageName,
       images: productImages,
@@ -15409,13 +15413,13 @@ export default function ThailandPantiesMarketSite() {
       title: '',
       sellerId: currentSellerId,
       price: '',
-      size: SIZE_OPTIONS[2],
-      color: COLOR_OPTIONS[0],
-      style: STYLE_OPTIONS[0],
-      fabric: FABRIC_OPTIONS[0],
-      daysWorn: 'Not specified',
-      condition: 'Not specified',
-      scentLevel: 'Not specified',
+      size: '',
+      color: '',
+      style: '',
+      fabric: '',
+      daysWorn: '',
+      condition: '',
+      scentLevel: '',
       image: '',
       imageName: '',
       images: [],
@@ -17584,7 +17588,7 @@ export default function ThailandPantiesMarketSite() {
                   {[
                     { title: 'Browse', detail: 'Discover vetted sellers and listings that match your preferences.' },
                     { title: 'Message', detail: 'Confirm details directly with the seller before you buy.' },
-                    { title: 'Checkout', detail: 'Pay securely with clear policy-first support at each step.' },
+                    { title: 'Checkout', detail: 'Pay securely — our support team is here if anything goes wrong.' },
                   ].map((step, index) => (
                     <div key={step.title} className="rounded-2xl bg-slate-50 px-4 py-3 text-slate-700">
                       <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Step {index + 1}</div>
@@ -18700,13 +18704,13 @@ export default function ThailandPantiesMarketSite() {
                 <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
                   <div><span className="font-semibold">Price:</span> {formatPriceTHB(selectedProduct.price)}</div>
                   <div className="mt-1"><span className="font-semibold">Shipping:</span> Discreet shipping with tracked options at checkout.</div>
-                  <div className="mt-1"><span className="font-semibold">Policy:</span> Refunds require evidence review and policy-first support handling.</div>
+                  <div className="mt-1"><span className="font-semibold">Policy:</span> Refunds are reviewed case-by-case. Contact support with evidence if there's an issue.</div>
                 </div>
                 <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.sizeField}:</span> {selectedProduct.size}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.colorField}:</span> {selectedProduct.color}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.styleField}:</span> {selectedProduct.style}</div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.fabricField}:</span> {selectedProduct.fabric}</div>
+                  {selectedProduct.size ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.sizeField}:</span> {selectedProduct.size}</div> : null}
+                  {selectedProduct.color ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.colorField}:</span> {selectedProduct.color}</div> : null}
+                  {selectedProduct.style ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.styleField}:</span> {selectedProduct.style}</div> : null}
+                  {selectedProduct.fabric ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.fabricField}:</span> {selectedProduct.fabric}</div> : null}
                   {selectedProduct.daysWorn && selectedProduct.daysWorn !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.daysWornField}:</span> {selectedProduct.daysWorn}</div> : null}
                   {selectedProduct.waistRise && selectedProduct.waistRise !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.waistRiseField}:</span> {selectedProduct.waistRise}</div> : null}
                   {selectedProduct.coverage && selectedProduct.coverage !== 'Not specified' ? <div className="rounded-2xl bg-slate-50 p-4"><span className="font-semibold">{publicText.coverageField}:</span> {selectedProduct.coverage}</div> : null}
