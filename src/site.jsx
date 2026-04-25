@@ -15219,7 +15219,16 @@ export default function ThailandPantiesMarketSite() {
     const scheduledTimestamp = sellerPostDraft.scheduledFor ? new Date(sellerPostDraft.scheduledFor).getTime() : null;
     const hasScheduledTime = Number.isFinite(scheduledTimestamp) && scheduledTimestamp > Date.now();
     const scheduledForIso = hasScheduledTime ? new Date(scheduledTimestamp).toISOString() : '';
-    const apiPostPayload = { ...basePostPayload, captionI18n, ...(scheduledForIso ? { scheduledFor: scheduledForIso } : {}) };
+    const apiPostPayload = {
+      caption: basePostPayload.caption,
+      image: basePostPayload.image,
+      imageName: basePostPayload.imageName,
+      mediaType: basePostPayload.mediaType,
+      visibility: basePostPayload.visibility,
+      accessPriceUsd: basePostPayload.accessPriceUsd,
+      captionI18n,
+      ...(scheduledForIso ? { scheduledFor: scheduledForIso } : {}),
+    };
 
     try {
       let createdPost = {
@@ -15306,13 +15315,17 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function createProductFromUpload() {
-    if (!uploadDraft.price || !uploadDraft.image) {
-      setSellerProfileMessage('Please add a price and at least one image before creating a listing.');
+    if (!uploadDraft.image) {
+      setSellerProfileMessage('Please add at least one image before creating a listing.');
+      return;
+    }
+    if (!uploadDraft.price) {
+      setSellerProfileMessage('Please enter a price.');
       return;
     }
     const parsedUploadPrice = Number(uploadDraft.price);
     if (!Number.isFinite(parsedUploadPrice) || parsedUploadPrice < MIN_SELLER_PRICE_THB) {
-      setSellerProfileMessage(sellerStatus('listingPriceAtLeast', { amount: formatPriceTHB(MIN_SELLER_PRICE_THB) }));
+      setSellerProfileMessage(`Minimum listing price is ${MIN_SELLER_PRICE_THB} THB. Please increase your price.`);
       return;
     }
     const sellerName = sellerMap[currentSellerId]?.name || '';

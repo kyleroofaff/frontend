@@ -3805,6 +3805,9 @@ export function SellerUploadPage({
               <label className="grid gap-1 text-sm text-slate-600">
                 <span className="font-medium">{t("price")} (THB)</span>
                 <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={uploadDraft.price} onChange={(e) => setUploadDraft((prev) => ({ ...prev, price: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={`Min ${MIN_SELLER_PRICE_THB}`} />
+                {uploadDraft.price && Number(uploadDraft.price) > 0 && Number(uploadDraft.price) < MIN_SELLER_PRICE_THB ? (
+                  <span className="text-xs font-medium text-rose-600">Minimum price is {MIN_SELLER_PRICE_THB} THB</span>
+                ) : null}
               </label>
               <label className="grid gap-1 text-sm text-slate-600">
                 <span className="font-medium">{t("type")}</span>
@@ -3820,12 +3823,6 @@ export function SellerUploadPage({
                   {COLOR_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                 </select>
               </label>
-              <label className="grid gap-1 text-sm text-slate-600">
-                <span className="font-medium">{t("daysWorn")}</span>
-                <select value={normalizeLegacyLocalizedValue(uploadDraft.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
-                  {DAYS_WORN_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
-                </select>
-              </label>
             </div>
             <details className="group">
               <summary className="cursor-pointer text-sm font-medium text-rose-600">Advanced options <span className="text-xs text-slate-400 group-open:hidden">&#9654;</span><span className="text-xs text-slate-400 hidden group-open:inline">&#9660;</span></summary>
@@ -3839,6 +3836,12 @@ export function SellerUploadPage({
                     <span className="font-medium">{t("size")}</span>
                     <select value={normalizeLegacyLocalizedValue(uploadDraft.size, SHARED_SIZE_OPTIONS, SHARED_SIZE_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, size: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
                       {SHARED_SIZE_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-sm text-slate-600">
+                    <span className="font-medium">{t("daysWorn")}</span>
+                    <select value={normalizeLegacyLocalizedValue(uploadDraft.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0])} onChange={(e) => setUploadDraft((prev) => ({ ...prev, daysWorn: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3">
+                      {DAYS_WORN_OPTIONS.map((value) => <option key={value} value={value}>{localizeOptionLabel(value, locale)}</option>)}
                     </select>
                   </label>
                   <label className="grid gap-1 text-sm text-slate-600">
