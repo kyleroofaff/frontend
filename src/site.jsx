@@ -7904,6 +7904,7 @@ export default function ThailandPantiesMarketSite() {
       timeFormat: normalizeTimeFormat(currentUser?.timeFormat),
     });
     setAccountCredentialForm({
+      newDisplayName: '',
       currentPassword: '',
       newEmail: currentUser?.email || '',
       newPassword: '',
