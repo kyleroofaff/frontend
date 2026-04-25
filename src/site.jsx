@@ -15289,20 +15289,32 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function createProductFromUpload() {
-    if (!uploadDraft.title || !uploadDraft.price || !uploadDraft.image) return;
+    if (!uploadDraft.price || !uploadDraft.image) {
+      setSellerProfileMessage('Please add a price and at least one image before creating a listing.');
+      return;
+    }
     const parsedUploadPrice = Number(uploadDraft.price);
     if (!Number.isFinite(parsedUploadPrice) || parsedUploadPrice < MIN_SELLER_PRICE_THB) {
       setSellerProfileMessage(sellerStatus('listingPriceAtLeast', { amount: formatPriceTHB(MIN_SELLER_PRICE_THB) }));
       return;
     }
-    const slug = uploadDraft.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const titleI18n = await buildTextTranslations(uploadDraft.title);
+    const sellerName = sellerMap[currentSellerId]?.name || '';
+    const autoTitle = [
+      sellerName ? `${sellerName}'s` : '',
+      uploadDraft.color,
+      uploadDraft.fabric,
+      uploadDraft.style,
+      uploadDraft.daysWorn && uploadDraft.daysWorn !== 'Unworn' ? `- ${uploadDraft.daysWorn}` : '',
+    ].filter(Boolean).join(' ');
+    const finalTitle = uploadDraft.title.trim() || autoTitle || 'Untitled listing';
+    const slug = finalTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const titleI18n = await buildTextTranslations(finalTitle);
     const productImages = Array.isArray(uploadDraft.images) && uploadDraft.images.length > 0
       ? uploadDraft.images
       : [{ url: uploadDraft.image, name: uploadDraft.imageName }];
     const newProduct = {
       id: `product-${Date.now()}`,
-      title: uploadDraft.title,
+      title: finalTitle,
       titleI18n,
       slug,
       sellerId: currentSellerId,

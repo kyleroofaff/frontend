@@ -3801,7 +3801,10 @@ export function SellerUploadPage({
             <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">{t("mediaUpload")}</button>
           </div>
           <div className="grid gap-4 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
-            <input value={uploadDraft.title} onChange={(e) => setUploadDraft((prev) => ({ ...prev, title: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("productTitle")} />
+            <div>
+              <input value={uploadDraft.title} onChange={(e) => setUploadDraft((prev) => ({ ...prev, title: e.target.value }))} className="w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("productTitle")} />
+              <p className="mt-1 text-xs text-slate-400">Leave blank to auto-generate from your selections</p>
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={uploadDraft.price} onChange={(e) => setUploadDraft((prev) => ({ ...prev, price: e.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("price")} />
               <label className="grid gap-1 text-sm text-slate-600">
@@ -3853,9 +3856,9 @@ export function SellerUploadPage({
                 </select>
               </label>
             </div>
-            <input id="seller-product-image-input-page" type="file" accept="image/*,video/*" multiple onChange={handleUploadFile} className="sr-only" />
+            <input id="seller-product-image-input-page" type="file" accept="image/*,video/*" multiple onChange={handleUploadFile} className="hidden" />
             <div className="flex max-w-xl flex-wrap items-center gap-2 rounded-2xl border border-dashed border-rose-300 px-3 py-2">
-              <label htmlFor="seller-product-image-input-page" className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">{t("chooseFile")}</label>
+              <button type="button" onClick={() => document.getElementById('seller-product-image-input-page')?.click()} className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700">{t("chooseFile")}</button>
               <span className="text-xs text-slate-600">{uploadDraft.images?.length ? `${uploadDraft.images.length} / 5 images` : t("noFileChosen")}</span>
             </div>
             <div className="grid grid-cols-3 gap-3 max-w-md">
