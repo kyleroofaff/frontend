@@ -858,9 +858,9 @@ const PUBLIC_SITE_I18N = {
     markThreadRead: 'Mark thread as read',
     customRequestsTitle: 'Custom requests',
     customRequestExplainPrefix: 'Looking for a specific piece from',
-    customRequestExplainMiddle: 'Requests cost',
-    customRequestExplainSuffix: 'to send. Custom request messages also cost',
-    customRequestExplainEnd: 'each.',
+    customRequestExplainBody: 'Custom request messages cost',
+    customRequestExplainBodyEnd: 'each.',
+    customRequestExplainNote: 'Unfortunately there are a lot of tire kickers so custom request messages have to be charged at the same rate as regular messages.',
     yourName: 'Your name',
     email: 'Email',
     customDetailsPlaceholder: 'Panty type, size, style, activities, or photo ideas',
@@ -1004,9 +1004,9 @@ const PUBLIC_SITE_I18N = {
     markThreadRead: 'ทำเครื่องหมายเธรดว่าอ่านแล้ว',
     customRequestsTitle: 'คำขอพิเศษ',
     customRequestExplainPrefix: 'กำลังมองหาชิ้นเฉพาะจาก',
-    customRequestExplainMiddle: 'คำขอมีค่าใช้จ่าย',
-    customRequestExplainSuffix: 'ต่อการส่ง และข้อความในคำขอพิเศษมีค่าใช้จ่าย',
-    customRequestExplainEnd: 'ต่อข้อความ',
+    customRequestExplainBody: 'ข้อความคำขอพิเศษมีค่าใช้จ่าย',
+    customRequestExplainBodyEnd: 'ต่อข้อความ',
+    customRequestExplainNote: 'เนื่องจากมีผู้ที่ไม่จริงจังจำนวนมาก ข้อความคำขอพิเศษจึงต้องเรียกเก็บในอัตราเดียวกับข้อความปกติ',
     yourName: 'ชื่อของคุณ',
     email: 'อีเมล',
     customDetailsPlaceholder: 'ประเภท ไซซ์ สไตล์ กิจกรรม หรือไอเดียรูปภาพ',
@@ -1150,9 +1150,9 @@ const PUBLIC_SITE_I18N = {
     markThreadRead: 'thread ကို read အဖြစ် မှတ်ရန်',
     customRequestsTitle: 'Custom requests',
     customRequestExplainPrefix: 'သတ်မှတ်ထားသော item တစ်ခုကို',
-    customRequestExplainMiddle: 'request ပို့ရန်',
-    customRequestExplainSuffix: 'ကုန်ကျပြီး custom request message များလည်း',
-    customRequestExplainEnd: 'တစ်ခုလျှင် ကုန်ကျသည်',
+    customRequestExplainBody: 'Custom request message များ',
+    customRequestExplainBodyEnd: 'တစ်ခုလျှင် ကုန်ကျသည်',
+    customRequestExplainNote: 'ဝယ်မည့်ဟန်ဆောင်သူများ များပြားသောကြောင့် custom request message များကို ပုံမှန် message များနှင့် နှုန်းတူ ကောက်ခံရပါသည်။',
     yourName: 'သင့်အမည်',
     email: 'အီးမေးလ်',
     customDetailsPlaceholder: 'panty type, size, style, activities သို့မဟုတ် photo idea',
@@ -1296,9 +1296,9 @@ const PUBLIC_SITE_I18N = {
     markThreadRead: 'Отметить тред прочитанным',
     customRequestsTitle: 'Индивидуальные запросы',
     customRequestExplainPrefix: 'Ищете конкретную вещь у',
-    customRequestExplainMiddle: 'Запрос стоит',
-    customRequestExplainSuffix: 'за отправку. Сообщения по запросу также стоят',
-    customRequestExplainEnd: 'каждое.',
+    customRequestExplainBody: 'Сообщения по индивидуальным запросам стоят',
+    customRequestExplainBodyEnd: 'каждое.',
+    customRequestExplainNote: 'К сожалению, много людей просто интересуются без намерения покупать, поэтому сообщения по индивидуальным запросам оплачиваются по той же ставке, что и обычные сообщения.',
     yourName: 'Ваше имя',
     email: 'Email',
     customDetailsPlaceholder: 'Тип, размер, стиль, активности или идеи для фото',
@@ -15658,7 +15658,6 @@ export default function ThailandPantiesMarketSite() {
         ...prev,
         products: prev.products.filter((item) => {
           if (item.id === deletedProductId) return false;
-          if (deletedProductTitle && (item.title || '').trim().toLowerCase() === deletedProductTitle) return false;
           return true;
         }),
       }));
@@ -18523,7 +18522,10 @@ export default function ThailandPantiesMarketSite() {
                   <div className="rounded-3xl border border-rose-100 bg-rose-50/60 p-5">
                     <h3 className="text-xl font-semibold">{publicText.customRequestsTitle}</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {publicText.customRequestExplainPrefix} {selectedSeller.name}? {publicText.customRequestExplainMiddle} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {publicText.customRequestExplainSuffix} {formatPriceTHB(MESSAGE_FEE_THB)} {publicText.customRequestExplainEnd}
+                      {publicText.customRequestExplainPrefix} {selectedSeller.name}? {publicText.customRequestExplainBody} {formatPriceTHB(MESSAGE_FEE_THB)} {publicText.customRequestExplainBodyEnd}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-500 italic">
+                      {publicText.customRequestExplainNote}
                     </p>
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
                       <input
