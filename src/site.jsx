@@ -6744,10 +6744,10 @@ export default function ThailandPantiesMarketSite() {
     if (!currentSellerProfile.location || currentSellerProfile.location === 'To be updated') checklist.push('Add location');
     if (!(Array.isArray(currentSellerProfile.languages) && currentSellerProfile.languages.length > 0)) checklist.push('Add language');
     if (!currentSellerProfile.bio || currentSellerProfile.bio.length < 20) checklist.push('Add a stronger bio');
-    if (!currentUser?.height) checklist.push('Add your height');
-    if (!currentUser?.weight) checklist.push('Add your weight');
-    if (!currentUser?.hairColor) checklist.push('Add your hair color');
-    if (!currentUser?.braSize) checklist.push('Add your bra size');
+    if (!currentSellerProfile?.height) checklist.push('Add your height');
+    if (!currentSellerProfile?.weight) checklist.push('Add your weight');
+    if (!currentSellerProfile?.hairColor) checklist.push('Add your hair color');
+    if (!currentSellerProfile?.braSize) checklist.push('Add your bra size');
     return checklist;
   }, [currentSellerProfile, currentUser]);
   const adminSalesSummary = useMemo(() => {
@@ -19590,6 +19590,7 @@ export default function ThailandPantiesMarketSite() {
             sellerDashboardProducts={sellerDashboardProducts}
             upsertBundleProduct={upsertBundleProduct}
             sellerLanguage={currentUser?.preferredLanguage || 'en'}
+            sellerProfileMessage={sellerProfileMessage}
             navigate={navigate}
           />
         ) : null}

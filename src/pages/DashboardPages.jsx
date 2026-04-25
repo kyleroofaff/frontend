@@ -3649,6 +3649,7 @@ export function SellerUploadPage({
   sellerDashboardProducts,
   upsertBundleProduct,
   sellerLanguage,
+  sellerProfileMessage,
   navigate,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
