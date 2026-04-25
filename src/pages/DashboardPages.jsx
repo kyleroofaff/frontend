@@ -1332,7 +1332,7 @@ const SELLER_I18N = {
     price: "Price",
     color: "Color",
     imagePreview: "Image preview",
-    createDraft: "Create draft listing",
+    createDraft: "Create listing",
     inbox: "Seller inbox",
     liveUpdates: "Live updates",
     conversations: "conversation(s)",
@@ -1631,7 +1631,7 @@ const SELLER_I18N = {
     countryLabel: "ประเทศ", cityLabel: "เมือง",
     saveProfile: "บันทึกการอัปเดตโปรไฟล์",
     mediaUpload: "อัปโหลดสินค้า", mediaUploadHelp: "เลือกรูปภาพสำหรับสินค้าของคุณ รูปจะถูกบันทึกในเซสชันปัจจุบัน",
-    imagePreview: "ตัวอย่างรูปภาพ", createDraft: "สร้างรายการแบบร่าง", inbox: "กล่องข้อความผู้ขาย",
+    imagePreview: "ตัวอย่างรูปภาพ", createDraft: "สร้างรายการ", inbox: "กล่องข้อความผู้ขาย",
     liveUpdates: "อัปเดตสด", conversations: "บทสนทนา", noMessages: "ยังไม่มีข้อความ",
     customerConversation: "บทสนทนาลูกค้า", chattingWith: "กำลังแชทกับ", unknownBuyer: "ผู้ซื้อที่ไม่ทราบชื่อ", selectConversation: "เลือกบทสนทนาเพื่อตอบกลับ",
     replyPlaceholder: "ตอบกลับผู้ซื้อ", reply: "ตอบกลับ", createFeedPost: "สร้างโพสต์เรื่องราว",
@@ -1852,7 +1852,7 @@ const SELLER_I18N = {
     countryLabel: "နိုင်ငံ", cityLabel: "မြို့",
     saveProfile: "ပရိုဖိုင်ပြင်ဆင်ချက်များ သိမ်းမည်",
     mediaUpload: "ပစ္စည်း အပ်လုဒ်", mediaUploadHelp: "သင့်ပစ္စည်းအတွက် ပုံကိုရွေးပါ။ ပုံကို လက်ရှိ session တွင် သိမ်းဆည်းမည်",
-    imagePreview: "ပုံကြိုတင်ကြည့်ရှုမှု", createDraft: "မူကြမ်းစာရင်း ဖန်တီးမည်", inbox: "ရောင်းသူ စာဝင်ပုံး",
+    imagePreview: "ပုံကြိုတင်ကြည့်ရှုမှု", createDraft: "စာရင်းဖန်တီးမည်", inbox: "ရောင်းသူ စာဝင်ပုံး",
     liveUpdates: "တိုက်ရိုက်အပ်ဒိတ်", conversations: "စကားဝိုင်း", noMessages: "မက်ဆေ့ချ် မရှိသေးပါ",
     customerConversation: "ဝယ်သူနှင့် စကားဝိုင်း", chattingWith: "စကားပြောနေသူ", unknownBuyer: "ဝယ်သူအမည်မသိ", selectConversation: "ပြန်ရန် စကားဝိုင်းတစ်ခု ရွေးပါ",
     replyPlaceholder: "ဝယ်သူသို့ ပြန်စာရေးရန်", reply: "ပြန်ပို့မည်", createFeedPost: "stories post ဖန်တီးမည်",
@@ -2073,7 +2073,7 @@ const SELLER_I18N = {
     countryLabel: "Страна", cityLabel: "Город",
     saveProfile: "Сохранить профиль",
     mediaUpload: "Загрузка товара", mediaUploadHelp: "Выберите изображение для объявления. Файлы сохраняются в текущей сессии.",
-    imagePreview: "Предпросмотр изображения", createDraft: "Создать черновик", inbox: "Входящие продавца",
+    imagePreview: "Предпросмотр изображения", createDraft: "Создать объявление", inbox: "Входящие продавца",
     liveUpdates: "Онлайн-обновления", conversations: "диалог(ов)", noMessages: "Сообщений пока нет.",
     customerConversation: "Диалог с покупателем", chattingWith: "Чат с", unknownBuyer: "Неизвестный покупатель", selectConversation: "Выберите диалог для ответа",
     replyPlaceholder: "Ответ покупателю", reply: "Ответить", createFeedPost: "Создать пост в истории",
@@ -3784,6 +3784,9 @@ export function SellerUploadPage({
               )}
             </div>
             <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
+            {sellerProfileMessage ? (
+              <span className="text-sm font-medium text-rose-600">{sellerProfileMessage}</span>
+            ) : null}
           </div>
           <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
