@@ -7308,6 +7308,27 @@ export default function ThailandPantiesMarketSite() {
                 changed = true;
               }
             }
+            const serverProducts = Array.isArray(payload.db.products) ? payload.db.products : [];
+            if (serverProducts.length > 0) {
+              const localProductMap = new Map((merged.products || []).map((p) => [String(p?.id || ''), p]));
+              let productsUpdated = false;
+              serverProducts.forEach((serverProduct) => {
+                if (!serverProduct?.id) return;
+                const id = String(serverProduct.id);
+                const local = localProductMap.get(id);
+                if (!local) {
+                  localProductMap.set(id, serverProduct);
+                  productsUpdated = true;
+                } else {
+                  localProductMap.set(id, { ...local, ...serverProduct });
+                  productsUpdated = true;
+                }
+              });
+              if (productsUpdated) {
+                merged.products = Array.from(localProductMap.values());
+                changed = true;
+              }
+            }
             return changed ? merged : prev;
           });
         }
@@ -17839,7 +17860,7 @@ export default function ThailandPantiesMarketSite() {
                           </span>
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(post.createdAt)}</div>
-                        <button onClick={() => navigate('/stories')} className="relative mt-3 block aspect-[4/5] w-full">
+                        <button onClick={() => navigate(isSellerFeedPost ? `/seller/${post.sellerId}` : `/bar/${post.barId}`)} className="relative mt-3 block aspect-[4/5] w-full">
                           <div className={isSellerFeedPost && !canViewSellerPost(post) ? 'blur-xl' : ''}>
                             <ProductImage src={post.image} label={post.imageName || (isSellerFeedPost ? 'Stories image' : 'Bar stories image')} top mediaType={post.mediaType} />
                           </div>
