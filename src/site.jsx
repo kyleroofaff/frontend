@@ -19754,6 +19754,7 @@ export default function ThailandPantiesMarketSite() {
           <BuyerMessagesPage
             currentUser={currentUser}
             sellerMap={sellerMap}
+            barMap={barMap}
             buyerMessageSellerSearch={buyerMessageSellerSearch}
             setBuyerMessageSellerSearch={setBuyerMessageSellerSearch}
             buyerMessageSellerResults={buyerMessageSellerResults}

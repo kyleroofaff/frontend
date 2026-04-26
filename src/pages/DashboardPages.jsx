@@ -13842,6 +13842,7 @@ export function AccountPage({
 export function BuyerMessagesPage({
   currentUser,
   sellerMap,
+  barMap,
   buyerMessageSellerSearch,
   setBuyerMessageSellerSearch,
   buyerMessageSellerResults,
@@ -13868,8 +13869,15 @@ export function BuyerMessagesPage({
   const locale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
   const accountText = ACCOUNT_PAGE_I18N[locale];
   const tx = (key) => ACCOUNT_PAGE_I18N[locale]?.[key] || ACCOUNT_PAGE_I18N.en[key] || key;
+  const [buyerConversationBarFilter, setBuyerConversationBarFilter] = useState("all");
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
   const [messageReportOpenById, setMessageReportOpenById] = useState({});
+  const buyerMessagesContainerRef = useRef(null);
+  useEffect(() => {
+    if (buyerMessagesContainerRef.current && buyerDashboardConversationMessages?.length > 0) {
+      buyerMessagesContainerRef.current.scrollTop = buyerMessagesContainerRef.current.scrollHeight;
+    }
+  }, [buyerDashboardConversationMessages, buyerDashboardConversationId]);
   const [messageReportReasonById, setMessageReportReasonById] = useState({});
   const [messageReportDetailsById, setMessageReportDetailsById] = useState({});
   const [messageReportErrorById, setMessageReportErrorById] = useState({});
