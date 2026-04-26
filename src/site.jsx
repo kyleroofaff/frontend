@@ -189,7 +189,7 @@ function buildAdminPermissions(user) {
     };
   }
 
-  const canAccessUsersTab = canBlockUsers || canManageAffiliations || canManageAdminAccess || canManageCredentials;
+  const canAccessUsersTab = canBlockUsers || canManageAffiliations || canManageAdminAccess || canManageCredentials || canManagePayments;
   return {
     isSuperAdmin: false,
     canManageAffiliations,
@@ -9678,6 +9678,58 @@ export default function ThailandPantiesMarketSite() {
       )),
     }));
     return { ok: true, message: 'User credentials updated.' };
+  }
+
+  async function applyAdminWalletAdjustment(userId, { direction, amountThb, reason } = {}) {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.PAYMENTS_MANAGE)) {
+      return { ok: false, error: 'payments.manage permission is required.' };
+    }
+    const normalizedUserId = String(userId || '').trim();
+    const dir = String(direction || '').trim().toLowerCase();
+    const amt = Number(amountThb);
+    const reasonStr = String(reason || '').trim();
+    if (!normalizedUserId) {
+      return { ok: false, error: 'User id is required.' };
+    }
+    if (dir !== 'credit' && dir !== 'debit') {
+      return { ok: false, error: 'Choose credit or debit.' };
+    }
+    if (!Number.isFinite(amt) || amt <= 0) {
+      return { ok: false, error: 'Enter a positive amount in THB.' };
+    }
+    if (reasonStr.length < 4) {
+      return { ok: false, error: 'Add a short reason (at least 4 characters).' };
+    }
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const { ok, payload } = await apiRequestJson(
+        `/api/admin/users/${encodeURIComponent(normalizedUserId)}/wallet-adjustment`,
+        {
+          method: 'POST',
+          body: { direction: dir, amountThb: amt, reason: reasonStr },
+          idempotencyScope: `wallet_adj_${normalizedUserId}_${Date.now()}`,
+        },
+      );
+      if (!ok) {
+        return { ok: false, error: String(payload?.error || 'Wallet adjustment failed.') };
+      }
+      const nextBal = Number(payload?.walletBalance);
+      const tx = payload?.walletTransaction;
+      if (payload?.userId) {
+        setDb((prev) => ({
+          ...prev,
+          users: (prev.users || []).map((user) => (
+            user.id === payload.userId
+              ? { ...user, walletBalance: Number.isFinite(nextBal) ? nextBal : user.walletBalance }
+              : user
+          )),
+          walletTransactions: tx?.id
+            ? [tx, ...(prev.walletTransactions || [])]
+            : (prev.walletTransactions || []),
+        }));
+      }
+      return { ok: true, message: 'Wallet updated.', walletBalance: nextBal, walletTransaction: tx };
+    }
+    return { ok: false, error: 'Connect to the API to adjust wallets.' };
   }
 
   async function updateUserAdminAccessBySuperAdmin(userId, { enabled, scopes } = {}) {
@@ -19956,6 +20008,7 @@ export default function ThailandPantiesMarketSite() {
             removeBarByAdmin={removeBarByAdmin}
             toggleAdminBlockUser={toggleAdminBlockUser}
             updateUserCredentialsByAdmin={updateUserCredentialsByAdmin}
+            applyAdminWalletAdjustment={applyAdminWalletAdjustment}
             updateUserAdminAccessBySuperAdmin={updateUserAdminAccessBySuperAdmin}
             adminUserSearch={adminUserSearch}
             setAdminUserSearch={setAdminUserSearch}

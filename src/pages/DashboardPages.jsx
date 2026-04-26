@@ -962,7 +962,7 @@ const ADMIN_TAB_CONFIG = [
 
 const DELEGATED_ADMIN_SCOPE_OPTIONS = [
   { key: "sales.read", label: "Sales dashboard" },
-  { key: "payments.manage", label: "Payments and payouts" },
+  { key: "payments.manage", label: "Payments, payouts, and wallet adjustments" },
   { key: "affiliations.manage", label: "Seller-bar affiliations" },
   { key: "disputes.review", label: "Disputes and refund reviews" },
   { key: "users.block", label: "Block and unblock users" },
@@ -5657,6 +5657,7 @@ export function AdminPage({
   removeBarByAdmin,
   toggleAdminBlockUser,
   updateUserCredentialsByAdmin,
+  applyAdminWalletAdjustment,
   updateUserAdminAccessBySuperAdmin,
   adminUserSearch,
   setAdminUserSearch,
@@ -5821,6 +5822,12 @@ export function AdminPage({
   const [adminAccessSaving, setAdminAccessSaving] = useState(false);
   const [adminAccessMessage, setAdminAccessMessage] = useState("");
   const [adminAccessTone, setAdminAccessTone] = useState("neutral");
+  const [walletAdjustDirection, setWalletAdjustDirection] = useState("credit");
+  const [walletAdjustAmount, setWalletAdjustAmount] = useState("");
+  const [walletAdjustReason, setWalletAdjustReason] = useState("");
+  const [walletAdjustSaving, setWalletAdjustSaving] = useState(false);
+  const [walletAdjustMessage, setWalletAdjustMessage] = useState("");
+  const [walletAdjustTone, setWalletAdjustTone] = useState("neutral");
   const [orderShipmentDrafts, setOrderShipmentDrafts] = useState({});
   const [orderHelpNoteDraftByItemKey, setOrderHelpNoteDraftByItemKey] = useState({});
   const [barDraftsById, setBarDraftsById] = useState({});
@@ -7401,6 +7408,7 @@ export function AdminPage({
   const canBlockUsers = adminPermissions?.canBlockUsers !== false;
   const canManageAdminAccess = adminPermissions?.canManageAdminAccess === true;
   const canManageCredentials = adminPermissions?.canManageCredentials !== false;
+  const canManagePayments = adminPermissions?.canManagePayments !== false;
   const canAccessAdminTab = (tabKey) => {
     if (!adminPermissions?.tabAccess) return true;
     return adminPermissions.tabAccess[tabKey] !== false;
@@ -7430,7 +7438,7 @@ export function AdminPage({
   const workspaceModeConfig = useMemo(() => ({
     all: { label: "All workspaces", tabs: null },
     moderation: { label: "Moderation", tabs: new Set(["overview", "inbox", "disputes", "social", "users"]) },
-    operations: { label: "Operations", tabs: new Set(["overview", "sales", "products", "payments", "email_inbox", "email_templates", "auth", "bars"]) },
+    operations: { label: "Operations", tabs: new Set(["overview", "sales", "products", "payments", "users", "email_inbox", "email_templates", "auth", "bars"]) },
     support: { label: "Support", tabs: new Set(["overview", "inbox", "users", "disputes", "email_inbox", "email_templates"]) },
   }), []);
   const visibleAdminTabs = useMemo(() => {
@@ -7526,6 +7534,21 @@ export function AdminPage({
     }, 2800);
     return () => window.clearTimeout(timerId);
   }, [adminAccessMessage, adminAccessTone]);
+  useEffect(() => {
+    if (!walletAdjustMessage || walletAdjustTone !== "success") return undefined;
+    const timerId = window.setTimeout(() => {
+      setWalletAdjustMessage("");
+      setWalletAdjustTone("neutral");
+    }, 3200);
+    return () => window.clearTimeout(timerId);
+  }, [walletAdjustMessage, walletAdjustTone]);
+  useEffect(() => {
+    setWalletAdjustAmount("");
+    setWalletAdjustReason("");
+    setWalletAdjustDirection("credit");
+    setWalletAdjustMessage("");
+    setWalletAdjustTone("neutral");
+  }, [adminSelectedUser?.id]);
   useEffect(() => {
     if (!adminUserMessageStatus || adminUserMessageSending || adminUserMessageTone !== "success") return undefined;
     const timerId = window.setTimeout(() => {
@@ -7639,6 +7662,43 @@ export function AdminPage({
     });
     setAdminCredentialTone("success");
     setAdminCredentialMessage(String(result?.message || "User credentials updated."));
+  };
+  const submitWalletAdjustment = async () => {
+    if (!applyAdminWalletAdjustment || !adminSelectedUser?.id || walletAdjustSaving) return;
+    if (String(adminSelectedUser.role || "").trim().toLowerCase() === "admin") {
+      setWalletAdjustTone("error");
+      setWalletAdjustMessage("Platform admin wallets cannot be adjusted here.");
+      return;
+    }
+    const amt = Number(walletAdjustAmount);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      setWalletAdjustTone("error");
+      setWalletAdjustMessage("Enter a positive THB amount.");
+      return;
+    }
+    const reason = String(walletAdjustReason || "").trim();
+    if (reason.length < 4) {
+      setWalletAdjustTone("error");
+      setWalletAdjustMessage("Reason must be at least 4 characters.");
+      return;
+    }
+    setWalletAdjustSaving(true);
+    setWalletAdjustMessage("");
+    const result = await applyAdminWalletAdjustment(adminSelectedUser.id, {
+      direction: walletAdjustDirection,
+      amountThb: amt,
+      reason,
+    });
+    setWalletAdjustSaving(false);
+    if (!result?.ok) {
+      setWalletAdjustTone("error");
+      setWalletAdjustMessage(String(result?.error || "Could not update wallet."));
+      return;
+    }
+    setWalletAdjustTone("success");
+    setWalletAdjustMessage("Wallet updated. Balance and ledger will refresh for this user.");
+    setWalletAdjustAmount("");
+    setWalletAdjustReason("");
   };
   const promptForSafetyReason = ({ actionLabel = "this action", impactNote = "" } = {}) => {
     if (typeof window !== "undefined" && impactNote) {
@@ -8557,6 +8617,69 @@ export function AdminPage({
                         {" · "}
                         Appeals: <span className="font-semibold">{pendingAppeals.filter((appeal) => appeal.userId === adminSelectedUser.id).length} pending</span>
                       </div>
+                      {canManagePayments ? (
+                        <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
+                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Wallet adjustment</div>
+                          <p className="mt-1 text-sm text-slate-600">
+                            Credit for goodwill or lost balance; debit to reverse commissions or correct mistakes. Requires{" "}
+                            <span className="font-semibold">payments.manage</span>. Creates a ledger row with your admin id.
+                          </p>
+                          <div className="mt-2 text-sm text-slate-700">
+                            Current balance:{" "}
+                            <span className="font-semibold text-slate-900">{formatPriceTHB(Number(adminSelectedUser.walletBalance || 0))}</span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap items-end gap-3">
+                            <label className="flex flex-col gap-1 text-xs text-slate-600">
+                              Direction
+                              <select
+                                value={walletAdjustDirection}
+                                onChange={(event) => setWalletAdjustDirection(event.target.value)}
+                                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+                              >
+                                <option value="credit">Credit (add THB)</option>
+                                <option value="debit">Debit (remove THB)</option>
+                              </select>
+                            </label>
+                            <label className="flex flex-col gap-1 text-xs text-slate-600">
+                              Amount (THB)
+                              <input
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                value={walletAdjustAmount}
+                                onChange={(event) => setWalletAdjustAmount(event.target.value)}
+                                className="w-36 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+                                placeholder="0.00"
+                              />
+                            </label>
+                            <label className="min-w-[200px] flex-1 flex flex-col gap-1 text-xs text-slate-600">
+                              Reason (audit trail)
+                              <input
+                                type="text"
+                                value={walletAdjustReason}
+                                onChange={(event) => setWalletAdjustReason(event.target.value)}
+                                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+                                placeholder="e.g. Refund credit order #…"
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={submitWalletAdjustment}
+                              disabled={walletAdjustSaving}
+                              className={`rounded-xl px-4 py-2 text-sm font-semibold ${walletAdjustSaving ? "cursor-not-allowed bg-slate-200 text-slate-500" : "bg-emerald-600 text-white hover:bg-emerald-700"}`}
+                            >
+                              {walletAdjustSaving ? "Applying…" : "Apply"}
+                            </button>
+                          </div>
+                          {walletAdjustMessage ? (
+                            <div
+                              className={`mt-2 text-xs font-semibold ${walletAdjustTone === "error" ? "text-rose-700" : walletAdjustTone === "success" ? "text-emerald-800" : "text-slate-700"}`}
+                            >
+                              {walletAdjustMessage}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
                       {adminSelectedUser.role === "seller" && canManageAffiliations ? (
                         <div className="mt-4 rounded-2xl border border-rose-100 p-4">
                           <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">Bar affiliation</div>
