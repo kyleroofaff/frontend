@@ -6470,6 +6470,16 @@ export default function ThailandPantiesMarketSite() {
       })
     ).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [currentUser, sellers, orders, products]);
+  const sellerOrders = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'seller' || !currentUser.sellerId) return [];
+    const sellerProductIds = new Set(
+      products.filter((p) => p.sellerId === currentUser.sellerId).map((p) => p.id)
+    );
+    if (sellerProductIds.size === 0) return [];
+    return orders.filter((order) =>
+      (order.items || []).some((itemId) => sellerProductIds.has(itemId))
+    ).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [currentUser, products, orders]);
   const currentWalletBalance = Number(currentUser?.walletBalance || 0);
   const buyerLedger = useMemo(() => {
     if (!currentUser) return [];
@@ -16626,7 +16636,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function updateOrderShipment(orderId, nextFulfillmentStatus, nextTrackingNumber, nextTrackingCarrier) {
-    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'bar')) return;
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'bar' && currentUser.role !== 'seller')) return;
     if (!orderId || !['processing', 'shipped', 'delivered'].includes(nextFulfillmentStatus)) return;
     if (updatingOrderId === orderId) return;
     setUpdatingOrderId(orderId);
@@ -19652,6 +19662,9 @@ export default function ThailandPantiesMarketSite() {
             giftFulfillmentTasks={db.giftFulfillmentTasks || []}
             startEditProduct={(productId) => { startEditProduct(productId); navigate('/seller-upload'); }}
             editingProductId={editingProductId}
+            sellerOrders={sellerOrders}
+            updateOrderShipment={updateOrderShipment}
+            updatingOrderId={updatingOrderId}
           />
           </>
         ) : null}

@@ -1571,6 +1571,17 @@ const SELLER_I18N = {
     quickActionsLabel: "Quick actions",
     quickActionsHelp: "Use these shortcuts to post listings, reply quickly, and manage incoming work.",
     openMessages: "Open messages",
+    sellerOrdersTitle: "Order shipments",
+    sellerOrdersHelp: "Orders containing your products. Add tracking numbers and update fulfillment status.",
+    sellerOrdersHelpAffiliated: "Your bar handles shipping. Tracking info will appear here once added.",
+    noSellerOrders: "No orders for your products yet.",
+    shipTo: "Ship to",
+    fulfillmentStatus: "Fulfillment status",
+    trackingCode: "Tracking code",
+    carrier: "Carrier",
+    saveShipment: "Save shipment",
+    saving: "Saving...",
+    shipmentControlsNote: "Shipment controls become available after payment is marked as paid.",
     loginCredentialsTitle: "Login credentials",
     loginCredentialsSubtitle: "Change your name, email, or password.",
     credentialsHelp: "Update your display name freely. To change email or password, enter your current password to confirm.",
@@ -1799,6 +1810,17 @@ const SELLER_I18N = {
     quickActionsLabel: "ทางลัดด่วน",
     quickActionsHelp: "ใช้ปุ่มลัดเหล่านี้เพื่อโพสต์สินค้า ตอบกลับเร็ว และจัดการงานที่เข้ามา",
     openMessages: "เปิดข้อความ",
+    sellerOrdersTitle: "จัดส่งคำสั่งซื้อ",
+    sellerOrdersHelp: "คำสั่งซื้อที่มีสินค้าของคุณ เพิ่มหมายเลขติดตามและอัปเดตสถานะ",
+    sellerOrdersHelpAffiliated: "บาร์ของคุณดูแลการจัดส่ง ข้อมูลการติดตามจะแสดงที่นี่เมื่อเพิ่มแล้ว",
+    noSellerOrders: "ยังไม่มีคำสั่งซื้อสำหรับสินค้าของคุณ",
+    shipTo: "จัดส่งไปยัง",
+    fulfillmentStatus: "สถานะการจัดส่ง",
+    trackingCode: "รหัสติดตาม",
+    carrier: "ผู้ให้บริการขนส่ง",
+    saveShipment: "บันทึกการจัดส่ง",
+    saving: "กำลังบันทึก...",
+    shipmentControlsNote: "ควบคุมการจัดส่งได้หลังจากชำระเงินแล้ว",
     loginCredentialsTitle: "ข้อมูลเข้าสู่ระบบ",
     loginCredentialsSubtitle: "เปลี่ยนชื่อ อีเมล หรือรหัสผ่าน",
     credentialsHelp: "เปลี่ยนชื่อที่แสดงได้อย่างอิสระ หากต้องการเปลี่ยนอีเมลหรือรหัสผ่าน ให้ใส่รหัสผ่านปัจจุบันเพื่อยืนยัน",
@@ -2026,6 +2048,17 @@ const SELLER_I18N = {
     quickActionsLabel: "အမြန်လုပ်ဆောင်ချက်များ",
     quickActionsHelp: "စာရင်းတင်ခြင်း၊ မြန်မြန်ပြန်ခြင်းနှင့် ဝင်လာသောအလုပ်များကို စီမံရန် shortcut များ",
     openMessages: "မက်ဆေ့ချ်ဖွင့်မည်",
+    sellerOrdersTitle: "အော်ဒါ ပို့ဆောင်မှု",
+    sellerOrdersHelp: "သင့်ပစ္စည်းပါဝင်သော အော်ဒါများ။ tracking number ထည့်ပြီး အခြေအနေ update လုပ်ပါ",
+    sellerOrdersHelpAffiliated: "သင့်ဘားက ပို့ဆောင်မှုကို စီစဉ်ပေးပါသည်။ tracking info ထည့်ပြီးသောအခါ ဤနေရာတွင် ပေါ်လာပါမည်",
+    noSellerOrders: "သင့်ပစ္စည်းများအတွက် အော်ဒါ မရှိသေးပါ",
+    shipTo: "ပို့ဆောင်ရန်",
+    fulfillmentStatus: "ပို့ဆောင်မှုအခြေအနေ",
+    trackingCode: "tracking code",
+    carrier: "ပို့ဆောင်သူ",
+    saveShipment: "ပို့ဆောင်မှု သိမ်းမည်",
+    saving: "သိမ်းနေသည်...",
+    shipmentControlsNote: "ငွေပေးချေပြီးမှ ပို့ဆောင်မှု ထိန်းချုပ်ခွင့် ရရှိမည်",
     loginCredentialsTitle: "ဝင်ရောက်မှု အချက်အလက်",
     loginCredentialsSubtitle: "အမည်၊ email သို့မဟုတ် password ပြောင်းပါ",
     credentialsHelp: "ပြသမည့်အမည်ကို လွတ်လပ်စွာ ပြောင်းလဲနိုင်သည်။ email သို့မဟုတ် password ပြောင်းရန် လက်ရှိ password ထည့်ပြီး အတည်ပြုပါ",
@@ -2253,6 +2286,17 @@ const SELLER_I18N = {
     quickActionsLabel: "Быстрые действия",
     quickActionsHelp: "Используйте эти кнопки для публикации объявлений, быстрых ответов и управления входящими задачами.",
     openMessages: "Открыть сообщения",
+    sellerOrdersTitle: "Отправка заказов",
+    sellerOrdersHelp: "Заказы с вашими товарами. Добавляйте трек-номера и обновляйте статус.",
+    sellerOrdersHelpAffiliated: "Ваш бар занимается доставкой. Информация о трекинге появится здесь после добавления.",
+    noSellerOrders: "Заказов на ваши товары пока нет.",
+    shipTo: "Доставить",
+    fulfillmentStatus: "Статус выполнения",
+    trackingCode: "Трек-номер",
+    carrier: "Перевозчик",
+    saveShipment: "Сохранить отправку",
+    saving: "Сохранение...",
+    shipmentControlsNote: "Управление доставкой доступно после оплаты.",
     loginCredentialsTitle: "Данные для входа",
     loginCredentialsSubtitle: "Измените имя, email или пароль.",
     credentialsHelp: "Имя можно изменить свободно. Для смены email или пароля введите текущий пароль.",
@@ -2411,6 +2455,9 @@ export function SellerDashboardPage({
   giftFulfillmentTasks,
   startEditProduct,
   editingProductId,
+  sellerOrders,
+  updateOrderShipment,
+  updatingOrderId,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
@@ -2424,6 +2471,8 @@ export function SellerDashboardPage({
   });
   const [editingBundleId, setEditingBundleId] = useState("");
   const [bundleMessage, setBundleMessage] = useState("");
+  const [sellerOrderShipmentDrafts, setSellerOrderShipmentDrafts] = useState({});
+  const isAffiliated = Boolean(currentSellerProfile?.affiliatedBarId);
   const [dashHeightUnit, setDashHeightUnit] = useState("cm");
   const [localHeightIn, setLocalHeightIn] = useState("");
   const [dashWeightUnit, setDashWeightUnit] = useState("kg");
@@ -2516,7 +2565,7 @@ export function SellerDashboardPage({
   const [customRequestQuoteMessageById, setCustomRequestQuoteMessageById] = useState({});
   const sellerSectionStateStorageKey = `tlm-seller-dashboard-sections-${currentUser?.id || "anon"}`;
   const [sellerSectionOpen, setSellerSectionOpen] = useState(() => {
-    const defaults = { credentials: true, profile: true, upload: true, listings: true };
+    const defaults = { credentials: true, profile: true, upload: true, listings: true, orders: true };
     if (typeof window === "undefined") return defaults;
     try {
       const raw = window.localStorage.getItem(sellerSectionStateStorageKey);
@@ -2527,13 +2576,14 @@ export function SellerDashboardPage({
         profile: typeof parsed?.profile === "boolean" ? parsed.profile : defaults.profile,
         upload: typeof parsed?.upload === "boolean" ? parsed.upload : defaults.upload,
         listings: typeof parsed?.listings === "boolean" ? parsed.listings : defaults.listings,
+        orders: typeof parsed?.orders === "boolean" ? parsed.orders : defaults.orders,
       };
     } catch {
       return defaults;
     }
   });
   useEffect(() => {
-    const defaults = { credentials: true, profile: true, upload: true, listings: true };
+    const defaults = { credentials: true, profile: true, upload: true, listings: true, orders: true };
     if (typeof window === "undefined") {
       setSellerSectionOpen(defaults);
       return;
@@ -2550,6 +2600,7 @@ export function SellerDashboardPage({
         profile: typeof parsed?.profile === "boolean" ? parsed.profile : defaults.profile,
         upload: typeof parsed?.upload === "boolean" ? parsed.upload : defaults.upload,
         listings: typeof parsed?.listings === "boolean" ? parsed.listings : defaults.listings,
+        orders: typeof parsed?.orders === "boolean" ? parsed.orders : defaults.orders,
       });
     } catch {
       setSellerSectionOpen(defaults);
@@ -2900,6 +2951,7 @@ export function SellerDashboardPage({
               <button onClick={() => navigate("/custom-requests")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}</button>
               <button onClick={() => navigate("/stories-workspace")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
               <button onClick={() => scrollToSection("seller-listings")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickListings")}</button>
+              <button onClick={() => scrollToSection("seller-orders")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("sellerOrdersTitle")} {(sellerOrders || []).length > 0 ? `(${(sellerOrders || []).length})` : ""}</button>
             </div>
           </div>
           <div className="mb-4 flex justify-start lg:justify-end">
@@ -3618,6 +3670,124 @@ export function SellerDashboardPage({
           </div>
           </details>
           </div>
+          {(sellerOrders || []).length > 0 || !isAffiliated ? (
+          <details
+            id="seller-orders"
+            open={sellerSectionOpen.orders}
+            onToggle={(event) => {
+              const isOpen = Boolean(event.currentTarget?.open);
+              setSellerSectionOpen((prev) => ({ ...prev, orders: isOpen }));
+            }}
+            className="mt-8 overflow-hidden rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100"
+          >
+            <summary className="cursor-pointer list-none">
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="text-xl font-semibold">{t("sellerOrdersTitle")}</h3>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm text-slate-500">{(sellerOrders || []).length} {t("items")}</div>
+                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">{sellerSectionOpen.orders ? t("closeLabel") : t("openLabel")}</span>
+                </div>
+              </div>
+            </summary>
+            <p className="mt-1 text-sm text-slate-600">{isAffiliated ? t("sellerOrdersHelpAffiliated") : t("sellerOrdersHelp")}</p>
+            <div className="mt-4 space-y-4">
+              {(sellerOrders || []).length === 0 ? (
+                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{t("noSellerOrders")}</div>
+              ) : (sellerOrders || []).map((order) => (
+                <div key={order.id} className="rounded-2xl border border-rose-100 p-5">
+                  <div className="font-semibold">{order.id}</div>
+                  <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</div>
+                  <div className="mt-1 text-sm text-slate-600">{formatPriceTHB(order.total)} &middot; {order.paymentStatus} &middot; {order.fulfillmentStatus}</div>
+                  <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                    <span className="font-medium">{t("shipTo")}:</span>{" "}
+                    {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(", ") || "Not provided"}
+                  </div>
+                  {order.paymentStatus === "paid" ? (
+                    isAffiliated ? (
+                      <div className="mt-3 rounded-xl bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
+                        {order.trackingNumber
+                          ? <>{t("trackingCode")}: <span className="font-semibold">{order.trackingNumber}</span>{order.trackingCarrier && order.trackingCarrier !== "Not set" ? ` · ${t("carrier")}: ${order.trackingCarrier}` : ""}</>
+                          : t("sellerOrdersHelpAffiliated")}
+                      </div>
+                    ) : (
+                      <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_1fr_0.95fr_auto] md:items-end">
+                        <label className="text-sm text-slate-700">
+                          {t("fulfillmentStatus")}
+                          <select
+                            value={sellerOrderShipmentDrafts[order.id]?.fulfillmentStatus || order.fulfillmentStatus || "processing"}
+                            onChange={(event) => setSellerOrderShipmentDrafts((prev) => ({
+                              ...prev,
+                              [order.id]: {
+                                fulfillmentStatus: event.target.value,
+                                trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? "",
+                                trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? "",
+                              },
+                            }))}
+                            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          >
+                            <option value="processing">processing</option>
+                            <option value="shipped">shipped</option>
+                            <option value="delivered">delivered</option>
+                          </select>
+                        </label>
+                        <label className="text-sm text-slate-700">
+                          {t("trackingCode")}
+                          <input
+                            value={sellerOrderShipmentDrafts[order.id]?.trackingNumber ?? order.trackingNumber ?? ""}
+                            onChange={(event) => setSellerOrderShipmentDrafts((prev) => ({
+                              ...prev,
+                              [order.id]: {
+                                fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || "processing",
+                                trackingNumber: event.target.value,
+                                trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? "",
+                              },
+                            }))}
+                            placeholder="e.g. TH1234567890"
+                            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          />
+                        </label>
+                        <label className="text-sm text-slate-700">
+                          {t("carrier")}
+                          <select
+                            value={sellerOrderShipmentDrafts[order.id]?.trackingCarrier ?? order.trackingCarrier ?? "Not set"}
+                            onChange={(event) => setSellerOrderShipmentDrafts((prev) => ({
+                              ...prev,
+                              [order.id]: {
+                                fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || "processing",
+                                trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? "",
+                                trackingCarrier: event.target.value,
+                              },
+                            }))}
+                            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          >
+                            {TRACKING_CARRIER_OPTIONS.map((option) => (
+                              <option key={option} value={option}>{option}</option>
+                            ))}
+                          </select>
+                        </label>
+                        <button
+                          onClick={() => {
+                            const draft = sellerOrderShipmentDrafts[order.id] || {};
+                            const nextStatus = draft.fulfillmentStatus || order.fulfillmentStatus || "processing";
+                            const nextTracking = draft.trackingNumber ?? order.trackingNumber ?? "";
+                            const nextCarrier = draft.trackingCarrier ?? order.trackingCarrier ?? "";
+                            updateOrderShipment(order.id, nextStatus, nextTracking, nextCarrier);
+                          }}
+                          disabled={updatingOrderId === order.id}
+                          className={`rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 ${updatingOrderId === order.id ? "cursor-not-allowed opacity-60" : ""}`}
+                        >
+                          {updatingOrderId === order.id ? t("saving") : t("saveShipment")}
+                        </button>
+                      </div>
+                    )
+                  ) : (
+                    <div className="mt-3 text-xs text-slate-500">{t("shipmentControlsNote")}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </details>
+          ) : null}
           <details
             id="seller-credentials"
             open={sellerSectionOpen.credentials}
