@@ -14,7 +14,7 @@ When the user says **"update shipping rates"** or provides new zone prices:
 ## Architecture
 
 | Layer | File | What it does |
-|-------|------|-------------|
+|-------|------|--------------|
 | **Config (source of truth)** | `backend/config/shippingRates.json` | Zone definitions, country lists, rates, delivery estimates |
 | **Backend utility** | `backend/src/services/shippingService.js` | `resolveZone()`, `getShippingRate()`, `validateShippingFee()`, `getPublicRates()` |
 | **API endpoint** | `GET /api/shipping/rates` | Public, no auth — returns zone config to frontend |
@@ -27,14 +27,14 @@ When the user says **"update shipping rates"** or provides new zone prices:
 
 | Zone | Label | Countries (ISO) | Standard | Express |
 |------|-------|-----------------|----------|---------|
-| zone1 | Asia | SG, MY, ID, PH, VN, CN, JP, KR, HK, TW, LA, KH, MM, BN, TH | ฿840 | ฿1,470 |
-| zone2 | Oceania & South Asia | AU, NZ, IN, BD, LK, PK, NP | ฿1,155 | ฿2,100 |
-| zone3 | USA, Europe & Rest of World | `*` (wildcard fallback) | ฿1,310 | ฿2,415 |
+| zone1 | Asia | SG, MY, ID, PH, VN, CN, JP, KR, HK, TW, LA, KH, MM, BN, TH | ฿824 | ฿1,442 |
+| zone2 | Oceania & South Asia | AU, NZ, IN, BD, LK, PK, NP | ฿1,133 | ฿2,060 |
+| zone3 | USA, Europe & Rest of World | `*` (wildcard fallback) | ฿1,285 | ฿2,369 |
 
 ## Key details
 
 - **Flat rate per order** — no per-item surcharge. Products are lightweight apparel (~50-80g each); 1kg assumption covers multi-item orders with large margin.
-- **5% markup** over Thailand Post EMS base rates is baked into the rate numbers.
+- **3% markup** over Thailand Post EMS base rates is baked into the rate numbers (`markup_percent` in `shippingRates.json` documents the policy; amounts are the source of truth).
 - **Backend validates** the fee at checkout — the client can't send a fake lower fee.
 - **Zone 3 is the wildcard fallback** — any country not in zone1 or zone2 gets zone3 rates.
 - Country selector uses **ISO 3166-1 alpha-2 codes** (e.g., `US`, `GB`, `TH`).
@@ -43,11 +43,11 @@ When the user says **"update shipping rates"** or provides new zone prices:
 
 The shipping fee is split between the **bar** (who physically ships) and the **admin** (platform).
 
-| Zone | Buyer pays | Bar receives | Admin keeps |
-|------|-----------|-------------|-------------|
-| zone1 | ฿840 | ฿400 | ฿440 |
-| zone2 | ฿1,155 | ฿500 | ฿655 |
-| zone3 | ฿1,310 | ฿600 | ฿710 |
+| Zone | Buyer pays (std) | Bar receives | Admin keeps (std) |
+|------|------------------|-------------|-------------------|
+| zone1 | ฿824 | ฿400 | ฿424 |
+| zone2 | ฿1,133 | ฿500 | ฿633 |
+| zone3 | ฿1,285 | ฿600 | ฿685 |
 
 - Bar reimbursement covers actual shipping cost (~฿200-430) + ฿80 packing allowance (box, t-shirt, stickers).
 - Config: `bar_reimbursement` in `backend/config/shippingRates.json` and `SHIPPING_BAR_REIMBURSEMENT` in `frontend/src/site.jsx`.

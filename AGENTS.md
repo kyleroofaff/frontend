@@ -116,4 +116,4 @@ Zone-based flat-rate shipping (THB). See `.cursor/rules/shipping-rates.mdc` for 
 
 ---
 
-*Last updated: added shipping rate system (zone-based, flat per order).*
+*Last updated: shipping rates use 3% markup over EMS bases (zone flat THB); see `shipping-rates.mdc`.*

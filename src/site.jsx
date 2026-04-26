@@ -3862,9 +3862,9 @@ const STYLE_SCHEMA = `enum<${STYLE_OPTIONS.join('|')}>`;
 const DB_STORAGE_VERSION = '2026-03-11-seller-feed-v1';
 const APP_MODE_STORAGE_KEY = 'tlm-app-mode';
 const SHIPPING_ZONES = {
-  zone1: { label: 'Asia', countries: ['SG','MY','ID','PH','VN','CN','JP','KR','HK','TW','LA','KH','MM','BN','TH'], standard: { rate: 840, label: 'Standard Shipping (EMS)', days: '3–7 business days' }, express: { rate: 1470, label: 'Express Shipping (DHL/FedEx)', days: '2–3 business days' } },
-  zone2: { label: 'Oceania & South Asia', countries: ['AU','NZ','IN','BD','LK','PK','NP'], standard: { rate: 1155, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2100, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
-  zone3: { label: 'USA, Europe & Rest of World', countries: ['*'], standard: { rate: 1310, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2415, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
+  zone1: { label: 'Asia', countries: ['SG','MY','ID','PH','VN','CN','JP','KR','HK','TW','LA','KH','MM','BN','TH'], standard: { rate: 824, label: 'Standard Shipping (EMS)', days: '3–7 business days' }, express: { rate: 1442, label: 'Express Shipping (DHL/FedEx)', days: '2–3 business days' } },
+  zone2: { label: 'Oceania & South Asia', countries: ['AU','NZ','IN','BD','LK','PK','NP'], standard: { rate: 1133, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2060, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
+  zone3: { label: 'USA, Europe & Rest of World', countries: ['*'], standard: { rate: 1285, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2369, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
 };
 const SHIPPING_BAR_REIMBURSEMENT = { zone1: 400, zone2: 500, zone3: 600 };
 
