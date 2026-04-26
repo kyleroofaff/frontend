@@ -14054,8 +14054,10 @@ export function BuyerMessagesPage({
                 {(() => {
                   const barOptionsSet = new Map();
                   buyerConversations.forEach((conv) => {
-                    const barId = sellerMap[conv.sellerId]?.affiliatedBarId;
-                    if (barId && barMap[barId]) {
+                    const seller = sellerMap[conv.sellerId];
+                    const barId = seller?.affiliatedBarId;
+                    console.log('[BarFilter Debug]', { convSellerId: conv.sellerId, seller: seller?.name, barId, barExists: barId ? !!barMap?.[barId] : false, barMapKeys: Object.keys(barMap || {}).slice(0, 5) });
+                    if (barId && barMap?.[barId]) {
                       barOptionsSet.set(barId, barMap[barId].name || barId);
                     }
                   });
