@@ -3595,6 +3595,15 @@ export function SellerDashboardPage({
                           {editingProductId === product.id ? t("editingLabel") : t("editListing")}
                         </button>
                       ) : null}
+                      {product.isBundle ? (
+                        <button
+                          onClick={() => { navigate('/seller-upload'); }}
+                          disabled={isSold}
+                          className={`flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none ${isSold ? "cursor-not-allowed border-slate-200 text-slate-400" : ""}`}
+                        >
+                          {t("editListing")}
+                        </button>
+                      ) : null}
                       <button
                         onClick={() => deleteProduct(product.id)}
                         disabled={deletingProductId === product.id}
@@ -3891,7 +3900,7 @@ export function SellerUploadPage({
             <div className="mt-4">
               <label className="grid gap-1 text-sm text-slate-600">
                 <span className="font-medium">{t("combinedSetPriceLabel")}</span>
-                <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={bundleDraft.price} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, price: event.target.value })); }} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("setPricePlaceholder")} />
+                <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={bundleDraft.price} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, price: event.target.value })); }} className="max-w-xs rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("setPricePlaceholder")} />
               </label>
             </div>
             <div className="mt-4">
@@ -3926,9 +3935,9 @@ export function SellerUploadPage({
             </details>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <button type="button" onClick={() => { upsertBundleProduct({ bundleId: editingBundleId || "", title: bundleDraft.title, description: bundleDraft.description, price: bundleDraft.price, selectedProductIds: bundleDraft.selectedProductIds, sellerName: sellerName }, (message) => { setBundleSuccess(true); setBundleMessage(message || t("setSaved")); setEditingBundleId(""); setBundleDraft({ title: "", description: "", price: "", selectedProductIds: [] }); }, (errorMessage) => { setBundleSuccess(false); setBundleMessage(errorMessage || t("setSaveFailed")); }); }} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">{editingBundleId ? t("updateSetProduct") : t("createSetProduct")}</button>
-              {bundleMessage ? <div className={`text-sm font-medium ${bundleSuccess ? 'text-emerald-700' : 'text-rose-700'}`}>{bundleMessage}</div> : null}
             </div>
             </>) : null}
+            {bundleMessage ? <div className={`mt-3 text-sm font-medium ${bundleSuccess ? 'text-emerald-700' : 'text-rose-700'}`}>{bundleMessage}</div> : null}
             {existingBundleProducts.length > 0 ? (
               <div className="mt-5 space-y-2 rounded-2xl border border-rose-100 bg-white p-3">
                 <div className="text-sm font-medium text-slate-700">{t("existingSetProducts")}</div>
@@ -3998,6 +4007,15 @@ export function SellerUploadPage({
                           className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold md:flex-none ${isSold ? "cursor-not-allowed border-slate-200 text-slate-400" : editingProductId === product.id ? "border-amber-300 bg-amber-50 text-amber-700" : "border-rose-200 text-rose-700"}`}
                         >
                           {editingProductId === product.id ? t("editingLabel") : t("editListing")}
+                        </button>
+                      ) : null}
+                      {product.isBundle ? (
+                        <button
+                          onClick={() => { setBundleMessage(""); setEditingBundleId(product.id); setBundleDraft({ title: product.title || "", description: product.description || "", price: String(product.price || ""), selectedProductIds: Array.isArray(product.bundleItemIds) ? product.bundleItemIds : [] }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          disabled={isSold}
+                          className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold md:flex-none ${isSold ? "cursor-not-allowed border-slate-200 text-slate-400" : editingBundleId === product.id ? "border-amber-300 bg-amber-50 text-amber-700" : "border-rose-200 text-rose-700"}`}
+                        >
+                          {editingBundleId === product.id ? t("editingLabel") : t("editListing")}
                         </button>
                       ) : null}
                       <button
