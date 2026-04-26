@@ -14963,7 +14963,7 @@ export default function ThailandPantiesMarketSite() {
       });
 
       const barShippingReimbursement = Number(getBarShippingReimbursement(checkoutForm.country).toFixed(2));
-      let shippingBarUserId = null;
+      let shippingHandlerUserId = null;
       if (barShippingReimbursement > 0) {
         const shippingBarIds = new Set();
         for (const summary of payoutSummaryBySeller) {
@@ -14973,12 +14973,19 @@ export default function ThailandPantiesMarketSite() {
           const barId = [...shippingBarIds][0];
           const barUser = (prev.users || []).find((u) => u.role === 'bar' && u.barId === barId);
           if (barUser?.id) {
-            shippingBarUserId = barUser.id;
-            barPayoutByUserId[shippingBarUserId] = Number(((barPayoutByUserId[shippingBarUserId] || 0) + barShippingReimbursement).toFixed(2));
+            shippingHandlerUserId = barUser.id;
+            barPayoutByUserId[shippingHandlerUserId] = Number(((barPayoutByUserId[shippingHandlerUserId] || 0) + barShippingReimbursement).toFixed(2));
+          }
+        } else if (shippingBarIds.size === 0 && payoutSummaryBySeller.length > 0) {
+          const firstSellerId = payoutSummaryBySeller[0].sellerId;
+          const sellerUser = (prev.users || []).find((u) => u.role === 'seller' && u.sellerId === firstSellerId);
+          if (sellerUser?.id) {
+            shippingHandlerUserId = sellerUser.id;
+            sellerPayoutByUserId[shippingHandlerUserId] = Number(((sellerPayoutByUserId[shippingHandlerUserId] || 0) + barShippingReimbursement).toFixed(2));
           }
         }
       }
-      const shippingAdminAmount = Number((shippingFee - (shippingBarUserId ? barShippingReimbursement : 0)).toFixed(2));
+      const shippingAdminAmount = Number((shippingFee - (shippingHandlerUserId ? barShippingReimbursement : 0)).toFixed(2));
       if (shippingAdminAmount > 0) {
         adminPayoutTotal = Number((adminPayoutTotal + shippingAdminAmount).toFixed(2));
       }
@@ -15038,7 +15045,7 @@ export default function ThailandPantiesMarketSite() {
             payoutSummary: {
               productSubtotal: Number(subtotal.toFixed(2)),
               shippingFee: Number(shippingFee.toFixed(2)),
-              shippingBarReimbursement: shippingBarUserId ? barShippingReimbursement : 0,
+              shippingBarReimbursement: shippingHandlerUserId ? barShippingReimbursement : 0,
               shippingAdminAmount,
               sellerTotal: Number(Object.values(sellerPayoutByUserId).reduce((sum, amount) => sum + amount, 0).toFixed(2)),
               barTotal: Number(Object.values(barPayoutByUserId).reduce((sum, amount) => sum + amount, 0).toFixed(2)),
