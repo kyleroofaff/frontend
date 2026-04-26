@@ -20122,7 +20122,9 @@ export default function ThailandPantiesMarketSite() {
             shippingZoneLabel={shippingBaseRates.zoneLabel}
             shippingSupported={shippingSupported}
             shippingFee={shippingFee}
-            shippingDays={shippingBaseRates[checkoutForm.shippingMethod === 'express' ? 'expressDays' : 'standardDays']}
+            shippingStandardDays={shippingBaseRates.standardDays}
+            shippingExpressDays={shippingBaseRates.expressDays}
+            onMoreShipping={() => navigate('/faq')}
             total={total}
             checkoutAuthModalOpen={checkoutAuthModalOpen}
             onOpenLogin={() => navigate('/login')}

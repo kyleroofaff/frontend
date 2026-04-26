@@ -11588,7 +11588,9 @@ export function CheckoutPage({
   shippingZoneLabel,
   shippingSupported,
   shippingFee,
-  shippingDays,
+  shippingStandardDays,
+  shippingExpressDays,
+  onMoreShipping,
   total,
   checkoutAuthModalOpen,
   onOpenLogin,
@@ -11897,9 +11899,16 @@ export function CheckoutPage({
                     </label>
                   ) : null}
                   <div className="rounded-2xl border border-slate-200 p-4">
-                    <div className="text-sm font-semibold text-slate-900">Shipping method</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-semibold text-slate-900">Shipping method</div>
+                      {onMoreShipping ? (
+                        <button type="button" onClick={onMoreShipping} className="text-xs font-medium text-rose-600 hover:underline">
+                          More about shipping
+                        </button>
+                      ) : null}
+                    </div>
                     <div className="mt-1 text-xs text-slate-500">
-                      Zone: {shippingZoneLabel}{shippingDays ? ` · Est. ${shippingDays}` : ""}
+                      Zone: {shippingZoneLabel}
                     </div>
                     {!shippingSupported && checkoutForm.country.trim() ? (
                       <div className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -11909,8 +11918,9 @@ export function CheckoutPage({
                     <div className="mt-3 grid gap-3">
                       <label className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
                         <div>
-                          <div className="font-medium">Standard (EMS)</div>
-                          <div className="text-sm text-slate-500">Tracked delivery via Thailand Post EMS</div>
+                          <div className="font-medium">Standard</div>
+                          <div className="text-sm text-slate-500">Tracked international delivery</div>
+                          {shippingStandardDays ? <div className="mt-0.5 text-xs text-slate-400">Est. {shippingStandardDays} (once shipped)</div> : null}
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-slate-700">{formatPriceTHB(shippingRates.standard)}</span>
@@ -11919,8 +11929,9 @@ export function CheckoutPage({
                       </label>
                       <label className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
                         <div>
-                          <div className="font-medium">Express (DHL/FedEx)</div>
+                          <div className="font-medium">Express</div>
                           <div className="text-sm text-slate-500">Priority handling with faster delivery</div>
+                          {shippingExpressDays ? <div className="mt-0.5 text-xs text-slate-400">Est. {shippingExpressDays} (once shipped)</div> : null}
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-slate-700">{formatPriceTHB(shippingRates.express)}</span>
