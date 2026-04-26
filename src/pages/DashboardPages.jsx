@@ -14053,26 +14053,29 @@ export function BuyerMessagesPage({
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("conversationList")}</div>
                 {(() => {
                   const barOptionsSet = new Map();
+                  let hasIndependent = false;
                   buyerConversations.forEach((conv) => {
                     const seller = sellerMap[conv.sellerId];
-                    const barId = seller?.affiliatedBarId;
-                    console.log('[BarFilter Debug]', { convSellerId: conv.sellerId, seller: seller?.name, barId, barExists: barId ? !!barMap?.[barId] : false, barMapKeys: Object.keys(barMap || {}).slice(0, 5) });
+                    const barId = String(seller?.affiliatedBarId || "").trim();
                     if (barId && barMap?.[barId]) {
                       barOptionsSet.set(barId, barMap[barId].name || barId);
+                    } else {
+                      hasIndependent = true;
                     }
                   });
                   const barOptions = Array.from(barOptionsSet.entries()).sort((a, b) => a[1].localeCompare(b[1]));
-                  if (barOptions.length === 0) return null;
+                  if (barOptions.length === 0 && !hasIndependent) return null;
                   return (
                     <select
                       value={buyerConversationBarFilter}
                       onChange={(e) => setBuyerConversationBarFilter(e.target.value)}
                       className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
                     >
-                      <option value="all">{tx("allBars") || "All bars"}</option>
+                      <option value="all">{tx("allSellers") || "All sellers"}</option>
                       {barOptions.map(([barId, barName]) => (
                         <option key={barId} value={barId}>{barName}</option>
                       ))}
+                      {hasIndependent && <option value="independent">{tx("independent") || "Independent"}</option>}
                     </select>
                   );
                 })()}
@@ -14081,7 +14084,12 @@ export function BuyerMessagesPage({
                 {(() => {
                   const filtered = buyerConversationBarFilter === "all"
                     ? buyerConversations
-                    : buyerConversations.filter((conv) => sellerMap[conv.sellerId]?.affiliatedBarId === buyerConversationBarFilter);
+                    : buyerConversationBarFilter === "independent"
+                      ? buyerConversations.filter((conv) => {
+                          const barId = String(sellerMap[conv.sellerId]?.affiliatedBarId || "").trim();
+                          return !barId || !barMap?.[barId];
+                        })
+                      : buyerConversations.filter((conv) => String(sellerMap[conv.sellerId]?.affiliatedBarId || "").trim() === buyerConversationBarFilter);
                   if (filtered.length === 0) {
                     return <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("conversationsAppearHere")}</div>;
                   }
@@ -14089,7 +14097,8 @@ export function BuyerMessagesPage({
                     const seller = sellerMap[conversation.sellerId];
                     const sellerName = seller?.name || tx("seller");
                     const sellerInitials = getConversationInitials(sellerName);
-                    const barName = seller?.affiliatedBarId && barMap[seller.affiliatedBarId]?.name;
+                    const barId = String(seller?.affiliatedBarId || "").trim();
+                    const barName = barId && barMap?.[barId]?.name;
                     return (
                       <button
                         key={conversation.conversationId}
@@ -14100,7 +14109,7 @@ export function BuyerMessagesPage({
                           <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">{sellerInitials}</span>
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-semibold">{tx("conversationWith")} {sellerName}</div>
-                            {barName ? <div className="mt-0.5 text-xs text-indigo-600">{barName}</div> : null}
+                            {barName ? <div className="mt-0.5 text-xs text-indigo-600">{barName}</div> : <div className="mt-0.5 text-xs text-slate-400">{tx("independent") || "Independent"}</div>}
                             <div className="mt-1 truncate text-sm text-slate-500">{conversation.latestBody}</div>
                           </div>
                         </div>
