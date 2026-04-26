@@ -5040,7 +5040,7 @@ function getBarShippingReimbursement(countryCode) {
   return fallbackKey ? Number(SHIPPING_BAR_REIMBURSEMENT[fallbackKey[0]] || 0) : 0;
 }
 
-function WalletTopUpReturnPage({ apiRequestJson, navigate, primaryShellRoute, setDb, normalizeDbState, appMode }) {
+function WalletTopUpReturnPage({ apiRequestJson, navigate, primaryShellRoute, setDb, normalizeDbState, appMode, userId }) {
   const [status, setStatus] = useState('polling');
   const [balance, setBalance] = useState(null);
   const polled = useRef(false);
@@ -5059,6 +5059,14 @@ function WalletTopUpReturnPage({ apiRequestJson, navigate, primaryShellRoute, se
         if (ok && payload?.status === 'completed') {
           setStatus('success');
           setBalance(payload.walletBalance);
+          if (userId && payload.walletBalance != null) {
+            setDb((prev) => ({
+              ...prev,
+              users: (prev.users || []).map((u) =>
+                u.id === userId ? { ...u, walletBalance: payload.walletBalance } : u
+              ),
+            }));
+          }
           try { sessionStorage.removeItem('pendingTopUpTxnId'); } catch {}
           return;
         }
@@ -5084,7 +5092,7 @@ function WalletTopUpReturnPage({ apiRequestJson, navigate, primaryShellRoute, se
         <div className="rounded-[2rem] bg-white p-10 text-center shadow-xl ring-1 ring-rose-100">
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
           <h2 className="mt-5 text-2xl font-bold tracking-tight">Processing your top-up&hellip;</h2>
-          <p className="mt-3 text-slate-600">Please wait while we confirm your payment. This usually takes 5 to 10 seconds.</p>
+          <p className="mt-3 text-slate-600">Please wait while we confirm your payment. This usually takes 10 to 15 seconds.</p>
         </div>
       </section>
     );
@@ -20196,7 +20204,7 @@ export default function ThailandPantiesMarketSite() {
         ) : null}
 
         {routeInfo.name === 'wallet-top-up-complete' ? (
-          <WalletTopUpReturnPage apiRequestJson={apiRequestJson} navigate={navigate} primaryShellRoute={primaryShellRoute} setDb={setDb} normalizeDbState={normalizeDbState} appMode={appMode} />
+          <WalletTopUpReturnPage apiRequestJson={apiRequestJson} navigate={navigate} primaryShellRoute={primaryShellRoute} setDb={setDb} normalizeDbState={normalizeDbState} appMode={appMode} userId={session.userId} />
         ) : null}
 
         {routeInfo.name === 'wallet-top-up-cancelled' ? (
