@@ -38,3 +38,19 @@ When the user says **"update shipping rates"** or provides new zone prices:
 - **Backend validates** the fee at checkout — the client can't send a fake lower fee.
 - **Zone 3 is the wildcard fallback** — any country not in zone1 or zone2 gets zone3 rates.
 - Country selector uses **ISO 3166-1 alpha-2 codes** (e.g., `US`, `GB`, `TH`).
+
+## Shipping fee payout split
+
+The shipping fee is split between the **bar** (who physically ships) and the **admin** (platform).
+
+| Zone | Buyer pays | Bar receives | Admin keeps |
+|------|-----------|-------------|-------------|
+| zone1 | ฿840 | ฿400 | ฿440 |
+| zone2 | ฿1,155 | ฿500 | ฿655 |
+| zone3 | ฿1,310 | ฿600 | ฿710 |
+
+- Bar reimbursement covers actual shipping cost (~฿200-430) + ฿80 packing allowance (box, t-shirt, stickers).
+- Config: `bar_reimbursement` in `backend/config/shippingRates.json` and `SHIPPING_BAR_REIMBURSEMENT` in `frontend/src/site.jsx`.
+- The bar that receives the reimbursement is the affiliated bar of the seller(s) in the order.
+- If sellers in the order have no affiliated bar, the full shipping fee goes to admin.
+- To update bar reimbursement amounts: edit both config locations, push, and redeploy.

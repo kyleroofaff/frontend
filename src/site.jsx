@@ -3866,6 +3866,7 @@ const SHIPPING_ZONES = {
   zone2: { label: 'Oceania & South Asia', countries: ['AU','NZ','IN','BD','LK','PK','NP'], standard: { rate: 1155, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2100, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
   zone3: { label: 'USA, Europe & Rest of World', countries: ['*'], standard: { rate: 1310, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2415, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
 };
+const SHIPPING_BAR_REIMBURSEMENT = { zone1: 400, zone2: 500, zone3: 600 };
 
 const ISO_COUNTRIES = [
   { code: 'AF', name: 'Afghanistan' }, { code: 'AL', name: 'Albania' }, { code: 'DZ', name: 'Algeria' },
@@ -5026,6 +5027,17 @@ function getShippingRateByCountry(countryCode) {
   }
 
   return { zoneLabel: 'Unknown', standard: 0, express: 0, standardDays: '', expressDays: '', supported: false };
+}
+
+function getBarShippingReimbursement(countryCode) {
+  const upper = String(countryCode || '').trim().toUpperCase();
+  if (!upper) return 0;
+  for (const [zoneKey, zone] of Object.entries(SHIPPING_ZONES)) {
+    if (zone.countries.includes('*')) continue;
+    if (zone.countries.includes(upper)) return Number(SHIPPING_BAR_REIMBURSEMENT[zoneKey] || 0);
+  }
+  const fallbackKey = Object.entries(SHIPPING_ZONES).find(([, z]) => z.countries.includes('*'));
+  return fallbackKey ? Number(SHIPPING_BAR_REIMBURSEMENT[fallbackKey[0]] || 0) : 0;
 }
 
 function WalletTopUpReturnPage({ apiRequestJson, navigate, primaryShellRoute, setDb, normalizeDbState, appMode }) {
@@ -14950,6 +14962,27 @@ export default function ThailandPantiesMarketSite() {
         });
       });
 
+      const barShippingReimbursement = Number(getBarShippingReimbursement(checkoutForm.country).toFixed(2));
+      let shippingBarUserId = null;
+      if (barShippingReimbursement > 0) {
+        const shippingBarIds = new Set();
+        for (const summary of payoutSummaryBySeller) {
+          if (summary.barId) shippingBarIds.add(summary.barId);
+        }
+        if (shippingBarIds.size === 1) {
+          const barId = [...shippingBarIds][0];
+          const barUser = (prev.users || []).find((u) => u.role === 'bar' && u.barId === barId);
+          if (barUser?.id) {
+            shippingBarUserId = barUser.id;
+            barPayoutByUserId[shippingBarUserId] = Number(((barPayoutByUserId[shippingBarUserId] || 0) + barShippingReimbursement).toFixed(2));
+          }
+        }
+      }
+      const shippingAdminAmount = Number((shippingFee - (shippingBarUserId ? barShippingReimbursement : 0)).toFixed(2));
+      if (shippingAdminAmount > 0) {
+        adminPayoutTotal = Number((adminPayoutTotal + shippingAdminAmount).toFixed(2));
+      }
+
       const shouldSaveCheckoutAddress = checkoutForm.saveAddressToProfile !== false;
       const normalizedCheckoutAddress = String(checkoutForm.address || '').trim();
       const normalizedCheckoutCountry = String(checkoutForm.country || '').trim();
@@ -15005,6 +15038,8 @@ export default function ThailandPantiesMarketSite() {
             payoutSummary: {
               productSubtotal: Number(subtotal.toFixed(2)),
               shippingFee: Number(shippingFee.toFixed(2)),
+              shippingBarReimbursement: shippingBarUserId ? barShippingReimbursement : 0,
+              shippingAdminAmount,
               sellerTotal: Number(Object.values(sellerPayoutByUserId).reduce((sum, amount) => sum + amount, 0).toFixed(2)),
               barTotal: Number(Object.values(barPayoutByUserId).reduce((sum, amount) => sum + amount, 0).toFixed(2)),
               adminTotal: adminPayoutTotal,
