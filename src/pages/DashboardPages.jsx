@@ -11938,6 +11938,7 @@ export function AccountPage({
   toggleBarFollow,
   accountForm,
   updateAccountField,
+  isoCountries,
   saveAccountDetails,
   accountSaveMessage,
   currentWalletBalance,
@@ -13344,7 +13345,12 @@ export function AccountPage({
                       </select>
                     </label>
                   ) : null}
-                  <input value={accountForm.country} onChange={(e) => updateAccountField("country", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("country")} />
+                  <select value={(isoCountries || []).some((c) => c.code === accountForm.country) ? accountForm.country : ""} onChange={(e) => updateAccountField("country", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3">
+                    <option value="">{tx("country")}</option>
+                    {(isoCountries || []).map((c) => (
+                      <option key={c.code} value={c.code}>{c.name}</option>
+                    ))}
+                  </select>
                   <textarea value={accountForm.address} onChange={(e) => updateAccountField("address", e.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("address")} />
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <input value={accountForm.city} onChange={(e) => updateAccountField("city", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("city")} />
