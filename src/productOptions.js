@@ -29,7 +29,7 @@ export const SHARED_SIZE_OPTIONS = SIZE_OPTIONS.filter((size) => !EXCLUDED_FILTE
 export const SELLER_LANGUAGE_OPTIONS = ["English", "Thai", "Burmese", "Russian"];
 export const PRIMARY_CURRENCY_CODE = "THB";
 export const PRIMARY_CURRENCY_SYMBOL = "฿";
-export const MIN_SELLER_PRICE_THB = 1000;
+export const MIN_SELLER_PRICE_THB = 500;
 export const MIN_FEED_UNLOCK_PRICE_THB = 50;
 export const MIN_CUSTOM_REQUEST_PURCHASE_THB = 1000;
 export const MESSAGE_FEE_THB = 7;
