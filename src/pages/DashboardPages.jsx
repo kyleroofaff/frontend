@@ -1539,6 +1539,7 @@ const SELLER_I18N = {
     chooseFile: "Choose file",
     chooseFiles: "Choose files",
     noFileChosen: "No file chosen",
+    tapToCover: "Tap an image to set it as the cover photo.",
     filesSelected: "file(s) selected",
     allLabel: "All",
     unreadLabel: "Unread",
@@ -1764,6 +1765,7 @@ const SELLER_I18N = {
     chooseFile: "เลือกรูปไฟล์",
     chooseFiles: "เลือกหลายไฟล์",
     noFileChosen: "ยังไม่ได้เลือกไฟล์",
+    tapToCover: "แตะรูปภาพเพื่อตั้งเป็นภาพปก",
     filesSelected: "ไฟล์ที่เลือก",
     allLabel: "ทั้งหมด",
     unreadLabel: "ยังไม่อ่าน",
@@ -1988,6 +1990,7 @@ const SELLER_I18N = {
     chooseFile: "ဖိုင်ရွေးမည်",
     chooseFiles: "ဖိုင်များရွေးမည်",
     noFileChosen: "ဖိုင်မရွေးရသေးပါ",
+    tapToCover: "cover photo အဖြစ်သတ်မှတ်ရန် ပုံကိုနှိပ်ပါ",
     filesSelected: "ဖိုင်ရွေးထားသည်",
     allLabel: "အားလုံး",
     unreadLabel: "မဖတ်ရသေး",
@@ -2212,6 +2215,7 @@ const SELLER_I18N = {
     chooseFile: "Выбрать файл",
     chooseFiles: "Выбрать файлы",
     noFileChosen: "Файл не выбран",
+    tapToCover: "Нажмите на изображение, чтобы установить его как обложку.",
     filesSelected: "файл(ов) выбрано",
     allLabel: "Все",
     unreadLabel: "Непрочитано",
@@ -3829,19 +3833,28 @@ export function SellerUploadPage({
             </div>
             <p className="text-xs text-slate-400">Upload up to 5 images or short videos (max 8 seconds per video, 5 MB per image).</p>
             <div className="grid grid-cols-3 gap-3 max-w-md">
-              {(uploadDraft.images || []).map((img, idx) => (
-                <div key={idx} className="relative aspect-[4/5]">
-                  <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top mediaType={img.type} />
-                  <button onClick={() => setUploadDraft((prev) => {
-                    const next = prev.images.filter((_, i) => i !== idx);
-                    return { ...prev, images: next, image: next[0]?.url || '', imageName: next[0]?.name || '' };
-                  })} className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow">&times;</button>
-                </div>
-              ))}
+              {(uploadDraft.images || []).map((img, idx) => {
+                const isCover = idx === (uploadDraft.coverIndex || 0);
+                return (
+                  <div key={idx} className={`relative aspect-[4/5] cursor-pointer rounded-xl ${isCover ? 'ring-2 ring-rose-500' : 'ring-1 ring-transparent hover:ring-rose-200'}`} onClick={() => setUploadDraft((prev) => ({ ...prev, coverIndex: idx }))}>
+                    <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top mediaType={img.type} />
+                    {isCover ? <span className="absolute left-1 top-1 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white shadow">Cover</span> : null}
+                    <button onClick={(e) => { e.stopPropagation(); setUploadDraft((prev) => {
+                      const next = prev.images.filter((_, i) => i !== idx);
+                      const oldCover = prev.coverIndex || 0;
+                      let newCover = oldCover;
+                      if (idx === oldCover) newCover = 0;
+                      else if (idx < oldCover) newCover = oldCover - 1;
+                      return { ...prev, images: next, image: next[0]?.url || '', imageName: next[0]?.name || '', coverIndex: Math.min(newCover, Math.max(0, next.length - 1)) };
+                    }); }} className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow">&times;</button>
+                  </div>
+                );
+              })}
               {(!uploadDraft.images?.length) && (
                 <div className="aspect-[4/5]"><ProductImage label={t("imagePreview")} /></div>
               )}
             </div>
+            {(uploadDraft.images?.length > 1) ? <p className="text-xs text-slate-400">{t("tapToCover")}</p> : null}
             <div className="flex flex-wrap items-center gap-3">
               <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{editingProductId ? t("updateListing") : t("createDraft")}</button>
               {editingProductId ? (

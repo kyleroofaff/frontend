@@ -5342,6 +5342,7 @@ export default function ThailandPantiesMarketSite() {
     image: '',
     imageName: '',
     images: [],
+    coverIndex: 0,
   });
   const [editingProductId, setEditingProductId] = useState('');
   const [buyerEmail, setBuyerEmail] = useState(() => String(readStore('tlm-checkout-buyer-email', '') || ''));
@@ -6346,7 +6347,9 @@ export default function ThailandPantiesMarketSite() {
     () => Object.fromEntries((products || []).map((product) => [String(product.id || ''), product])),
     [products],
   );
-  const selectedProduct = routeInfo.name === 'product' ? products.find((product) => product.slug === routeInfo.slug) || null : null;
+  const selectedProduct = routeInfo.name === 'product'
+    ? products.find((product) => product.slug === routeInfo.slug) || products.find((product) => String(product.id) === routeInfo.slug) || null
+    : null;
   const selectedProductIsSold = Boolean(
     selectedProduct
     && (soldProductIdSet.has(String(selectedProduct.id || '')) || String(selectedProduct.status || '').toLowerCase() === 'sold')
@@ -15349,6 +15352,7 @@ export default function ThailandPantiesMarketSite() {
       image: productImages[0]?.url || product.image || '',
       imageName: productImages[0]?.name || product.imageName || '',
       images: productImages,
+      coverIndex: 0,
     });
     setEditingProductId(productId);
     setSellerProfileMessage('');
@@ -15370,6 +15374,7 @@ export default function ThailandPantiesMarketSite() {
       image: '',
       imageName: '',
       images: [],
+      coverIndex: 0,
     });
     setSellerProfileMessage('');
   }
@@ -15402,6 +15407,10 @@ export default function ThailandPantiesMarketSite() {
     const productImages = Array.isArray(uploadDraft.images) && uploadDraft.images.length > 0
       ? uploadDraft.images
       : [{ url: uploadDraft.image, name: uploadDraft.imageName }];
+    const coverIdx = Math.min(uploadDraft.coverIndex || 0, productImages.length - 1);
+    const orderedImages = coverIdx > 0
+      ? [productImages[coverIdx], ...productImages.slice(0, coverIdx), ...productImages.slice(coverIdx + 1)]
+      : productImages;
     const newProduct = {
       id: editingProductId || `product-${Date.now()}`,
       title: finalTitle,
@@ -15427,9 +15436,9 @@ export default function ThailandPantiesMarketSite() {
         uploadDraft.fabric ? `${uploadDraft.fabric} fabric` : '',
         uploadDraft.scentLevel ? `${uploadDraft.scentLevel} scent level` : '',
       ].filter(Boolean),
-      image: productImages[0]?.url || uploadDraft.image,
-      imageName: productImages[0]?.name || uploadDraft.imageName,
-      images: productImages,
+      image: orderedImages[0]?.url || uploadDraft.image,
+      imageName: orderedImages[0]?.name || uploadDraft.imageName,
+      images: orderedImages,
       isBundle: false,
       bundleItemIds: [],
       status: 'Published',
@@ -15480,6 +15489,7 @@ export default function ThailandPantiesMarketSite() {
       image: '',
       imageName: '',
       images: [],
+      coverIndex: 0,
     });
     setSellerProfileMessage(wasEditing ? 'Listing updated!' : 'Listing created!');
   }
@@ -18861,7 +18871,7 @@ export default function ThailandPantiesMarketSite() {
             <div className="rounded-3xl bg-white p-8 text-center shadow-md ring-1 ring-rose-100">
               <h2 className="text-2xl font-bold">{publicText.productNotFoundTitle}</h2>
               <p className="mt-3 text-slate-600">{publicText.productNotFoundSubtitle}</p>
-              <button onClick={() => navigate('/')} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{publicText.backToShop}</button>
+              <button onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{publicText.backToShop}</button>
             </div>
           </section>
         ) : null}
