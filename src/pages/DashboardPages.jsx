@@ -2943,17 +2943,6 @@ export function SellerDashboardPage({
               {t("mediaUpload")}
             </button>
           </div>
-          <div className="mb-4 lg:hidden">
-            <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-              <button onClick={() => scrollToSection("seller-profile")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickProfile")}</button>
-              <button onClick={() => navigate("/seller-upload")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickNewListing")}</button>
-              <button onClick={() => navigate("/seller-messages")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickInbox")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}</button>
-              <button onClick={() => navigate("/custom-requests")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}</button>
-              <button onClick={() => navigate("/stories-workspace")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("feedEyebrow")}</button>
-              <button onClick={() => scrollToSection("seller-listings")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("quickListings")}</button>
-              <button onClick={() => scrollToSection("seller-orders")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{t("sellerOrdersTitle")} {(sellerOrders || []).length > 0 ? `(${(sellerOrders || []).length})` : ""}</button>
-            </div>
-          </div>
           <div className="mb-4 flex justify-start lg:justify-end">
             <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto lg:justify-end">
               <label className="flex w-full items-center gap-2 text-sm text-slate-600 sm:w-auto">
@@ -12876,28 +12865,6 @@ export function AccountPage({
               </button>
             </div>
           ) : null}
-          <div className="mb-4 lg:hidden">
-            <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-              {currentUser.role === "buyer" ? (
-                <>
-                  <button onClick={() => navigate("/buyer-messages")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.messages}</button>
-                  <button onClick={() => scrollToSection("buyer-favorites")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.favorites}</button>
-                  <button onClick={() => scrollToSection("buyer-watched-products")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.watchedProducts || "Liked Products"}</button>
-                  <button onClick={() => scrollToSection("buyer-favorite-bars")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.favoriteBars || "Favorite bars"}</button>
-                  <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
-                  <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.orders}</button>
-                  <button onClick={() => navigate("/custom-requests")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{tx("customRequests")}</button>
-                  <button onClick={() => scrollToSection("buyer-contact")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.contact}</button>
-                </>
-              ) : (
-                <>
-                  <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.orders}</button>
-                  <button onClick={() => scrollToSection("buyer-contact")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.contact}</button>
-                  <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-3 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
-                </>
-              )}
-            </div>
-          </div>
           {currentUser.role === "admin" ? (
             <div className="mb-6 rounded-3xl border border-rose-200 bg-rose-50 p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -12985,147 +12952,43 @@ export function AccountPage({
               </div>
             </div>
           ) : null}
-          <details className="mb-6 overflow-hidden rounded-3xl border border-rose-100 bg-white p-5" open>
-            <summary className="cursor-pointer list-none">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-lg font-semibold">Notification preferences</h3>
-                <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
-              </div>
-            </summary>
-            <div className="mt-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-rose-100">
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextEnabled = !buyerInAppAllEnabled;
-                    updateNotificationPreference("message", nextEnabled);
-                    updateNotificationPreference("engagement", nextEnabled);
-                  }}
-                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerInAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
-                >
-                  Email notifications: {buyerInAppAllEnabled ? "On" : "Off"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextEnabled = !buyerPushAllEnabled;
-                    updatePushNotificationPreference("message", nextEnabled);
-                    updatePushNotificationPreference("engagement", nextEnabled);
-                    if (currentUser?.role === "admin") {
-                      updatePushNotificationPreference("adminOps", nextEnabled);
-                    }
-                  }}
-                  className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerPushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
-                >
-                  Browser notifications: {buyerPushAllEnabled ? "On" : "Off"}
-                </button>
-              </div>
+          <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-rose-100 bg-slate-50 px-4 py-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <Bell className="h-4 w-4 text-rose-600" />
+              {tx("notifications")}
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                const nextEnabled = !buyerInAppAllEnabled;
+                updateNotificationPreference("message", nextEnabled);
+                updateNotificationPreference("engagement", nextEnabled);
+              }}
+              className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerInAppAllEnabled ? "bg-emerald-50 text-emerald-700" : "border border-slate-200 text-slate-600"}`}
+            >
+              {tx("emailNotifications")}: {buyerInAppAllEnabled ? tx("onLabel") : tx("offLabel")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const nextEnabled = !buyerPushAllEnabled;
+                updatePushNotificationPreference("message", nextEnabled);
+                updatePushNotificationPreference("engagement", nextEnabled);
+                if (currentUser?.role === "admin") {
+                  updatePushNotificationPreference("adminOps", nextEnabled);
+                }
+              }}
+              className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerPushAllEnabled ? "bg-indigo-50 text-indigo-700" : "border border-slate-200 text-slate-600"}`}
+            >
+              {tx("browserNotifications")}: {buyerPushAllEnabled ? tx("onLabel") : tx("offLabel")}
+            </button>
             {!pushSupported ? (
-              <div className="mt-2 text-xs text-amber-700">Push notifications are not supported by this browser.</div>
+              <span className="text-xs text-amber-700">{tx("pushNotSupported")}</span>
             ) : null}
             {pushSupported && pushPermission === "denied" ? (
-              <div className="mt-2 text-xs text-amber-700">Browser notifications are blocked. Enable notifications in browser settings.</div>
+              <span className="text-xs text-amber-700">{tx("pushBlockedEnableSettings")}</span>
             ) : null}
-          </details>
-          {currentUser.role === "buyer" ? (
-            <details className="mb-6 overflow-hidden rounded-3xl border border-rose-100 bg-white p-5" open>
-              <summary className="cursor-pointer list-none">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{tx("notifications")}</h3>
-                  <span className="rounded-full border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-700">Close</span>
-                </div>
-              </summary>
-              <p className="mt-2 text-sm text-slate-600">{tx("notificationsHelp")}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <button onClick={() => setBuyerNotificationFilter("all")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "all" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>All ({buyerNotifications.length})</button>
-                <button onClick={() => setBuyerNotificationFilter("unread")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "unread" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Unread ({buyerNotifications.filter((entry) => !entry.read).length})</button>
-                <button onClick={() => setBuyerNotificationFilter("messages")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "messages" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Messages</button>
-                <button onClick={() => setBuyerNotificationFilter("engagement")} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationFilter === "engagement" ? "bg-rose-600 text-white" : "border border-rose-200 text-rose-700"}`}>Activity</button>
-                <button onClick={() => setBuyerDiscreetNotificationText((prev) => !prev)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerDiscreetNotificationText ? "bg-slate-800 text-white" : "border border-slate-200 text-slate-700"}`}>
-                  Discreet Messages: {buyerDiscreetNotificationText ? "On" : "Off"}
-                </button>
-                <button onClick={() => setBuyerNotificationCompactMode((prev) => !prev)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${buyerNotificationCompactMode ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}>
-                  View: {buyerNotificationCompactMode ? "Compact" : "Comfort"}
-                </button>
-                <button onClick={markAllNotificationsRead} className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700">{tx("markNotificationsRead")}</button>
-              </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Discreet Messages hides sensitive wording in notification previews. View switches between roomier cards (Comfort) and tighter rows (Compact).
-              </p>
-              <div className="mt-4 space-y-4">
-                {groupedBuyerNotifications.length === 0 ? (
-                  <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{tx("noNotifications")}</div>
-                ) : groupedBuyerNotifications.map((group) => (
-                  <div key={group.label}>
-                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{group.label}</div>
-                    <div className="space-y-3">
-                      {group.items.map((notification) => (
-                        <div key={notification.id} className={`rounded-2xl ${buyerNotificationCompactMode ? "p-3" : "p-4"} ring-1 ${notification.read ? "bg-white ring-rose-100" : "border border-rose-200 bg-rose-50/40 ring-rose-200"}`}>
-                          <div className="flex items-start gap-3">
-                            {(() => {
-                              const meta = buyerNotificationTypeMeta(notification.type);
-                              const MetaIcon = meta.icon;
-                              return (
-                                <div className={`mt-0.5 inline-flex ${buyerNotificationCompactMode ? "h-7 w-7" : "h-8 w-8"} shrink-0 items-center justify-center rounded-full ${meta.iconWrapClassName}`}>
-                                  <MetaIcon className={buyerNotificationCompactMode ? "h-3.5 w-3.5" : "h-4 w-4"} />
-                                </div>
-                              );
-                            })()}
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  {(() => {
-                                    const meta = buyerNotificationTypeMeta(notification.type);
-                                    return <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${meta.chipClassName}`}>{meta.label}</span>;
-                                  })()}
-                                  {!notification.read ? <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">Unread</span> : null}
-                                </div>
-                                <div className="text-[11px] text-slate-500" title={formatDateTimeNoSeconds(notification.createdAt || Date.now())}>
-                                  {formatRelativeTimeLabel(notification.createdAt || Date.now())}
-                                </div>
-                              </div>
-                              <div className={`${buyerNotificationCompactMode ? "mt-1.5 text-[13px] leading-5" : "mt-2 text-sm leading-6"} text-slate-700`}>
-                                {getDiscreetNotificationText(notification.text, notification.type, buyerDiscreetNotificationText)}
-                              </div>
-                            </div>
-                          </div>
-                          <div className={`${buyerNotificationCompactMode ? "mt-2.5" : "mt-3"} flex flex-wrap items-center justify-end gap-2`}>
-                            {!notification.read ? (
-                              <button onClick={() => markNotificationRead?.(notification.id)} className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-rose-700">
-                                {tx("markRead")}
-                              </button>
-                            ) : null}
-                            {notification.conversationId ? (
-                              <button
-                                onClick={() => {
-                                  if (!notification.read) markNotificationRead?.(notification.id);
-                                  const conversationId = String(notification.conversationId || "");
-                                  if (conversationId.startsWith("custom_request_")) {
-                                    navigate("/custom-requests");
-                                    return;
-                                  }
-                                  if (conversationId.includes("__")) {
-                                    setBuyerDashboardConversationId(conversationId);
-                                    navigate("/buyer-messages");
-                                    return;
-                                  }
-                                  navigate("/account");
-                                }}
-                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-slate-700"
-                              >
-                                {tx("openThread")}
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </details>
-          ) : null}
+          </div>
           <div className="flex flex-col gap-5 sm:gap-6">
               <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
                 <div className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">

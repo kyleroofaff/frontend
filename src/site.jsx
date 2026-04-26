@@ -2,6 +2,7 @@ import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRe
 import {
   Armchair,
   Beer,
+  Bell,
   CheckCircle2,
   CircleDot,
   Clock3,
@@ -19110,59 +19111,39 @@ export default function ThailandPantiesMarketSite() {
                     </select>
                   </label>
                 </div>
-                <div className="mb-4 rounded-3xl border border-rose-100 bg-white p-4 shadow-sm">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500">{barT.notificationDisplay}</div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setBarDiscreetNotificationText((prev) => !prev)}
-                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${barDiscreetNotificationText ? 'bg-slate-800 text-white' : 'border border-slate-200 text-slate-700'}`}
-                    >
-                      {barT.discreetMessages}: {barDiscreetNotificationText ? barT.on : barT.off}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setBarNotificationCompactMode((prev) => !prev)}
-                      className={`rounded-xl px-3 py-2 text-sm font-semibold ${barNotificationCompactMode ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-700'}`}
-                    >
-                      {barT.viewMode}: {barNotificationCompactMode ? barT.compact : barT.comfort}
-                    </button>
+                <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-rose-100 bg-slate-50 px-4 py-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <Bell className="h-4 w-4 text-rose-600" />
+                    {barT.notifications}
                   </div>
-                  <p className="mt-2 text-xs text-slate-500">
-                    {barT.discreetMessagesHelp}
-                  </p>
-                  <div className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-rose-100">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextEnabled = !barInAppAllEnabled;
-                          updateNotificationPreference('message', nextEnabled);
-                          updateNotificationPreference('engagement', nextEnabled);
-                        }}
-                        className={`rounded-xl px-3 py-2 text-sm font-semibold ${barInAppAllEnabled ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 text-slate-600'}`}
-                      >
-                        {barT.emailNotifications}: {barInAppAllEnabled ? barT.on : barT.off}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextEnabled = !barPushAllEnabled;
-                          updatePushNotificationPreference('message', nextEnabled);
-                          updatePushNotificationPreference('engagement', nextEnabled);
-                        }}
-                        className={`rounded-xl px-3 py-2 text-sm font-semibold ${barPushAllEnabled ? 'bg-indigo-50 text-indigo-700' : 'border border-slate-200 text-slate-600'}`}
-                      >
-                        {barT.browserNotifications}: {barPushAllEnabled ? barT.on : barT.off}
-                      </button>
-                    </div>
-                    {!pushSupport.notification ? (
-                      <div className="mt-2 text-xs text-amber-700">{barT.pushNotSupported}</div>
-                    ) : null}
-                    {pushSupport.notification && pushPermission === 'denied' ? (
-                      <div className="mt-2 text-xs text-amber-700">{barT.pushBlocked}</div>
-                    ) : null}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextEnabled = !barInAppAllEnabled;
+                      updateNotificationPreference('message', nextEnabled);
+                      updateNotificationPreference('engagement', nextEnabled);
+                    }}
+                    className={`rounded-xl px-3 py-2 text-sm font-semibold ${barInAppAllEnabled ? 'bg-emerald-50 text-emerald-700' : 'border border-slate-200 text-slate-600'}`}
+                  >
+                    {barT.emailNotifications}: {barInAppAllEnabled ? barT.on : barT.off}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextEnabled = !barPushAllEnabled;
+                      updatePushNotificationPreference('message', nextEnabled);
+                      updatePushNotificationPreference('engagement', nextEnabled);
+                    }}
+                    className={`rounded-xl px-3 py-2 text-sm font-semibold ${barPushAllEnabled ? 'bg-indigo-50 text-indigo-700' : 'border border-slate-200 text-slate-600'}`}
+                  >
+                    {barT.browserNotifications}: {barPushAllEnabled ? barT.on : barT.off}
+                  </button>
+                  {!pushSupport.notification ? (
+                    <span className="text-xs text-amber-700">{barT.pushNotSupported}</span>
+                  ) : null}
+                  {pushSupport.notification && pushPermission === 'denied' ? (
+                    <span className="text-xs text-amber-700">{barT.pushBlocked}</span>
+                  ) : null}
                 </div>
                 {currentBarProfile ? (
                   <div className="mt-4 rounded-3xl bg-white p-6 shadow-md ring-1 ring-rose-100">
