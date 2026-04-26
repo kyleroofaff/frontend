@@ -1542,6 +1542,7 @@ const SELLER_I18N = {
     chooseFiles: "Choose files",
     noFileChosen: "No file chosen",
     tapToCover: "Tap an image to set it as the cover photo.",
+    coverBadge: "Cover",
     filesSelected: "file(s) selected",
     allLabel: "All",
     unreadLabel: "Unread",
@@ -1769,6 +1770,7 @@ const SELLER_I18N = {
     chooseFiles: "เลือกหลายไฟล์",
     noFileChosen: "ยังไม่ได้เลือกไฟล์",
     tapToCover: "แตะรูปภาพเพื่อตั้งเป็นภาพปก",
+    coverBadge: "ปก",
     filesSelected: "ไฟล์ที่เลือก",
     allLabel: "ทั้งหมด",
     unreadLabel: "ยังไม่อ่าน",
@@ -1995,6 +1997,7 @@ const SELLER_I18N = {
     chooseFiles: "ဖိုင်များရွေးမည်",
     noFileChosen: "ဖိုင်မရွေးရသေးပါ",
     tapToCover: "cover photo အဖြစ်သတ်မှတ်ရန် ပုံကိုနှိပ်ပါ",
+    coverBadge: "မျက်နှာဖုံး",
     filesSelected: "ဖိုင်ရွေးထားသည်",
     allLabel: "အားလုံး",
     unreadLabel: "မဖတ်ရသေး",
@@ -2221,6 +2224,7 @@ const SELLER_I18N = {
     chooseFiles: "Выбрать файлы",
     noFileChosen: "Файл не выбран",
     tapToCover: "Нажмите на изображение, чтобы установить его как обложку.",
+    coverBadge: "Обложка",
     filesSelected: "файл(ов) выбрано",
     allLabel: "Все",
     unreadLabel: "Непрочитано",
@@ -3507,7 +3511,7 @@ export function SellerDashboardPage({
                   <div key={purchase.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-3 text-sm">
                     <div className="flex items-center gap-2">
                       <span className="font-medium capitalize">{purchase.giftType?.replace(/_/g, ' ')}</span>
-                      <span className="text-slate-500">฿{purchase.price}</span>
+                      <span className="text-slate-500">{formatPriceTHB(purchase.price)}</span>
                       {purchase.message && <span className="text-xs text-slate-400 italic">"{purchase.message}"</span>}
                     </div>
                     <div className="flex items-center gap-2">
@@ -3719,6 +3723,7 @@ export function SellerUploadPage({
   const [bundleDraft, setBundleDraft] = useState({ title: "", description: "", price: "", selectedProductIds: [] });
   const [editingBundleId, setEditingBundleId] = useState("");
   const [bundleMessage, setBundleMessage] = useState("");
+  const [bundleSuccess, setBundleSuccess] = useState(false);
   const bundleSourceProducts = useMemo(
     () => (sellerDashboardProducts || []).filter((product) => !product?.isBundle),
     [sellerDashboardProducts],
@@ -3845,7 +3850,7 @@ export function SellerUploadPage({
                 return (
                   <div key={idx} className={`relative aspect-[4/5] cursor-pointer rounded-xl ${isCover ? 'ring-2 ring-rose-500' : 'ring-1 ring-transparent hover:ring-rose-200'}`} onClick={() => setUploadDraft((prev) => ({ ...prev, coverIndex: idx }))}>
                     <ProductImage src={img.url} label={img.name || `Image ${idx + 1}`} top mediaType={img.type} />
-                    {isCover ? <span className="absolute left-1 top-1 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white shadow">Cover</span> : null}
+                    {isCover ? <span className="absolute left-1 top-1 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white shadow">{t("coverBadge")}</span> : null}
                     <button onClick={(e) => { e.stopPropagation(); setUploadDraft((prev) => {
                       const next = prev.images.filter((_, i) => i !== idx);
                       const oldCover = prev.coverIndex || 0;
@@ -3872,17 +3877,17 @@ export function SellerUploadPage({
               <span className={`text-sm font-medium ${sellerProfileMessage.toLowerCase().includes('created') || sellerProfileMessage.toLowerCase().includes('updated') ? 'text-emerald-600' : 'text-rose-600'}`}>{sellerProfileMessage}</span>
             ) : null}
           </div>
-          {bundleSourceProducts.length >= 2 ? (
           <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h4 className="text-lg font-semibold">{t("setBuilderTitle")}</h4>
-                <p className="mt-1 text-sm text-slate-600">{t("setBuilderHelp")}</p>
+                <p className="mt-1 text-sm text-slate-600">{bundleSourceProducts.length >= 2 ? t("setBuilderHelp") : t("setBuilderNeedMore")}</p>
               </div>
               {editingBundleId ? (
                 <button type="button" onClick={() => { setEditingBundleId(""); setBundleDraft({ title: "", description: "", price: "", selectedProductIds: [] }); setBundleMessage(""); }} className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">{t("cancelEdit")}</button>
               ) : null}
             </div>
+            {bundleSourceProducts.length >= 2 ? (<>
             <div className="mt-4">
               <label className="grid gap-1 text-sm text-slate-600">
                 <span className="font-medium">{t("combinedSetPriceLabel")}</span>
@@ -3892,9 +3897,7 @@ export function SellerUploadPage({
             <div className="mt-4">
               <div className="text-sm font-medium text-slate-700">{t("selectProductsToInclude")}</div>
               <div className="mt-2 max-h-56 space-y-2 overflow-y-auto rounded-2xl border border-rose-100 bg-white p-3">
-                {bundleSourceProducts.length === 0 ? (
-                  <div className="text-sm text-slate-500">{t("createIndividualProductsFirst")}</div>
-                ) : bundleSourceProducts.map((product) => {
+                {bundleSourceProducts.map((product) => {
                   const selected = bundleDraft.selectedProductIds.includes(product.id);
                   return (
                     <label key={product.id} className="flex items-center justify-between gap-3 rounded-xl border border-rose-100 px-3 py-2 text-sm">
@@ -3922,9 +3925,10 @@ export function SellerUploadPage({
               </div>
             </details>
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <button type="button" onClick={() => { upsertBundleProduct({ bundleId: editingBundleId || "", title: bundleDraft.title, description: bundleDraft.description, price: bundleDraft.price, selectedProductIds: bundleDraft.selectedProductIds, sellerName: sellerName }, (message) => { setBundleMessage(message || t("setSaved")); setEditingBundleId(""); setBundleDraft({ title: "", description: "", price: "", selectedProductIds: [] }); }, (errorMessage) => setBundleMessage(errorMessage || t("setSaveFailed"))); }} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">{editingBundleId ? t("updateSetProduct") : t("createSetProduct")}</button>
-              {bundleMessage ? <div className={`text-sm font-medium ${bundleMessage.toLowerCase().includes('saved') ? 'text-emerald-700' : 'text-rose-700'}`}>{bundleMessage}</div> : null}
+              <button type="button" onClick={() => { upsertBundleProduct({ bundleId: editingBundleId || "", title: bundleDraft.title, description: bundleDraft.description, price: bundleDraft.price, selectedProductIds: bundleDraft.selectedProductIds, sellerName: sellerName }, (message) => { setBundleSuccess(true); setBundleMessage(message || t("setSaved")); setEditingBundleId(""); setBundleDraft({ title: "", description: "", price: "", selectedProductIds: [] }); }, (errorMessage) => { setBundleSuccess(false); setBundleMessage(errorMessage || t("setSaveFailed")); }); }} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">{editingBundleId ? t("updateSetProduct") : t("createSetProduct")}</button>
+              {bundleMessage ? <div className={`text-sm font-medium ${bundleSuccess ? 'text-emerald-700' : 'text-rose-700'}`}>{bundleMessage}</div> : null}
             </div>
+            </>) : null}
             {existingBundleProducts.length > 0 ? (
               <div className="mt-5 space-y-2 rounded-2xl border border-rose-100 bg-white p-3">
                 <div className="text-sm font-medium text-slate-700">{t("existingSetProducts")}</div>
@@ -3940,12 +3944,6 @@ export function SellerUploadPage({
               </div>
             ) : null}
           </div>
-          ) : (
-          <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
-            <h4 className="text-lg font-semibold">{t("setBuilderTitle")}</h4>
-            <p className="mt-2 text-sm text-slate-500">{t("setBuilderNeedMore")}</p>
-          </div>
-          )}
 
           <div className="mt-8 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
             <div className="flex items-center justify-between gap-4">
@@ -10947,7 +10945,7 @@ export function AdminPage({
                     <div key={purchase.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-3 text-sm">
                       <div>
                         <span className="font-medium">{purchase.giftType}</span>
-                        <span className="ml-2 text-slate-500">฿{purchase.price}</span>
+                        <span className="ml-2 text-slate-500">{formatPriceTHB(purchase.price)}</span>
                         <span className="ml-2 text-xs text-slate-400">{purchase.isAnonymous ? 'Anonymous' : purchase.buyerId}</span>
                         <span className="ml-1 text-xs text-slate-400">→ {purchase.sellerId}</span>
                       </div>
