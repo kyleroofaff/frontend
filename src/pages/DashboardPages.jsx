@@ -13989,66 +13989,6 @@ export function BuyerMessagesPage({
         <div className="mt-5 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-3">
             <div className="rounded-2xl border border-rose-100 p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findSellers")}</div>
-              <input
-                value={buyerMessageSellerSearch}
-                onChange={(event) => setBuyerMessageSellerSearch(event.target.value)}
-                className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                placeholder={tx("searchSellers")}
-              />
-              <div className="mt-3 space-y-2">
-                {buyerMessageSellerResults.length === 0 ? (
-                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noSellerSearchResults")}</div>
-                ) : buyerMessageSellerResults.map((seller) => (
-                  <button
-                    key={seller.id}
-                    onClick={() => startBuyerConversationWithSeller(seller.id)}
-                    className="min-h-[44px] flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
-                  >
-                    <span className="text-sm font-medium">{seller.name}</span>
-                    <span className="text-xs text-slate-500">{tx("message")}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-rose-100 p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findByProduct")}</div>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <input
-                  value={buyerMessageProductFilters.search}
-                  onChange={(event) => updateBuyerMessageProductFilter("search", event.target.value)}
-                  className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm sm:col-span-2"
-                  placeholder={tx("searchProductOrSeller")}
-                />
-                <select value={buyerMessageProductFilters.size} onChange={(event) => updateBuyerMessageProductFilter("size", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
-                  {(buyerMessageFilterOptions?.size || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                </select>
-                <select value={buyerMessageProductFilters.style} onChange={(event) => updateBuyerMessageProductFilter("style", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
-                  {(buyerMessageFilterOptions?.style || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                </select>
-                <select value={buyerMessageProductFilters.fabric} onChange={(event) => updateBuyerMessageProductFilter("fabric", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
-                  {(buyerMessageFilterOptions?.fabric || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                </select>
-                <select value={buyerMessageProductFilters.daysWorn} onChange={(event) => updateBuyerMessageProductFilter("daysWorn", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
-                  {(buyerMessageFilterOptions?.daysWorn || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
-                </select>
-              </div>
-              <div className="mt-3 space-y-2">
-                {buyerMessageProductResults.length === 0 ? (
-                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noProductFilterResults")}</div>
-                ) : buyerMessageProductResults.slice(0, 5).map((product) => (
-                  <button
-                    key={product.id}
-                    onClick={() => startBuyerConversationWithSeller(product.sellerId)}
-                    className="min-h-[44px] flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
-                  >
-                    <span className="text-sm font-medium">{product.title}</span>
-                    <span className="text-xs text-slate-500">{sellerMap[product.sellerId]?.name || tx("seller")} · {product.daysWorn || tx("notSpecified")}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-rose-100 p-4">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("conversationList")}</div>
                 {(() => {
@@ -14117,6 +14057,66 @@ export function BuyerMessagesPage({
                     );
                   });
                 })()}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-rose-100 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findSellers")}</div>
+              <input
+                value={buyerMessageSellerSearch}
+                onChange={(event) => setBuyerMessageSellerSearch(event.target.value)}
+                className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                placeholder={tx("searchSellers")}
+              />
+              <div className="mt-3 space-y-2">
+                {buyerMessageSellerResults.length === 0 ? (
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noSellerSearchResults")}</div>
+                ) : buyerMessageSellerResults.map((seller) => (
+                  <button
+                    key={seller.id}
+                    onClick={() => startBuyerConversationWithSeller(seller.id)}
+                    className="min-h-[44px] flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
+                  >
+                    <span className="text-sm font-medium">{seller.name}</span>
+                    <span className="text-xs text-slate-500">{tx("message")}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-rose-100 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("findByProduct")}</div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <input
+                  value={buyerMessageProductFilters.search}
+                  onChange={(event) => updateBuyerMessageProductFilter("search", event.target.value)}
+                  className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm sm:col-span-2"
+                  placeholder={tx("searchProductOrSeller")}
+                />
+                <select value={buyerMessageProductFilters.size} onChange={(event) => updateBuyerMessageProductFilter("size", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
+                  {(buyerMessageFilterOptions?.size || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+                <select value={buyerMessageProductFilters.style} onChange={(event) => updateBuyerMessageProductFilter("style", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
+                  {(buyerMessageFilterOptions?.style || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+                <select value={buyerMessageProductFilters.fabric} onChange={(event) => updateBuyerMessageProductFilter("fabric", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
+                  {(buyerMessageFilterOptions?.fabric || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+                <select value={buyerMessageProductFilters.daysWorn} onChange={(event) => updateBuyerMessageProductFilter("daysWorn", event.target.value)} className="min-h-[44px] rounded-2xl border border-slate-200 px-3 py-2.5 text-sm">
+                  {(buyerMessageFilterOptions?.daysWorn || ["All"]).map((value) => <option key={value} value={value}>{localizeOptionLabel(value, uiLanguage)}</option>)}
+                </select>
+              </div>
+              <div className="mt-3 space-y-2">
+                {buyerMessageProductResults.length === 0 ? (
+                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noProductFilterResults")}</div>
+                ) : buyerMessageProductResults.slice(0, 5).map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => startBuyerConversationWithSeller(product.sellerId)}
+                    className="min-h-[44px] flex w-full items-center justify-between rounded-2xl border border-rose-100 px-3 py-2.5 text-left hover:bg-rose-50"
+                  >
+                    <span className="text-sm font-medium">{product.title}</span>
+                    <span className="text-xs text-slate-500">{sellerMap[product.sellerId]?.name || tx("seller")} · {product.daysWorn || tx("notSpecified")}</span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
