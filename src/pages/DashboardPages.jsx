@@ -1366,6 +1366,8 @@ const SELLER_I18N = {
     editListing: "Edit",
     cancelEditListing: "Cancel edit",
     updateListing: "Update listing",
+    creatingListing: "Creating...",
+    updatingListing: "Updating...",
     editingLabel: "Editing",
     delete: "Delete",
     deleting: "Deleting...",
@@ -1605,6 +1607,7 @@ const SELLER_I18N = {
     shippingScopeFixedHelp: "Shipping scope is fixed for all sellers.",
     setBuilderTitle: "Set builder",
     setBuilderHelp: "Create combo products (for example bra + panties, top + skirt, or 4-piece sets) while keeping individual items listed separately.",
+    setBuilderNeedMore: "Add at least 2 individual listings to unlock the set builder.",
     cancelEdit: "Cancel edit",
     setTitleLabel: "Set title",
     setTitlePlaceholder: "Example: Bra + Panty Matching Set",
@@ -1650,7 +1653,7 @@ const SELLER_I18N = {
     noCaption: "ไม่มีแคปชัน", noImage: "ไม่มีรูปภาพ", notifications: "การแจ้งเตือน",
     markAllRead: "อ่านทั้งหมด", noNotifications: "ไม่มีการแจ้งเตือน", listingLibrary: "คลังรายการสินค้า",
     items: "รายการ", noAsset: "ไม่มีไฟล์", worn: "สวมใส่", notSpecified: "ไม่ระบุ",
-    publish: "เผยแพร่", viewListing: "ดูรายการ", editListing: "แก้ไข", cancelEditListing: "ยกเลิกการแก้ไข", updateListing: "อัปเดตรายการ", editingLabel: "กำลังแก้ไข", delete: "ลบ", deleting: "กำลังลบ...",
+    publish: "เผยแพร่", viewListing: "ดูรายการ", editListing: "แก้ไข", cancelEditListing: "ยกเลิกการแก้ไข", updateListing: "อัปเดตรายการ", creatingListing: "กำลังสร้าง...", updatingListing: "กำลังอัปเดต...", editingLabel: "กำลังแก้ไข", delete: "ลบ", deleting: "กำลังลบ...",
     feedEyebrow: "เรื่องราว", feedTitle: "เรื่องราว",
     feedSubtitle: "ดูโพสต์ไลฟ์สไตล์ เบื้องหลัง และอัปเดตประจำวันจากผู้ขาย",
     noFeedPosts: "ยังไม่มีเรื่องราว กลับมาตรวจสอบอีกครั้งเร็วๆ นี้",
@@ -1831,6 +1834,7 @@ const SELLER_I18N = {
     shippingScopeFixedHelp: "ขอบเขตการจัดส่งถูกกำหนดคงที่สำหรับผู้ขายทุกคน",
     setBuilderTitle: "ตัวสร้างเซ็ตสินค้า",
     setBuilderHelp: "สร้างสินค้าชุด (เช่น บรา + กางเกงใน, เสื้อ + กระโปรง หรือชุด 4 ชิ้น) โดยยังคงแสดงสินค้ารายชิ้นแยกกันได้",
+    setBuilderNeedMore: "เพิ่มสินค้าอย่างน้อย 2 รายการเพื่อปลดล็อกตัวสร้างเซ็ต",
     cancelEdit: "ยกเลิกการแก้ไข",
     setTitleLabel: "ชื่อเซ็ต",
     setTitlePlaceholder: "ตัวอย่าง: เซ็ตบราคู่กางเกงใน",
@@ -1875,7 +1879,7 @@ const SELLER_I18N = {
     noCaption: "စာတန်းမရှိ", noImage: "ပုံမရှိ", notifications: "အသိပေးချက်များ",
     markAllRead: "အားလုံးကို ဖတ်ပြီးအဖြစ် မှတ်ရန်", noNotifications: "အသိပေးချက်မရှိပါ",
     listingLibrary: "စာရင်းစာအုပ်", items: "ခု", noAsset: "ဖိုင်မရှိ", worn: "ဝတ်ထားသည့်ကာလ",
-    notSpecified: "မသတ်မှတ်ထား", publish: "တင်မည်", viewListing: "စာရင်းကြည့်မည်", editListing: "တည်းဖြတ်", cancelEditListing: "တည်းဖြတ်ခြင်း ပယ်ဖျက်", updateListing: "စာရင်း အပ်ဒိတ်", editingLabel: "တည်းဖြတ်နေသည်", delete: "ဖျက်မည်", deleting: "ဖျက်နေသည်...",
+    notSpecified: "မသတ်မှတ်ထား", publish: "တင်မည်", viewListing: "စာရင်းကြည့်မည်", editListing: "တည်းဖြတ်", cancelEditListing: "တည်းဖြတ်ခြင်း ပယ်ဖျက်", updateListing: "စာရင်း အပ်ဒိတ်", creatingListing: "ဖန်တီးနေသည်...", updatingListing: "အပ်ဒိတ်လုပ်နေသည်...", editingLabel: "တည်းဖြတ်နေသည်", delete: "ဖျက်မည်", deleting: "ဖျက်နေသည်...",
     feedEyebrow: "stories", feedTitle: "stories",
     feedSubtitle: "seller post များ၊ နောက်ကွယ်ပုံများနှင့် နေ့စဉ် update များကို ကြည့်ရှုပါ",
     noFeedPosts: "stories မရှိသေးပါ။ နောက်ပိုင်းတွင် ပြန်စစ်ပါ",
@@ -2056,6 +2060,7 @@ const SELLER_I18N = {
     shippingScopeFixedHelp: "shipping scope ကို seller အားလုံးအတွက် တစ်မျိုးတည်း သတ်မှတ်ထားသည်။",
     setBuilderTitle: "Set builder",
     setBuilderHelp: "ပစ္စည်းတစ်ခုချင်းစာရင်းကို ထိန်းထားပြီး combo set များ (ဥပမာ bra + panties, top + skirt, 4-piece sets) ဖန်တီးနိုင်သည်။",
+    setBuilderNeedMore: "Set builder ကိုဖွင့်ရန် အနည်းဆုံး စာရင်း ၂ ခု ထည့်ပါ။",
     cancelEdit: "တည်းဖြတ်ခြင်း ပယ်ဖျက်",
     setTitleLabel: "Set ခေါင်းစဉ်",
     setTitlePlaceholder: "ဥပမာ: Bra + Panty Matching Set",
@@ -2100,7 +2105,7 @@ const SELLER_I18N = {
     noCaption: "Подпись не добавлена.", noImage: "Нет изображения", notifications: "Уведомления",
     markAllRead: "Отметить все прочитанным", noNotifications: "Нет уведомлений.",
     listingLibrary: "Библиотека объявлений", items: "шт.", noAsset: "Нет файла", worn: "Ношение",
-    notSpecified: "Не указано", publish: "Опубликовать", viewListing: "Открыть объявление", editListing: "Редактировать", cancelEditListing: "Отменить редактирование", updateListing: "Обновить объявление", editingLabel: "Редактируется", delete: "Удалить", deleting: "Удаление...",
+    notSpecified: "Не указано", publish: "Опубликовать", viewListing: "Открыть объявление", editListing: "Редактировать", cancelEditListing: "Отменить редактирование", updateListing: "Обновить объявление", creatingListing: "Создание...", updatingListing: "Обновление...", editingLabel: "Редактируется", delete: "Удалить", deleting: "Удаление...",
     feedEyebrow: "Истории", feedTitle: "Истории",
     feedSubtitle: "Смотрите посты продавцов, закулисные фото и ежедневные обновления.",
     noFeedPosts: "Историй пока нет. Загляните позже.",
@@ -2281,6 +2286,7 @@ const SELLER_I18N = {
     shippingScopeFixedHelp: "Область доставки фиксирована для всех продавцов.",
     setBuilderTitle: "Конструктор наборов",
     setBuilderHelp: "Создавайте комбинированные товары (например, бюстгальтер + трусики, топ + юбка или наборы из 4 предметов), сохраняя отдельные позиции в каталоге.",
+    setBuilderNeedMore: "Добавьте минимум 2 объявления, чтобы разблокировать конструктор наборов.",
     cancelEdit: "Отменить редактирование",
     setTitleLabel: "Название набора",
     setTitlePlaceholder: "Пример: Сочетающийся набор бюстгальтер + трусики",
@@ -3695,6 +3701,7 @@ export function SellerUploadPage({
   editingProductId,
   startEditProduct,
   cancelEditProduct,
+  creatingProduct,
   sellerDashboardProducts,
   upsertBundleProduct,
   publishProduct,
@@ -3856,7 +3863,7 @@ export function SellerUploadPage({
             </div>
             {(uploadDraft.images?.length > 1) ? <p className="text-xs text-slate-400">{t("tapToCover")}</p> : null}
             <div className="flex flex-wrap items-center gap-3">
-              <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{editingProductId ? t("updateListing") : t("createDraft")}</button>
+              <button onClick={createProductFromUpload} disabled={creatingProduct} className={`inline-flex w-auto items-center gap-2 justify-self-start rounded-2xl px-5 py-3 font-semibold ${creatingProduct ? 'bg-slate-300 text-slate-500 cursor-wait' : 'bg-rose-600 text-white'}`}>{creatingProduct ? (editingProductId ? t("updatingListing") : t("creatingListing")) : (editingProductId ? t("updateListing") : t("createDraft"))}</button>
               {editingProductId ? (
                 <button type="button" onClick={cancelEditProduct} className="inline-flex w-auto rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{t("cancelEditListing")}</button>
               ) : null}
@@ -3865,6 +3872,7 @@ export function SellerUploadPage({
               <span className={`text-sm font-medium ${sellerProfileMessage.toLowerCase().includes('created') || sellerProfileMessage.toLowerCase().includes('updated') ? 'text-emerald-600' : 'text-rose-600'}`}>{sellerProfileMessage}</span>
             ) : null}
           </div>
+          {bundleSourceProducts.length >= 2 ? (
           <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -3932,6 +3940,12 @@ export function SellerUploadPage({
               </div>
             ) : null}
           </div>
+          ) : (
+          <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
+            <h4 className="text-lg font-semibold">{t("setBuilderTitle")}</h4>
+            <p className="mt-2 text-sm text-slate-500">{t("setBuilderNeedMore")}</p>
+          </div>
+          )}
 
           <div className="mt-8 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
             <div className="flex items-center justify-between gap-4">

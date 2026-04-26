@@ -5345,6 +5345,7 @@ export default function ThailandPantiesMarketSite() {
     coverIndex: 0,
   });
   const [editingProductId, setEditingProductId] = useState('');
+  const [creatingProduct, setCreatingProduct] = useState(false);
   const [buyerEmail, setBuyerEmail] = useState(() => String(readStore('tlm-checkout-buyer-email', '') || ''));
   const [checkoutAuthModalOpen, setCheckoutAuthModalOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -15380,6 +15381,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   async function createProductFromUpload() {
+    if (creatingProduct) return;
     if (!uploadDraft.image) {
       setSellerProfileMessage('Please add at least one image before creating a listing.');
       return;
@@ -15393,6 +15395,8 @@ export default function ThailandPantiesMarketSite() {
       setSellerProfileMessage(`Minimum listing price is ${MIN_SELLER_PRICE_THB} THB. Please increase your price.`);
       return;
     }
+    setCreatingProduct(true);
+    try {
     const sellerName = sellerMap[currentSellerId]?.name || '';
     const autoTitle = [
       sellerName ? `${sellerName}'s` : '',
@@ -15491,7 +15495,13 @@ export default function ThailandPantiesMarketSite() {
       images: [],
       coverIndex: 0,
     });
+    setCreatingProduct(false);
     setSellerProfileMessage(wasEditing ? 'Listing updated!' : 'Listing created!');
+    } catch (err) {
+      console.error('[createProductFromUpload] error:', err);
+      setSellerProfileMessage('Something went wrong. Please try again.');
+      setCreatingProduct(false);
+    }
   }
 
   async function updateGiftCatalogItem(giftId, patch) {
@@ -19693,6 +19703,7 @@ export default function ThailandPantiesMarketSite() {
             editingProductId={editingProductId}
             startEditProduct={startEditProduct}
             cancelEditProduct={cancelEditProduct}
+            creatingProduct={creatingProduct}
             sellerDashboardProducts={sellerDashboardProducts}
             upsertBundleProduct={upsertBundleProduct}
             publishProduct={publishProduct}
