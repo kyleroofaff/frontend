@@ -3915,7 +3915,7 @@ export function SellerUploadPage({
             </details>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <button type="button" onClick={() => { upsertBundleProduct({ bundleId: editingBundleId || "", title: bundleDraft.title, description: bundleDraft.description, price: bundleDraft.price, selectedProductIds: bundleDraft.selectedProductIds, sellerName: sellerName }, (message) => { setBundleMessage(message || t("setSaved")); setEditingBundleId(""); setBundleDraft({ title: "", description: "", price: "", selectedProductIds: [] }); }, (errorMessage) => setBundleMessage(errorMessage || t("setSaveFailed"))); }} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">{editingBundleId ? t("updateSetProduct") : t("createSetProduct")}</button>
-              {bundleMessage ? <div className="text-sm font-medium text-rose-700">{bundleMessage}</div> : null}
+              {bundleMessage ? <div className={`text-sm font-medium ${bundleMessage.toLowerCase().includes('saved') ? 'text-emerald-700' : 'text-rose-700'}`}>{bundleMessage}</div> : null}
             </div>
             {existingBundleProducts.length > 0 ? (
               <div className="mt-5 space-y-2 rounded-2xl border border-rose-100 bg-white p-3">
@@ -13212,7 +13212,7 @@ export function AccountPage({
                             <span className="truncate font-medium">{product.title}</span>
                           </button>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-slate-500">${product.price}</span>
+                            <span className="text-xs text-slate-500">{formatPriceTHB(product.price)}</span>
                             <button
                               type="button"
                               onClick={() => toggleProductWatch?.(product.id)}

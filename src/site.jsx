@@ -5148,7 +5148,7 @@ const DAYS_WORN_CANONICAL_BY_NORMALIZED = Object.fromEntries(
 );
 function normalizeProductDaysWornValue(value) {
   const raw = String(value || '').trim();
-  if (!raw) return DAYS_WORN_OPTIONS[0];
+  if (!raw) return '';
   const normalized = raw.toLowerCase();
   if (DAYS_WORN_CANONICAL_BY_NORMALIZED[normalized]) {
     return DAYS_WORN_CANONICAL_BY_NORMALIZED[normalized];
@@ -18357,7 +18357,7 @@ export default function ThailandPantiesMarketSite() {
                           >
                             <span className="text-lg">{gift.emoji}</span>
                             <span>{gift.nameI18n?.[uiLanguage] || gift.name}</span>
-                            <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600">฿{gift.price}</span>
+                            <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600">{formatPriceTHB(gift.price)}</span>
                           </button>
                         ))}
                       </div>
@@ -18379,7 +18379,7 @@ export default function ThailandPantiesMarketSite() {
                           <span className="text-3xl">{gift.emoji}</span>
                           <div>
                             <h3 className="text-xl font-bold">{gift.nameI18n?.[uiLanguage] || gift.name}</h3>
-                            <p className="text-sm text-slate-500">฿{gift.price} THB</p>
+                            <p className="text-sm text-slate-500">{formatPriceTHB(gift.price)}</p>
                           </div>
                         </div>
                         <div className="mt-4 space-y-3">
@@ -18759,7 +18759,7 @@ export default function ThailandPantiesMarketSite() {
                       </span>
                     </div>
                   </div>
-                  <div className="rounded-full bg-rose-50 px-4 py-2 text-lg font-bold text-rose-700">${selectedProduct.price}</div>
+                  <div className="rounded-full bg-rose-50 px-4 py-2 text-lg font-bold text-rose-700">{formatPriceTHB(selectedProduct.price)}</div>
                 </div>
                 <p className="mt-5 leading-7 text-slate-600">{selectedProduct.description}</p>
                 <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50/70 p-3 text-sm text-rose-900">
