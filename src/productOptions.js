@@ -31,7 +31,7 @@ export const PRIMARY_CURRENCY_CODE = "THB";
 export const PRIMARY_CURRENCY_SYMBOL = "฿";
 export const MIN_SELLER_PRICE_THB = 500;
 export const MIN_FEED_UNLOCK_PRICE_THB = 50;
-export const MIN_CUSTOM_REQUEST_PURCHASE_THB = 1000;
+export const MIN_CUSTOM_REQUEST_PURCHASE_THB = 500;
 export const MESSAGE_FEE_THB = 7;
 export const CUSTOM_REQUEST_FEE_THB = 7;
 export function formatPriceTHB(value) {
