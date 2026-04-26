@@ -12159,17 +12159,17 @@ export default function ThailandPantiesMarketSite() {
         });
         if (ok) {
           setDb((prev) => {
-            let next = payload?.db ? normalizeDbState(payload.db, appMode) : prev;
+            let next = { ...prev };
             if (payload?.message) {
-              const msgExists = (next.messages || []).some((m) => m.id === payload.message.id);
+              const msgExists = (prev.messages || []).some((m) => m.id === payload.message.id);
               if (!msgExists) {
-                next = { ...next, messages: [...(next.messages || []), payload.message] };
+                next = { ...next, messages: [...(prev.messages || []), payload.message] };
               }
             }
             if (payload?.walletBalance != null && currentUser?.id) {
               next = {
                 ...next,
-                users: (next.users || []).map((u) =>
+                users: (prev.users || []).map((u) =>
                   u.id === currentUser.id ? { ...u, walletBalance: payload.walletBalance } : u
                 ),
               };
