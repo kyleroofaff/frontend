@@ -5902,6 +5902,11 @@ export function AdminPage({
       (sum, request) => sum + Number(request?.quotedPriceThb || 0),
       0
     );
+    const messageFeeTransactions = (walletTransactions || []).filter(
+      (txn) => txn.type === "message_fee" && txn.amount < 0 && isWithinSalesWindow(txn.createdAt)
+    );
+    const messageFees = messageFeeTransactions.reduce((sum, txn) => sum + Math.abs(Number(txn.amount || 0)), 0);
+    const messageCount = messageFeeTransactions.length;
     const buyersInWindow = new Set(filteredSalesOrders.map((order) => order.buyerUserId).filter(Boolean));
     const sellersInWindow = new Set();
     const productById = Object.fromEntries((products || []).map((product) => [product.id, product]));
@@ -5914,16 +5919,20 @@ export function AdminPage({
     filteredAcceptedCustomRequests.forEach((request) => {
       if (request?.sellerId) sellersInWindow.add(request.sellerId);
     });
+    const totalPlatformSales = Number((productSales + customRequestSales + messageFees).toFixed(2));
     return {
       totalSales: Number((productSales + customRequestSales).toFixed(2)),
       productSales: Number(productSales.toFixed(2)),
       customRequestSales: Number(customRequestSales.toFixed(2)),
+      messageFees: Number(messageFees.toFixed(2)),
+      messageCount,
+      totalPlatformSales,
       totalOrders: filteredSalesOrders.length,
       customRequestOrders: filteredAcceptedCustomRequests.length,
       totalBuyers: buyersInWindow.size,
       totalSellers: sellersInWindow.size,
     };
-  }, [filteredSalesOrders, filteredAcceptedCustomRequests, products]);
+  }, [filteredSalesOrders, filteredAcceptedCustomRequests, products, walletTransactions, isWithinSalesWindow]);
   const filteredSellerSalesRows = useMemo(() => {
     const productPriceById = Object.fromEntries((products || []).map((product) => [product.id, Number(product.price || 0)]));
     return (users || [])
@@ -8372,11 +8381,21 @@ export function AdminPage({
                   </span>
                 </div>
               </div>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-6">
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
                 {[
-                  { label: "Total sales", value: formatPriceTHB(filteredAdminSalesSummary.totalSales) },
+                  { label: "Total platform sales", value: formatPriceTHB(filteredAdminSalesSummary.totalPlatformSales || 0), highlight: true },
                   { label: "Product sales", value: formatPriceTHB(filteredAdminSalesSummary.productSales || 0) },
                   { label: "Custom request sales", value: formatPriceTHB(filteredAdminSalesSummary.customRequestSales || 0) },
+                  { label: "Message fees", value: `${formatPriceTHB(filteredAdminSalesSummary.messageFees || 0)} (${filteredAdminSalesSummary.messageCount || 0} msgs)` },
+                ].map((card) => (
+                  <div key={card.label} className={`rounded-3xl p-6 shadow-md ring-1 ${card.highlight ? "bg-rose-50 ring-rose-200" : "bg-white ring-rose-100"}`}>
+                    <div className="text-sm text-slate-700">{card.label}</div>
+                    <div className={`mt-2 text-3xl font-bold ${card.highlight ? "text-rose-700" : ""}`}>{card.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                {[
                   { label: "Total orders", value: filteredAdminSalesSummary.totalOrders },
                   { label: "Custom request purchases", value: filteredAdminSalesSummary.customRequestOrders || 0 },
                   { label: "Buyers", value: filteredAdminSalesSummary.totalBuyers },

@@ -12158,9 +12158,24 @@ export default function ThailandPantiesMarketSite() {
           stableIdempotency: true,
         });
         if (ok) {
-          if (payload?.db) {
-            setDb(normalizeDbState(payload.db, appMode));
-          }
+          setDb((prev) => {
+            let next = payload?.db ? normalizeDbState(payload.db, appMode) : prev;
+            if (payload?.message) {
+              const msgExists = (next.messages || []).some((m) => m.id === payload.message.id);
+              if (!msgExists) {
+                next = { ...next, messages: [...(next.messages || []), payload.message] };
+              }
+            }
+            if (payload?.walletBalance != null && currentUser?.id) {
+              next = {
+                ...next,
+                users: (next.users || []).map((u) =>
+                  u.id === currentUser.id ? { ...u, walletBalance: payload.walletBalance } : u
+                ),
+              };
+            }
+            return next;
+          });
           onSuccess?.();
           onError?.('');
           return;
