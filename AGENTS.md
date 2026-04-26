@@ -105,6 +105,15 @@ If `npm` fails with *"npm.ps1 cannot be loaded because running scripts is disabl
 3. **Verify:** View page source → look for `<!-- build:... -->` and `<meta name="app-build" ...>`.
 4. **CORS:** Backend `CLIENT_ORIGIN` must include `https://thailandpanties.com`.
 
+## Shipping rates
+
+Zone-based flat-rate shipping (THB). See `.cursor/rules/shipping-rates.mdc` for full details.
+
+- **Config**: `backend/config/shippingRates.json` (source of truth) + `SHIPPING_ZONES` in `frontend/src/site.jsx`.
+- **Backend validation**: `backend/src/services/shippingService.js` — validates fees at checkout.
+- **API**: `GET /api/shipping/rates` (public, no auth).
+- **To update rates**: edit the JSON config + mirror in `SHIPPING_ZONES`, bump `rates_last_updated`, push & redeploy both repos.
+
 ---
 
-*Last updated: clarified frontend + backend are production; tp/thp is test-only.*
+*Last updated: added shipping rate system (zone-based, flat per order).*

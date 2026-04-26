@@ -3861,71 +3861,55 @@ const API_BASE_URL = resolveApiBaseUrl();
 const STYLE_SCHEMA = `enum<${STYLE_OPTIONS.join('|')}>`;
 const DB_STORAGE_VERSION = '2026-03-11-seller-feed-v1';
 const APP_MODE_STORAGE_KEY = 'tlm-app-mode';
-const SHIPPING_COUNTRY_RATES = {
-  thailand: { label: 'Thailand', standard: 6, express: 10 },
-  singapore: { label: 'Singapore', standard: 14, express: 24 },
-  malaysia: { label: 'Malaysia', standard: 14, express: 24 },
-  indonesia: { label: 'Indonesia', standard: 14, express: 24 },
-  philippines: { label: 'Philippines', standard: 14, express: 24 },
-  vietnam: { label: 'Vietnam', standard: 14, express: 24 },
-  cambodia: { label: 'Cambodia', standard: 14, express: 24 },
-  laos: { label: 'Laos', standard: 14, express: 24 },
-  myanmar: { label: 'Myanmar', standard: 14, express: 24 },
-  japan: { label: 'Japan', standard: 14, express: 24 },
-  'south korea': { label: 'South Korea', standard: 14, express: 24 },
-  'hong kong': { label: 'Hong Kong', standard: 14, express: 24 },
-  taiwan: { label: 'Taiwan', standard: 14, express: 24 },
-  india: { label: 'India', standard: 14, express: 24 },
-  china: { label: 'China', standard: 14, express: 24 },
-  australia: { label: 'Australia', standard: 20, express: 32 },
-  'new zealand': { label: 'New Zealand', standard: 20, express: 32 },
-  'united kingdom': { label: 'United Kingdom', standard: 24, express: 38 },
-  ireland: { label: 'Ireland', standard: 24, express: 38 },
-  france: { label: 'France', standard: 24, express: 38 },
-  germany: { label: 'Germany', standard: 24, express: 38 },
-  italy: { label: 'Italy', standard: 24, express: 38 },
-  spain: { label: 'Spain', standard: 24, express: 38 },
-  netherlands: { label: 'Netherlands', standard: 24, express: 38 },
-  belgium: { label: 'Belgium', standard: 24, express: 38 },
-  sweden: { label: 'Sweden', standard: 24, express: 38 },
-  norway: { label: 'Norway', standard: 24, express: 38 },
-  denmark: { label: 'Denmark', standard: 24, express: 38 },
-  switzerland: { label: 'Switzerland', standard: 24, express: 38 },
-  austria: { label: 'Austria', standard: 24, express: 38 },
-  poland: { label: 'Poland', standard: 24, express: 38 },
-  portugal: { label: 'Portugal', standard: 24, express: 38 },
-  greece: { label: 'Greece', standard: 24, express: 38 },
-  finland: { label: 'Finland', standard: 24, express: 38 },
-  'united states': { label: 'United States', standard: 28, express: 44 },
-  canada: { label: 'Canada', standard: 28, express: 44 },
-  mexico: { label: 'Mexico', standard: 28, express: 44 },
-  brazil: { label: 'Brazil', standard: 32, express: 50 },
-  argentina: { label: 'Argentina', standard: 32, express: 50 },
-  chile: { label: 'Chile', standard: 32, express: 50 },
-  colombia: { label: 'Colombia', standard: 32, express: 50 },
-  peru: { label: 'Peru', standard: 32, express: 50 },
-  uruguay: { label: 'Uruguay', standard: 32, express: 50 },
-  paraguay: { label: 'Paraguay', standard: 32, express: 50 },
-  ecuador: { label: 'Ecuador', standard: 32, express: 50 },
-  bolivia: { label: 'Bolivia', standard: 32, express: 50 },
-  venezuela: { label: 'Venezuela', standard: 32, express: 50 },
-  'united arab emirates': { label: 'United Arab Emirates', standard: 30, express: 48 },
-  'saudi arabia': { label: 'Saudi Arabia', standard: 30, express: 48 },
-  qatar: { label: 'Qatar', standard: 30, express: 48 },
-  oman: { label: 'Oman', standard: 30, express: 48 },
-  kuwait: { label: 'Kuwait', standard: 30, express: 48 },
-  bahrain: { label: 'Bahrain', standard: 30, express: 48 },
-  israel: { label: 'Israel', standard: 30, express: 48 },
-  turkey: { label: 'Turkey', standard: 30, express: 48 },
-  'south africa': { label: 'South Africa', standard: 30, express: 48 },
-  egypt: { label: 'Egypt', standard: 30, express: 48 },
-  nigeria: { label: 'Nigeria', standard: 30, express: 48 },
-  kenya: { label: 'Kenya', standard: 30, express: 48 },
-  morocco: { label: 'Morocco', standard: 30, express: 48 },
+const SHIPPING_ZONES = {
+  zone1: { label: 'Asia', countries: ['SG','MY','ID','PH','VN','CN','JP','KR','HK','TW','LA','KH','MM','BN','TH'], standard: { rate: 840, label: 'Standard Shipping (EMS)', days: '3–7 business days' }, express: { rate: 1470, label: 'Express Shipping (DHL/FedEx)', days: '2–3 business days' } },
+  zone2: { label: 'Oceania & South Asia', countries: ['AU','NZ','IN','BD','LK','PK','NP'], standard: { rate: 1155, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2100, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
+  zone3: { label: 'USA, Europe & Rest of World', countries: ['*'], standard: { rate: 1310, label: 'Standard Shipping (EMS)', days: '7–14 business days' }, express: { rate: 2415, label: 'Express Shipping (DHL/FedEx)', days: '3–5 business days' } },
 };
-const SHIPPING_COUNTRY_OPTIONS = Object.values(SHIPPING_COUNTRY_RATES)
-  .map((entry) => entry.label)
-  .sort((a, b) => a.localeCompare(b));
+
+const ISO_COUNTRIES = [
+  { code: 'AF', name: 'Afghanistan' }, { code: 'AL', name: 'Albania' }, { code: 'DZ', name: 'Algeria' },
+  { code: 'AR', name: 'Argentina' }, { code: 'AM', name: 'Armenia' }, { code: 'AU', name: 'Australia' },
+  { code: 'AT', name: 'Austria' }, { code: 'AZ', name: 'Azerbaijan' }, { code: 'BH', name: 'Bahrain' },
+  { code: 'BD', name: 'Bangladesh' }, { code: 'BY', name: 'Belarus' }, { code: 'BE', name: 'Belgium' },
+  { code: 'BZ', name: 'Belize' }, { code: 'BO', name: 'Bolivia' }, { code: 'BA', name: 'Bosnia and Herzegovina' },
+  { code: 'BR', name: 'Brazil' }, { code: 'BN', name: 'Brunei' }, { code: 'BG', name: 'Bulgaria' },
+  { code: 'KH', name: 'Cambodia' }, { code: 'CA', name: 'Canada' }, { code: 'CL', name: 'Chile' },
+  { code: 'CN', name: 'China' }, { code: 'CO', name: 'Colombia' }, { code: 'CR', name: 'Costa Rica' },
+  { code: 'HR', name: 'Croatia' }, { code: 'CY', name: 'Cyprus' }, { code: 'CZ', name: 'Czech Republic' },
+  { code: 'DK', name: 'Denmark' }, { code: 'DO', name: 'Dominican Republic' }, { code: 'EC', name: 'Ecuador' },
+  { code: 'EG', name: 'Egypt' }, { code: 'SV', name: 'El Salvador' }, { code: 'EE', name: 'Estonia' },
+  { code: 'ET', name: 'Ethiopia' }, { code: 'FI', name: 'Finland' }, { code: 'FR', name: 'France' },
+  { code: 'GE', name: 'Georgia' }, { code: 'DE', name: 'Germany' }, { code: 'GH', name: 'Ghana' },
+  { code: 'GR', name: 'Greece' }, { code: 'GT', name: 'Guatemala' }, { code: 'HN', name: 'Honduras' },
+  { code: 'HK', name: 'Hong Kong' }, { code: 'HU', name: 'Hungary' }, { code: 'IS', name: 'Iceland' },
+  { code: 'IN', name: 'India' }, { code: 'ID', name: 'Indonesia' }, { code: 'IR', name: 'Iran' },
+  { code: 'IQ', name: 'Iraq' }, { code: 'IE', name: 'Ireland' }, { code: 'IL', name: 'Israel' },
+  { code: 'IT', name: 'Italy' }, { code: 'JM', name: 'Jamaica' }, { code: 'JP', name: 'Japan' },
+  { code: 'JO', name: 'Jordan' }, { code: 'KZ', name: 'Kazakhstan' }, { code: 'KE', name: 'Kenya' },
+  { code: 'KW', name: 'Kuwait' }, { code: 'KG', name: 'Kyrgyzstan' }, { code: 'LA', name: 'Laos' },
+  { code: 'LV', name: 'Latvia' }, { code: 'LB', name: 'Lebanon' }, { code: 'LT', name: 'Lithuania' },
+  { code: 'LU', name: 'Luxembourg' }, { code: 'MY', name: 'Malaysia' }, { code: 'MV', name: 'Maldives' },
+  { code: 'MT', name: 'Malta' }, { code: 'MX', name: 'Mexico' }, { code: 'MD', name: 'Moldova' },
+  { code: 'MN', name: 'Mongolia' }, { code: 'ME', name: 'Montenegro' }, { code: 'MA', name: 'Morocco' },
+  { code: 'MM', name: 'Myanmar' }, { code: 'NP', name: 'Nepal' }, { code: 'NL', name: 'Netherlands' },
+  { code: 'NZ', name: 'New Zealand' }, { code: 'NI', name: 'Nicaragua' }, { code: 'NG', name: 'Nigeria' },
+  { code: 'MK', name: 'North Macedonia' }, { code: 'NO', name: 'Norway' }, { code: 'OM', name: 'Oman' },
+  { code: 'PK', name: 'Pakistan' }, { code: 'PA', name: 'Panama' }, { code: 'PY', name: 'Paraguay' },
+  { code: 'PE', name: 'Peru' }, { code: 'PH', name: 'Philippines' }, { code: 'PL', name: 'Poland' },
+  { code: 'PT', name: 'Portugal' }, { code: 'QA', name: 'Qatar' }, { code: 'RO', name: 'Romania' },
+  { code: 'RU', name: 'Russia' }, { code: 'SA', name: 'Saudi Arabia' }, { code: 'RS', name: 'Serbia' },
+  { code: 'SG', name: 'Singapore' }, { code: 'SK', name: 'Slovakia' }, { code: 'SI', name: 'Slovenia' },
+  { code: 'ZA', name: 'South Africa' }, { code: 'KR', name: 'South Korea' }, { code: 'ES', name: 'Spain' },
+  { code: 'LK', name: 'Sri Lanka' }, { code: 'SE', name: 'Sweden' }, { code: 'CH', name: 'Switzerland' },
+  { code: 'TW', name: 'Taiwan' }, { code: 'TZ', name: 'Tanzania' }, { code: 'TH', name: 'Thailand' },
+  { code: 'TT', name: 'Trinidad and Tobago' }, { code: 'TN', name: 'Tunisia' }, { code: 'TR', name: 'Turkey' },
+  { code: 'UA', name: 'Ukraine' }, { code: 'AE', name: 'United Arab Emirates' },
+  { code: 'GB', name: 'United Kingdom' }, { code: 'US', name: 'United States' },
+  { code: 'UY', name: 'Uruguay' }, { code: 'UZ', name: 'Uzbekistan' }, { code: 'VE', name: 'Venezuela' },
+  { code: 'VN', name: 'Vietnam' }, { code: 'ZM', name: 'Zambia' }, { code: 'ZW', name: 'Zimbabwe' },
+];
+const ISO_COUNTRY_MAP = Object.fromEntries(ISO_COUNTRIES.map((c) => [c.code, c.name]));
 
 const NEXTJS_EXPORT_BLUEPRINT = {
   app: [
@@ -4978,30 +4962,43 @@ function parseBarConversationId(conversationId) {
   };
 }
 
-function normalizeCountryName(countryValue) {
-  return String(countryValue || '').trim().toLowerCase();
-}
+function getShippingRateByCountry(countryCode) {
+  const upper = String(countryCode || '').trim().toUpperCase();
+  if (!upper) {
+    return { zoneLabel: 'Select destination', standard: 0, express: 0, standardDays: '', expressDays: '', supported: false };
+  }
 
-function getShippingRateByCountry(countryValue) {
-  const normalizedCountry = normalizeCountryName(countryValue);
-  if (!normalizedCountry) {
-    return { destinationLabel: 'Select destination', standard: 0, express: 0, supported: false };
+  for (const zone of Object.values(SHIPPING_ZONES)) {
+    if (zone.countries.includes('*')) continue;
+    if (zone.countries.includes(upper)) {
+      return {
+        zoneLabel: zone.label,
+        standard: zone.standard.rate,
+        express: zone.express.rate,
+        standardLabel: zone.standard.label,
+        expressLabel: zone.express.label,
+        standardDays: zone.standard.days,
+        expressDays: zone.express.days,
+        supported: true,
+      };
+    }
   }
-  const aliases = {
-    thai: 'thailand',
-    burma: 'myanmar',
-    korea: 'south korea',
-    uk: 'united kingdom',
-    usa: 'united states',
-    us: 'united states',
-    uae: 'united arab emirates',
-  };
-  const canonical = aliases[normalizedCountry] || normalizedCountry;
-  const matched = SHIPPING_COUNTRY_RATES[canonical];
-  if (matched) {
-    return { destinationLabel: matched.label, standard: matched.standard, express: matched.express, supported: true };
+
+  const fallback = Object.values(SHIPPING_ZONES).find((z) => z.countries.includes('*'));
+  if (fallback) {
+    return {
+      zoneLabel: fallback.label,
+      standard: fallback.standard.rate,
+      express: fallback.express.rate,
+      standardLabel: fallback.standard.label,
+      expressLabel: fallback.express.label,
+      standardDays: fallback.standard.days,
+      expressDays: fallback.express.days,
+      supported: true,
+    };
   }
-  return { destinationLabel: 'Unsupported destination', standard: 0, express: 0, supported: false };
+
+  return { zoneLabel: 'Unknown', standard: 0, express: 0, standardDays: '', expressDays: '', supported: false };
 }
 
 function WalletTopUpReturnPage({ apiRequestJson, navigate, primaryShellRoute, setDb, normalizeDbState, appMode }) {
@@ -8275,10 +8272,9 @@ export default function ThailandPantiesMarketSite() {
   const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
   const shippingBaseRates = getShippingRateByCountry(checkoutForm.country);
   const shippingSupported = shippingBaseRates.supported;
-  const additionalItems = Math.max(cartItems.length - 1, 0);
   const shippingRates = {
-    standard: shippingSupported ? shippingBaseRates.standard + additionalItems * 2 : 0,
-    express: shippingSupported ? shippingBaseRates.express + additionalItems * 3 : 0,
+    standard: shippingSupported ? shippingBaseRates.standard : 0,
+    express: shippingSupported ? shippingBaseRates.express : 0,
   };
   const shippingFee = cartItems.length > 0
     ? shippingRates[checkoutForm.shippingMethod] ?? shippingRates.standard
@@ -14777,9 +14773,8 @@ export default function ThailandPantiesMarketSite() {
     const shippingCity = String(checkoutForm.city || '').trim();
     const shippingRegion = String(checkoutForm.region || '').trim();
     const shippingPostalCode = String(checkoutForm.postalCode || '').trim();
-    const normalizedCountry = shippingCountry.toLowerCase();
-    const requiresRegion = ['united states', 'usa', 'us', 'u.s.', 'u.s.a.', 'canada'].includes(normalizedCountry);
-    if (!checkoutForm.country.trim()) {
+    const requiresRegion = ['US', 'CA'].includes(shippingCountry.toUpperCase());
+    if (!shippingCountry) {
       setCheckoutError('Enter a destination country to calculate shipping.');
       return;
     }
@@ -19972,7 +19967,7 @@ export default function ThailandPantiesMarketSite() {
             buyerEmail={buyerEmail}
             setBuyerEmail={setBuyerEmail}
             checkoutForm={checkoutForm}
-            shippingCountryOptions={SHIPPING_COUNTRY_OPTIONS}
+            shippingCountryOptions={ISO_COUNTRIES}
             updateCheckoutField={updateCheckoutField}
             currentWalletBalance={currentWalletBalance}
             runWalletCheckout={runWalletCheckout}
@@ -19989,9 +19984,10 @@ export default function ThailandPantiesMarketSite() {
             onAddBundleFromCheckout={(bundle, selectedItem) => addBundleToCartFromSingleItem(bundle?.id, selectedItem?.id)}
             subtotal={subtotal}
             shippingRates={shippingRates}
-            shippingZoneLabel={shippingBaseRates.destinationLabel}
+            shippingZoneLabel={shippingBaseRates.zoneLabel}
             shippingSupported={shippingSupported}
             shippingFee={shippingFee}
+            shippingDays={shippingBaseRates[checkoutForm.shippingMethod === 'express' ? 'expressDays' : 'standardDays']}
             total={total}
             checkoutAuthModalOpen={checkoutAuthModalOpen}
             onOpenLogin={() => navigate('/login')}

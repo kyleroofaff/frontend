@@ -106,8 +106,8 @@ function buildPromptPayPayload({ mobileNumber, amount }) {
 }
 
 function getAddressConventionMeta(countryValue) {
-  const normalized = String(countryValue || "").trim().toLowerCase();
-  if (["united states", "usa", "us", "u.s.", "u.s.a."].includes(normalized)) {
+  const normalized = String(countryValue || "").trim().toUpperCase();
+  if (normalized === "US") {
     return {
       regionLabel: "State",
       regionPlaceholder: "State",
@@ -116,7 +116,7 @@ function getAddressConventionMeta(countryValue) {
       regionRequired: true,
     };
   }
-  if (normalized === "canada") {
+  if (normalized === "CA") {
     return {
       regionLabel: "Province",
       regionPlaceholder: "Province",
@@ -11295,6 +11295,7 @@ export function CheckoutPage({
   shippingZoneLabel,
   shippingSupported,
   shippingFee,
+  shippingDays,
   total,
   checkoutAuthModalOpen,
   onOpenLogin,
@@ -11330,6 +11331,7 @@ export function CheckoutPage({
   const trimmedCity = String(checkoutForm.city || "").trim();
   const trimmedRegion = String(checkoutForm.region || "").trim();
   const trimmedCountry = String(checkoutForm.country || "").trim();
+  const countryDisplayName = shippingCountryOptions.find((c) => c.code === trimmedCountry)?.name || trimmedCountry;
   const trimmedPostalCode = String(checkoutForm.postalCode || "").trim();
   const checkoutAddressMeta = getAddressConventionMeta(checkoutForm.country);
   const emailLooksValid = /\S+@\S+\.\S+/.test(trimmedEmail);
@@ -11520,13 +11522,13 @@ export function CheckoutPage({
                     Destination country
                     <select
                       ref={stepTwoCountryRef}
-                      value={shippingCountryOptions.includes(checkoutForm.country) ? checkoutForm.country : ""}
+                      value={shippingCountryOptions.some((c) => c.code === checkoutForm.country) ? checkoutForm.country : ""}
                       onChange={(e) => updateCheckoutField("country", e.target.value)}
                       className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeCountry ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
                     >
                       <option value="">{localizeOptionLabel("Select country", currentUser?.preferredLanguage || "en")}</option>
-                      {shippingCountryOptions.map((country) => (
-                        <option key={country} value={country}>{country}</option>
+                      {shippingCountryOptions.map((c) => (
+                        <option key={c.code} value={c.code}>{c.name}</option>
                       ))}
                     </select>
                   </label>
@@ -11586,7 +11588,7 @@ export function CheckoutPage({
                       <div><span className="font-medium">City:</span> {trimmedCity || "Enter city"}</div>
                       <div><span className="font-medium">{checkoutAddressMeta.regionLabel}:</span> {trimmedRegion || `Enter ${checkoutAddressMeta.regionPlaceholder}`}</div>
                       <div><span className="font-medium">{checkoutAddressMeta.postalLabel}:</span> {trimmedPostalCode || `Enter ${checkoutAddressMeta.postalPlaceholder}`}</div>
-                      <div><span className="font-medium">Country:</span> {trimmedCountry || "Select destination country"}</div>
+                      <div><span className="font-medium">Country:</span> {countryDisplayName || "Select destination country"}</div>
                       <div><span className="font-medium">Method:</span> {checkoutForm.shippingMethod === "express" ? "Express" : "Standard"}</div>
                     </div>
                   </div>
@@ -11604,7 +11606,7 @@ export function CheckoutPage({
                   <div className="rounded-2xl border border-slate-200 p-4">
                     <div className="text-sm font-semibold text-slate-900">Shipping method</div>
                     <div className="mt-1 text-xs text-slate-500">
-                      International carrier rates for destination: {shippingZoneLabel}
+                      Zone: {shippingZoneLabel}{shippingDays ? ` · Est. ${shippingDays}` : ""}
                     </div>
                     {!shippingSupported && checkoutForm.country.trim() ? (
                       <div className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -11614,8 +11616,8 @@ export function CheckoutPage({
                     <div className="mt-3 grid gap-3">
                       <label className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
                         <div>
-                          <div className="font-medium">Standard shipping</div>
-                          <div className="text-sm text-slate-500">Tracked delivery via international carriers</div>
+                          <div className="font-medium">Standard (EMS)</div>
+                          <div className="text-sm text-slate-500">Tracked delivery via Thailand Post EMS</div>
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-slate-700">{formatPriceTHB(shippingRates.standard)}</span>
@@ -11624,8 +11626,8 @@ export function CheckoutPage({
                       </label>
                       <label className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
                         <div>
-                          <div className="font-medium">Express shipping</div>
-                          <div className="text-sm text-slate-500">Priority handling via international carriers and faster delivery</div>
+                          <div className="font-medium">Express (DHL/FedEx)</div>
+                          <div className="text-sm text-slate-500">Priority handling with faster delivery</div>
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-slate-700">{formatPriceTHB(shippingRates.express)}</span>
@@ -11707,7 +11709,7 @@ export function CheckoutPage({
                         <button type="button" onClick={() => setCheckoutStep(1)} className="ml-2 text-xs font-semibold text-rose-700">Edit</button>
                       </div>
                       <div>
-                        <span className="font-medium">Ship to:</span> {trimmedAddress || "No address"}, {trimmedCity || "No city"}, {trimmedRegion || checkoutAddressMeta.regionPlaceholder}, {trimmedPostalCode || checkoutAddressMeta.postalPlaceholder}, {trimmedCountry || "No country"}
+                        <span className="font-medium">Ship to:</span> {trimmedAddress || "No address"}, {trimmedCity || "No city"}, {trimmedRegion || checkoutAddressMeta.regionPlaceholder}, {trimmedPostalCode || checkoutAddressMeta.postalPlaceholder}, {countryDisplayName || "No country"}
                         <button type="button" onClick={() => setCheckoutStep(2)} className="ml-2 text-xs font-semibold text-rose-700">Edit</button>
                       </div>
                       <div><span className="font-medium">Shipping:</span> {checkoutForm.shippingMethod === "express" ? "Express" : "Standard"} ({formatPriceTHB(shippingFee)})</div>
@@ -11846,7 +11848,7 @@ export function CheckoutPage({
                 <div className="flex items-center justify-between text-slate-200"><span>Subtotal</span><span>{formatPriceTHB(subtotal)}</span></div>
                 <div className="flex items-center justify-between text-slate-200"><span>Shipping ({checkoutForm.shippingMethod === "express" ? "Express" : "Standard"})</span><span>{formatPriceTHB(shippingFee)}</span></div>
                 <div className="text-xs text-slate-300">
-                  Shipping destination: {checkoutForm.country.trim() || "Enter country"}
+                  Shipping destination: {countryDisplayName || "Enter country"}
                   {trimmedCity ? ` · ${trimmedCity}` : ""}
                   {trimmedRegion ? `, ${trimmedRegion}` : ""}
                   {trimmedPostalCode ? ` (${trimmedPostalCode})` : ""}

@@ -1,0 +1,40 @@
+# Shipping Rates
+
+Shipping uses a **zone-based flat-rate** system. Rates are in Thai Baht (THB), flat per order regardless of item count.
+
+## Quick update workflow
+
+When the user says **"update shipping rates"** or provides new zone prices:
+
+1. Edit `backend/config/shippingRates.json` — change the `rate` values under the relevant zone/method.
+2. Mirror the same rates in `frontend/src/site.jsx` in the `SHIPPING_ZONES` constant (search for `const SHIPPING_ZONES`).
+3. Bump `rates_last_updated` in both places to today's date.
+4. Push and redeploy both repos.
+
+## Architecture
+
+| Layer | File | What it does |
+|-------|------|-------------|
+| **Config (source of truth)** | `backend/config/shippingRates.json` | Zone definitions, country lists, rates, delivery estimates |
+| **Backend utility** | `backend/src/services/shippingService.js` | `resolveZone()`, `getShippingRate()`, `validateShippingFee()`, `getPublicRates()` |
+| **API endpoint** | `GET /api/shipping/rates` | Public, no auth — returns zone config to frontend |
+| **Backend validation** | `backend/src/services/walletCommerce.js` | `validateShippingFee()` called during checkout — rejects mismatched fees |
+| **Frontend zones** | `frontend/src/site.jsx` → `SHIPPING_ZONES` | Client-side copy for instant rate display at checkout |
+| **Frontend lookup** | `frontend/src/site.jsx` → `getShippingRateByCountry()` | Resolves ISO 2-letter country code → zone → rates |
+| **Country list** | `frontend/src/site.jsx` → `ISO_COUNTRIES` | Array of `{ code, name }` for the checkout dropdown |
+
+## Zones
+
+| Zone | Label | Countries (ISO) | Standard | Express |
+|------|-------|-----------------|----------|---------|
+| zone1 | Asia | SG, MY, ID, PH, VN, CN, JP, KR, HK, TW, LA, KH, MM, BN, TH | ฿840 | ฿1,470 |
+| zone2 | Oceania & South Asia | AU, NZ, IN, BD, LK, PK, NP | ฿1,155 | ฿2,100 |
+| zone3 | USA, Europe & Rest of World | `*` (wildcard fallback) | ฿1,310 | ฿2,415 |
+
+## Key details
+
+- **Flat rate per order** — no per-item surcharge. Products are lightweight apparel (~50-80g each); 1kg assumption covers multi-item orders with large margin.
+- **5% markup** over Thailand Post EMS base rates is baked into the rate numbers.
+- **Backend validates** the fee at checkout — the client can't send a fake lower fee.
+- **Zone 3 is the wildcard fallback** — any country not in zone1 or zone2 gets zone3 rates.
+- Country selector uses **ISO 3166-1 alpha-2 codes** (e.g., `US`, `GB`, `TH`).
