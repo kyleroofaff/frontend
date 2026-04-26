@@ -6920,7 +6920,8 @@ export default function ThailandPantiesMarketSite() {
         const sortedConversation = [...conversation].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         const latestMessage = sortedConversation[0];
         const hasUnread = sortedConversation.some((message) => !message.readBySeller);
-        return { ...latestMessage, hasUnread };
+        const buyerUser = users.find((u) => u.id === latestMessage.buyerId);
+        return { ...latestMessage, hasUnread, buyerName: buyerUser?.name || '' };
       });
 
     const affiliatedBarId = currentSellerProfile?.affiliatedBarId;
@@ -6949,7 +6950,7 @@ export default function ThailandPantiesMarketSite() {
         if (unreadPriorityDiff !== 0) return unreadPriorityDiff;
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
-  }, [messages, currentUser, barMessageHistory, currentSellerProfile, barMap]);
+  }, [messages, currentUser, barMessageHistory, currentSellerProfile, barMap, users]);
   const sellerMessageHistory = useMemo(() => {
     if (!currentUser || currentUser.role !== 'seller') return [];
     return [...(messages || [])]
