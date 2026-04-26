@@ -105,6 +105,15 @@ If `npm` fails with *"npm.ps1 cannot be loaded because running scripts is disabl
 3. **Verify:** View page source → look for `<!-- build:... -->` and `<meta name="app-build" ...>`.
 4. **CORS:** Backend `CLIENT_ORIGIN` must include `https://thailandpanties.com`.
 
+## Production smoke (API, shipping, tracking, payments)
+
+Use these before relying on live card or wallet flows (all on `https://api.thailandpanties.com`):
+
+1. **`GET /api/health`** and **`GET /api/health/ready`** — expect `200` and JSON `ok: true`. (A bare **`/health`** path often **404**s if only `/api/*` is routed to the app.)
+2. **`GET /api/shipping/rates`** — public JSON; confirm `rates_last_updated` and per-zone `rate` values match the deployed `backend/config/shippingRates.json` (and mirrored `SHIPPING_ZONES` in the frontend).
+3. **AfterShip** — backend runtime needs **`AFTERSHIP_API_KEY`** (see `backend/.env.example`). Without it, **`POST /api/orders/:orderId/tracking`** cannot register trackings and buyer **Check Status** will not get live checkpoints.
+4. **Bankful / wallet top-up** — backend needs **`BANKFUL_*`** (and related) vars from `backend/.env.example` on the **running** backend container.
+
 ## Shipping rates
 
 Zone-based flat-rate shipping (THB). See `.cursor/rules/shipping-rates.mdc` for full details.
@@ -116,4 +125,4 @@ Zone-based flat-rate shipping (THB). See `.cursor/rules/shipping-rates.mdc` for 
 
 ---
 
-*Last updated: shipping rates use 3% markup over EMS bases (zone flat THB); see `shipping-rates.mdc`.*
+*Last updated: shipping 3% zone rates (see `shipping-rates.mdc`); production smoke checklist (API paths, AfterShip, Bankful).*
