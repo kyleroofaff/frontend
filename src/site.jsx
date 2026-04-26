@@ -15509,16 +15509,13 @@ export default function ThailandPantiesMarketSite() {
 
   function upsertBundleProduct(bundleDraft, onSuccess, onError) {
     if (!currentUser || currentUser.role !== 'seller' || !currentSellerId) return;
-    const title = String(bundleDraft?.title || '').trim();
+    const customTitle = String(bundleDraft?.title || '').trim();
+    const customDescription = String(bundleDraft?.description || '').trim();
     const price = Number(bundleDraft?.price || 0);
     const selectedProductIds = Array.isArray(bundleDraft?.selectedProductIds)
       ? [...new Set(bundleDraft.selectedProductIds.filter(Boolean))]
       : [];
     const bundleId = String(bundleDraft?.bundleId || '').trim();
-    if (!title) {
-      onError?.('Please enter a set title.');
-      return;
-    }
     if (!Number.isFinite(price) || price < MIN_SELLER_PRICE_THB) {
       onError?.(`Set price must be at least ${formatPriceTHB(MIN_SELLER_PRICE_THB)}.`);
       return;
@@ -15536,8 +15533,14 @@ export default function ThailandPantiesMarketSite() {
       onError?.('Some selected items are not available for bundling.');
       return;
     }
+    const sName = String(bundleDraft?.sellerName || sellerMap[currentSellerId]?.name || '').trim();
+    const autoTitle = sName
+      ? `${sName}'s ${selectedProductIds.length}-Piece Set`
+      : `${selectedProductIds.length}-Piece Set`;
+    const title = customTitle || autoTitle;
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const firstProduct = selectableProducts[0];
+    const autoDescription = `Set including ${selectableProducts.map((item) => item.title).join(', ')}. Sold together at a combined price.`;
     const normalizedBundle = {
       id: bundleId || `product-set-${Date.now()}`,
       title,
@@ -15552,7 +15555,7 @@ export default function ThailandPantiesMarketSite() {
       scentLevel: firstProduct?.scentLevel || SCENT_LEVEL_OPTIONS[0],
       shipping: 'Worldwide',
       condition: firstProduct?.condition || CONDITION_OPTIONS[0],
-      description: `Set bundle including ${selectableProducts.map((item) => item.title).join(', ')}. Sold together at a combined price.`,
+      description: customDescription || autoDescription,
       features: [
         `Includes ${selectedProductIds.length} items`,
         ...selectableProducts.slice(0, 3).map((item) => item.title),
@@ -15561,7 +15564,7 @@ export default function ThailandPantiesMarketSite() {
       imageName: firstProduct?.imageName || '',
       isBundle: true,
       bundleItemIds: selectedProductIds,
-      status: 'Draft',
+      status: 'Published',
       publishedAt: new Date().toISOString().slice(0, 10),
     };
     setDb((prev) => {
@@ -19627,6 +19630,7 @@ export default function ThailandPantiesMarketSite() {
             isSellerOnline={Boolean(currentSellerProfile?.isOnline)}
             sellerLanguage={currentUser?.preferredLanguage || 'en'}
             sellerProfileMessage={sellerProfileMessage}
+            sellerName={sellerMap[currentSellerId]?.name || ''}
             navigate={navigate}
           />
         ) : null}

@@ -1598,12 +1598,14 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "Seller profile image",
     profileImageHelp: "If you skip this, buyers will see your seller name on a default image.",
     shippingScopeFixedHelp: "Shipping scope is fixed for all sellers.",
-    stepTwoLabel: "Step 2",
     setBuilderTitle: "Set builder",
     setBuilderHelp: "Create combo products (for example bra + panties, top + skirt, or 4-piece sets) while keeping individual items listed separately.",
     cancelEdit: "Cancel edit",
     setTitleLabel: "Set title",
     setTitlePlaceholder: "Example: Bra + Panty Matching Set",
+    setDescriptionLabel: "Set description",
+    setDescriptionPlaceholder: "Describe this set for buyers...",
+    advancedSetOptions: "Advanced options",
     combinedSetPriceLabel: "Combined set price (THB)",
     setPricePlaceholder: "Set price",
     selectProductsToInclude: "Select products to include (2 or more)",
@@ -1821,12 +1823,14 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "รูปโปรไฟล์ผู้ขาย",
     profileImageHelp: "หากไม่อัปโหลด ผู้ซื้อจะเห็นชื่อผู้ขายของคุณบนรูปเริ่มต้น",
     shippingScopeFixedHelp: "ขอบเขตการจัดส่งถูกกำหนดคงที่สำหรับผู้ขายทุกคน",
-    stepTwoLabel: "ขั้นตอนที่ 2",
     setBuilderTitle: "ตัวสร้างเซ็ตสินค้า",
     setBuilderHelp: "สร้างสินค้าชุด (เช่น บรา + กางเกงใน, เสื้อ + กระโปรง หรือชุด 4 ชิ้น) โดยยังคงแสดงสินค้ารายชิ้นแยกกันได้",
     cancelEdit: "ยกเลิกการแก้ไข",
     setTitleLabel: "ชื่อเซ็ต",
     setTitlePlaceholder: "ตัวอย่าง: เซ็ตบราคู่กางเกงใน",
+    setDescriptionLabel: "คำอธิบายเซ็ต",
+    setDescriptionPlaceholder: "อธิบายเซ็ตนี้ให้ผู้ซื้อ...",
+    advancedSetOptions: "ตัวเลือกขั้นสูง",
     combinedSetPriceLabel: "ราคารวมเซ็ต (THB)",
     setPricePlaceholder: "ราคาเซ็ต",
     selectProductsToInclude: "เลือกสินค้าที่จะรวมในเซ็ต (2 ชิ้นขึ้นไป)",
@@ -2043,12 +2047,14 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "seller ပရိုဖိုင်ပုံ",
     profileImageHelp: "ဤနေရာကိုကျော်ခဲ့လျှင် ဝယ်သူများသည် မူလပုံပေါ်တွင် သင့် seller နာမည်ကိုမြင်ရမည်။",
     shippingScopeFixedHelp: "shipping scope ကို seller အားလုံးအတွက် တစ်မျိုးတည်း သတ်မှတ်ထားသည်။",
-    stepTwoLabel: "အဆင့် 2",
     setBuilderTitle: "Set builder",
     setBuilderHelp: "ပစ္စည်းတစ်ခုချင်းစာရင်းကို ထိန်းထားပြီး combo set များ (ဥပမာ bra + panties, top + skirt, 4-piece sets) ဖန်တီးနိုင်သည်။",
     cancelEdit: "တည်းဖြတ်ခြင်း ပယ်ဖျက်",
     setTitleLabel: "Set ခေါင်းစဉ်",
     setTitlePlaceholder: "ဥပမာ: Bra + Panty Matching Set",
+    setDescriptionLabel: "Set ဖော်ပြချက်",
+    setDescriptionPlaceholder: "ဝယ်သူများအတွက် ဤ set ကိုဖော်ပြပါ...",
+    advancedSetOptions: "အဆင့်မြင့်ရွေးချယ်မှုများ",
     combinedSetPriceLabel: "Set စုပေါင်းဈေး (THB)",
     setPricePlaceholder: "Set ဈေး",
     selectProductsToInclude: "ထည့်မည့်ပစ္စည်းများရွေးပါ (2 ခုနှင့်အထက်)",
@@ -2265,12 +2271,14 @@ const SELLER_I18N = {
     sellerProfileImageFallback: "Фото профиля продавца",
     profileImageHelp: "Если пропустить, покупатели увидят имя продавца на стандартном изображении.",
     shippingScopeFixedHelp: "Область доставки фиксирована для всех продавцов.",
-    stepTwoLabel: "Шаг 2",
     setBuilderTitle: "Конструктор наборов",
     setBuilderHelp: "Создавайте комбинированные товары (например, бюстгальтер + трусики, топ + юбка или наборы из 4 предметов), сохраняя отдельные позиции в каталоге.",
     cancelEdit: "Отменить редактирование",
     setTitleLabel: "Название набора",
     setTitlePlaceholder: "Пример: Сочетающийся набор бюстгальтер + трусики",
+    setDescriptionLabel: "Описание набора",
+    setDescriptionPlaceholder: "Опишите этот набор для покупателей...",
+    advancedSetOptions: "Дополнительные параметры",
     combinedSetPriceLabel: "Общая цена набора (THB)",
     setPricePlaceholder: "Цена набора",
     selectProductsToInclude: "Выберите товары для набора (2 и более)",
@@ -2390,6 +2398,7 @@ export function SellerDashboardPage({
   const sellerWritingPresetText = SELLER_WRITING_PRESETS_I18N[locale] || SELLER_WRITING_PRESETS_I18N.en;
   const [bundleDraft, setBundleDraft] = useState({
     title: "",
+    description: "",
     price: "",
     selectedProductIds: [],
   });
@@ -3539,8 +3548,13 @@ export function SellerDashboardPage({
                         </span>
                       </div>
                       <div className="mt-1 text-sm text-slate-500">
-                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? t("soldLabel") : (product.status || t("draftStatusLabel"))} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)}{product.condition && product.condition !== 'Not specified' ? ` · ${t("condition")}: ${product.condition}` : ""}
-                        {product.isBundle ? ` · ${t("includesLabel")} ${(product.bundleItemIds || []).length} ${t("items")}` : ""}
+                        {[
+                          formatPriceTHB(product.price),
+                          isSold ? t("soldLabel") : (product.status || t("draftStatusLabel")),
+                          product.daysWorn && product.daysWorn !== 'Unworn' && product.daysWorn !== 'Not specified' ? `${t("worn")}: ${localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)}` : '',
+                          product.condition && product.condition !== 'Not specified' ? `${t("condition")}: ${product.condition}` : '',
+                          product.isBundle ? `${t("includesLabel")} ${(product.bundleItemIds || []).length} ${t("items")}` : '',
+                        ].filter(Boolean).join(' · ')}
                       </div>
                     </div>
                     <div className="flex w-full flex-wrap gap-2 md:w-auto">
@@ -3668,11 +3682,12 @@ export function SellerUploadPage({
   isSellerOnline,
   sellerLanguage,
   sellerProfileMessage,
+  sellerName,
   navigate,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
-  const [bundleDraft, setBundleDraft] = useState({ title: "", price: "", selectedProductIds: [] });
+  const [bundleDraft, setBundleDraft] = useState({ title: "", description: "", price: "", selectedProductIds: [] });
   const [editingBundleId, setEditingBundleId] = useState("");
   const [bundleMessage, setBundleMessage] = useState("");
   const bundleSourceProducts = useMemo(
@@ -3817,19 +3832,14 @@ export function SellerUploadPage({
           <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{t("stepTwoLabel")}</div>
                 <h4 className="text-lg font-semibold">{t("setBuilderTitle")}</h4>
                 <p className="mt-1 text-sm text-slate-600">{t("setBuilderHelp")}</p>
               </div>
               {editingBundleId ? (
-                <button type="button" onClick={() => { setEditingBundleId(""); setBundleDraft({ title: "", price: "", selectedProductIds: [] }); setBundleMessage(""); }} className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">{t("cancelEdit")}</button>
+                <button type="button" onClick={() => { setEditingBundleId(""); setBundleDraft({ title: "", description: "", price: "", selectedProductIds: [] }); setBundleMessage(""); }} className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">{t("cancelEdit")}</button>
               ) : null}
             </div>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <label className="grid gap-1 text-sm text-slate-600">
-                <span className="font-medium">{t("setTitleLabel")}</span>
-                <input value={bundleDraft.title} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, title: event.target.value })); }} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("setTitlePlaceholder")} />
-              </label>
+            <div className="mt-4">
               <label className="grid gap-1 text-sm text-slate-600">
                 <span className="font-medium">{t("combinedSetPriceLabel")}</span>
                 <input type="number" min={MIN_SELLER_PRICE_THB} step="1" value={bundleDraft.price} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, price: event.target.value })); }} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("setPricePlaceholder")} />
@@ -3854,8 +3864,21 @@ export function SellerUploadPage({
                 })}
               </div>
             </div>
+            <details className="mt-4">
+              <summary className="cursor-pointer text-sm font-medium text-slate-600">{t("advancedSetOptions")}</summary>
+              <div className="mt-3 grid gap-4 md:grid-cols-2">
+                <label className="grid gap-1 text-sm text-slate-600">
+                  <span className="font-medium">{t("setTitleLabel")}</span>
+                  <input value={bundleDraft.title} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, title: event.target.value })); }} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t("setTitlePlaceholder")} />
+                </label>
+                <label className="grid gap-1 text-sm text-slate-600">
+                  <span className="font-medium">{t("setDescriptionLabel")}</span>
+                  <textarea value={bundleDraft.description || ""} onChange={(event) => { setBundleMessage(""); setBundleDraft((prev) => ({ ...prev, description: event.target.value })); }} className="rounded-2xl border border-slate-200 px-4 py-3" rows={3} placeholder={t("setDescriptionPlaceholder")} />
+                </label>
+              </div>
+            </details>
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <button type="button" onClick={() => { upsertBundleProduct({ bundleId: editingBundleId || "", title: bundleDraft.title, price: bundleDraft.price, selectedProductIds: bundleDraft.selectedProductIds }, (message) => { setBundleMessage(message || t("setSaved")); setEditingBundleId(""); setBundleDraft({ title: "", price: "", selectedProductIds: [] }); }, (errorMessage) => setBundleMessage(errorMessage || t("setSaveFailed"))); }} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">{editingBundleId ? t("updateSetProduct") : t("createSetProduct")}</button>
+              <button type="button" onClick={() => { upsertBundleProduct({ bundleId: editingBundleId || "", title: bundleDraft.title, description: bundleDraft.description, price: bundleDraft.price, selectedProductIds: bundleDraft.selectedProductIds, sellerName: sellerName }, (message) => { setBundleMessage(message || t("setSaved")); setEditingBundleId(""); setBundleDraft({ title: "", description: "", price: "", selectedProductIds: [] }); }, (errorMessage) => setBundleMessage(errorMessage || t("setSaveFailed"))); }} className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">{editingBundleId ? t("updateSetProduct") : t("createSetProduct")}</button>
               {bundleMessage ? <div className="text-sm font-medium text-rose-700">{bundleMessage}</div> : null}
             </div>
             {existingBundleProducts.length > 0 ? (
@@ -3902,8 +3925,13 @@ export function SellerUploadPage({
                         </span>
                       </div>
                       <div className="mt-1 text-sm text-slate-500">
-                        {product.imageName || t("noAsset")} · {formatPriceTHB(product.price)} · {isSold ? t("soldLabel") : (product.status || t("draftStatusLabel"))} · {t("worn")}: {localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)}{product.condition && product.condition !== 'Not specified' ? ` · ${t("condition")}: ${product.condition}` : ""}
-                        {product.isBundle ? ` · ${t("includesLabel")} ${(product.bundleItemIds || []).length} ${t("items")}` : ""}
+                        {[
+                          formatPriceTHB(product.price),
+                          isSold ? t("soldLabel") : (product.status || t("draftStatusLabel")),
+                          product.daysWorn && product.daysWorn !== 'Unworn' && product.daysWorn !== 'Not specified' ? `${t("worn")}: ${localizeOptionLabel(normalizeLegacyLocalizedValue(product.daysWorn, DAYS_WORN_OPTIONS, DAYS_WORN_OPTIONS[0]), locale)}` : '',
+                          product.condition && product.condition !== 'Not specified' ? `${t("condition")}: ${product.condition}` : '',
+                          product.isBundle ? `${t("includesLabel")} ${(product.bundleItemIds || []).length} ${t("items")}` : '',
+                        ].filter(Boolean).join(' · ')}
                       </div>
                     </div>
                     <div className="flex w-full flex-wrap gap-2 md:w-auto">
