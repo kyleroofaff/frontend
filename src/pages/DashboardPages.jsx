@@ -4517,6 +4517,12 @@ export function SellerMessagesPage({
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
   const sellerWritingPresetText = SELLER_WRITING_PRESETS_I18N[locale] || SELLER_WRITING_PRESETS_I18N.en;
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
+  const sellerMessagesContainerRef = useRef(null);
+  useEffect(() => {
+    if (sellerMessagesContainerRef.current && sellerActiveConversationMessages?.length > 0) {
+      sellerMessagesContainerRef.current.scrollTop = sellerMessagesContainerRef.current.scrollHeight;
+    }
+  }, [sellerActiveConversationMessages, sellerActiveConversationId]);
   const safeSellerInbox = (sellerInbox || []).filter((message) => message && typeof message === "object");
   const safeSellerMessageHistory = (sellerMessageHistory || []).filter((message) => message && typeof message === "object");
   const safeSellerActiveConversationMessages = (sellerActiveConversationMessages || []).filter((message) => message && typeof message === "object");
@@ -4651,7 +4657,7 @@ export function SellerMessagesPage({
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">{activeSellerConversationInitials}</span>
                   <span>{t("chattingWith")}: {activeSellerConversationLabel}</span>
                 </div>
-                <div className="max-h-64 space-y-3 overflow-y-auto">
+                <div ref={sellerMessagesContainerRef} className="max-h-64 space-y-3 overflow-y-auto">
                   {safeSellerActiveConversationMessages.map((message) => (
                     <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${(message.senderRole === 'seller' || (isActiveBarThread && message.senderRole !== 'bar')) ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
                       {message.mediaUrl ? (
@@ -4756,6 +4762,12 @@ export function BarMessagesPage({
   const [messageReportReasonById, setMessageReportReasonById] = useState({});
   const [messageReportDetailsById, setMessageReportDetailsById] = useState({});
   const [messageReportErrorById, setMessageReportErrorById] = useState({});
+  const barMessagesContainerRef = useRef(null);
+  useEffect(() => {
+    if (barMessagesContainerRef.current && barMessageActiveConversationMessages?.length > 0) {
+      barMessagesContainerRef.current.scrollTop = barMessagesContainerRef.current.scrollHeight;
+    }
+  }, [barMessageActiveConversationMessages, barMessageActiveConversationId]);
   if (!isBar && !isParticipant) {
     return (
       <section className="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6 md:pb-16 md:py-16">
@@ -4908,7 +4920,7 @@ export function BarMessagesPage({
                 <div className="mb-3 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
                   Chatting with: {activeLabel}
                 </div>
-                <div className="max-h-64 space-y-3 overflow-y-auto">
+                <div ref={barMessagesContainerRef} className="max-h-64 space-y-3 overflow-y-auto">
                   {(barMessageActiveConversationMessages || []).length === 0 ? (
                     <div className="text-sm text-slate-500">No messages yet. Send the first message.</div>
                   ) : (barMessageActiveConversationMessages || []).map((message) => (
@@ -12363,8 +12375,15 @@ export function AccountPage({
   const [orderHistoryPage, setOrderHistoryPage] = useState(1);
   const [showAllBillingLedger, setShowAllBillingLedger] = useState(false);
   const [billingLedgerPage, setBillingLedgerPage] = useState(1);
+  const [buyerConversationBarFilter, setBuyerConversationBarFilter] = useState("all");
   const RECEIPT_RESEND_COOLDOWN_MS = 30000;
   const handledCheckoutTopUpContextRef = useRef("");
+  const buyerMessagesContainerRef = useRef(null);
+  useEffect(() => {
+    if (buyerMessagesContainerRef.current && buyerDashboardConversationMessages.length > 0) {
+      buyerMessagesContainerRef.current.scrollTop = buyerMessagesContainerRef.current.scrollHeight;
+    }
+  }, [buyerDashboardConversationMessages, buyerDashboardConversationId]);
   useEffect(() => {
     if (!receiptActionMessage) return undefined;
     const timerId = window.setTimeout(() => {
@@ -14022,29 +14041,63 @@ export function BuyerMessagesPage({
               </div>
             </div>
             <div className="rounded-2xl border border-rose-100 p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("conversationList")}</div>
-              <div className="mt-3 space-y-2">
-                {buyerConversations.length === 0 ? (
-                  <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("conversationsAppearHere")}</div>
-                ) : buyerConversations.map((conversation) => {
-                  const sellerName = sellerMap[conversation.sellerId]?.name || tx("seller");
-                  const sellerInitials = getConversationInitials(sellerName);
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">{tx("conversationList")}</div>
+                {(() => {
+                  const barOptionsSet = new Map();
+                  buyerConversations.forEach((conv) => {
+                    const barId = sellerMap[conv.sellerId]?.affiliatedBarId;
+                    if (barId && barMap[barId]) {
+                      barOptionsSet.set(barId, barMap[barId].name || barId);
+                    }
+                  });
+                  const barOptions = Array.from(barOptionsSet.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+                  if (barOptions.length === 0) return null;
                   return (
-                    <button
-                      key={conversation.conversationId}
-                      onClick={() => setBuyerDashboardConversationId(conversation.conversationId)}
-                      className={`w-full rounded-2xl border px-3 py-3 text-left ${buyerDashboardConversationId === conversation.conversationId ? "border-rose-300 bg-rose-50" : "border-rose-100"}`}
+                    <select
+                      value={buyerConversationBarFilter}
+                      onChange={(e) => setBuyerConversationBarFilter(e.target.value)}
+                      className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
                     >
-                      <div className="flex items-start gap-2">
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">{sellerInitials}</span>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate font-semibold">{tx("conversationWith")} {sellerName}</div>
-                          <div className="mt-1 truncate text-sm text-slate-500">{conversation.latestBody}</div>
-                        </div>
-                      </div>
-                    </button>
+                      <option value="all">{tx("allBars") || "All bars"}</option>
+                      {barOptions.map(([barId, barName]) => (
+                        <option key={barId} value={barId}>{barName}</option>
+                      ))}
+                    </select>
                   );
-                })}
+                })()}
+              </div>
+              <div className="mt-3 space-y-2">
+                {(() => {
+                  const filtered = buyerConversationBarFilter === "all"
+                    ? buyerConversations
+                    : buyerConversations.filter((conv) => sellerMap[conv.sellerId]?.affiliatedBarId === buyerConversationBarFilter);
+                  if (filtered.length === 0) {
+                    return <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("conversationsAppearHere")}</div>;
+                  }
+                  return filtered.map((conversation) => {
+                    const seller = sellerMap[conversation.sellerId];
+                    const sellerName = seller?.name || tx("seller");
+                    const sellerInitials = getConversationInitials(sellerName);
+                    const barName = seller?.affiliatedBarId && barMap[seller.affiliatedBarId]?.name;
+                    return (
+                      <button
+                        key={conversation.conversationId}
+                        onClick={() => setBuyerDashboardConversationId(conversation.conversationId)}
+                        className={`w-full rounded-2xl border px-3 py-3 text-left ${buyerDashboardConversationId === conversation.conversationId ? "border-rose-300 bg-rose-50" : "border-rose-100"}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">{sellerInitials}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate font-semibold">{tx("conversationWith")} {sellerName}</div>
+                            {barName ? <div className="mt-0.5 text-xs text-indigo-600">{barName}</div> : null}
+                            <div className="mt-1 truncate text-sm text-slate-500">{conversation.latestBody}</div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  });
+                })()}
               </div>
             </div>
           </div>
@@ -14062,7 +14115,7 @@ export function BuyerMessagesPage({
                 <span>{tx("chattingWith")} {resolveConversationSellerName(buyerDashboardConversationId)}</span>
               </div>
             ) : null}
-            <div className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
+            <div ref={buyerMessagesContainerRef} className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
               {buyerDashboardConversationMessages.length === 0 ? (
                 <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noMessagesInThread")}</div>
               ) : buyerDashboardConversationMessages.map((message) => (
