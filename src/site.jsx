@@ -5343,6 +5343,7 @@ export default function ThailandPantiesMarketSite() {
     imageName: '',
     images: [],
   });
+  const [editingProductId, setEditingProductId] = useState('');
   const [buyerEmail, setBuyerEmail] = useState(() => String(readStore('tlm-checkout-buyer-email', '') || ''));
   const [checkoutAuthModalOpen, setCheckoutAuthModalOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -15328,6 +15329,51 @@ export default function ThailandPantiesMarketSite() {
     }
   }
 
+  function startEditProduct(productId) {
+    const product = products.find((p) => p.id === productId && p.sellerId === currentSellerId);
+    if (!product) return;
+    const productImages = Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : product.image ? [{ url: product.image, name: product.imageName }] : [];
+    setUploadDraft({
+      title: product.title || '',
+      sellerId: currentSellerId,
+      price: product.price ? String(product.price) : '',
+      size: product.size || '',
+      color: product.color || '',
+      style: product.style || '',
+      fabric: product.fabric || '',
+      daysWorn: product.daysWorn || '',
+      condition: product.condition || '',
+      scentLevel: product.scentLevel || '',
+      image: productImages[0]?.url || product.image || '',
+      imageName: productImages[0]?.name || product.imageName || '',
+      images: productImages,
+    });
+    setEditingProductId(productId);
+    setSellerProfileMessage('');
+  }
+
+  function cancelEditProduct() {
+    setEditingProductId('');
+    setUploadDraft({
+      title: '',
+      sellerId: currentSellerId,
+      price: '',
+      size: '',
+      color: '',
+      style: '',
+      fabric: '',
+      daysWorn: '',
+      condition: '',
+      scentLevel: '',
+      image: '',
+      imageName: '',
+      images: [],
+    });
+    setSellerProfileMessage('');
+  }
+
   async function createProductFromUpload() {
     if (!uploadDraft.image) {
       setSellerProfileMessage('Please add at least one image before creating a listing.');
@@ -15357,7 +15403,7 @@ export default function ThailandPantiesMarketSite() {
       ? uploadDraft.images
       : [{ url: uploadDraft.image, name: uploadDraft.imageName }];
     const newProduct = {
-      id: `product-${Date.now()}`,
+      id: editingProductId || `product-${Date.now()}`,
       title: finalTitle,
       titleI18n,
       slug,
@@ -15389,10 +15435,19 @@ export default function ThailandPantiesMarketSite() {
       status: 'Published',
       publishedAt: new Date().toISOString().slice(0, 10),
     };
-    setDb((prev) => ({ ...prev, products: [newProduct, ...prev.products] }));
+    if (editingProductId) {
+      setDb((prev) => ({
+        ...prev,
+        products: prev.products.map((p) =>
+          p.id === editingProductId && p.sellerId === currentSellerId ? { ...p, ...newProduct } : p
+        ),
+      }));
+    } else {
+      setDb((prev) => ({ ...prev, products: [newProduct, ...prev.products] }));
+    }
     if (backendStatus === 'connected' && apiAuthToken) {
-      apiRequestJson('/api/products', {
-        method: 'POST',
+      apiRequestJson(editingProductId ? `/api/products/${editingProductId}` : '/api/products', {
+        method: editingProductId ? 'PUT' : 'POST',
         body: {
           id: newProduct.id,
           title: newProduct.title,
@@ -15406,9 +15461,11 @@ export default function ThailandPantiesMarketSite() {
           wearDays: newProduct.daysWorn,
           extras: newProduct.features || [],
         },
-        idempotencyScope: 'create_product',
+        idempotencyScope: editingProductId ? `update_product_${editingProductId}` : 'create_product',
       }).catch((err) => console.warn('[createProductFromUpload] API sync failed:', err));
     }
+    const wasEditing = !!editingProductId;
+    setEditingProductId('');
     setUploadDraft({
       title: '',
       sellerId: currentSellerId,
@@ -15424,7 +15481,7 @@ export default function ThailandPantiesMarketSite() {
       imageName: '',
       images: [],
     });
-    setSellerProfileMessage('Listing created!');
+    setSellerProfileMessage(wasEditing ? 'Listing updated!' : 'Listing created!');
   }
 
   async function updateGiftCatalogItem(giftId, patch) {
@@ -19507,6 +19564,8 @@ export default function ThailandPantiesMarketSite() {
             giftCatalog={db.giftCatalog || []}
             giftPurchases={db.giftPurchases || []}
             giftFulfillmentTasks={db.giftFulfillmentTasks || []}
+            startEditProduct={(productId) => { startEditProduct(productId); navigate('/seller-upload'); }}
+            editingProductId={editingProductId}
           />
           </>
         ) : null}
@@ -19621,6 +19680,9 @@ export default function ThailandPantiesMarketSite() {
             setUploadDraft={setUploadDraft}
             handleUploadFile={handleUploadFile}
             createProductFromUpload={createProductFromUpload}
+            editingProductId={editingProductId}
+            startEditProduct={startEditProduct}
+            cancelEditProduct={cancelEditProduct}
             sellerDashboardProducts={sellerDashboardProducts}
             upsertBundleProduct={upsertBundleProduct}
             publishProduct={publishProduct}

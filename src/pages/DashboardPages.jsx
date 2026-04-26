@@ -1363,6 +1363,10 @@ const SELLER_I18N = {
     notSpecified: "Not specified",
     publish: "Publish",
     viewListing: "View listing",
+    editListing: "Edit",
+    cancelEditListing: "Cancel edit",
+    updateListing: "Update listing",
+    editingLabel: "Editing",
     delete: "Delete",
     deleting: "Deleting...",
     feedEyebrow: "Stories",
@@ -1645,7 +1649,7 @@ const SELLER_I18N = {
     noCaption: "ไม่มีแคปชัน", noImage: "ไม่มีรูปภาพ", notifications: "การแจ้งเตือน",
     markAllRead: "อ่านทั้งหมด", noNotifications: "ไม่มีการแจ้งเตือน", listingLibrary: "คลังรายการสินค้า",
     items: "รายการ", noAsset: "ไม่มีไฟล์", worn: "สวมใส่", notSpecified: "ไม่ระบุ",
-    publish: "เผยแพร่", viewListing: "ดูรายการ", delete: "ลบ", deleting: "กำลังลบ...",
+    publish: "เผยแพร่", viewListing: "ดูรายการ", editListing: "แก้ไข", cancelEditListing: "ยกเลิกการแก้ไข", updateListing: "อัปเดตรายการ", editingLabel: "กำลังแก้ไข", delete: "ลบ", deleting: "กำลังลบ...",
     feedEyebrow: "เรื่องราว", feedTitle: "เรื่องราว",
     feedSubtitle: "ดูโพสต์ไลฟ์สไตล์ เบื้องหลัง และอัปเดตประจำวันจากผู้ขาย",
     noFeedPosts: "ยังไม่มีเรื่องราว กลับมาตรวจสอบอีกครั้งเร็วๆ นี้",
@@ -1869,7 +1873,7 @@ const SELLER_I18N = {
     noCaption: "စာတန်းမရှိ", noImage: "ပုံမရှိ", notifications: "အသိပေးချက်များ",
     markAllRead: "အားလုံးကို ဖတ်ပြီးအဖြစ် မှတ်ရန်", noNotifications: "အသိပေးချက်မရှိပါ",
     listingLibrary: "စာရင်းစာအုပ်", items: "ခု", noAsset: "ဖိုင်မရှိ", worn: "ဝတ်ထားသည့်ကာလ",
-    notSpecified: "မသတ်မှတ်ထား", publish: "တင်မည်", viewListing: "စာရင်းကြည့်မည်", delete: "ဖျက်မည်", deleting: "ဖျက်နေသည်...",
+    notSpecified: "မသတ်မှတ်ထား", publish: "တင်မည်", viewListing: "စာရင်းကြည့်မည်", editListing: "တည်းဖြတ်", cancelEditListing: "တည်းဖြတ်ခြင်း ပယ်ဖျက်", updateListing: "စာရင်း အပ်ဒိတ်", editingLabel: "တည်းဖြတ်နေသည်", delete: "ဖျက်မည်", deleting: "ဖျက်နေသည်...",
     feedEyebrow: "stories", feedTitle: "stories",
     feedSubtitle: "seller post များ၊ နောက်ကွယ်ပုံများနှင့် နေ့စဉ် update များကို ကြည့်ရှုပါ",
     noFeedPosts: "stories မရှိသေးပါ။ နောက်ပိုင်းတွင် ပြန်စစ်ပါ",
@@ -2093,7 +2097,7 @@ const SELLER_I18N = {
     noCaption: "Подпись не добавлена.", noImage: "Нет изображения", notifications: "Уведомления",
     markAllRead: "Отметить все прочитанным", noNotifications: "Нет уведомлений.",
     listingLibrary: "Библиотека объявлений", items: "шт.", noAsset: "Нет файла", worn: "Ношение",
-    notSpecified: "Не указано", publish: "Опубликовать", viewListing: "Открыть объявление", delete: "Удалить", deleting: "Удаление...",
+    notSpecified: "Не указано", publish: "Опубликовать", viewListing: "Открыть объявление", editListing: "Редактировать", cancelEditListing: "Отменить редактирование", updateListing: "Обновить объявление", editingLabel: "Редактируется", delete: "Удалить", deleting: "Удаление...",
     feedEyebrow: "Истории", feedTitle: "Истории",
     feedSubtitle: "Смотрите посты продавцов, закулисные фото и ежедневные обновления.",
     noFeedPosts: "Историй пока нет. Загляните позже.",
@@ -2391,6 +2395,8 @@ export function SellerDashboardPage({
   giftCatalog,
   giftPurchases,
   giftFulfillmentTasks,
+  startEditProduct,
+  editingProductId,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
@@ -3566,6 +3572,15 @@ export function SellerDashboardPage({
                         {isSold ? t("soldLabel") : (isPublished ? t("unpublishLabel") : t("publish"))}
                       </button>
                       <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none">{t("viewListing")}</button>
+                      {!product.isBundle && startEditProduct ? (
+                        <button
+                          onClick={() => { startEditProduct(product.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          disabled={isSold}
+                          className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold md:flex-none ${isSold ? "cursor-not-allowed border-slate-200 text-slate-400" : editingProductId === product.id ? "border-amber-300 bg-amber-50 text-amber-700" : "border-rose-200 text-rose-700"}`}
+                        >
+                          {editingProductId === product.id ? t("editingLabel") : t("editListing")}
+                        </button>
+                      ) : null}
                       <button
                         onClick={() => deleteProduct(product.id)}
                         disabled={deletingProductId === product.id}
@@ -3673,6 +3688,9 @@ export function SellerUploadPage({
   setUploadDraft,
   handleUploadFile,
   createProductFromUpload,
+  editingProductId,
+  startEditProduct,
+  cancelEditProduct,
   sellerDashboardProducts,
   upsertBundleProduct,
   publishProduct,
@@ -3824,9 +3842,14 @@ export function SellerUploadPage({
                 <div className="aspect-[4/5]"><ProductImage label={t("imagePreview")} /></div>
               )}
             </div>
-            <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{t("createDraft")}</button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button onClick={createProductFromUpload} className="inline-flex w-auto justify-self-start rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">{editingProductId ? t("updateListing") : t("createDraft")}</button>
+              {editingProductId ? (
+                <button type="button" onClick={cancelEditProduct} className="inline-flex w-auto rounded-2xl border border-rose-200 px-5 py-3 font-semibold text-rose-700">{t("cancelEditListing")}</button>
+              ) : null}
+            </div>
             {sellerProfileMessage ? (
-              <span className={`text-sm font-medium ${sellerProfileMessage.toLowerCase().includes('created') ? 'text-emerald-600' : 'text-rose-600'}`}>{sellerProfileMessage}</span>
+              <span className={`text-sm font-medium ${sellerProfileMessage.toLowerCase().includes('created') || sellerProfileMessage.toLowerCase().includes('updated') ? 'text-emerald-600' : 'text-rose-600'}`}>{sellerProfileMessage}</span>
             ) : null}
           </div>
           <div className="mt-5 rounded-3xl border border-rose-100 bg-slate-50 p-5">
@@ -3943,6 +3966,15 @@ export function SellerUploadPage({
                         {isSold ? t("soldLabel") : (isPublished ? t("unpublishLabel") : t("publish"))}
                       </button>
                       <button onClick={() => navigate(`/product/${product.slug}`)} className="flex-1 rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 md:flex-none">{t("viewListing")}</button>
+                      {!product.isBundle && startEditProduct ? (
+                        <button
+                          onClick={() => { startEditProduct(product.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          disabled={isSold}
+                          className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold md:flex-none ${isSold ? "cursor-not-allowed border-slate-200 text-slate-400" : editingProductId === product.id ? "border-amber-300 bg-amber-50 text-amber-700" : "border-rose-200 text-rose-700"}`}
+                        >
+                          {editingProductId === product.id ? t("editingLabel") : t("editListing")}
+                        </button>
+                      ) : null}
                       <button
                         onClick={() => deleteProduct(product.id)}
                         disabled={deletingProductId === product.id}
