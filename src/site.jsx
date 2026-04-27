@@ -13357,6 +13357,14 @@ export default function ThailandPantiesMarketSite() {
           };
         }
       }
+      const incomingUsers = Array.isArray(apiPayload.users) ? apiPayload.users : [];
+      if (incomingUsers.length > 0) {
+        const byId = new Map(incomingUsers.filter((u) => u && u.id).map((u) => [u.id, u]));
+        next = {
+          ...next,
+          users: (next.users || []).map((u) => (byId.has(u.id) ? { ...u, ...byId.get(u.id) } : u)),
+        };
+      }
       return next;
     });
   }
@@ -13501,6 +13509,7 @@ export default function ThailandPantiesMarketSite() {
           serverAcceptMeta = {
             alreadyProcessed: Boolean(payload?.alreadyProcessed),
           };
+          applyNegotiationApiResult(payload);
         }
       } catch {
         onError?.('Could not connect to payment service. Please try again.');
