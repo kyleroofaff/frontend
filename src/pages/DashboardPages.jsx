@@ -2751,6 +2751,7 @@ export function SellerDashboardPage({
   const openSellerRequestCount = useMemo(
     () =>
       (sellerCustomRequests || []).filter((request) => {
+        if (request?.archivedAt) return false;
         const status = String(request?.status || "open");
         return status === "open" || status === "reviewing";
       }).length,
@@ -12511,6 +12512,7 @@ export function AccountPage({
   accountCredentialTone,
   resendOrderReceipt,
   fetchOrderTracking,
+  cancelBuyerOrder,
   exchangeRate,
   uiLanguage = "en",
   navigate
@@ -13431,6 +13433,20 @@ export function AccountPage({
                                 className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 disabled:opacity-50"
                               >
                                 {trackingLoadingOrderId === order.id ? "Loading..." : "Check Status"}
+                              </button>
+                            </div>
+                          ) : null}
+                          {typeof cancelBuyerOrder === "function" && String(order.fulfillmentStatus || "processing").toLowerCase() === "processing" && String(order.paymentStatus || "").toLowerCase() !== "refunded" ? (
+                            <div className="md:text-right">
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  if (!window.confirm("Cancel this order? Your wallet will be refunded in full.")) return;
+                                  await cancelBuyerOrder(order.id);
+                                }}
+                                className="text-xs font-semibold text-rose-700 hover:text-rose-900"
+                              >
+                                Cancel order
                               </button>
                             </div>
                           ) : null}

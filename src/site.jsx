@@ -13457,6 +13457,93 @@ export default function ThailandPantiesMarketSite() {
     }
   }
 
+  async function cancelBuyerOrder(orderId, payload = {}, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      onError?.('Only buyers can cancel their orders.');
+      return;
+    }
+    if (!apiAuthToken) {
+      onError?.('Sign in again to cancel this order.');
+      return;
+    }
+    try {
+      const { ok, payload: apiPayload } = await apiRequestJson(
+        `/api/orders/${encodeURIComponent(orderId)}/cancel`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: { note: payload?.note || '' },
+          idempotencyScope: `cancel_order_${orderId}_${Date.now()}`,
+        }
+      );
+      if (!ok) {
+        onError?.(String(apiPayload?.error || 'Could not cancel this order. Please try again.'));
+        return;
+      }
+      const incomingOrder = apiPayload?.order || null;
+      const incomingRequest = apiPayload?.request || null;
+      const incomingUsers = Array.isArray(apiPayload?.users) ? apiPayload.users : [];
+      setDb((prev) => {
+        let next = prev;
+        if (incomingOrder && incomingOrder.id) {
+          next = {
+            ...next,
+            orders: (next.orders || []).map((o) => (o.id === incomingOrder.id ? { ...o, ...incomingOrder } : o)),
+          };
+        }
+        if (incomingRequest && incomingRequest.id) {
+          next = {
+            ...next,
+            customRequests: (next.customRequests || []).map((r) => (r.id === incomingRequest.id ? { ...r, ...incomingRequest } : r)),
+          };
+        }
+        if (incomingUsers.length > 0) {
+          const byId = new Map(incomingUsers.filter((u) => u && u.id).map((u) => [u.id, u]));
+          next = {
+            ...next,
+            users: (next.users || []).map((u) => (byId.has(u.id) ? { ...u, ...byId.get(u.id) } : u)),
+          };
+        }
+        return next;
+      });
+      onError?.('');
+      onSuccess?.();
+    } catch {
+      onError?.('Could not connect to the server. Please try again.');
+    }
+  }
+
+  async function buyerCancelCustomRequest(requestId, payload = {}, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      onError?.('Only buyers can cancel their custom requests.');
+      return;
+    }
+    if (!apiAuthToken) {
+      onError?.('Sign in again to cancel this request.');
+      return;
+    }
+    try {
+      const { ok, payload: apiPayload } = await apiRequestJson(
+        `/api/custom-requests/${encodeURIComponent(requestId)}/cancel`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: { note: payload?.note || '' },
+          idempotencyScope: `cancel_${requestId}_${Date.now()}`,
+        }
+      );
+      if (!ok) {
+        onError?.(String(apiPayload?.error || 'Could not cancel this request. Please try again.'));
+        return;
+      }
+      applyNegotiationApiResult(apiPayload);
+      onError?.('');
+      onSuccess?.();
+    } catch {
+      onError?.('Could not connect to the server. Please try again.');
+    }
+  }
+
   // Seller-side wrapper for the new negotiation endpoints.
   async function sellerRespondToQuote(requestId, action, payload = {}, onSuccess, onError) {
     if (!currentUser || currentUser.role !== 'seller') {
@@ -21373,6 +21460,7 @@ export default function ThailandPantiesMarketSite() {
             accountCredentialTone={accountCredentialTone}
             resendOrderReceipt={resendOrderReceipt}
             fetchOrderTracking={fetchOrderTracking}
+            cancelBuyerOrder={cancelBuyerOrder}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />
@@ -21421,6 +21509,7 @@ export default function ThailandPantiesMarketSite() {
             respondToCustomRequestPrice={respondToCustomRequestPrice}
             buyerRespondToQuote={buyerRespondToQuote}
             sellerRespondToQuote={sellerRespondToQuote}
+            buyerCancelCustomRequest={buyerCancelCustomRequest}
             openWalletTopUpForFlow={openSellerPageTopUp}
             uiLanguage={uiLanguage}
             navigate={navigate}

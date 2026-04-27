@@ -1596,7 +1596,7 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [], markNotificationsReadForConversation, softDeleteMessage }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, buyerCancelCustomRequest, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [], markNotificationsReadForConversation, softDeleteMessage }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
   const buyerUnreadDirectMessageCount = useMemo(() => {
@@ -1634,10 +1634,18 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     const updatedAt = new Date(request.quoteUpdatedAt || request.updatedAt || request.createdAt || 0).getTime();
     return Math.max(lastMsgAt, updatedAt);
   };
+  const [showArchivedRequests, setShowArchivedRequests] = useState(false);
+  const archivedRequestCount = useMemo(
+    () => rawVisibleRequests.filter((r) => Boolean(r?.archivedAt)).length,
+    [rawVisibleRequests],
+  );
   const visibleRequests = useMemo(() => {
-    return [...rawVisibleRequests].sort((a, b) => lastActivityAt(b) - lastActivityAt(a));
+    const filtered = showArchivedRequests
+      ? rawVisibleRequests.filter((r) => Boolean(r?.archivedAt))
+      : rawVisibleRequests.filter((r) => !r?.archivedAt);
+    return [...filtered].sort((a, b) => lastActivityAt(b) - lastActivityAt(a));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawVisibleRequests, customRequestMessagesByRequestId]);
+  }, [rawVisibleRequests, customRequestMessagesByRequestId, showArchivedRequests]);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   useEffect(() => {
     if (selectedRequestId) {
@@ -1729,6 +1737,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     if (status === "countered") return "Countered";
     if (status === "accepted") return "Accepted";
     if (status === "declined") return "Declined";
+    if (status === "cancelled") return "Cancelled";
     if (!status || status === "none") return "Open";
     return request?.quoteStatus || "Open";
   };
@@ -1940,9 +1949,19 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
 
       <div className="grid gap-4 md:grid-cols-[300px_1fr] md:items-start">
         <div className={`${selectedRequestId ? "hidden md:block" : "block"} max-h-[78vh] overflow-y-auto rounded-2xl bg-white p-2 shadow-sm ring-1 ring-rose-100`}>
-          <div className="px-2 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t.recentRequests}</div>
+          <div className="flex items-center justify-between gap-2 px-2 py-1">
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{showArchivedRequests ? "Archived" : t.recentRequests}</div>
+            <button
+              type="button"
+              onClick={() => { setShowArchivedRequests((prev) => !prev); setSelectedRequestId(null); }}
+              className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-600 hover:bg-slate-50"
+              title={showArchivedRequests ? "Show active" : "Show archived"}
+            >
+              {showArchivedRequests ? "Show active" : `Archived${archivedRequestCount ? ` (${archivedRequestCount})` : ""}`}
+            </button>
+          </div>
           {visibleRequests.length === 0 ? (
-            <div className="px-2 py-3 text-sm text-slate-500">{t.noRequests}</div>
+            <div className="px-2 py-3 text-sm text-slate-500">{showArchivedRequests ? "No archived requests." : t.noRequests}</div>
           ) : (
             <div className="space-y-1">
               {visibleRequests.map((request) => {
@@ -2344,6 +2363,8 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                       })()
                     ) : status === "declined" ? (
                       <div className="mt-2 text-xs text-slate-500">This negotiation is closed.</div>
+                    ) : status === "cancelled" ? (
+                      <div className="mt-2 text-xs text-slate-500">You cancelled this request.</div>
                     ) : null
                   ) : isSellerView ? (
                     status === "none" ? (
@@ -2520,7 +2541,37 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                       <div className="mt-2 text-xs font-semibold text-emerald-700">Accepted · Buyer paid {formatPriceTHB(quotedPrice)}</div>
                     ) : status === "declined" ? (
                       <div className="mt-2 text-xs text-slate-500">This negotiation is closed.</div>
+                    ) : status === "cancelled" ? (
+                      <div className="mt-2 text-xs text-slate-500">Buyer cancelled this request.</div>
                     ) : null
+                  ) : null}
+
+                  {isBuyerView
+                    && typeof buyerCancelCustomRequest === "function"
+                    && status !== "accepted"
+                    && status !== "cancelled"
+                    && status !== "declined" ? (
+                    <div className="mt-3 border-t border-indigo-100 pt-2 text-right">
+                      <button
+                        type="button"
+                        disabled={negotiationBusy}
+                        onClick={() => {
+                          if (typeof window !== "undefined" && !window.confirm("Cancel this custom request?\n\nNote: the original 7 THB request fee is non-refundable.")) {
+                            return;
+                          }
+                          setBusy(true);
+                          buyerCancelCustomRequest(
+                            request.id,
+                            {},
+                            () => onOk("Request cancelled."),
+                            onErr,
+                          );
+                        }}
+                        className={`text-[11px] font-semibold text-rose-600 underline-offset-2 hover:underline ${negotiationBusy ? "cursor-not-allowed opacity-60" : ""}`}
+                      >
+                        Cancel request
+                      </button>
+                    </div>
                   ) : null}
                 </div>
 
