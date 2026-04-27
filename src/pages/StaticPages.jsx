@@ -1592,6 +1592,8 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     requestBody: "",
   });
   const [requestMessage, setRequestMessage] = useState("");
+  const [requestMessageTone, setRequestMessageTone] = useState("");
+  const [requestSubmitting, setRequestSubmitting] = useState(false);
   const [requestReplyDraftById, setRequestReplyDraftById] = useState({});
   const [requestImageDraftById, setRequestImageDraftById] = useState({});
   const [requestCounterDraftById, setRequestCounterDraftById] = useState({});
@@ -1739,10 +1741,15 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                   <div key={request.id} className="rounded-xl bg-white px-3 py-2 ring-1 ring-rose-100">
                     <div className="text-sm font-medium">
                       {isSellerView
-                        ? `${request.buyerName || "Buyer"} · ${request.buyerEmail || "No email"}`
+                        ? (request.buyerName || "Buyer")
                         : ((sellers || []).find((seller) => seller.id === request.sellerId)?.name || request.sellerId)}
                     </div>
                     <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(request.createdAt || Date.now())} · {request.status || "open"}</div>
+                    {request.requestBody ? (
+                      <div className="mt-2 whitespace-pre-wrap rounded-lg bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
+                        {request.requestBody}
+                      </div>
+                    ) : null}
                     <div className="mt-2 rounded-xl bg-slate-50 p-2">
                       <div className="max-h-28 space-y-1 overflow-y-auto">
                         {(customRequestMessagesByRequestId?.[request.id] || []).length === 0 ? (
@@ -1969,20 +1976,29 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
               <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[140px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.requestBodyPlaceholder} />
               <div className="flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => {
-                    submitCustomRequest(
-                      { ...requestForm, preferredDetails: "", shippingCountry: "" },
-                      () => {
-                        setRequestMessage(t.customRequestSubmitted);
-                        setRequestForm((prev) => ({ ...prev, requestBody: "" }));
-                      },
-                      (message) => setRequestMessage(message || ""),
-                    );
+                  onClick={async () => {
+                    setRequestSubmitting(true);
+                    try {
+                      await submitCustomRequest(
+                        { ...requestForm, preferredDetails: "", shippingCountry: "" },
+                        () => {
+                          setRequestMessage(t.customRequestSubmitted);
+                          setRequestMessageTone("success");
+                          setRequestForm((prev) => ({ ...prev, requestBody: "" }));
+                        },
+                        (message) => {
+                          setRequestMessage(message || "");
+                          setRequestMessageTone("error");
+                        },
+                      );
+                    } finally {
+                      setRequestSubmitting(false);
+                    }
                   }}
-                  disabled={!canAffordNewRequest}
-                  className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${!canAffordNewRequest ? "cursor-not-allowed opacity-60" : ""}`}
+                  disabled={!canAffordNewRequest || requestSubmitting}
+                  className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${(!canAffordNewRequest || requestSubmitting) ? "cursor-not-allowed opacity-60" : ""}`}
                 >
-                  {t.sendRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
+                  {requestSubmitting ? "Sending..." : `${t.sendRequest} (${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})`}
                 </button>
                 {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
                   <button
@@ -1995,7 +2011,11 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                 ) : null}
               </div>
               {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
-              {requestMessage ? <div className="text-sm font-medium text-rose-700">{requestMessage}</div> : null}
+              {requestMessage ? (
+                <div className={`text-sm font-medium ${requestMessageTone === "success" ? "text-emerald-700" : "text-rose-700"}`}>
+                  {requestMessage}
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}
