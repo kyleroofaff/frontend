@@ -9484,6 +9484,11 @@ export default function ThailandPantiesMarketSite() {
       sellers: (prev.sellers || []).map((seller) =>
         seller.id === sellerId ? { ...seller, name: trimmedName } : seller
       ),
+      users: (prev.users || []).map((user) =>
+        String(user?.sellerId || '').trim() === sellerId
+          ? { ...user, name: trimmedName }
+          : user
+      ),
     }));
     if (backendStatus === 'connected' && apiAuthToken) {
       try {
