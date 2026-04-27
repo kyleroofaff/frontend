@@ -1725,7 +1725,9 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
           {isBuyerView ? (
             <p>{t.submitFee} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)}.</p>
           ) : null}
-          <p>{t.openFee} {formatPriceTHB(MESSAGE_FEE_THB)} {t.perMessageBoth}</p>
+          {isSellerView ? (
+            <p>{t.openFee} {formatPriceTHB(MESSAGE_FEE_THB)} {t.perMessageBoth}</p>
+          ) : null}
           {!canSubmitRequest && !isSellerView ? <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">{t.loginBuyer}</p> : null}
           {canSubmitRequest || isSellerView ? (
             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 ring-1 ring-rose-100">
