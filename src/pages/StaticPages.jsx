@@ -1570,19 +1570,48 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {} }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {} }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
   const canSubmitRequest = currentUser?.role === "buyer";
   const canAffordNewRequest = Number(currentUser?.walletBalance || 0) >= CUSTOM_REQUEST_FEE_THB;
   const canAffordMessageAction = isSellerView ? true : Number(currentUser?.walletBalance || 0) >= MESSAGE_FEE_THB;
-  const visibleRequests = isSellerView ? (sellerCustomRequests || []) : (buyerCustomRequests || []);
+  const rawVisibleRequests = isSellerView ? (sellerCustomRequests || []) : (buyerCustomRequests || []);
   const t = {
     ...CUSTOM_REQUESTS_I18N.en,
     ...(CUSTOM_REQUESTS_I18N[uiLanguage] || {}),
   };
-  const buyerPrompts = t.buyerPrompts || CUSTOM_REQUESTS_I18N.en.buyerPrompts || [];
-  const requestPresets = t.requestPresets || CUSTOM_REQUESTS_I18N.en.requestPresets || [];
+  const sellerById = useMemo(() => {
+    const map = {};
+    (sellers || []).forEach((s) => { if (s?.id) map[s.id] = s; });
+    return map;
+  }, [sellers]);
+  const lastActivityAt = (request) => {
+    const messages = customRequestMessagesByRequestId?.[request.id] || [];
+    const lastMsgAt = messages.length ? new Date(messages[messages.length - 1].createdAt || 0).getTime() : 0;
+    const updatedAt = new Date(request.quoteUpdatedAt || request.updatedAt || request.createdAt || 0).getTime();
+    return Math.max(lastMsgAt, updatedAt);
+  };
+  const visibleRequests = useMemo(() => {
+    return [...rawVisibleRequests].sort((a, b) => lastActivityAt(b) - lastActivityAt(a));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawVisibleRequests, customRequestMessagesByRequestId]);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  useEffect(() => {
+    if (selectedRequestId) {
+      const exists = visibleRequests.some((r) => r.id === selectedRequestId);
+      if (!exists) setSelectedRequestId(null);
+      return;
+    }
+    if (visibleRequests.length > 0 && typeof window !== "undefined" && window.innerWidth >= 768) {
+      setSelectedRequestId(visibleRequests[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleRequests, selectedRequestId]);
+  const selectedRequest = useMemo(
+    () => visibleRequests.find((r) => r.id === selectedRequestId) || null,
+    [visibleRequests, selectedRequestId],
+  );
   const [requestForm, setRequestForm] = useState({
     sellerId: (buyerRecentSellerIds && buyerRecentSellerIds[0]) || (sellers || [])[0]?.id || "",
     buyerName: currentUser?.name || "",
@@ -1590,13 +1619,18 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     preferredDetails: "",
     shippingCountry: currentUser?.country || "",
     requestBody: "",
+    proposedPriceThb: "",
   });
+  const [showSubmitPanel, setShowSubmitPanel] = useState(false);
   const [requestMessage, setRequestMessage] = useState("");
   const [requestMessageTone, setRequestMessageTone] = useState("");
   const [requestSubmitting, setRequestSubmitting] = useState(false);
   const [requestReplyDraftById, setRequestReplyDraftById] = useState({});
   const [requestImageDraftById, setRequestImageDraftById] = useState({});
   const [requestCounterDraftById, setRequestCounterDraftById] = useState({});
+  const [requestProposeDraftById, setRequestProposeDraftById] = useState({});
+  const [requestProposeNoteById, setRequestProposeNoteById] = useState({});
+  const [requestNegotiationBusyById, setRequestNegotiationBusyById] = useState({});
   const [showOriginalRequestMessageById, setShowOriginalRequestMessageById] = useState({});
   const resolveRequestMessageBody = (message) => {
     const original = String(message?.bodyOriginal || message?.body || "");
@@ -1638,17 +1672,15 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     setRequestImageDraftById((prev) => ({ ...prev, [requestId]: nextImages.filter((item) => item?.image) }));
   };
   const getQuoteStatusLabel = (request) => {
-    if ((request?.quoteStatus || "") === "proposed" && request?.quoteAwaitingBuyerPayment) {
-      return t.awaitingBuyerPayment;
-    }
-    return request?.quoteStatus || "proposed";
+    const status = String(request?.quoteStatus || "").toLowerCase();
+    if (status === "proposed" && request?.quoteAwaitingBuyerPayment) return t.awaitingBuyerPayment;
+    if (status === "buyer_proposed") return "Buyer proposed";
+    if (status === "proposed") return "Seller proposed";
+    if (status === "countered") return "Countered";
+    if (status === "accepted") return "Accepted";
+    if (status === "declined") return "Declined";
+    return request?.quoteStatus || "Open";
   };
-  const isBuyerPaymentPending = (request) => {
-    const quoteStatus = String(request?.quoteStatus || "").toLowerCase();
-    const quotedPrice = Number(request?.quotedPriceThb || 0);
-    return quoteStatus === "proposed" && quotedPrice >= MIN_CUSTOM_REQUEST_PURCHASE_THB;
-  };
-
   const groupedSellerOptions = useMemo(() => {
     const allSellers = sellers || [];
     const sellerById = new Map(allSellers.map((s) => [s.id, s]));
@@ -1744,322 +1776,649 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
           </button>
         </div>
       ) : null}
-      <div className="grid gap-8 md:grid-cols-2">
-        <div className="rounded-3xl bg-white p-8 text-slate-600 shadow-md ring-1 ring-rose-100">
-          {isBuyerView ? (
-            <p>{t.submitFee} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)}.</p>
-          ) : null}
-          {isSellerView ? (
-            <p>{t.openFee} {formatPriceTHB(MESSAGE_FEE_THB)} {t.perMessageBoth}</p>
-          ) : null}
-          {!canSubmitRequest && !isSellerView ? <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">{t.loginBuyer}</p> : null}
-          {canSubmitRequest || isSellerView ? (
-            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 ring-1 ring-rose-100">
-              <div className="font-semibold text-slate-800">{t.recentRequests}</div>
-              <div className="mt-2 space-y-2">
-                {visibleRequests.length === 0 ? (
-                  <div>{t.noRequests}</div>
-                ) : visibleRequests.slice(0, 8).map((request) => (
-                  <div key={request.id} className="rounded-xl bg-white px-3 py-2 ring-1 ring-rose-100">
-                    <div className="text-sm font-medium">
-                      {isSellerView
-                        ? (request.buyerName || "Buyer")
-                        : ((sellers || []).find((seller) => seller.id === request.sellerId)?.name || request.sellerId)}
-                    </div>
-                    <div className="text-xs text-slate-500">{formatDateTimeNoSeconds(request.createdAt || Date.now())} · {request.status || "open"}</div>
-                    {request.requestBody ? (
-                      <div className="mt-2 whitespace-pre-wrap rounded-lg bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
-                        {request.requestBody}
-                      </div>
-                    ) : null}
-                    <div className="mt-2 rounded-xl bg-slate-50 p-2">
-                      <div className="max-h-28 space-y-1 overflow-y-auto">
-                        {(customRequestMessagesByRequestId?.[request.id] || []).length === 0 ? (
-                          <div className="text-xs text-slate-500">{t.noMessages}</div>
-                        ) : (customRequestMessagesByRequestId?.[request.id] || []).map((message) => (
-                          <div key={message.id} className={`max-w-[90%] rounded-lg px-2 py-1 text-xs ${message.senderRole === "buyer" ? "ml-auto bg-rose-600 text-white" : "bg-white text-slate-700 ring-1 ring-rose-100"}`}>
-                            <div>{resolveRequestMessageBody(message)}</div>
-                            {(message.imageAttachments || []).length > 0 ? (
-                              <div className="mt-2 grid grid-cols-2 gap-2">
-                                {(message.imageAttachments || []).map((image) => (
-                                  <a
-                                    key={image.id}
-                                    href={image.image}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="block overflow-hidden rounded-lg ring-1 ring-rose-200/60"
-                                  >
-                                    <ProductImage src={image.image} label={image.imageName || "Custom request attachment"} />
-                                  </a>
-                                ))}
-                              </div>
-                            ) : null}
-                            {canToggleRequestTranslation(message) ? (
-                              <button
-                                type="button"
-                                onClick={() => setShowOriginalRequestMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
-                                className={`mt-1 block text-[11px] font-semibold ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}
-                              >
-                                {showOriginalRequestMessageById[message.id] ? "Show translation" : "Show original"}
-                              </button>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                        <input
-                          value={requestReplyDraftById[request.id] || ""}
-                          onChange={(event) => setRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                          className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                          placeholder={t.replyPlaceholder}
-                        />
-                        <button
-                          onClick={() => {
-                            sendCustomRequestMessage(
-                              request.id,
-                              requestReplyDraftById[request.id] || "",
-                              requestImageDraftById[request.id] || [],
-                              () => {
-                                setRequestReplyDraftById((prev) => ({ ...prev, [request.id]: "" }));
-                                setRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }));
-                              },
-                              (message) => setRequestMessage(message || ""),
-                            );
-                          }}
-                          disabled={!canAffordMessageAction}
-                          className={`rounded-lg bg-rose-600 px-3 py-1 text-xs font-semibold text-white ${!canAffordMessageAction ? "cursor-not-allowed opacity-60" : ""}`}
-                        >
-                          {isSellerView ? t.send : `${t.send} (${formatPriceTHB(MESSAGE_FEE_THB)})`}
-                        </button>
-                        {!isSellerView && Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
-                          <button
-                            type="button"
-                            onClick={() => openWalletTopUpForFlow(Math.max(0, MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
-                            className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
-                          >
-                            Top up wallet
-                          </button>
-                        ) : null}
-                      </div>
-                      <div className="mt-2">
-                        {request.buyerImageUploadEnabled ? (
-                          <>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={(event) => handleRequestImageDraftSelect(request.id, event.target.files)}
-                                className="max-w-full rounded-lg border border-dashed border-rose-300 px-2 py-1 text-[11px]"
-                              />
-                              {(requestImageDraftById[request.id] || []).length > 0 ? (
-                                <button
-                                  type="button"
-                                  onClick={() => setRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }))}
-                                  className="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700"
-                                >
-                                  Clear images
-                                </button>
-                              ) : null}
-                            </div>
-                            {(requestImageDraftById[request.id] || []).length > 0 ? (
-                              <div className="mt-2 grid grid-cols-2 gap-2">
-                                {(requestImageDraftById[request.id] || []).map((image) => (
-                                  <div key={image.id} className="overflow-hidden rounded-lg ring-1 ring-rose-200/60">
-                                    <ProductImage src={image.image} label={image.imageName || "Draft attachment"} />
-                                  </div>
-                                ))}
-                              </div>
-                            ) : null}
-                          </>
-                        ) : (
-                          <div className="text-[11px] text-slate-500">{t.buyerImageDisabledHelp || CUSTOM_REQUESTS_I18N.en.buyerImageDisabledHelp}</div>
-                        )}
-                      </div>
-                      {!canAffordMessageAction && !isSellerView ? <div className="mt-2 text-[11px] text-amber-700">{t.addWalletToSend} {formatPriceTHB(MESSAGE_FEE_THB)} {t.toWalletSend}</div> : null}
-                    </div>
-                    {!isSellerView && Number(request.quotedPriceThb || 0) > 0 ? (
-                      <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">{t.sellerQuote}</div>
-                          {isBuyerPaymentPending(request) ? (
-                            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-800">
-                              Pending payment
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className="mt-1 text-sm text-slate-700">
-                          {formatPriceTHB(Number(request.quotedPriceThb || 0))} · <span className="capitalize">{getQuoteStatusLabel(request)}</span>
-                          {Number(request.buyerCounterPriceThb || 0) > 0 ? ` · ${t.yourCounter} ${formatPriceTHB(Number(request.buyerCounterPriceThb || 0))}` : ""}
-                        </div>
-                        {request.quoteMessage ? <div className="mt-1 text-xs text-slate-600">{t.sellerNote} {request.quoteMessage}</div> : null}
-                        {request.quoteStatus === "countered" && Number(request.buyerCounterPriceThb || 0) > 0 ? (
-                          <div className="mt-2 text-xs text-slate-700">
-                            {t.waitingCounter} {formatPriceTHB(Number(request.buyerCounterPriceThb || 0))}.
-                          </div>
-                        ) : ["accepted", "declined"].includes(request.quoteStatus || "") ? null : (
-                          <>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              <button
-                                onClick={() => respondToCustomRequestPrice(
-                                  request.id,
-                                  "accept",
-                                  {},
-                                  () => setRequestMessage(t.quoteAcceptedPaid),
-                                  (message) => {
-                                    const quotedPrice = Number(request.quotedPriceThb || 0);
-                                    const walletBalance = Number(currentUser?.walletBalance || 0);
-                                    const shortfall = Number((quotedPrice - walletBalance).toFixed(2));
-                                    if (shortfall > 0) {
-                                      const requiredTopUp = getRequiredTopUpAmount(shortfall);
-                                      setRequestMessage(`You need ${formatPriceTHB(quotedPrice)} to accept this quote. Top up at least ${formatPriceTHB(requiredTopUp)} and try again.`);
-                                      openWalletTopUpForFlow?.(shortfall, "/custom-requests", "custom_request_quote");
-                                      return;
-                                    }
-                                    setRequestMessage(message || "");
-                                  },
-                                )}
-                                className="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white"
-                              >
-                                {t.acceptPay} {formatPriceTHB(Number(request.quotedPriceThb || 0))}
-                              </button>
-                              <button
-                                onClick={() => respondToCustomRequestPrice(request.id, "decline", {}, () => setRequestMessage(t.quoteDeclined), (message) => setRequestMessage(message || ""))}
-                                className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
-                              >
-                                {t.decline}
-                              </button>
-                            </div>
-                            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                              <input
-                                type="number"
-                                min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
-                                step="1"
-                                value={requestCounterDraftById[request.id] || ""}
-                                onChange={(event) => setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
-                                className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                                placeholder={t.counterAmount}
-                              />
-                              <button
-                                onClick={() => {
-                                  respondToCustomRequestPrice(
-                                    request.id,
-                                    "counter",
-                                    { counterPriceThb: requestCounterDraftById[request.id] || 0 },
-                                    () => {
-                                      setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: "" }));
-                                      setRequestMessage(`${t.counterSent} ${formatPriceTHB(MESSAGE_FEE_THB)} ${t.messageFeeCharged}`);
-                                    },
-                                    (message) => setRequestMessage(message || ""),
-                                  );
-                                }}
-                                disabled={!canAffordMessageAction}
-                                className={`rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${!canAffordMessageAction ? "cursor-not-allowed opacity-60" : ""}`}
-                              >
-                                {t.counterLabel} ({formatPriceTHB(MESSAGE_FEE_THB)} fee)
-                              </button>
-                              {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
-                                <button
-                                  type="button"
-                                  onClick={() => openWalletTopUpForFlow(Math.max(0, MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
-                                  className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700"
-                                >
-                                  Top up wallet
-                                </button>
-                              ) : null}
-                            </div>
-                            {!canAffordMessageAction ? <div className="mt-1 text-[11px] text-amber-700">{t.counterRequiresFee} {formatPriceTHB(MESSAGE_FEE_THB)}.</div> : null}
-                          </>
-                        )}
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
+      <div className="mb-4 rounded-2xl bg-white p-4 text-sm text-slate-600 shadow-sm ring-1 ring-rose-100">
+        {isBuyerView ? <p>{t.submitFee} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)}.</p> : null}
+        {isSellerView ? <p>{t.openFee} {formatPriceTHB(MESSAGE_FEE_THB)} {t.perMessageBoth}</p> : null}
+        {!canSubmitRequest && !isSellerView ? <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-amber-800">{t.loginBuyer}</p> : null}
         {isBuyerView ? (
-          <div className="rounded-3xl bg-white p-8 shadow-md ring-1 ring-rose-100">
-            <div className="grid gap-4">
-              <label className="grid gap-1 text-sm text-slate-600">
-                <span className="font-medium">{t.seller}</span>
-                <select
-                  value={requestForm.sellerId}
-                  onChange={(event) => setRequestForm((prev) => ({ ...prev, sellerId: event.target.value }))}
-                  className="rounded-2xl border border-slate-200 px-4 py-3"
-                >
-                  <option value="">{localizeOptionLabel("Select seller...", uiLanguage)}</option>
-                  {groupedSellerOptions.recents.length > 0 ? (
-                    <optgroup label="Recent contacts">
-                      {groupedSellerOptions.recents.map((s) => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
-                    </optgroup>
-                  ) : null}
-                  {groupedSellerOptions.barGroups.map(([barId, list]) => (
-                    <optgroup key={barId} label={barMap[barId]?.name || barId}>
-                      {list.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </optgroup>
-                  ))}
-                  {groupedSellerOptions.independent.length > 0 ? (
-                    <optgroup label="Independent">
-                      {groupedSellerOptions.independent.map((s) => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
-                    </optgroup>
-                  ) : null}
-                </select>
-              </label>
-              <input value={requestForm.buyerName} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerName: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.yourName} />
-              <input value={requestForm.buyerEmail} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerEmail: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.email} />
-              <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[140px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.requestBodyPlaceholder} />
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  onClick={async () => {
-                    setRequestSubmitting(true);
-                    try {
-                      await submitCustomRequest(
-                        { ...requestForm, preferredDetails: "", shippingCountry: "" },
-                        () => {
-                          setRequestMessage(t.customRequestSubmitted);
-                          setRequestMessageTone("success");
-                          setRequestForm((prev) => ({ ...prev, requestBody: "" }));
-                        },
-                        (message) => {
-                          setRequestMessage(message || "");
-                          setRequestMessageTone("error");
-                        },
-                      );
-                    } finally {
-                      setRequestSubmitting(false);
-                    }
-                  }}
-                  disabled={!canAffordNewRequest || requestSubmitting}
-                  className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${(!canAffordNewRequest || requestSubmitting) ? "cursor-not-allowed opacity-60" : ""}`}
-                >
-                  {requestSubmitting ? "Sending..." : `${t.sendRequest} (${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})`}
-                </button>
-                {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
-                  <button
-                    type="button"
-                    onClick={() => openWalletTopUpForFlow(Math.max(0, CUSTOM_REQUEST_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
-                    className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
-                  >
-                    Top up wallet
-                  </button>
-                ) : null}
-              </div>
-              {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
-              {requestMessage ? (
-                <div className={`text-sm font-medium ${requestMessageTone === "success" ? "text-emerald-700" : "text-rose-700"}`}>
-                  {requestMessage}
-                </div>
-              ) : null}
-            </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowSubmitPanel((v) => !v)}
+              className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              {showSubmitPanel ? "Close new request" : `+ New request (${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})`}
+            </button>
+            {requestMessage ? (
+              <span className={`text-xs font-medium ${requestMessageTone === "success" ? "text-emerald-700" : "text-rose-700"}`}>
+                {requestMessage}
+              </span>
+            ) : null}
           </div>
         ) : null}
       </div>
+
+      {isBuyerView && showSubmitPanel ? (
+        <div className="mb-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
+          <div className="grid gap-3">
+            <label className="grid gap-1 text-sm text-slate-600">
+              <span className="font-medium">{t.seller}</span>
+              <select
+                value={requestForm.sellerId}
+                onChange={(event) => setRequestForm((prev) => ({ ...prev, sellerId: event.target.value }))}
+                className="rounded-xl border border-slate-200 px-3 py-2"
+              >
+                <option value="">{localizeOptionLabel("Select seller...", uiLanguage)}</option>
+                {groupedSellerOptions.recents.length > 0 ? (
+                  <optgroup label="Recent contacts">
+                    {groupedSellerOptions.recents.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </optgroup>
+                ) : null}
+                {groupedSellerOptions.barGroups.map(([barId, list]) => (
+                  <optgroup key={barId} label={barMap[barId]?.name || barId}>
+                    {list.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </optgroup>
+                ))}
+                {groupedSellerOptions.independent.length > 0 ? (
+                  <optgroup label="Independent">
+                    {groupedSellerOptions.independent.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </optgroup>
+                ) : null}
+              </select>
+            </label>
+            <input value={requestForm.buyerName} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerName: event.target.value }))} className="rounded-xl border border-slate-200 px-3 py-2" placeholder={t.yourName} />
+            <input value={requestForm.buyerEmail} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerEmail: event.target.value }))} className="rounded-xl border border-slate-200 px-3 py-2" placeholder={t.email} />
+            <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[120px] rounded-xl border border-slate-200 px-3 py-2" placeholder={t.requestBodyPlaceholder} />
+            <label className="grid gap-1 text-sm text-slate-600">
+              <input
+                type="number"
+                min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
+                step="1"
+                value={requestForm.proposedPriceThb}
+                onChange={(event) => setRequestForm((prev) => ({ ...prev, proposedPriceThb: event.target.value }))}
+                className="rounded-xl border border-slate-200 px-3 py-2"
+                placeholder={`Propose a price (THB) — optional, min ${MIN_CUSTOM_REQUEST_PURCHASE_THB}`}
+              />
+              <span className="text-[11px] text-slate-500">Leave blank if you're not sure how much it should cost.</span>
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={async () => {
+                  setRequestSubmitting(true);
+                  try {
+                    await submitCustomRequest(
+                      { ...requestForm, preferredDetails: "", shippingCountry: "" },
+                      () => {
+                        setRequestMessage(t.customRequestSubmitted);
+                        setRequestMessageTone("success");
+                        setRequestForm((prev) => ({ ...prev, requestBody: "", proposedPriceThb: "" }));
+                        setShowSubmitPanel(false);
+                      },
+                      (message) => {
+                        setRequestMessage(message || "");
+                        setRequestMessageTone("error");
+                      },
+                    );
+                  } finally {
+                    setRequestSubmitting(false);
+                  }
+                }}
+                disabled={!canAffordNewRequest || requestSubmitting}
+                className={`rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white ${(!canAffordNewRequest || requestSubmitting) ? "cursor-not-allowed opacity-60" : ""}`}
+              >
+                {requestSubmitting ? "Sending..." : `${t.sendRequest} (${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})`}
+              </button>
+              {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
+                <button
+                  type="button"
+                  onClick={() => openWalletTopUpForFlow(Math.max(0, CUSTOM_REQUEST_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
+                  className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+                >
+                  Top up wallet
+                </button>
+              ) : null}
+            </div>
+            {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="grid gap-4 md:grid-cols-[300px_1fr] md:items-start">
+        <div className={`${selectedRequestId ? "hidden md:block" : "block"} max-h-[78vh] overflow-y-auto rounded-2xl bg-white p-2 shadow-sm ring-1 ring-rose-100`}>
+          <div className="px-2 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t.recentRequests}</div>
+          {visibleRequests.length === 0 ? (
+            <div className="px-2 py-3 text-sm text-slate-500">{t.noRequests}</div>
+          ) : (
+            <div className="space-y-1">
+              {visibleRequests.map((request) => {
+                const counterpartName = isSellerView
+                  ? (request.buyerName || "Buyer")
+                  : (sellerById[request.sellerId]?.name || request.sellerId);
+                const sellerForCard = sellerById[request.sellerId];
+                const barName = sellerForCard?.affiliatedBarId ? (barMap?.[sellerForCard.affiliatedBarId]?.name || "") : "";
+                const messages = customRequestMessagesByRequestId?.[request.id] || [];
+                const lastMessage = messages.length ? messages[messages.length - 1] : null;
+                const lastBody = lastMessage?.body || request.requestBody || "";
+                const isSelected = selectedRequestId === request.id;
+                const lastSenderIsCounterpart = lastMessage && lastMessage.senderUserId !== currentUser?.id;
+                return (
+                  <button
+                    key={request.id}
+                    type="button"
+                    onClick={() => setSelectedRequestId(request.id)}
+                    className={`w-full rounded-xl px-3 py-2 text-left transition ${isSelected ? "bg-rose-50 ring-1 ring-rose-200" : "hover:bg-slate-50"}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="truncate text-sm font-semibold text-slate-800">{counterpartName}</div>
+                      {lastSenderIsCounterpart ? (
+                        <span className="h-2 w-2 shrink-0 rounded-full bg-rose-500" aria-label="New activity" />
+                      ) : null}
+                    </div>
+                    {barName ? <div className="text-[11px] text-slate-500">{barName}</div> : null}
+                    <div className="mt-1 flex flex-wrap items-center gap-1 text-[11px] text-slate-500">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 capitalize">{getQuoteStatusLabel(request)}</span>
+                      <span className="truncate">{formatDateTimeNoSeconds(request.updatedAt || request.createdAt || Date.now())}</span>
+                    </div>
+                    {lastBody ? (
+                      <div className="mt-1 line-clamp-2 text-xs text-slate-600">{lastBody}</div>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className={`${selectedRequestId ? "block" : "hidden md:block"} rounded-2xl bg-white shadow-sm ring-1 ring-rose-100`}>
+          {!selectedRequest ? (
+            <div className="p-6 text-sm text-slate-500">Select a request from the list to view the conversation.</div>
+          ) : (() => {
+            const request = selectedRequest;
+            const messages = customRequestMessagesByRequestId?.[request.id] || [];
+            const sellerForRequest = sellerById[request.sellerId];
+            const counterpartName = isSellerView
+              ? (request.buyerName || "Buyer")
+              : (sellerForRequest?.name || request.sellerId);
+            const barName = sellerForRequest?.affiliatedBarId ? (barMap?.[sellerForRequest.affiliatedBarId]?.name || "") : "";
+            const quotedPrice = Number(request.quotedPriceThb || 0);
+            const buyerCounterPrice = Number(request.buyerCounterPriceThb || 0);
+            const status = String(request.quoteStatus || "").toLowerCase();
+            const proposedDraft = requestProposeDraftById[request.id] || "";
+            const proposedNote = requestProposeNoteById[request.id] || "";
+            const counterDraft = requestCounterDraftById[request.id] || "";
+            const negotiationBusy = Boolean(requestNegotiationBusyById[request.id]);
+            const reportPath = isBuyerView
+              ? `/safety-report?type=seller&id=${encodeURIComponent(request.sellerId)}&name=${encodeURIComponent(sellerForRequest?.name || "")}`
+              : `/safety-report?type=buyer&id=${encodeURIComponent(request.buyerUserId || "")}&name=${encodeURIComponent(request.buyerName || "")}`;
+            const setBusy = (value) => setRequestNegotiationBusyById((prev) => ({ ...prev, [request.id]: value }));
+            const onErr = (msg) => { setRequestMessage(msg || ""); setRequestMessageTone(msg ? "error" : ""); setBusy(false); };
+            const onOk = (note) => { setRequestMessage(note || ""); setRequestMessageTone("success"); setBusy(false); };
+
+            return (
+              <div className="flex flex-col">
+                <div className="flex items-start justify-between gap-3 border-b border-rose-100 px-4 py-3">
+                  <div className="min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRequestId(null)}
+                      className="mb-1 inline-flex items-center gap-1 text-xs font-semibold text-rose-600 md:hidden"
+                    >
+                      ← Back to list
+                    </button>
+                    <div className="truncate text-base font-semibold text-slate-800">{counterpartName}</div>
+                    {barName ? <div className="text-xs text-slate-500">{barName}</div> : null}
+                    <div className="mt-1 flex flex-wrap items-center gap-1 text-[11px] text-slate-500">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 capitalize">{getQuoteStatusLabel(request)}</span>
+                      <span>{formatDateTimeNoSeconds(request.updatedAt || request.createdAt || Date.now())}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate?.(reportPath)}
+                    className="shrink-0 rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
+                  >
+                    Report
+                  </button>
+                </div>
+
+                {request.requestBody ? (
+                  <div className="mx-4 mt-3 whitespace-pre-wrap rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-700">
+                    <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500">Original request</div>
+                    {request.requestBody}
+                  </div>
+                ) : null}
+
+                {/* Negotiation block */}
+                <div className="mx-4 mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">Price negotiation</div>
+                  {quotedPrice > 0 ? (
+                    <div className="mt-1 text-sm text-slate-700">
+                      Current: {formatPriceTHB(quotedPrice)}
+                      {buyerCounterPrice > 0 && status === "countered" ? ` · buyer counter ${formatPriceTHB(buyerCounterPrice)}` : ""}
+                    </div>
+                  ) : null}
+
+                  {isBuyerView ? (
+                    status === "none" ? (
+                      <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                        <input
+                          type="number"
+                          min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
+                          step="1"
+                          value={proposedDraft}
+                          onChange={(event) => setRequestProposeDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
+                          className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                          placeholder={`Propose a price (THB), min ${MIN_CUSTOM_REQUEST_PURCHASE_THB}`}
+                        />
+                        <button
+                          type="button"
+                          disabled={negotiationBusy}
+                          onClick={() => {
+                            setBusy(true);
+                            buyerRespondToQuote?.(
+                              request.id,
+                              "counter",
+                              { counterPriceThb: Number(proposedDraft || 0) },
+                              () => { setRequestProposeDraftById((prev) => ({ ...prev, [request.id]: "" })); onOk("Price proposed."); },
+                              onErr,
+                            );
+                          }}
+                          className={`rounded-lg bg-rose-600 px-3 py-1 text-xs font-semibold text-white ${negotiationBusy ? "opacity-60" : ""}`}
+                        >
+                          Propose
+                        </button>
+                      </div>
+                    ) : status === "buyer_proposed" ? (
+                      <div className="mt-2 text-xs text-slate-700">You proposed {formatPriceTHB(quotedPrice)}. Waiting for seller.</div>
+                    ) : status === "proposed" ? (
+                      <>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              respondToCustomRequestPrice(
+                                request.id,
+                                "accept",
+                                {},
+                                () => onOk(t.quoteAcceptedPaid),
+                                (message) => {
+                                  const walletBalance = Number(currentUser?.walletBalance || 0);
+                                  const shortfall = Number((quotedPrice - walletBalance).toFixed(2));
+                                  if (shortfall > 0) {
+                                    const requiredTopUp = getRequiredTopUpAmount(shortfall);
+                                    onErr(`You need ${formatPriceTHB(quotedPrice)} to accept this quote. Top up at least ${formatPriceTHB(requiredTopUp)} and try again.`);
+                                    openWalletTopUpForFlow?.(shortfall, "/custom-requests", "custom_request_quote");
+                                    return;
+                                  }
+                                  onErr(message || "");
+                                },
+                              );
+                            }}
+                            className={`rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white ${negotiationBusy ? "opacity-60" : ""}`}
+                          >
+                            {t.acceptPay} {formatPriceTHB(quotedPrice)}
+                          </button>
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              buyerRespondToQuote?.(request.id, "decline", {}, () => onOk(t.quoteDeclined), onErr);
+                            }}
+                            className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+                          >
+                            {t.decline}
+                          </button>
+                        </div>
+                        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                          <input
+                            type="number"
+                            min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
+                            step="1"
+                            value={counterDraft}
+                            onChange={(event) => setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
+                            className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                            placeholder={t.counterAmount}
+                          />
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              buyerRespondToQuote?.(
+                                request.id,
+                                "counter",
+                                { counterPriceThb: Number(counterDraft || 0) },
+                                () => { setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: "" })); onOk("Counter sent."); },
+                                onErr,
+                              );
+                            }}
+                            className={`rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${negotiationBusy ? "opacity-60" : ""}`}
+                          >
+                            {t.counterLabel}
+                          </button>
+                        </div>
+                      </>
+                    ) : status === "countered" ? (
+                      <div className="mt-2 text-xs text-slate-700">{t.waitingCounter} {formatPriceTHB(buyerCounterPrice || quotedPrice)}.</div>
+                    ) : status === "accepted" ? (
+                      <div className="mt-2 text-xs font-semibold text-emerald-700">Accepted · Paid {formatPriceTHB(quotedPrice)}</div>
+                    ) : status === "declined" ? (
+                      <div className="mt-2 text-xs text-slate-500">This negotiation is closed.</div>
+                    ) : null
+                  ) : isSellerView ? (
+                    status === "none" ? (
+                      <div className="mt-2 flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <input
+                            type="number"
+                            min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
+                            step="1"
+                            value={proposedDraft}
+                            onChange={(event) => setRequestProposeDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
+                            className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                            placeholder={`Quote price (THB), min ${MIN_CUSTOM_REQUEST_PURCHASE_THB}`}
+                          />
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(
+                                request.id,
+                                "propose",
+                                { priceThb: Number(proposedDraft || 0), note: proposedNote },
+                                () => {
+                                  setRequestProposeDraftById((prev) => ({ ...prev, [request.id]: "" }));
+                                  setRequestProposeNoteById((prev) => ({ ...prev, [request.id]: "" }));
+                                  onOk("Price proposed.");
+                                },
+                                onErr,
+                              );
+                            }}
+                            className={`rounded-lg bg-rose-600 px-3 py-1 text-xs font-semibold text-white ${negotiationBusy ? "opacity-60" : ""}`}
+                          >
+                            Propose
+                          </button>
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(request.id, "decline", {}, () => onOk("Request declined."), onErr);
+                            }}
+                            className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+                          >
+                            Decline request
+                          </button>
+                        </div>
+                        <input
+                          value={proposedNote}
+                          onChange={(event) => setRequestProposeNoteById((prev) => ({ ...prev, [request.id]: event.target.value }))}
+                          className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                          placeholder="Optional note for the buyer"
+                        />
+                      </div>
+                    ) : status === "buyer_proposed" ? (
+                      <>
+                        <div className="mt-1 text-xs text-slate-700">Buyer proposed {formatPriceTHB(quotedPrice)}.</div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(
+                                request.id,
+                                "accept",
+                                {},
+                                () => onOk(`Accepted · charged buyer ${formatPriceTHB(quotedPrice)}.`),
+                                onErr,
+                              );
+                            }}
+                            className={`rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white ${negotiationBusy ? "opacity-60" : ""}`}
+                          >
+                            Accept & charge {formatPriceTHB(quotedPrice)}
+                          </button>
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(request.id, "decline", {}, () => onOk("Declined."), onErr);
+                            }}
+                            className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                          <input
+                            type="number"
+                            min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
+                            step="1"
+                            value={counterDraft}
+                            onChange={(event) => setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
+                            className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                            placeholder={`Counter price (THB), min ${MIN_CUSTOM_REQUEST_PURCHASE_THB}`}
+                          />
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(
+                                request.id,
+                                "counter",
+                                { priceThb: Number(counterDraft || 0), note: proposedNote },
+                                () => { setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: "" })); onOk("Counter sent."); },
+                                onErr,
+                              );
+                            }}
+                            className={`rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${negotiationBusy ? "opacity-60" : ""}`}
+                          >
+                            Counter
+                          </button>
+                        </div>
+                      </>
+                    ) : status === "proposed" ? (
+                      <div className="mt-2 text-xs text-slate-700">Waiting for buyer to respond to your quote of {formatPriceTHB(quotedPrice)}.</div>
+                    ) : status === "countered" ? (
+                      <>
+                        <div className="mt-1 text-xs text-slate-700">Buyer countered with {formatPriceTHB(buyerCounterPrice || quotedPrice)}.</div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(
+                                request.id,
+                                "accept",
+                                {},
+                                () => onOk(`Accepted · charged buyer ${formatPriceTHB(buyerCounterPrice || quotedPrice)}.`),
+                                onErr,
+                              );
+                            }}
+                            className={`rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white ${negotiationBusy ? "opacity-60" : ""}`}
+                          >
+                            Accept & charge {formatPriceTHB(buyerCounterPrice || quotedPrice)}
+                          </button>
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(request.id, "decline", {}, () => onOk("Declined."), onErr);
+                            }}
+                            className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                          <input
+                            type="number"
+                            min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
+                            step="1"
+                            value={counterDraft}
+                            onChange={(event) => setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
+                            className="flex-1 rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                            placeholder={`Counter price (THB)`}
+                          />
+                          <button
+                            disabled={negotiationBusy}
+                            onClick={() => {
+                              setBusy(true);
+                              sellerRespondToQuote?.(
+                                request.id,
+                                "counter",
+                                { priceThb: Number(counterDraft || 0) },
+                                () => { setRequestCounterDraftById((prev) => ({ ...prev, [request.id]: "" })); onOk("Counter sent."); },
+                                onErr,
+                              );
+                            }}
+                            className={`rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${negotiationBusy ? "opacity-60" : ""}`}
+                          >
+                            Counter
+                          </button>
+                        </div>
+                      </>
+                    ) : status === "accepted" ? (
+                      <div className="mt-2 text-xs font-semibold text-emerald-700">Accepted · Buyer paid {formatPriceTHB(quotedPrice)}</div>
+                    ) : status === "declined" ? (
+                      <div className="mt-2 text-xs text-slate-500">This negotiation is closed.</div>
+                    ) : null
+                  ) : null}
+                </div>
+
+                {/* Thread */}
+                <div className="mx-4 mt-3 max-h-[40vh] flex-1 space-y-2 overflow-y-auto rounded-xl bg-slate-50/60 p-2">
+                  {messages.length === 0 ? (
+                    <div className="px-2 py-3 text-center text-xs text-slate-500">{t.noMessages}</div>
+                  ) : (
+                    messages.map((message) => {
+                      const isOwn = (message.senderUserId || "") === currentUser?.id;
+                      const bubble = isOwn ? "ml-auto bg-rose-600 text-white" : "bg-slate-100 text-slate-700";
+                      const linkClass = isOwn ? "text-rose-100" : "text-slate-500";
+                      return (
+                        <div key={message.id} className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs ${bubble}`}>
+                          <div className="whitespace-pre-wrap">{resolveRequestMessageBody(message)}</div>
+                          {(message.imageAttachments || []).length > 0 ? (
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              {(message.imageAttachments || []).map((image) => (
+                                <a
+                                  key={image.id}
+                                  href={image.image}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="block overflow-hidden rounded-lg ring-1 ring-rose-200/60"
+                                >
+                                  <ProductImage src={image.image} label={image.imageName || "Custom request attachment"} />
+                                </a>
+                              ))}
+                            </div>
+                          ) : null}
+                          {canToggleRequestTranslation(message) ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowOriginalRequestMessageById((prev) => ({ ...prev, [message.id]: !prev[message.id] }))}
+                              className={`mt-1 block text-[10px] font-semibold ${linkClass}`}
+                            >
+                              {showOriginalRequestMessageById[message.id] ? "Show translation" : "Show original"}
+                            </button>
+                          ) : null}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Reply composer */}
+                <div className="border-t border-rose-100 p-3">
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      value={requestReplyDraftById[request.id] || ""}
+                      onChange={(event) => setRequestReplyDraftById((prev) => ({ ...prev, [request.id]: event.target.value }))}
+                      className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                      placeholder={t.replyPlaceholder}
+                    />
+                    <button
+                      onClick={() => {
+                        sendCustomRequestMessage(
+                          request.id,
+                          requestReplyDraftById[request.id] || "",
+                          requestImageDraftById[request.id] || [],
+                          () => {
+                            setRequestReplyDraftById((prev) => ({ ...prev, [request.id]: "" }));
+                            setRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }));
+                          },
+                          (message) => setRequestMessage(message || ""),
+                        );
+                      }}
+                      disabled={!canAffordMessageAction}
+                      className={`rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white ${!canAffordMessageAction ? "cursor-not-allowed opacity-60" : ""}`}
+                    >
+                      {isSellerView ? t.send : `${t.send} (${formatPriceTHB(MESSAGE_FEE_THB)})`}
+                    </button>
+                    {!isSellerView && Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
+                      <button
+                        type="button"
+                        onClick={() => openWalletTopUpForFlow(Math.max(0, MESSAGE_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
+                        className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700"
+                      >
+                        Top up
+                      </button>
+                    ) : null}
+                  </div>
+                  {isBuyerView ? (
+                    <div className="mt-2">
+                      {request.buyerImageUploadEnabled ? (
+                        <>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={(event) => handleRequestImageDraftSelect(request.id, event.target.files)}
+                              className="max-w-full rounded-lg border border-dashed border-rose-300 px-2 py-1 text-[11px]"
+                            />
+                            {(requestImageDraftById[request.id] || []).length > 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => setRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }))}
+                                className="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700"
+                              >
+                                Clear images
+                              </button>
+                            ) : null}
+                          </div>
+                          {(requestImageDraftById[request.id] || []).length > 0 ? (
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              {(requestImageDraftById[request.id] || []).map((image) => (
+                                <div key={image.id} className="overflow-hidden rounded-lg ring-1 ring-rose-200/60">
+                                  <ProductImage src={image.image} label={image.imageName || "Draft attachment"} />
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </>
+                      ) : (
+                        <div className="text-[11px] text-slate-500">{t.buyerImageDisabledHelp || CUSTOM_REQUESTS_I18N.en.buyerImageDisabledHelp}</div>
+                      )}
+                    </div>
+                  ) : null}
+                  {!canAffordMessageAction && !isSellerView ? (
+                    <div className="mt-2 text-[11px] text-amber-700">{t.addWalletToSend} {formatPriceTHB(MESSAGE_FEE_THB)} {t.toWalletSend}</div>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
+      {requestMessage ? (
+        <div className={`mt-3 text-sm font-medium ${requestMessageTone === "success" ? "text-emerald-700" : "text-rose-700"}`}>
+          {requestMessage}
+        </div>
+      ) : null}
     </section>
   );
 }

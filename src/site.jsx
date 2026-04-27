@@ -12697,6 +12697,14 @@ export default function ThailandPantiesMarketSite() {
     const preferredDetails = String(payload?.preferredDetails || '').trim();
     const shippingCountry = String(payload?.shippingCountry || '').trim();
     const requestBody = String(payload?.requestBody || '').trim();
+    const proposedPriceRaw = payload?.proposedPriceThb;
+    const proposedPriceNum = Number(proposedPriceRaw);
+    const hasProposedPrice = (proposedPriceRaw !== undefined && proposedPriceRaw !== null && String(proposedPriceRaw).trim() !== '')
+      && Number.isFinite(proposedPriceNum) && proposedPriceNum > 0;
+    if (hasProposedPrice && proposedPriceNum < MIN_CUSTOM_REQUEST_PURCHASE_THB) {
+      onError?.(`Proposed price must be at least ${formatPriceTHB(MIN_CUSTOM_REQUEST_PURCHASE_THB)}.`);
+      return;
+    }
     if (!sellerId || !buyerName || !buyerEmail || !requestBody) {
       onError?.('Please complete all required custom request fields.');
       return;
@@ -12707,7 +12715,7 @@ export default function ThailandPantiesMarketSite() {
     }
     if (backendStatus === 'connected' && apiAuthToken) {
       try {
-        const idScope = `custom_request_create_${currentUser.id}_${sellerId}_${requestBody}`;
+        const idScope = `custom_request_create_${currentUser.id}_${sellerId}_${requestBody}_${hasProposedPrice ? proposedPriceNum : 0}`;
         const { ok, payload: apiPayload } = await apiRequestJson('/api/custom-requests', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -12718,6 +12726,7 @@ export default function ThailandPantiesMarketSite() {
             preferredDetails,
             shippingCountry,
             requestBody,
+            ...(hasProposedPrice ? { proposedPriceThb: Number(proposedPriceNum.toFixed(2)) } : {}),
           },
           idempotencyScope: idScope,
           stableIdempotency: true,
@@ -12815,11 +12824,11 @@ export default function ThailandPantiesMarketSite() {
             shippingCountry,
             requestBody,
             status: 'open',
-            quotedPriceThb: null,
-            quoteStatus: 'none',
+            quotedPriceThb: hasProposedPrice ? Number(proposedPriceNum.toFixed(2)) : null,
+            quoteStatus: hasProposedPrice ? 'buyer_proposed' : 'none',
             quoteMessage: '',
-            quoteUpdatedAt: null,
-            quoteUpdatedByUserId: null,
+            quoteUpdatedAt: hasProposedPrice ? now : null,
+            quoteUpdatedByUserId: hasProposedPrice ? currentUser.id : null,
             quoteAcceptedAt: null,
             buyerCounterPriceThb: null,
             quoteAwaitingBuyerPayment: false,
@@ -12829,6 +12838,22 @@ export default function ThailandPantiesMarketSite() {
           },
           ...(prev.customRequests || []),
         ],
+        customRequestMessages: hasProposedPrice
+          ? [
+              ...(prev.customRequestMessages || []),
+              {
+                id: `custom_request_msg_${Date.now()}_propose_local`,
+                requestId,
+                senderUserId: currentUser.id,
+                senderRole: 'buyer',
+                body: `Proposed price: ${formatPriceTHB(Number(proposedPriceNum.toFixed(2)))}.`,
+                feeCharged: 0,
+                messageType: 'price_propose',
+                quotedPriceThb: Number(proposedPriceNum.toFixed(2)),
+                createdAt: now,
+              },
+            ]
+          : (prev.customRequestMessages || []),
         notifications: sellerUser?.id
           ? [
               ...(prev.notifications || []),
@@ -13305,6 +13330,134 @@ export default function ThailandPantiesMarketSite() {
       onSuccess?.();
     } else if (actionError) {
       onError?.(actionError);
+    }
+  }
+
+  function applyNegotiationApiResult(apiPayload) {
+    if (!apiPayload) return;
+    setDb((prev) => {
+      let next = prev;
+      const incomingRequest = apiPayload.request || apiPayload.customRequest;
+      if (incomingRequest && incomingRequest.id) {
+        const exists = (next.customRequests || []).some((r) => r.id === incomingRequest.id);
+        next = {
+          ...next,
+          customRequests: exists
+            ? (next.customRequests || []).map((r) => (r.id === incomingRequest.id ? { ...r, ...incomingRequest } : r))
+            : [incomingRequest, ...(next.customRequests || [])],
+        };
+      }
+      const incomingMessage = apiPayload.message || apiPayload.customRequestMessage;
+      if (incomingMessage && incomingMessage.id) {
+        const has = (next.customRequestMessages || []).some((m) => m.id === incomingMessage.id);
+        if (!has) {
+          next = {
+            ...next,
+            customRequestMessages: [...(next.customRequestMessages || []), incomingMessage],
+          };
+        }
+      }
+      return next;
+    });
+  }
+
+  // Buyer-side wrapper for the new negotiation endpoints.
+  async function buyerRespondToQuote(requestId, action, payload = {}, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'buyer') {
+      onError?.('Only buyers can respond to custom request pricing.');
+      return;
+    }
+    if (!['accept', 'decline', 'counter'].includes(action)) {
+      onError?.('Unsupported quote action.');
+      return;
+    }
+    if (action === 'accept') {
+      return respondToCustomRequestPrice(requestId, 'accept', payload, onSuccess, onError);
+    }
+    if (!apiAuthToken) {
+      return respondToCustomRequestPrice(requestId, action, payload, onSuccess, onError);
+    }
+    const isCounter = action === 'counter';
+    const path = isCounter
+      ? `/api/custom-requests/${encodeURIComponent(requestId)}/buyer-counter`
+      : `/api/custom-requests/${encodeURIComponent(requestId)}/buyer-decline`;
+    const body = isCounter
+      ? { priceThb: Number(payload?.counterPriceThb || payload?.priceThb || 0), note: payload?.note || '' }
+      : { note: payload?.note || '' };
+    if (isCounter && (!Number.isFinite(body.priceThb) || body.priceThb < MIN_CUSTOM_REQUEST_PURCHASE_THB)) {
+      onError?.(`Counter-offer must be at least ${formatPriceTHB(MIN_CUSTOM_REQUEST_PURCHASE_THB)}.`);
+      return;
+    }
+    try {
+      const { ok, payload: apiPayload } = await apiRequestJson(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        idempotencyScope: `${action}_${requestId}_${Date.now()}`,
+      });
+      if (!ok) {
+        onError?.(String(apiPayload?.error || 'Could not record your response. Please try again.'));
+        return;
+      }
+      applyNegotiationApiResult(apiPayload);
+      onError?.('');
+      onSuccess?.();
+    } catch {
+      onError?.('Could not connect to the server. Please try again.');
+    }
+  }
+
+  // Seller-side wrapper for the new negotiation endpoints.
+  async function sellerRespondToQuote(requestId, action, payload = {}, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'seller') {
+      onError?.('Only sellers can respond from the seller side.');
+      return;
+    }
+    if (!['propose', 'counter', 'decline', 'accept'].includes(action)) {
+      onError?.('Unsupported quote action.');
+      return;
+    }
+    if (!apiAuthToken) {
+      onError?.('Sign in again to manage custom requests.');
+      return;
+    }
+    const path =
+      action === 'propose' ? `/api/custom-requests/${encodeURIComponent(requestId)}/seller-propose`
+      : action === 'counter' ? `/api/custom-requests/${encodeURIComponent(requestId)}/seller-counter`
+      : action === 'decline' ? `/api/custom-requests/${encodeURIComponent(requestId)}/seller-decline`
+      : `/api/custom-requests/${encodeURIComponent(requestId)}/seller-accept`;
+    const requiresPrice = action === 'propose' || action === 'counter';
+    const priceValue = Number(payload?.priceThb || payload?.counterPriceThb || 0);
+    if (requiresPrice && (!Number.isFinite(priceValue) || priceValue < MIN_CUSTOM_REQUEST_PURCHASE_THB)) {
+      onError?.(`Quote must be at least ${formatPriceTHB(MIN_CUSTOM_REQUEST_PURCHASE_THB)}.`);
+      return;
+    }
+    const body = requiresPrice
+      ? { priceThb: Number(priceValue.toFixed(2)), note: payload?.note || '' }
+      : action === 'decline'
+        ? { note: payload?.note || '' }
+        : {};
+    try {
+      const { ok, payload: apiPayload } = await apiRequestJson(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        idempotencyScope: `seller_${action}_${requestId}_${Date.now()}`,
+      });
+      if (!ok) {
+        const requiredTopUp = Number(apiPayload?.requiredTopUp || 0);
+        if (action === 'accept' && requiredTopUp > 0) {
+          onError?.(`Buyer's wallet is short. They need to top up ${formatPriceTHB(requiredTopUp)} before this quote can be charged.`);
+          return;
+        }
+        onError?.(String(apiPayload?.error || 'Could not record your response. Please try again.'));
+        return;
+      }
+      applyNegotiationApiResult(apiPayload);
+      onError?.('');
+      onSuccess?.();
+    } catch {
+      onError?.('Could not connect to the server. Please try again.');
     }
   }
 
@@ -21066,6 +21219,8 @@ export default function ThailandPantiesMarketSite() {
             submitCustomRequest={submitCustomRequest}
             sendCustomRequestMessage={sendCustomRequestMessage}
             respondToCustomRequestPrice={respondToCustomRequestPrice}
+            buyerRespondToQuote={buyerRespondToQuote}
+            sellerRespondToQuote={sellerRespondToQuote}
             openWalletTopUpForFlow={openSellerPageTopUp}
             uiLanguage={uiLanguage}
             navigate={navigate}
