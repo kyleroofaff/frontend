@@ -5622,6 +5622,8 @@ export default function ThailandPantiesMarketSite() {
     requestBody: '',
   });
   const [sellerCustomRequestMessage, setSellerCustomRequestMessage] = useState('');
+  const [sellerCustomRequestMessageTone, setSellerCustomRequestMessageTone] = useState('');
+  const [customRequestSubmitting, setCustomRequestSubmitting] = useState(false);
   const [sellerProfileDraft, setSellerProfileDraft] = useState({
     location: '',
     languages: [],
@@ -12632,7 +12634,7 @@ export default function ThailandPantiesMarketSite() {
     const preferredDetails = String(payload?.preferredDetails || '').trim();
     const shippingCountry = String(payload?.shippingCountry || '').trim();
     const requestBody = String(payload?.requestBody || '').trim();
-    if (!sellerId || !buyerName || !buyerEmail || !preferredDetails || !requestBody) {
+    if (!sellerId || !buyerName || !buyerEmail || !requestBody) {
       onError?.('Please complete all required custom request fields.');
       return;
     }
@@ -18824,18 +18826,6 @@ export default function ThailandPantiesMarketSite() {
                         className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
                         placeholder={publicText.email}
                       />
-                      <input
-                        value={sellerCustomRequestDraft.preferredDetails}
-                        onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, preferredDetails: event.target.value }))}
-                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
-                        placeholder={publicText.customDetailsPlaceholder}
-                      />
-                      <input
-                        value={sellerCustomRequestDraft.shippingCountry}
-                        onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, shippingCountry: event.target.value }))}
-                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
-                        placeholder={publicText.shippingCountry}
-                      />
                     </div>
                     <textarea
                       value={sellerCustomRequestDraft.requestBody}
@@ -18845,33 +18835,42 @@ export default function ThailandPantiesMarketSite() {
                     />
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           if (!currentUser) { navigate('/login'); return; }
-                          submitCustomRequest(
-                            {
-                              sellerId: selectedSeller.id,
-                              buyerName: sellerCustomRequestDraft.name,
-                              buyerEmail: sellerCustomRequestDraft.email,
-                              preferredDetails: sellerCustomRequestDraft.preferredDetails,
-                              shippingCountry: sellerCustomRequestDraft.shippingCountry,
-                              requestBody: sellerCustomRequestDraft.requestBody,
-                            },
-                            () => {
-                              setSellerCustomRequestDraft((prev) => ({
-                                ...prev,
+                          if (customRequestSubmitting) return;
+                          setCustomRequestSubmitting(true);
+                          setSellerCustomRequestMessage('');
+                          try {
+                            await submitCustomRequest(
+                              {
+                                sellerId: selectedSeller.id,
+                                buyerName: sellerCustomRequestDraft.name,
+                                buyerEmail: sellerCustomRequestDraft.email,
                                 preferredDetails: '',
                                 shippingCountry: '',
-                                requestBody: '',
-                              }));
-                              setSellerCustomRequestMessage(publicText.customRequestSubmitted);
-                            },
-                            (errorMessage) => setSellerCustomRequestMessage(errorMessage || ''),
-                          );
+                                requestBody: sellerCustomRequestDraft.requestBody,
+                              },
+                              () => {
+                                setSellerCustomRequestDraft((prev) => ({
+                                  ...prev,
+                                  requestBody: '',
+                                }));
+                                setSellerCustomRequestMessage(publicText.customRequestSubmitted);
+                                setSellerCustomRequestMessageTone('success');
+                              },
+                              (errorMessage) => {
+                                setSellerCustomRequestMessage(errorMessage || '');
+                                setSellerCustomRequestMessageTone('error');
+                              },
+                            );
+                          } finally {
+                            setCustomRequestSubmitting(false);
+                          }
                         }}
-                        disabled={currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB}
-                        className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? 'cursor-not-allowed opacity-60' : ''}`}
+                        disabled={customRequestSubmitting || (currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB)}
+                        className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${customRequestSubmitting || (currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB) ? 'cursor-not-allowed opacity-60' : ''}`}
                       >
-                        {publicText.sendCustomRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
+                        {customRequestSubmitting ? 'Sending...' : `${publicText.sendCustomRequest} (${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})`}
                       </button>
                       {currentUser?.role === 'buyer' && currentWalletBalance < 100 ? (
                         <button
@@ -18884,7 +18883,7 @@ export default function ThailandPantiesMarketSite() {
                       ) : null}
                     </div>
                     {currentUser && currentWalletBalance < CUSTOM_REQUEST_FEE_THB ? <div className="mt-2 text-xs text-amber-700">{publicText.walletNeedsAtLeastPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {publicText.walletNeedsAtLeastSuffix}</div> : null}
-                    {sellerCustomRequestMessage ? <div className="mt-2 text-sm font-medium text-rose-700">{sellerCustomRequestMessage}</div> : null}
+                    {sellerCustomRequestMessage ? <div className={`mt-2 text-sm font-semibold ${sellerCustomRequestMessageTone === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>{sellerCustomRequestMessage}</div> : null}
                   </div>
                   <h3 className="mt-8 text-xl font-semibold">{publicText.lifestylePostsByPrefix} {selectedSeller.name}</h3>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
