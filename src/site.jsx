@@ -6506,12 +6506,17 @@ export default function ThailandPantiesMarketSite() {
     const sellerProductIds = new Set(
       products.filter((p) => p.sellerId === currentUser.sellerId).map((p) => p.id)
     );
+    const userById = new Map((users || []).map((u) => [u.id, u]));
     return orders.filter((order) => {
       if (order.sellerId && order.sellerId === currentUser.sellerId) return true;
       if (sellerProductIds.size === 0) return false;
       return (order.items || []).some((itemId) => sellerProductIds.has(itemId));
+    }).map((order) => {
+      const buyer = order.buyerUserId ? userById.get(order.buyerUserId) : null;
+      const buyerDisplayName = String(buyer?.name || order.buyerName || order.buyerEmail || '').trim();
+      return { ...order, buyerDisplayName };
     }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-  }, [currentUser, products, orders]);
+  }, [currentUser, products, orders, users]);
   const currentWalletBalance = Number(currentUser?.walletBalance || 0);
   const buyerLedger = useMemo(() => {
     if (!currentUser) return [];
@@ -6541,7 +6546,7 @@ export default function ThailandPantiesMarketSite() {
         return {
           conversationId,
           sellerId: latest?.sellerId || '',
-          latestBody: latest?.body || '',
+          latestBody: latest?.deletedAt ? '[message deleted]' : (latest?.body || ''),
           latestAt: latest?.createdAt || null,
           latestSenderRole: latest?.senderRole || 'seller',
           unreadCount,
@@ -6959,7 +6964,8 @@ export default function ThailandPantiesMarketSite() {
         barId: affiliatedBarId,
         _isBarThread: true,
         _barName: barName,
-        body: latestBarMsg?.body || '',
+        body: latestBarMsg?.deletedAt ? '[message deleted]' : (latestBarMsg?.body || ''),
+        deletedAt: latestBarMsg?.deletedAt || null,
         createdAt: latestBarMsg?.createdAt || new Date(0).toISOString(),
         hasUnread: hasBarUnread,
         senderRole: latestBarMsg?.senderRole || '',
@@ -16654,6 +16660,52 @@ export default function ThailandPantiesMarketSite() {
     }
   }
 
+  // Author-only soft delete. Works for both Direct Messages (db.messages)
+  // and Custom-Request thread messages (db.customRequestMessages). The row
+  // stays so notifications/inbox stay stable; renderers should display
+  // "[message deleted]" when `deletedAt` is present.
+  async function softDeleteMessage(messageId) {
+    if (!currentUser || !messageId) return false;
+    const direct = (db.messages || []).find((m) => m.id === messageId);
+    const crMessage = !direct ? (db.customRequestMessages || []).find((m) => m.id === messageId) : null;
+    const target = direct || crMessage;
+    if (!target) return false;
+    if (target.deletedAt) return true;
+    const senderId = direct ? (direct.senderId || direct.senderUserId) : crMessage?.senderUserId;
+    if (senderId !== currentUser.id) return false;
+
+    const now = new Date().toISOString();
+    const optimisticPatch = (m) => (m.id === messageId
+      ? { ...m, body: '', deletedAt: now, deletedBy: currentUser.id }
+      : m);
+    setDb((prev) => ({
+      ...prev,
+      messages: (prev.messages || []).map(optimisticPatch),
+      customRequestMessages: (prev.customRequestMessages || []).map(optimisticPatch),
+    }));
+
+    if (backendStatus !== 'connected') return true;
+    try {
+      const result = await apiRequestJson(`/api/messages/${encodeURIComponent(messageId)}/delete`, {
+        method: 'POST',
+        body: {},
+        idempotencyScope: `delete_msg_${messageId}`,
+      });
+      if (!result.ok) {
+        setDb((prev) => ({
+          ...prev,
+          messages: (prev.messages || []).map((m) => (m.id === messageId ? { ...m, body: target.body || '', deletedAt: undefined, deletedBy: undefined } : m)),
+          customRequestMessages: (prev.customRequestMessages || []).map((m) => (m.id === messageId ? { ...m, body: target.body || '', deletedAt: undefined, deletedBy: undefined } : m)),
+        }));
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[softDeleteMessage] failed:', err?.message || err);
+      return false;
+    }
+  }
+
   async function resolvePostReport(reportId) {
     if (!currentUser || currentUser.role !== 'admin') return;
     if (resolvingPostReportId === reportId) return;
@@ -20163,6 +20215,7 @@ export default function ThailandPantiesMarketSite() {
             barMap={barMap}
             sellerLanguage={currentUser?.preferredLanguage || 'en'}
             currentUser={currentUser}
+            softDeleteMessage={softDeleteMessage}
             navigate={navigate}
           />
         ) : null}
@@ -20194,6 +20247,7 @@ export default function ThailandPantiesMarketSite() {
             uiLanguage={currentUser?.preferredLanguage || 'en'}
             navigate={navigate}
             notifications={notifications}
+            softDeleteMessage={softDeleteMessage}
           />
         ) : null}
         {routeInfo.name === 'bar-messages' ? (
@@ -21375,6 +21429,7 @@ export default function ThailandPantiesMarketSite() {
             notifications={notifications}
             orders={orders}
             markNotificationsReadForConversation={markNotificationsReadForConversation}
+            softDeleteMessage={softDeleteMessage}
           />
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}

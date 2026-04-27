@@ -2779,6 +2779,7 @@ export function SellerDashboardPage({
     if (node) node.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   const resolveConversationMessageBody = (message) => {
+    if (message?.deletedAt) return "[message deleted]";
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -2791,6 +2792,7 @@ export function SellerDashboardPage({
     return translated || original;
   };
   const canToggleConversationTranslation = (message) => {
+    if (message?.deletedAt) return false;
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -3730,10 +3732,26 @@ export function SellerDashboardPage({
                     <div className="font-semibold">{order.id}</div>
                     <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</div>
                     <div className="mt-1 text-sm text-slate-600">{formatPriceTHB(order.total)} &middot; {order.paymentStatus} &middot; {order.fulfillmentStatus}</div>
-                    <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
-                      <span className="font-medium">{t("shipTo")}:</span>{" "}
-                      {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(", ") || "Not provided"}
-                    </div>
+                    {isAffiliated ? (
+                      <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                        <div>
+                          <span className="font-medium">Buyer:</span>{" "}
+                          {order.buyerDisplayName || "Buyer"}
+                        </div>
+                        <div className="mt-1">
+                          <span className="font-medium">For:</span>{" "}
+                          {order.customRequestId
+                            ? `Custom request #${order.customRequestId}`
+                            : `${(order.items || []).length} item${(order.items || []).length === 1 ? "" : "s"}`}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">Your bar handles shipping, so the buyer's address isn't shown here.</div>
+                      </div>
+                    ) : (
+                      <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                        <span className="font-medium">{t("shipTo")}:</span>{" "}
+                        {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(", ") || "Not provided"}
+                      </div>
+                    )}
                     {!isPaid ? (
                       <div className="mt-3 text-xs text-slate-500">{t("shipmentControlsNote")}</div>
                     ) : isProcessing ? (
@@ -4557,6 +4575,7 @@ export function SellerMessagesPage({
   barMap,
   sellerLanguage,
   currentUser,
+  softDeleteMessage,
   navigate
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
@@ -4599,6 +4618,7 @@ export function SellerMessagesPage({
   const activeSellerConversationLabel = isActiveBarThread ? (activeSellerConversation?._barName || "Bar") : resolveBuyerDisplayName(activeSellerConversation);
   const activeSellerConversationInitials = getConversationInitials(activeSellerConversationLabel);
   const resolveConversationMessageBody = (message) => {
+    if (message?.deletedAt) return "[message deleted]";
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -4611,6 +4631,7 @@ export function SellerMessagesPage({
     return translated || original;
   };
   const canToggleConversationTranslation = (message) => {
+    if (message?.deletedAt) return false;
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -4687,7 +4708,7 @@ export function SellerMessagesPage({
                       <div className="min-w-0">
                         <div className="truncate font-semibold">{buyerName}</div>
                         <div className="mt-0.5 text-xs text-slate-500">{isBarThread ? "Bar conversation" : t("customerConversation")}</div>
-                        <div className="mt-1 truncate text-sm text-slate-500">{message.body}</div>
+                        <div className="mt-1 truncate text-sm text-slate-500">{message.deletedAt ? "[message deleted]" : message.body}</div>
                       </div>
                     </div>
                     {message.hasUnread ?? !message.readBySeller ? <span className="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">New</span> : null}
@@ -4704,14 +4725,17 @@ export function SellerMessagesPage({
                   <span>{t("chattingWith")}: {activeSellerConversationLabel}</span>
                 </div>
                 <div ref={sellerMessagesContainerRef} className="max-h-64 space-y-3 overflow-y-auto">
-                  {safeSellerActiveConversationMessages.map((message) => (
+                  {safeSellerActiveConversationMessages.map((message) => {
+                    const isOwn = (message?.senderId || message?.senderUserId) === currentUser?.id;
+                    const isDeleted = Boolean(message?.deletedAt);
+                    return (
                     <div key={message.id} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${(message.senderRole === 'seller' || (isActiveBarThread && message.senderRole !== 'bar')) ? 'ml-auto bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                      {message.mediaUrl ? (
+                      {!isDeleted && message.mediaUrl ? (
                         message.mediaType === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(message.mediaUrl)
                           ? <video src={message.mediaUrl} controls playsInline loop muted className="mb-2 max-h-48 rounded-xl" />
                           : <img src={message.mediaUrl} alt="" className="mb-2 max-h-48 rounded-xl object-cover" />
                       ) : null}
-                      {resolveConversationMessageBody(message)}
+                      <span className={isDeleted ? "italic opacity-70" : ""}>{resolveConversationMessageBody(message)}</span>
                       {canToggleConversationTranslation(message) ? (
                         <button
                           type="button"
@@ -4721,8 +4745,21 @@ export function SellerMessagesPage({
                           {showOriginalMessageById[message.id] ? t("showTranslation") : t("showOriginal")}
                         </button>
                       ) : null}
+                      {isOwn && !isDeleted && typeof softDeleteMessage === "function" ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
+                            softDeleteMessage(message.id);
+                          }}
+                          aria-label="Delete message"
+                          className={`mt-2 block text-[11px] font-semibold underline-offset-2 hover:underline ${message.senderRole === 'seller' ? 'text-rose-100' : 'text-slate-500'}`}
+                        >
+                          Delete
+                        </button>
+                      ) : null}
                     </div>
-                  ))}
+                  );})}
                 </div>
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{sellerWritingPresetText.messagePresetLabel}</div>
@@ -12860,6 +12897,7 @@ export function AccountPage({
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   };
   const resolveConversationMessageBody = (message) => {
+    if (message?.deletedAt) return "[message deleted]";
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -12872,6 +12910,7 @@ export function AccountPage({
     return translated || original;
   };
   const canToggleConversationTranslation = (message) => {
+    if (message?.deletedAt) return false;
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -14061,6 +14100,7 @@ export function BuyerMessagesPage({
   uiLanguage = "en",
   navigate,
   notifications,
+  softDeleteMessage,
 }) {
   const locale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
   const accountText = ACCOUNT_PAGE_I18N[locale];
@@ -14116,6 +14156,7 @@ export function BuyerMessagesPage({
   };
   const resolveConversationMessageBody = (message) => {
     if (!message) return "";
+    if (message.deletedAt) return "[message deleted]";
     if (showOriginalMessageById[message.id]) return message.body || "";
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
       ? currentUser.preferredLanguage
@@ -14124,6 +14165,7 @@ export function BuyerMessagesPage({
   };
   const canToggleConversationTranslation = (message) => {
     if (!message || !message.translations) return false;
+    if (message.deletedAt) return false;
     const original = String(message.body || "");
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
       ? currentUser.preferredLanguage
@@ -14342,14 +14384,17 @@ export function BuyerMessagesPage({
             <div ref={buyerMessagesContainerRef} className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
               {buyerDashboardConversationMessages.length === 0 ? (
                 <div className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{tx("noMessagesInThread")}</div>
-              ) : buyerDashboardConversationMessages.map((message) => (
+              ) : buyerDashboardConversationMessages.map((message) => {
+                const isOwn = (message?.senderId || message?.senderUserId) === currentUser?.id;
+                const isDeleted = Boolean(message?.deletedAt);
+                return (
                 <div key={message.id} className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm ${message.senderRole === "buyer" ? "ml-auto bg-rose-100 text-rose-900 ring-1 ring-rose-200" : "bg-slate-100 text-slate-700"}`}>
-                  {message.mediaUrl ? (
+                  {!isDeleted && message.mediaUrl ? (
                     message.mediaType === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(message.mediaUrl)
                       ? <video src={message.mediaUrl} controls playsInline loop muted className="mb-2 max-h-48 rounded-xl" />
                       : <img src={message.mediaUrl} alt="" className="mb-2 max-h-48 rounded-xl object-cover" />
                   ) : null}
-                  <div>{resolveConversationMessageBody(message)}</div>
+                  <div className={isDeleted ? "italic opacity-70" : ""}>{resolveConversationMessageBody(message)}</div>
                   <div className={`mt-1 text-[11px] ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}>
                     {formatTimeNoSeconds(message.createdAt)}
                   </div>
@@ -14360,6 +14405,19 @@ export function BuyerMessagesPage({
                       className={`mt-1 text-[11px] font-semibold ${message.senderRole === "buyer" ? "text-rose-100" : "text-slate-500"}`}
                     >
                       {showOriginalMessageById[message.id] ? tx("showTranslation") : tx("showOriginal")}
+                    </button>
+                  ) : null}
+                  {isOwn && !isDeleted && typeof softDeleteMessage === "function" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
+                        softDeleteMessage(message.id);
+                      }}
+                      aria-label="Delete message"
+                      className={`mt-1 block text-[11px] font-semibold underline-offset-2 hover:underline ${message.senderRole === "buyer" ? "text-rose-700" : "text-slate-500"}`}
+                    >
+                      Delete
                     </button>
                   ) : null}
                   {message.senderRole === "seller" ? (
@@ -14438,7 +14496,7 @@ export function BuyerMessagesPage({
                     </div>
                   ) : null}
                 </div>
-              ))}
+              );})}
             </div>
             <div className="mt-4 space-y-3">
               <textarea

@@ -1596,7 +1596,7 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [], markNotificationsReadForConversation }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [], markNotificationsReadForConversation, softDeleteMessage }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
   const buyerUnreadDirectMessageCount = useMemo(() => {
@@ -1681,6 +1681,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
   const [requestShippingDraftById, setRequestShippingDraftById] = useState({});
   const [showShippingFormById, setShowShippingFormById] = useState({});
   const resolveRequestMessageBody = (message) => {
+    if (message?.deletedAt) return "[message deleted]";
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -1693,6 +1694,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     return translated || original;
   };
   const canToggleRequestTranslation = (message) => {
+    if (message?.deletedAt) return false;
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
     const preferredLanguage = ["en", "th", "my", "ru"].includes(currentUser?.preferredLanguage)
@@ -2529,12 +2531,13 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                   ) : (
                     messages.map((message) => {
                       const isOwn = (message.senderUserId || "") === currentUser?.id;
+                      const isDeleted = Boolean(message.deletedAt);
                       const bubble = isOwn ? "ml-auto bg-rose-600 text-white" : "bg-slate-100 text-slate-700";
                       const linkClass = isOwn ? "text-rose-100" : "text-slate-500";
                       return (
                         <div key={message.id} className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs ${bubble}`}>
-                          <div className="whitespace-pre-wrap">{resolveRequestMessageBody(message)}</div>
-                          {(message.imageAttachments || []).length > 0 ? (
+                          <div className={`whitespace-pre-wrap ${isDeleted ? "italic opacity-70" : ""}`}>{resolveRequestMessageBody(message)}</div>
+                          {!isDeleted && (message.imageAttachments || []).length > 0 ? (
                             <div className="mt-2 grid grid-cols-2 gap-2">
                               {(message.imageAttachments || []).map((image) => (
                                 <a
@@ -2556,6 +2559,19 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                               className={`mt-1 block text-[10px] font-semibold ${linkClass}`}
                             >
                               {showOriginalRequestMessageById[message.id] ? "Show translation" : "Show original"}
+                            </button>
+                          ) : null}
+                          {isOwn && !isDeleted && typeof softDeleteMessage === "function" ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
+                                softDeleteMessage(message.id);
+                              }}
+                              aria-label="Delete message"
+                              className={`mt-1 block text-[10px] font-semibold underline-offset-2 hover:underline ${linkClass}`}
+                            >
+                              Delete
                             </button>
                           ) : null}
                         </div>
