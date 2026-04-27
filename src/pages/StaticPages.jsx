@@ -1570,7 +1570,7 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, openWalletTopUpForFlow, navigate, uiLanguage = "en" }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {} }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
   const canSubmitRequest = currentUser?.role === "buyer";
@@ -1584,7 +1584,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
   const buyerPrompts = t.buyerPrompts || CUSTOM_REQUESTS_I18N.en.buyerPrompts || [];
   const requestPresets = t.requestPresets || CUSTOM_REQUESTS_I18N.en.requestPresets || [];
   const [requestForm, setRequestForm] = useState({
-    sellerId: (sellers || [])[0]?.id || "",
+    sellerId: (buyerRecentSellerIds && buyerRecentSellerIds[0]) || (sellers || [])[0]?.id || "",
     buyerName: currentUser?.name || "",
     buyerEmail: currentUser?.email || "",
     preferredDetails: "",
@@ -1649,10 +1649,32 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     return quoteStatus === "proposed" && quotedPrice >= MIN_CUSTOM_REQUEST_PURCHASE_THB;
   };
 
-  const sellerOptions = useMemo(
-    () => (sellers || []).map((seller) => ({ value: seller.id, label: seller.name })),
-    [sellers],
-  );
+  const groupedSellerOptions = useMemo(() => {
+    const allSellers = sellers || [];
+    const sellerById = new Map(allSellers.map((s) => [s.id, s]));
+    const recentIds = (buyerRecentSellerIds || []).filter((id) => sellerById.has(id));
+    const recentSet = new Set(recentIds);
+    const recents = recentIds.map((id) => sellerById.get(id));
+
+    const remaining = allSellers.filter((s) => !recentSet.has(s.id));
+    const byBar = new Map();
+    const independent = [];
+    remaining.forEach((s) => {
+      const barId = String(s.affiliatedBarId || "").trim();
+      if (barId && barMap?.[barId]) {
+        if (!byBar.has(barId)) byBar.set(barId, []);
+        byBar.get(barId).push(s);
+      } else {
+        independent.push(s);
+      }
+    });
+    byBar.forEach((arr) => arr.sort((a, b) => (a.name || "").localeCompare(b.name || "")));
+    independent.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    const barGroups = [...byBar.entries()].sort((a, b) =>
+      (barMap[a[0]]?.name || "").localeCompare(barMap[b[0]]?.name || "")
+    );
+    return { recents, barGroups, independent };
+  }, [sellers, buyerRecentSellerIds, barMap]);
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
@@ -1968,7 +1990,25 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                   className="rounded-2xl border border-slate-200 px-4 py-3"
                 >
                   <option value="">{localizeOptionLabel("Select seller...", uiLanguage)}</option>
-                  {sellerOptions.map((seller) => <option key={seller.value} value={seller.value}>{seller.label}</option>)}
+                  {groupedSellerOptions.recents.length > 0 ? (
+                    <optgroup label="Recent contacts">
+                      {groupedSellerOptions.recents.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </optgroup>
+                  ) : null}
+                  {groupedSellerOptions.barGroups.map(([barId, list]) => (
+                    <optgroup key={barId} label={barMap[barId]?.name || barId}>
+                      {list.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </optgroup>
+                  ))}
+                  {groupedSellerOptions.independent.length > 0 ? (
+                    <optgroup label="Independent">
+                      {groupedSellerOptions.independent.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </optgroup>
+                  ) : null}
                 </select>
               </label>
               <input value={requestForm.buyerName} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerName: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.yourName} />

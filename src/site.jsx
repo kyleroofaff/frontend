@@ -6979,6 +6979,34 @@ export default function ThailandPantiesMarketSite() {
       .filter((request) => request.buyerUserId === currentUser.id)
       .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [customRequests, currentUser]);
+  const buyerRecentSellerIds = useMemo(() => {
+    if (!currentUser || currentUser.role !== 'buyer') return [];
+    const lastTouch = new Map();
+    const bump = (sellerId, ts) => {
+      if (!sellerId) return;
+      const t = new Date(ts || 0).getTime() || 0;
+      if (t > (lastTouch.get(sellerId) || 0)) lastTouch.set(sellerId, t);
+    };
+    (messages || []).forEach((m) => { if (m?.buyerId === currentUser.id) bump(m.sellerId, m.createdAt); });
+    (customRequests || []).forEach((r) => { if (r?.buyerUserId === currentUser.id) bump(r.sellerId, r.updatedAt || r.createdAt); });
+    (sellerFollows || []).forEach((f) => { if ((f?.followerUserId || f?.userId) === currentUser.id) bump(f.sellerId, f.createdAt); });
+    (orders || []).forEach((o) => {
+      if (o?.buyerId !== currentUser.id) return;
+      const sellerIds = Array.isArray(o.items)
+        ? o.items.map((i) => i?.sellerId).filter(Boolean)
+        : [o?.sellerId].filter(Boolean);
+      sellerIds.forEach((sid) => bump(sid, o.createdAt));
+    });
+    const postSellerById = new Map((sellerPosts || []).map((p) => [p?.id, p?.sellerId]));
+    (postUnlocks || []).forEach((u) => {
+      if (u?.buyerUserId !== currentUser.id) return;
+      bump(postSellerById.get(u.postId), u.createdAt);
+    });
+    return [...lastTouch.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([sid]) => sid);
+  }, [messages, customRequests, sellerFollows, orders, postUnlocks, sellerPosts, currentUser]);
   const customRequestMessagesByRequestId = useMemo(() => {
     const grouped = {};
     (customRequestMessages || []).forEach((message) => {
@@ -21041,6 +21069,8 @@ export default function ThailandPantiesMarketSite() {
             openWalletTopUpForFlow={openSellerPageTopUp}
             uiLanguage={uiLanguage}
             navigate={navigate}
+            buyerRecentSellerIds={buyerRecentSellerIds}
+            barMap={barMap}
           />
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}
