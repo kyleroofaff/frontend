@@ -1948,55 +1948,55 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
             </div>
           ) : null}
         </div>
-        <div className="rounded-3xl bg-white p-8 shadow-md ring-1 ring-rose-100">
-          <div className="grid gap-4">
-            <label className="grid gap-1 text-sm text-slate-600">
-              <span className="font-medium">{t.seller}</span>
-              <select
-                value={requestForm.sellerId}
-                onChange={(event) => setRequestForm((prev) => ({ ...prev, sellerId: event.target.value }))}
-                className="rounded-2xl border border-slate-200 px-4 py-3"
-              >
-                <option value="">{localizeOptionLabel("Select seller...", uiLanguage)}</option>
-                {sellerOptions.map((seller) => <option key={seller.value} value={seller.value}>{seller.label}</option>)}
-              </select>
-            </label>
-            <input value={requestForm.buyerName} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerName: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.yourName} />
-            <input value={requestForm.buyerEmail} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerEmail: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.email} />
-            <input value={requestForm.preferredDetails} onChange={(event) => setRequestForm((prev) => ({ ...prev, preferredDetails: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.detailsPlaceholder} />
-            <input value={requestForm.shippingCountry} onChange={(event) => setRequestForm((prev) => ({ ...prev, shippingCountry: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.shippingCountry} />
-            <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[140px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.requestBodyPlaceholder} />
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={() => {
-                  submitCustomRequest(
-                    requestForm,
-                    () => {
-                      setRequestMessage(t.customRequestSubmitted);
-                      setRequestForm((prev) => ({ ...prev, preferredDetails: "", requestBody: "" }));
-                    },
-                    (message) => setRequestMessage(message || ""),
-                  );
-                }}
-                disabled={!canAffordNewRequest}
-                className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${!canAffordNewRequest ? "cursor-not-allowed opacity-60" : ""}`}
-              >
-                {t.sendRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
-              </button>
-              {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
-                <button
-                  type="button"
-                  onClick={() => openWalletTopUpForFlow(Math.max(0, CUSTOM_REQUEST_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
-                  className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+        {isBuyerView ? (
+          <div className="rounded-3xl bg-white p-8 shadow-md ring-1 ring-rose-100">
+            <div className="grid gap-4">
+              <label className="grid gap-1 text-sm text-slate-600">
+                <span className="font-medium">{t.seller}</span>
+                <select
+                  value={requestForm.sellerId}
+                  onChange={(event) => setRequestForm((prev) => ({ ...prev, sellerId: event.target.value }))}
+                  className="rounded-2xl border border-slate-200 px-4 py-3"
                 >
-                  Top up wallet
+                  <option value="">{localizeOptionLabel("Select seller...", uiLanguage)}</option>
+                  {sellerOptions.map((seller) => <option key={seller.value} value={seller.value}>{seller.label}</option>)}
+                </select>
+              </label>
+              <input value={requestForm.buyerName} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerName: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.yourName} />
+              <input value={requestForm.buyerEmail} onChange={(event) => setRequestForm((prev) => ({ ...prev, buyerEmail: event.target.value }))} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.email} />
+              <textarea value={requestForm.requestBody} onChange={(event) => setRequestForm((prev) => ({ ...prev, requestBody: event.target.value }))} className="min-h-[140px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={t.requestBodyPlaceholder} />
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => {
+                    submitCustomRequest(
+                      { ...requestForm, preferredDetails: "", shippingCountry: "" },
+                      () => {
+                        setRequestMessage(t.customRequestSubmitted);
+                        setRequestForm((prev) => ({ ...prev, requestBody: "" }));
+                      },
+                      (message) => setRequestMessage(message || ""),
+                    );
+                  }}
+                  disabled={!canAffordNewRequest}
+                  className={`rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white ${!canAffordNewRequest ? "cursor-not-allowed opacity-60" : ""}`}
+                >
+                  {t.sendRequest} ({formatPriceTHB(CUSTOM_REQUEST_FEE_THB)})
                 </button>
-              ) : null}
+                {Number(currentUser?.walletBalance || 0) < 100 && openWalletTopUpForFlow ? (
+                  <button
+                    type="button"
+                    onClick={() => openWalletTopUpForFlow(Math.max(0, CUSTOM_REQUEST_FEE_THB - Number(currentUser?.walletBalance || 0)), '/custom-requests', 'custom-request')}
+                    className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700"
+                  >
+                    Top up wallet
+                  </button>
+                ) : null}
+              </div>
+              {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
+              {requestMessage ? <div className="text-sm font-medium text-rose-700">{requestMessage}</div> : null}
             </div>
-            {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
-            {requestMessage ? <div className="text-sm font-medium text-rose-700">{requestMessage}</div> : null}
           </div>
-        </div>
+        ) : null}
       </div>
     </section>
   );
