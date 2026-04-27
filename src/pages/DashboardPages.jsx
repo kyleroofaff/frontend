@@ -2457,6 +2457,7 @@ export function SellerDashboardPage({
   editingProductId,
   sellerOrders,
   updateOrderShipment,
+  markOrderFulfilled,
   updatingOrderId,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
@@ -3704,51 +3705,53 @@ export function SellerDashboardPage({
             <div className="mt-4 space-y-4">
               {(sellerOrders || []).length === 0 ? (
                 <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{t("noSellerOrders")}</div>
-              ) : (sellerOrders || []).map((order) => (
-                <div key={order.id} className="rounded-2xl border border-rose-100 p-5">
-                  <div className="font-semibold">{order.id}</div>
-                  <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</div>
-                  <div className="mt-1 text-sm text-slate-600">{formatPriceTHB(order.total)} &middot; {order.paymentStatus} &middot; {order.fulfillmentStatus}</div>
-                  <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
-                    <span className="font-medium">{t("shipTo")}:</span>{" "}
-                    {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(", ") || "Not provided"}
-                  </div>
-                  {order.paymentStatus === "paid" ? (
-                    isAffiliated ? (
-                      <div className="mt-3 rounded-xl bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
-                        {order.trackingNumber
-                          ? <>{t("trackingCode")}: <span className="font-semibold">{order.trackingNumber}</span>{order.trackingCarrier && order.trackingCarrier !== "Not set" ? ` · ${t("carrier")}: ${order.trackingCarrier}` : ""}</>
-                          : t("sellerOrdersHelpAffiliated")}
+              ) : (sellerOrders || []).map((order) => {
+                const status = String(order.fulfillmentStatus || "processing").toLowerCase();
+                const isPaid = order.paymentStatus === "paid";
+                const isProcessing = status === "processing";
+                const isFulfilled = status === "fulfilled";
+                const isShipped = status === "shipped" || status === "delivered";
+                const draft = sellerOrderShipmentDrafts[order.id] || {};
+                return (
+                  <div key={order.id} className="rounded-2xl border border-rose-100 p-5">
+                    <div className="font-semibold">{order.id}</div>
+                    <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</div>
+                    <div className="mt-1 text-sm text-slate-600">{formatPriceTHB(order.total)} &middot; {order.paymentStatus} &middot; {order.fulfillmentStatus}</div>
+                    <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                      <span className="font-medium">{t("shipTo")}:</span>{" "}
+                      {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(", ") || "Not provided"}
+                    </div>
+                    {!isPaid ? (
+                      <div className="mt-3 text-xs text-slate-500">{t("shipmentControlsNote")}</div>
+                    ) : isProcessing ? (
+                      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="text-sm text-slate-700">
+                          {isAffiliated
+                            ? "Take this order to your bar, then mark it as ready."
+                            : "When the package is ready to ship, mark it as fulfilled."}
+                        </div>
+                        <button
+                          onClick={() => markOrderFulfilled && markOrderFulfilled(order.id)}
+                          disabled={updatingOrderId === order.id}
+                          className={`rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 ${updatingOrderId === order.id ? "cursor-not-allowed opacity-60" : "hover:bg-emerald-100"}`}
+                        >
+                          {updatingOrderId === order.id ? t("saving") : (isAffiliated ? "Mark fulfilled (taken to bar)" : "Mark fulfilled (ready to ship)")}
+                        </button>
                       </div>
-                    ) : (
-                      <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_1fr_0.95fr_auto] md:items-end">
-                        <label className="text-sm text-slate-700">
-                          {t("fulfillmentStatus")}
-                          <select
-                            value={sellerOrderShipmentDrafts[order.id]?.fulfillmentStatus || order.fulfillmentStatus || "processing"}
-                            onChange={(event) => setSellerOrderShipmentDrafts((prev) => ({
-                              ...prev,
-                              [order.id]: {
-                                fulfillmentStatus: event.target.value,
-                                trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? "",
-                                trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? "",
-                              },
-                            }))}
-                            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                          >
-                            <option value="processing">processing</option>
-                            <option value="shipped">shipped</option>
-                            <option value="delivered">delivered</option>
-                          </select>
-                        </label>
+                    ) : isFulfilled && isAffiliated ? (
+                      <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
+                        Awaiting bar to ship.
+                      </div>
+                    ) : isFulfilled && !isAffiliated ? (
+                      <div className="mt-4 grid gap-3 md:grid-cols-[1fr_0.95fr_auto] md:items-end">
                         <label className="text-sm text-slate-700">
                           {t("trackingCode")}
                           <input
-                            value={sellerOrderShipmentDrafts[order.id]?.trackingNumber ?? order.trackingNumber ?? ""}
+                            value={draft.trackingNumber ?? order.trackingNumber ?? ""}
                             onChange={(event) => setSellerOrderShipmentDrafts((prev) => ({
                               ...prev,
                               [order.id]: {
-                                fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || "processing",
+                                fulfillmentStatus: "shipped",
                                 trackingNumber: event.target.value,
                                 trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? "",
                               },
@@ -3760,11 +3763,11 @@ export function SellerDashboardPage({
                         <label className="text-sm text-slate-700">
                           {t("carrier")}
                           <select
-                            value={sellerOrderShipmentDrafts[order.id]?.trackingCarrier ?? order.trackingCarrier ?? "Not set"}
+                            value={draft.trackingCarrier ?? order.trackingCarrier ?? "Not set"}
                             onChange={(event) => setSellerOrderShipmentDrafts((prev) => ({
                               ...prev,
                               [order.id]: {
-                                fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || "processing",
+                                fulfillmentStatus: "shipped",
                                 trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? "",
                                 trackingCarrier: event.target.value,
                               },
@@ -3778,24 +3781,32 @@ export function SellerDashboardPage({
                         </label>
                         <button
                           onClick={() => {
-                            const draft = sellerOrderShipmentDrafts[order.id] || {};
-                            const nextStatus = draft.fulfillmentStatus || order.fulfillmentStatus || "processing";
-                            const nextTracking = draft.trackingNumber ?? order.trackingNumber ?? "";
-                            const nextCarrier = draft.trackingCarrier ?? order.trackingCarrier ?? "";
-                            updateOrderShipment(order.id, nextStatus, nextTracking, nextCarrier);
+                            const nextTracking = String(draft.trackingNumber ?? order.trackingNumber ?? "").trim();
+                            const nextCarrier = String(draft.trackingCarrier ?? order.trackingCarrier ?? "").trim();
+                            if (!nextTracking || !nextCarrier || nextCarrier === "Not set") return;
+                            updateOrderShipment(order.id, "shipped", nextTracking, nextCarrier);
                           }}
-                          disabled={updatingOrderId === order.id}
-                          className={`rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 ${updatingOrderId === order.id ? "cursor-not-allowed opacity-60" : ""}`}
+                          disabled={
+                            updatingOrderId === order.id
+                            || !String(draft.trackingNumber ?? order.trackingNumber ?? "").trim()
+                            || !String(draft.trackingCarrier ?? order.trackingCarrier ?? "").trim()
+                            || (draft.trackingCarrier ?? order.trackingCarrier ?? "Not set") === "Not set"
+                          }
+                          className={`rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 ${updatingOrderId === order.id ? "cursor-not-allowed opacity-60" : ""} disabled:cursor-not-allowed disabled:opacity-60`}
                         >
-                          {updatingOrderId === order.id ? t("saving") : t("saveShipment")}
+                          {updatingOrderId === order.id ? t("saving") : "Mark shipped"}
                         </button>
                       </div>
-                    )
-                  ) : (
-                    <div className="mt-3 text-xs text-slate-500">{t("shipmentControlsNote")}</div>
-                  )}
-                </div>
-              ))}
+                    ) : isShipped ? (
+                      <div className="mt-3 rounded-xl bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
+                        {order.trackingNumber
+                          ? <>{t("trackingCode")}: <span className="font-semibold">{order.trackingNumber}</span>{order.trackingCarrier && order.trackingCarrier !== "Not set" ? ` · ${t("carrier")}: ${order.trackingCarrier}` : ""}</>
+                          : t("sellerOrdersHelpAffiliated")}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
           </details>
           ) : null}

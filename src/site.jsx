@@ -16973,9 +16973,48 @@ export default function ThailandPantiesMarketSite() {
     }
   }
 
+  async function markOrderFulfilled(orderId) {
+    if (!currentUser || (currentUser.role !== 'seller' && currentUser.role !== 'admin')) return;
+    if (!orderId) return;
+    if (updatingOrderId === orderId) return;
+    setUpdatingOrderId(orderId);
+    try {
+      if (!apiAuthToken) {
+        const now = new Date().toISOString();
+        setDb((prev) => ({
+          ...prev,
+          orders: (prev.orders || []).map((order) => (
+            order.id === orderId
+              ? { ...order, fulfillmentStatus: 'fulfilled', fulfilledAt: now, updatedAt: now }
+              : order
+          )),
+        }));
+        return;
+      }
+      const { ok, payload } = await apiRequestJson(`/api/orders/${encodeURIComponent(orderId)}/fulfill`, {
+        method: 'POST',
+        body: {},
+        idempotencyScope: `order-fulfill-${orderId}`,
+      });
+      if (!ok) {
+        console.warn('[markOrderFulfilled] API rejected:', payload?.error);
+        return;
+      }
+      const updatedOrder = payload?.order;
+      if (updatedOrder?.id) {
+        setDb((prev) => ({
+          ...prev,
+          orders: (prev.orders || []).map((o) => (o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o)),
+        }));
+      }
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  }
+
   function updateOrderShipment(orderId, nextFulfillmentStatus, nextTrackingNumber, nextTrackingCarrier) {
     if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'bar' && currentUser.role !== 'seller')) return;
-    if (!orderId || !['processing', 'shipped', 'delivered'].includes(nextFulfillmentStatus)) return;
+    if (!orderId || !['processing', 'fulfilled', 'shipped', 'delivered'].includes(nextFulfillmentStatus)) return;
     if (updatingOrderId === orderId) return;
     setUpdatingOrderId(orderId);
     try {
@@ -19519,90 +19558,99 @@ export default function ThailandPantiesMarketSite() {
                   <div className="mt-4 space-y-4">
                     {barOrders.length === 0 ? (
                       <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No orders for your affiliated sellers yet.</div>
-                    ) : barOrders.map((order) => (
-                      <div key={order.id} className="rounded-2xl border border-rose-100 p-5">
-                        <div className="font-semibold">{order.id}</div>
-                        <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</div>
-                        <div className="mt-1 text-sm text-slate-600">{formatPriceTHB(order.total)} &middot; {order.paymentStatus} &middot; {order.fulfillmentStatus}</div>
-                        <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
-                          <span className="font-medium">Ship to:</span>{' '}
-                          {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(', ') || 'Not provided'}
-                        </div>
-                        {order.paymentStatus === 'paid' ? (
-                          <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_1fr_0.95fr_auto] md:items-end">
-                            <label className="text-sm text-slate-700">
-                              Fulfillment status
-                              <select
-                                value={barOrderShipmentDrafts[order.id]?.fulfillmentStatus || order.fulfillmentStatus || 'processing'}
-                                onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
-                                  ...prev,
-                                  [order.id]: {
-                                    fulfillmentStatus: event.target.value,
-                                    trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? '',
-                                    trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? '',
-                                  },
-                                }))}
-                                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                              >
-                                <option value="processing">processing</option>
-                                <option value="shipped">shipped</option>
-                                <option value="delivered">delivered</option>
-                              </select>
-                            </label>
-                            <label className="text-sm text-slate-700">
-                              Tracking code
-                              <input
-                                value={barOrderShipmentDrafts[order.id]?.trackingNumber ?? order.trackingNumber ?? ''}
-                                onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
-                                  ...prev,
-                                  [order.id]: {
-                                    fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || 'processing',
-                                    trackingNumber: event.target.value,
-                                    trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? '',
-                                  },
-                                }))}
-                                placeholder="e.g. TH1234567890"
-                                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                              />
-                            </label>
-                            <label className="text-sm text-slate-700">
-                              Carrier
-                              <select
-                                value={barOrderShipmentDrafts[order.id]?.trackingCarrier ?? order.trackingCarrier ?? 'Not set'}
-                                onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
-                                  ...prev,
-                                  [order.id]: {
-                                    fulfillmentStatus: prev[order.id]?.fulfillmentStatus || order.fulfillmentStatus || 'processing',
-                                    trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? '',
-                                    trackingCarrier: event.target.value,
-                                  },
-                                }))}
-                                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                              >
-                                {BAR_TRACKING_CARRIER_OPTIONS.map((option) => (
-                                  <option key={option} value={option}>{option}</option>
-                                ))}
-                              </select>
-                            </label>
-                            <button
-                              onClick={() => {
-                                const draft = barOrderShipmentDrafts[order.id] || {};
-                                const nextStatus = draft.fulfillmentStatus || order.fulfillmentStatus || 'processing';
-                                const nextTracking = draft.trackingNumber ?? order.trackingNumber ?? '';
-                                const nextCarrier = draft.trackingCarrier ?? order.trackingCarrier ?? '';
-                                updateOrderShipment(order.id, nextStatus, nextTracking, nextCarrier);
-                              }}
-                              disabled={updatingOrderId === order.id}
-                              className={`rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 ${updatingOrderId === order.id ? 'cursor-not-allowed opacity-60' : ''}`}
-                            >
-                              {updatingOrderId === order.id ? 'Saving...' : 'Save shipment'}
-                            </button>
+                    ) : barOrders.map((order) => {
+                      const status = String(order.fulfillmentStatus || 'processing').toLowerCase();
+                      const isPaid = order.paymentStatus === 'paid';
+                      const isProcessing = status === 'processing';
+                      const isFulfilled = status === 'fulfilled';
+                      const isShipped = status === 'shipped' || status === 'delivered';
+                      const draft = barOrderShipmentDrafts[order.id] || {};
+                      const trackingValue = draft.trackingNumber ?? order.trackingNumber ?? '';
+                      const carrierValue = draft.trackingCarrier ?? order.trackingCarrier ?? 'Not set';
+                      const trackingFilled = String(trackingValue).trim().length > 0;
+                      const carrierFilled = Boolean(carrierValue) && carrierValue !== 'Not set';
+                      return (
+                        <div key={order.id} className="rounded-2xl border border-rose-100 p-5">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="font-semibold">{order.id}</div>
+                            {isProcessing ? (
+                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">Awaiting seller drop-off</span>
+                            ) : isFulfilled ? (
+                              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800">Ready to ship</span>
+                            ) : isShipped ? (
+                              <span className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-[11px] font-semibold text-indigo-800">{status}</span>
+                            ) : null}
                           </div>
-                        ) : (
-                          <div className="mt-3 text-xs text-slate-500">Shipment controls become available after payment is marked as paid.</div>
-                        )}
-                      </div>
-                    ))}
+                          <div className="mt-1 text-sm text-slate-600">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</div>
+                          <div className="mt-1 text-sm text-slate-600">{formatPriceTHB(order.total)} &middot; {order.paymentStatus} &middot; {order.fulfillmentStatus}</div>
+                          <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                            <span className="font-medium">Ship to:</span>{' '}
+                            {[order.shippingAddress, order.shippingPostalCode, order.shippingCountry].filter(Boolean).join(', ') || 'Not provided'}
+                          </div>
+                          {!isPaid ? (
+                            <div className="mt-3 text-xs text-slate-500">Shipment controls become available after payment is marked as paid.</div>
+                          ) : isProcessing ? (
+                            <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                              Waiting for the seller to drop off this order. They'll mark it fulfilled once it arrives.
+                            </div>
+                          ) : isFulfilled ? (
+                            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_0.95fr_auto] md:items-end">
+                              <label className="text-sm text-slate-700">
+                                Tracking code
+                                <input
+                                  value={trackingValue}
+                                  onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
+                                    ...prev,
+                                    [order.id]: {
+                                      fulfillmentStatus: 'shipped',
+                                      trackingNumber: event.target.value,
+                                      trackingCarrier: prev[order.id]?.trackingCarrier ?? order.trackingCarrier ?? '',
+                                    },
+                                  }))}
+                                  placeholder="e.g. TH1234567890"
+                                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                                />
+                              </label>
+                              <label className="text-sm text-slate-700">
+                                Carrier
+                                <select
+                                  value={carrierValue}
+                                  onChange={(event) => setBarOrderShipmentDrafts((prev) => ({
+                                    ...prev,
+                                    [order.id]: {
+                                      fulfillmentStatus: 'shipped',
+                                      trackingNumber: prev[order.id]?.trackingNumber ?? order.trackingNumber ?? '',
+                                      trackingCarrier: event.target.value,
+                                    },
+                                  }))}
+                                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                                >
+                                  {BAR_TRACKING_CARRIER_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                  ))}
+                                </select>
+                              </label>
+                              <button
+                                onClick={() => {
+                                  if (!trackingFilled || !carrierFilled) return;
+                                  updateOrderShipment(order.id, 'shipped', String(trackingValue).trim(), String(carrierValue).trim());
+                                }}
+                                disabled={updatingOrderId === order.id || !trackingFilled || !carrierFilled}
+                                className={`rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 ${updatingOrderId === order.id ? 'cursor-not-allowed opacity-60' : ''} disabled:cursor-not-allowed disabled:opacity-60`}
+                              >
+                                {updatingOrderId === order.id ? 'Saving...' : 'Mark shipped'}
+                              </button>
+                            </div>
+                          ) : isShipped ? (
+                            <div className="mt-3 rounded-xl bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
+                              {order.trackingNumber
+                                ? <>Tracking code: <span className="font-semibold">{order.trackingNumber}</span>{order.trackingCarrier && order.trackingCarrier !== 'Not set' ? ` · Carrier: ${order.trackingCarrier}` : ''}</>
+                                : 'Marked shipped.'}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
                   </div>
                 </details>
                 <div className="mt-6 space-y-8">
@@ -20002,6 +20050,7 @@ export default function ThailandPantiesMarketSite() {
             editingProductId={editingProductId}
             sellerOrders={sellerOrders}
             updateOrderShipment={updateOrderShipment}
+            markOrderFulfilled={markOrderFulfilled}
             updatingOrderId={updatingOrderId}
           />
           </>
