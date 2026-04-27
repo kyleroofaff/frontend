@@ -1096,6 +1096,24 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
   const [pageLanguage, setPageLanguage] = useState(uiLanguage);
   const locale = HELP_I18N[pageLanguage] ? pageLanguage : "en";
   const text = helpText(locale);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash ? window.location.hash.replace(/^#/, "") : "";
+    if (!hash) return;
+    let attempts = 0;
+    const tryScroll = () => {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (attempts < 20) {
+        attempts += 1;
+        window.setTimeout(tryScroll, 100);
+      }
+    };
+    tryScroll();
+  }, []);
   const allFaqs = Array.isArray(text.faqs) ? text.faqs : [];
   const barSignals = /(bar|bars|bar messages|bar dashboard|บาร์|ข้อความบาร์|แดชบอร์ดบาร์|ဘား|bar ကို|бар|бары|сообщения бара)/i;
   const sellerSignals = /(seller|sellers|seller dashboard|stories|seller feed|ผู้ขาย|แดชบอร์ดผู้ขาย|ရောင်းသူ|seller\s*dashboard|продав|панель продавца)/i;
@@ -1578,7 +1596,7 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [] }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [], markNotificationsReadForConversation }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
   const buyerUnreadDirectMessageCount = useMemo(() => {
@@ -1588,6 +1606,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
       && n.type === "message"
       && !n.read
       && String(n.conversationId || "").includes("__")
+      && !String(n.conversationId || "").startsWith("custom_request_")
     )).length;
   }, [notifications, currentUser]);
   const canSubmitRequest = currentUser?.role === "buyer";
@@ -1635,6 +1654,10 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     () => visibleRequests.find((r) => r.id === selectedRequestId) || null,
     [visibleRequests, selectedRequestId],
   );
+  useEffect(() => {
+    if (!selectedRequestId || typeof markNotificationsReadForConversation !== "function") return;
+    markNotificationsReadForConversation(`custom_request_${selectedRequestId}`);
+  }, [selectedRequestId, markNotificationsReadForConversation]);
   const [requestForm, setRequestForm] = useState({
     sellerId: (buyerRecentSellerIds && buyerRecentSellerIds[0]) || (sellers || [])[0]?.id || "",
     buyerName: currentUser?.name || "",
@@ -2193,7 +2216,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                                   />
                                   <p className="mt-1 text-[10px] text-slate-500">
                                     Required by international carriers (DHL/FedEx/UPS) — they may need to reach you about delivery.
-                                    We won't call you. <a href="/faqs#phone" className="font-semibold text-rose-600 hover:underline">Why?</a>
+                                    We won't call you. <a href="/faq#phone" target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-600 hover:underline">Why?</a>
                                   </p>
                                 </div>
                               </div>

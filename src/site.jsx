@@ -13626,7 +13626,7 @@ export default function ThailandPantiesMarketSite() {
             ...(payout.sellerUserId && payout.sellerAmount > 0 ? [{
               id: `txn_${Date.now()}_quote_seller`,
               userId: payout.sellerUserId,
-              type: 'order_payment',
+              type: 'order_sale_earning',
               amount: payout.sellerAmount,
               description: `Custom request quote accepted (${requestId})`,
               createdAt: now,
@@ -13634,7 +13634,7 @@ export default function ThailandPantiesMarketSite() {
             ...(payout.barUserId && payout.barAmount > 0 ? [{
               id: `txn_${Date.now()}_quote_bar`,
               userId: payout.barUserId,
-              type: 'order_payment',
+              type: 'order_bar_commission',
               amount: payout.barAmount,
               description: `Bar commission for custom request (${requestId})`,
               createdAt: now,
@@ -13642,7 +13642,7 @@ export default function ThailandPantiesMarketSite() {
             ...(payout.adminUserId && payout.adminAmount > 0 ? [{
               id: `txn_${Date.now()}_quote_admin`,
               userId: payout.adminUserId,
-              type: 'order_payment',
+              type: 'order_platform_commission',
               amount: payout.adminAmount,
               description: `Platform commission for custom request (${requestId})`,
               createdAt: now,
@@ -21374,6 +21374,7 @@ export default function ThailandPantiesMarketSite() {
             barMap={barMap}
             notifications={notifications}
             orders={orders}
+            markNotificationsReadForConversation={markNotificationsReadForConversation}
           />
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}

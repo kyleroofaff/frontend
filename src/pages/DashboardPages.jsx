@@ -2756,6 +2756,15 @@ export function SellerDashboardPage({
       }).length,
     [sellerCustomRequests],
   );
+  const sellerUnreadCustomRequestCount = useMemo(() => {
+    if (currentUser?.role !== "seller") return 0;
+    return (notifications || []).filter((n) => (
+      n.userId === currentUser.id
+      && (n.type === "custom_request" || n.type === "message")
+      && !n.read
+      && String(n.conversationId || "").startsWith("custom_request_")
+    )).length;
+  }, [notifications, currentUser]);
   const inAppAllEnabled =
     (currentUser?.notificationPreferences?.message !== false)
     && (currentUser?.notificationPreferences?.engagement !== false);
@@ -2949,7 +2958,11 @@ export function SellerDashboardPage({
               onClick={() => navigate("/custom-requests")}
               className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
             >
-              {t("customRequestsTab")} {openSellerRequestCount > 0 ? `(${openSellerRequestCount})` : ""}
+              {t("customRequestsTab")} {openSellerRequestCount > 0
+                ? `(${openSellerRequestCount}${sellerUnreadCustomRequestCount > 0 ? ` · ${sellerUnreadCustomRequestCount} new` : ""})`
+                : sellerUnreadCustomRequestCount > 0
+                ? `(${sellerUnreadCustomRequestCount} new)`
+                : ""}
             </button>
             <button
               type="button"
@@ -5108,7 +5121,7 @@ export function StoriesPage({
     if (currentUser?.role !== "buyer") return 0;
     return (notifications || []).filter((n) => (
       n.userId === currentUser.id
-      && n.type === "message"
+      && (n.type === "custom_request" || n.type === "message")
       && !n.read
       && String(n.conversationId || "").startsWith("custom_request_")
     )).length;
@@ -7234,7 +7247,7 @@ export function AdminPage({
         const isCommentFlow = lowerDescription.includes("comment");
         if (!isCustomRequest && !isMessageFlow && !isCommentFlow) return null;
         if (!["admin", "bar", "seller"].includes(user.role)) return null;
-        if (entry.type !== "message_fee" && entry.type !== "order_payment") return null;
+        if (!["message_fee", "order_payment", "order_sale_earning", "order_bar_commission", "order_platform_commission"].includes(entry.type)) return null;
         return {
           ...entry,
           userName: user.name || user.id,
@@ -12026,7 +12039,7 @@ export function CheckoutPage({
                     />
                     <span className="mt-1 block text-xs text-slate-500">
                       Required by international carriers (DHL/FedEx/UPS) so they can reach you about delivery.
-                      We won't call you — see our <a href="/faqs#phone" className="font-semibold text-rose-600 hover:underline">FAQ on this</a>.
+                      We won't call you — see our <a href="/faq#phone" target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-600 hover:underline">FAQ on this</a>.
                     </span>
                   </label>
                   {attemptedStepTwoContinue && !trimmedPhone ? <div className="text-xs text-rose-600">Phone number is required.</div> : null}
@@ -12642,7 +12655,7 @@ export function AccountPage({
     if (currentUser?.role !== "buyer") return [];
     return (notifications || []).filter((notification) => (
       notification.userId === currentUser.id
-      && notification.type === "message"
+      && (notification.type === "message" || notification.type === "custom_request")
       && !notification.read
     ));
   }, [notifications, currentUser]);
@@ -13694,7 +13707,7 @@ export function AccountPage({
                     />
                     <span className="text-xs text-slate-500">
                       Required by international carriers (DHL/FedEx/UPS) for delivery contact. We won't call you —
-                      see <a href="/faqs#phone" className="font-semibold text-rose-600 hover:underline">why we ask</a>.
+                      see <a href="/faq#phone" target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-600 hover:underline">why we ask</a>.
                     </span>
                   </label>
                   {currentUser.role === "buyer" ? (
@@ -14056,7 +14069,7 @@ export function BuyerMessagesPage({
     if (currentUser?.role !== "buyer") return 0;
     return (notifications || []).filter((n) => (
       n.userId === currentUser.id
-      && n.type === "message"
+      && (n.type === "custom_request" || n.type === "message")
       && !n.read
       && String(n.conversationId || "").startsWith("custom_request_")
     )).length;
