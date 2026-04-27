@@ -14011,11 +14011,11 @@ export function BuyerMessagesPage({
                       onChange={(e) => setBuyerConversationBarFilter(e.target.value)}
                       className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
                     >
-                      <option value="all">{tx("allSellers") || "All sellers"}</option>
+                      <option value="all">All sellers</option>
                       {barOptions.map(([barId, barName]) => (
                         <option key={barId} value={barId}>{barName}</option>
                       ))}
-                      {hasIndependent && <option value="independent">{tx("independent") || "Independent"}</option>}
+                      {hasIndependent && <option value="independent">Independent</option>}
                     </select>
                   );
                 })()}
@@ -14049,7 +14049,7 @@ export function BuyerMessagesPage({
                           <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">{sellerInitials}</span>
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-semibold">{tx("conversationWith")} {sellerName}</div>
-                            {barName ? <div className="mt-0.5 text-xs text-indigo-600">{barName}</div> : <div className="mt-0.5 text-xs text-slate-400">{tx("independent") || "Independent"}</div>}
+                            {barName ? <div className="mt-0.5 text-xs text-indigo-600">{barName}</div> : <div className="mt-0.5 text-xs text-slate-400">Independent</div>}
                             <div className="mt-1 truncate text-sm text-slate-500">{conversation.latestBody}</div>
                           </div>
                         </div>
