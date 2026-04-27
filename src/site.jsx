@@ -7358,6 +7358,36 @@ export default function ThailandPantiesMarketSite() {
                 changed = true;
               }
             }
+            const serverCustomRequests = Array.isArray(payload.db.customRequests) ? payload.db.customRequests : [];
+            if (serverCustomRequests.length > 0) {
+              const localReqMap = new Map((merged.customRequests || []).map((r) => [String(r?.id || ''), r]));
+              let reqsChanged = false;
+              serverCustomRequests.forEach((serverReq) => {
+                if (!serverReq?.id) return;
+                const id = String(serverReq.id);
+                const local = localReqMap.get(id);
+                if (!local) {
+                  localReqMap.set(id, serverReq);
+                  reqsChanged = true;
+                } else {
+                  localReqMap.set(id, { ...local, ...serverReq });
+                  reqsChanged = true;
+                }
+              });
+              if (reqsChanged) {
+                merged.customRequests = Array.from(localReqMap.values());
+                changed = true;
+              }
+            }
+            const serverCustomRequestMessages = Array.isArray(payload.db.customRequestMessages) ? payload.db.customRequestMessages : [];
+            if (serverCustomRequestMessages.length > 0) {
+              const localCrmIds = new Set((merged.customRequestMessages || []).map((m) => String(m?.id || '')));
+              const newCrms = serverCustomRequestMessages.filter((m) => m?.id && !localCrmIds.has(String(m.id)));
+              if (newCrms.length > 0) {
+                merged.customRequestMessages = [...(merged.customRequestMessages || []), ...newCrms];
+                changed = true;
+              }
+            }
             const serverProducts = Array.isArray(payload.db.products) ? payload.db.products : [];
             if (serverProducts.length > 0) {
               const localProductMap = new Map((merged.products || []).map((p) => [String(p?.id || ''), p]));
