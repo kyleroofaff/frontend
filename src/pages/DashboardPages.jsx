@@ -5655,6 +5655,7 @@ export function AdminPage({
   sellers,
   updateBarProfileByAdmin,
   setSellerBarAffiliationByAdmin,
+  updateSellerNameByAdmin,
   removeBarByAdmin,
   toggleAdminBlockUser,
   updateUserCredentialsByAdmin,
@@ -5823,6 +5824,10 @@ export function AdminPage({
   const [adminAccessSaving, setAdminAccessSaving] = useState(false);
   const [adminAccessMessage, setAdminAccessMessage] = useState("");
   const [adminAccessTone, setAdminAccessTone] = useState("neutral");
+  const [adminEditSellerNameDraft, setAdminEditSellerNameDraft] = useState("");
+  const [adminEditSellerNameSaving, setAdminEditSellerNameSaving] = useState(false);
+  const [adminEditSellerNameMessage, setAdminEditSellerNameMessage] = useState("");
+  const [adminEditSellerNameTone, setAdminEditSellerNameTone] = useState("neutral");
   const [walletAdjustDirection, setWalletAdjustDirection] = useState("credit");
   const [walletAdjustAmount, setWalletAdjustAmount] = useState("");
   const [walletAdjustReason, setWalletAdjustReason] = useState("");
@@ -7414,6 +7419,10 @@ export function AdminPage({
   const selectedSellerAffiliatedBar = selectedSellerProfile?.affiliatedBarId
     ? (bars || []).find((bar) => bar.id === selectedSellerProfile.affiliatedBarId)
     : null;
+  useEffect(() => {
+    setAdminEditSellerNameDraft(selectedSellerProfile?.name || "");
+    setAdminEditSellerNameMessage("");
+  }, [selectedSellerProfile?.id, selectedSellerProfile?.name]);
   const canManageAffiliations = adminPermissions?.canManageAffiliations !== false;
   const canBlockUsers = adminPermissions?.canBlockUsers !== false;
   const canManageAdminAccess = adminPermissions?.canManageAdminAccess === true;
@@ -8637,6 +8646,40 @@ export function AdminPage({
                         {" · "}
                         Appeals: <span className="font-semibold">{pendingAppeals.filter((appeal) => appeal.userId === adminSelectedUser.id).length} pending</span>
                       </div>
+                      {selectedSellerProfile && canManageAffiliations && updateSellerNameByAdmin ? (
+                        <div className="mt-4 rounded-2xl border border-slate-200 p-4">
+                          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Seller profile name</div>
+                          <p className="mt-1 text-sm text-slate-600">Edit the display name for this seller profile.</p>
+                          <div className="mt-3 flex flex-wrap items-end gap-3">
+                            <input
+                              type="text"
+                              value={adminEditSellerNameDraft}
+                              onChange={(e) => setAdminEditSellerNameDraft(e.target.value)}
+                              className="min-w-[200px] flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                              placeholder="Seller name"
+                            />
+                            <button
+                              onClick={async () => {
+                                if (!adminEditSellerNameDraft.trim()) return;
+                                setAdminEditSellerNameSaving(true);
+                                const result = await updateSellerNameByAdmin(selectedSellerProfile.id, adminEditSellerNameDraft);
+                                setAdminEditSellerNameSaving(false);
+                                setAdminEditSellerNameMessage(result?.message || result?.error || "");
+                                setAdminEditSellerNameTone(result?.ok ? "success" : "error");
+                              }}
+                              disabled={adminEditSellerNameSaving || !adminEditSellerNameDraft.trim()}
+                              className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${adminEditSellerNameSaving ? "cursor-not-allowed border-slate-200 text-slate-400" : "border-rose-200 text-rose-700"}`}
+                            >
+                              {adminEditSellerNameSaving ? "Saving..." : "Update name"}
+                            </button>
+                            {adminEditSellerNameMessage ? (
+                              <div className={`text-xs font-semibold ${adminEditSellerNameTone === "error" ? "text-rose-700" : "text-emerald-700"}`}>
+                                {adminEditSellerNameMessage}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
                       {canManagePayments ? (
                         <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
                           <div className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Wallet adjustment</div>

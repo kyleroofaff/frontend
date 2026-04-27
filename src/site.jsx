@@ -9463,6 +9463,33 @@ export default function ThailandPantiesMarketSite() {
     return { ok: true, message: normalizedBarId ? adminActionText('sellerAffiliationUpdated') : adminActionText('sellerSetIndependent') };
   }
 
+  async function updateSellerNameByAdmin(sellerId, newName) {
+    if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.AFFILIATIONS_MANAGE) || !sellerId) {
+      return { ok: false, error: 'You do not have permission to update seller profiles.' };
+    }
+    const trimmedName = String(newName || '').trim();
+    if (!trimmedName) return { ok: false, error: 'Name cannot be empty.' };
+    setDb((prev) => ({
+      ...prev,
+      sellers: (prev.sellers || []).map((seller) =>
+        seller.id === sellerId ? { ...seller, name: trimmedName } : seller
+      ),
+    }));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      try {
+        await apiRequestJson(`/api/sellers/${encodeURIComponent(sellerId)}`, {
+          method: 'PUT',
+          body: { name: trimmedName },
+        });
+      } catch (err) {
+        console.warn('[updateSellerNameByAdmin] API sync failed:', err);
+        return { ok: false, error: 'Failed to save name to server.' };
+      }
+    }
+    setAdminAuthActionMessage('Seller name updated.');
+    return { ok: true, message: 'Seller name updated.' };
+  }
+
   function removeBarByAdmin(barId) {
     if (!currentUser || !hasAdminScopeAccess(currentUser, ADMIN_SCOPES.AFFILIATIONS_MANAGE) || !barId) return;
     const now = new Date().toISOString();
@@ -20011,6 +20038,7 @@ export default function ThailandPantiesMarketSite() {
             sellers={reconciledSellers}
             updateBarProfileByAdmin={updateBarProfileByAdmin}
             setSellerBarAffiliationByAdmin={setSellerBarAffiliationByAdmin}
+            updateSellerNameByAdmin={updateSellerNameByAdmin}
             removeBarByAdmin={removeBarByAdmin}
             toggleAdminBlockUser={toggleAdminBlockUser}
             updateUserCredentialsByAdmin={updateUserCredentialsByAdmin}
