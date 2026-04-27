@@ -5079,10 +5079,29 @@ export function StoriesPage({
   canViewSellerPost,
   isSellerPostPrivate,
   unlockPrivatePost,
-  navigate
+  navigate,
+  notifications
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
+  const buyerUnreadDirectMessageCount = useMemo(() => {
+    if (currentUser?.role !== "buyer") return 0;
+    return (notifications || []).filter((n) => (
+      n.userId === currentUser.id
+      && n.type === "message"
+      && !n.read
+      && String(n.conversationId || "").includes("__")
+    )).length;
+  }, [notifications, currentUser]);
+  const buyerUnreadCustomRequestMessageCount = useMemo(() => {
+    if (currentUser?.role !== "buyer") return 0;
+    return (notifications || []).filter((n) => (
+      n.userId === currentUser.id
+      && n.type === "message"
+      && !n.read
+      && String(n.conversationId || "").startsWith("custom_request_")
+    )).length;
+  }, [notifications, currentUser]);
   const userNameById = useMemo(() => {
     const map = {};
     (users || []).forEach((u) => { if (u?.id) map[u.id] = u.name || ''; });
@@ -5268,10 +5287,10 @@ export function StoriesPage({
             {t("quickProfile")}
           </button>
           <button type="button" onClick={() => navigate("/buyer-messages")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-            {t("messagesTab")}
+            {t("messagesTab")} {buyerUnreadDirectMessageCount > 0 ? `(${buyerUnreadDirectMessageCount})` : ""}
           </button>
           <button type="button" onClick={() => navigate("/custom-requests")} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-            {t("customRequestsTab")}
+            {t("customRequestsTab")} {buyerUnreadCustomRequestMessageCount > 0 ? `(${buyerUnreadCustomRequestMessageCount})` : ""}
           </button>
           <button type="button" className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white sm:w-auto">
             {t("watchFeeds")}
@@ -12957,14 +12976,14 @@ export function AccountPage({
                 onClick={() => navigate("/buyer-messages")}
                 className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto"
               >
-                {tx("messages")}
+                {tx("messages")} {buyerUnreadDirectMessageCount > 0 ? `(${buyerUnreadDirectMessageCount})` : ""}
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/custom-requests")}
                 className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto"
               >
-                {tx("customRequests")}
+                {tx("customRequests")} {buyerUnreadCustomRequestMessageCount > 0 ? `(${buyerUnreadCustomRequestMessageCount})` : ""}
               </button>
               <button
                 type="button"
@@ -13889,7 +13908,7 @@ export function AccountPage({
             <div className="fixed inset-x-0 bottom-3 z-30 px-3 lg:hidden">
               <div className="mx-auto grid w-full max-w-7xl grid-cols-4 gap-2 rounded-2xl border border-rose-200 bg-white p-2 shadow-lg">
                 <button onClick={() => scrollToSection("buyer-orders")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.orders}</button>
-                <button onClick={() => navigate("/buyer-messages")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.messages}</button>
+                <button onClick={() => navigate("/buyer-messages")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.messages}{buyerUnreadDirectMessageCount > 0 ? ` (${buyerUnreadDirectMessageCount})` : ""}</button>
                 <button onClick={() => scrollToSection("buyer-wallet")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.wallet}</button>
                 <button onClick={() => scrollToSection("buyer-contact")} className="min-h-[44px] rounded-xl border border-rose-200 px-2.5 py-2.5 text-sm font-semibold text-rose-700">{accountText.contact}</button>
               </div>
@@ -13937,10 +13956,20 @@ export function BuyerMessagesPage({
   currentWalletBalance,
   uiLanguage = "en",
   navigate,
+  notifications,
 }) {
   const locale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
   const accountText = ACCOUNT_PAGE_I18N[locale];
   const tx = (key) => ACCOUNT_PAGE_I18N[locale]?.[key] || ACCOUNT_PAGE_I18N.en[key] || key;
+  const buyerUnreadCustomRequestMessageCount = useMemo(() => {
+    if (currentUser?.role !== "buyer") return 0;
+    return (notifications || []).filter((n) => (
+      n.userId === currentUser.id
+      && n.type === "message"
+      && !n.read
+      && String(n.conversationId || "").startsWith("custom_request_")
+    )).length;
+  }, [notifications, currentUser]);
   const [buyerConversationBarFilter, setBuyerConversationBarFilter] = useState("all");
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
   const [messageReportOpenById, setMessageReportOpenById] = useState({});
@@ -14044,7 +14073,7 @@ export function BuyerMessagesPage({
           {tx("messages")}
         </button>
         <button type="button" onClick={() => navigate("/custom-requests")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
-          {tx("customRequests")}
+          {tx("customRequests")} {buyerUnreadCustomRequestMessageCount > 0 ? `(${buyerUnreadCustomRequestMessageCount})` : ""}
         </button>
         <button type="button" onClick={() => navigate("/stories")} className="min-h-[44px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-center text-sm font-semibold text-rose-700 sm:w-auto">
           {tx("sellerFeed")}

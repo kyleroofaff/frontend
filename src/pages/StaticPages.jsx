@@ -1570,9 +1570,18 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {} }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [] }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
+  const buyerUnreadDirectMessageCount = useMemo(() => {
+    if (currentUser?.role !== "buyer") return 0;
+    return (notifications || []).filter((n) => (
+      n.userId === currentUser.id
+      && n.type === "message"
+      && !n.read
+      && String(n.conversationId || "").includes("__")
+    )).length;
+  }, [notifications, currentUser]);
   const canSubmitRequest = currentUser?.role === "buyer";
   const canAffordNewRequest = Number(currentUser?.walletBalance || 0) >= CUSTOM_REQUEST_FEE_THB;
   const canAffordMessageAction = isSellerView ? true : Number(currentUser?.walletBalance || 0) >= MESSAGE_FEE_THB;
@@ -1679,6 +1688,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     if (status === "countered") return "Countered";
     if (status === "accepted") return "Accepted";
     if (status === "declined") return "Declined";
+    if (!status || status === "none") return "Open";
     return request?.quoteStatus || "Open";
   };
   const groupedSellerOptions = useMemo(() => {
@@ -1759,7 +1769,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
             onClick={() => navigate?.("/buyer-messages")}
             className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
           >
-            {t.messages || "Messages"}
+            {t.messages || "Messages"} {buyerUnreadDirectMessageCount > 0 ? `(${buyerUnreadDirectMessageCount})` : ""}
           </button>
           <button
             type="button"

@@ -18499,6 +18499,7 @@ export default function ThailandPantiesMarketSite() {
             isSellerPostPrivate={isSellerPostPrivate}
             unlockPrivatePost={unlockPrivatePost}
             navigate={navigate}
+            notifications={notifications}
           />
         ) : null}
 
@@ -20048,6 +20049,7 @@ export default function ThailandPantiesMarketSite() {
             currentWalletBalance={currentWalletBalance}
             uiLanguage={currentUser?.preferredLanguage || 'en'}
             navigate={navigate}
+            notifications={notifications}
           />
         ) : null}
         {routeInfo.name === 'bar-messages' ? (
@@ -21226,6 +21228,7 @@ export default function ThailandPantiesMarketSite() {
             navigate={navigate}
             buyerRecentSellerIds={buyerRecentSellerIds}
             barMap={barMap}
+            notifications={notifications}
           />
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}
