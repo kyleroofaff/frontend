@@ -4211,13 +4211,20 @@ function normalizeCheckoutStep(value) {
 
 function normalizeCheckoutFormDraft(value) {
   const draft = value && typeof value === 'object' ? value : {};
+  // Soft-cut migration: legacy `address` is the single-line value.
+  // We keep it in sync with addressLine1 so older callers/storage still work.
+  const line1 = String(draft.addressLine1 || draft.address || '');
   return {
     fullName: String(draft.fullName || ''),
     country: String(draft.country || ''),
-    address: String(draft.address || ''),
+    addressLine1: line1,
+    addressLine2: String(draft.addressLine2 || ''),
+    address: line1,
     city: String(draft.city || ''),
-    region: String(draft.region || ''),
+    stateProvince: String(draft.stateProvince || draft.region || ''),
+    region: String(draft.region || draft.stateProvince || ''),
     postalCode: String(draft.postalCode || ''),
+    phone: String(draft.phone || ''),
     shippingMethod: draft.shippingMethod === 'express' ? 'express' : 'standard',
     saveAddressToProfile: draft.saveAddressToProfile !== false,
   };
@@ -5461,7 +5468,10 @@ export default function ThailandPantiesMarketSite() {
     country: '',
     city: '',
     region: '',
+    stateProvince: '',
     address: '',
+    addressLine1: '',
+    addressLine2: '',
     postalCode: '',
     height: '',
     weight: '',
@@ -8017,14 +8027,18 @@ export default function ThailandPantiesMarketSite() {
   }, [currentUser]);
 
   useEffect(() => {
+    const accountAddressLine1 = currentUser?.addressLine1 || currentUser?.address || '';
     setAccountForm({
       name: currentUser?.name || '',
       email: currentUser?.email || '',
       phone: currentUser?.phone || '',
       country: currentUser?.country || '',
       city: currentUser?.city || '',
-      region: currentUser?.region || '',
-      address: currentUser?.address || '',
+      region: currentUser?.stateProvince || currentUser?.region || '',
+      stateProvince: currentUser?.stateProvince || currentUser?.region || '',
+      address: accountAddressLine1,
+      addressLine1: accountAddressLine1,
+      addressLine2: currentUser?.addressLine2 || '',
       postalCode: currentUser?.postalCode || '',
       height: currentUser?.height || currentUser?.heightCm || '',
       weight: currentUser?.weight || currentUser?.weightKg || '',
@@ -8090,16 +8104,18 @@ export default function ThailandPantiesMarketSite() {
     );
     if (hasStoredCheckoutDraft) return;
     setBuyerEmail(currentUser.email || '');
-    setCheckoutForm({
+    setCheckoutForm(normalizeCheckoutFormDraft({
       fullName: currentUser.name || '',
       country: currentUser.country || '',
-      address: currentUser.address || '',
+      addressLine1: currentUser.addressLine1 || currentUser.address || '',
+      addressLine2: currentUser.addressLine2 || '',
       city: currentUser.city || '',
-      region: currentUser.region || '',
+      stateProvince: currentUser.stateProvince || currentUser.region || '',
       postalCode: currentUser.postalCode || '',
+      phone: currentUser.phone || '',
       shippingMethod: 'standard',
       saveAddressToProfile: true,
-    });
+    }));
   }, [currentUser?.id]);
   const checkoutStepOneReadyForBuyer = useMemo(() => {
     const email = String(buyerEmail || '').trim();
@@ -12208,7 +12224,7 @@ export default function ThailandPantiesMarketSite() {
   }
 
   function markNotificationsReadForConversation(conversationId) {
-    if (!currentUser) return;
+    if (!currentUser || !conversationId) return;
     const parsedBarConversation = parseBarConversationId(conversationId);
     setDb((prev) => ({
       ...prev,
@@ -12229,6 +12245,13 @@ export default function ThailandPantiesMarketSite() {
         return message;
       }),
     }));
+    if (backendStatus === 'connected' && apiAuthToken) {
+      const url = `${API_BASE_URL}/api/messages/conversations/${encodeURIComponent(conversationId)}/read`;
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiAuthToken}` },
+      }).catch(() => {});
+    }
   }
 
   async function sendBuyerMessageToConversation(sellerId, conversationId, body, onSuccess, onError) {
@@ -13498,10 +13521,16 @@ export default function ThailandPantiesMarketSite() {
 
     if (action === 'accept' && apiAuthToken) {
       const shipping = payload?.shipping || {};
+      const line1 = String(shipping.addressLine1 ?? shipping.address ?? '').trim();
       const acceptBody = {
-        shippingAddress: String(shipping.address || '').trim(),
+        shippingAddress: line1,
+        shippingAddressLine1: line1,
+        shippingAddressLine2: String(shipping.addressLine2 || '').trim(),
+        shippingCity: String(shipping.city || '').trim(),
+        shippingStateProvince: String(shipping.stateProvince || '').trim(),
         shippingPostalCode: String(shipping.postalCode || '').trim(),
         shippingCountry: String(shipping.country || '').trim(),
+        shippingPhone: String(shipping.phone || '').trim(),
       };
       try {
         const { ok, payload: apiPayload } = await apiRequestJson(
@@ -15175,29 +15204,37 @@ export default function ThailandPantiesMarketSite() {
   async function runWalletCheckout() {
     if (!currentUser || currentUser.role !== 'buyer' || currentUser.accountStatus !== 'active') return;
     const shippingCountry = String(checkoutForm.country || '').trim();
-    const shippingAddress = String(checkoutForm.address || '').trim();
+    const shippingAddressLine1 = String(checkoutForm.addressLine1 || checkoutForm.address || '').trim();
+    const shippingAddressLine2 = String(checkoutForm.addressLine2 || '').trim();
+    const shippingAddress = shippingAddressLine1;
     const shippingCity = String(checkoutForm.city || '').trim();
-    const shippingRegion = String(checkoutForm.region || '').trim();
+    const shippingStateProvince = String(checkoutForm.stateProvince || checkoutForm.region || '').trim();
+    const shippingRegion = shippingStateProvince;
     const shippingPostalCode = String(checkoutForm.postalCode || '').trim();
+    const shippingPhone = String(checkoutForm.phone || '').trim();
     const requiresRegion = ['US', 'CA'].includes(shippingCountry.toUpperCase());
     if (!shippingCountry) {
       setCheckoutError('Enter a destination country to calculate shipping.');
       return;
     }
-    if (!shippingAddress) {
-      setCheckoutError('Enter a street address for delivery.');
+    if (!shippingAddressLine1) {
+      setCheckoutError('Enter a street address (line 1) for delivery.');
       return;
     }
     if (!shippingCity) {
       setCheckoutError('Enter a city for delivery.');
       return;
     }
-    if (requiresRegion && !shippingRegion) {
+    if (requiresRegion && !shippingStateProvince) {
       setCheckoutError('Enter a state/province for delivery.');
       return;
     }
     if (!shippingPostalCode) {
       setCheckoutError('Enter a ZIP/postal code for delivery.');
+      return;
+    }
+    if (!shippingPhone) {
+      setCheckoutError('Enter a phone number for delivery (required by international carriers).');
       return;
     }
     if (!shippingSupported) {
@@ -15221,10 +15258,14 @@ export default function ThailandPantiesMarketSite() {
             itemIds: requestItemIds,
             buyerEmail: (buyerEmail || currentUser.email || '').trim(),
             shippingAddress,
+            shippingAddressLine1,
+            shippingAddressLine2,
             shippingCity,
             shippingRegion,
+            shippingStateProvince,
             shippingCountry,
             shippingPostalCode,
+            shippingPhone,
             shippingMethod: checkoutForm.shippingMethod,
             shippingFee,
             saveAddressToProfile: checkoutForm.saveAddressToProfile !== false,
@@ -15358,11 +15399,15 @@ export default function ThailandPantiesMarketSite() {
       }
 
       const shouldSaveCheckoutAddress = checkoutForm.saveAddressToProfile !== false;
-      const normalizedCheckoutAddress = String(checkoutForm.address || '').trim();
+      const normalizedCheckoutLine1 = String(checkoutForm.addressLine1 || checkoutForm.address || '').trim();
+      const normalizedCheckoutLine2 = String(checkoutForm.addressLine2 || '').trim();
+      const normalizedCheckoutAddress = normalizedCheckoutLine1;
       const normalizedCheckoutCountry = String(checkoutForm.country || '').trim();
       const normalizedCheckoutCity = String(checkoutForm.city || '').trim();
-      const normalizedCheckoutRegion = String(checkoutForm.region || '').trim();
+      const normalizedCheckoutState = String(checkoutForm.stateProvince || checkoutForm.region || '').trim();
+      const normalizedCheckoutRegion = normalizedCheckoutState;
       const normalizedCheckoutPostalCode = String(checkoutForm.postalCode || '').trim();
+      const normalizedCheckoutPhone = String(checkoutForm.phone || '').trim();
       const base = {
         ...prev,
         users: prev.users.map((user) =>
@@ -15372,10 +15417,14 @@ export default function ThailandPantiesMarketSite() {
               walletBalance: afterBalance,
               ...(shouldSaveCheckoutAddress ? {
                 address: normalizedCheckoutAddress || user.address || '',
+                addressLine1: normalizedCheckoutLine1 || user.addressLine1 || '',
+                addressLine2: normalizedCheckoutLine2 || user.addressLine2 || '',
                 country: normalizedCheckoutCountry || user.country || '',
                 city: normalizedCheckoutCity || user.city || '',
+                stateProvince: normalizedCheckoutState || user.stateProvince || '',
                 region: normalizedCheckoutRegion || user.region || '',
                 postalCode: normalizedCheckoutPostalCode || user.postalCode || '',
+                phone: normalizedCheckoutPhone || user.phone || '',
               } : {}),
             }
             : sellerPayoutByUserId[user.id]
@@ -15398,10 +15447,14 @@ export default function ThailandPantiesMarketSite() {
             buyerEmail: (buyerEmail || currentUser.email || '').trim(),
             buyerUserId: currentUser.id,
             shippingAddress: normalizedCheckoutAddress,
+            shippingAddressLine1: normalizedCheckoutLine1,
+            shippingAddressLine2: normalizedCheckoutLine2,
             shippingCity: normalizedCheckoutCity,
+            shippingStateProvince: normalizedCheckoutState,
             shippingRegion: normalizedCheckoutRegion,
             shippingCountry: checkoutForm.country.trim(),
             shippingPostalCode: normalizedCheckoutPostalCode,
+            shippingPhone: normalizedCheckoutPhone,
             shippingMethod: checkoutForm.shippingMethod,
             shippingFee,
             total,

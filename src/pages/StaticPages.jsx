@@ -78,7 +78,8 @@ const HELP_I18N = {
       { q: "What happens after the first strike versus the second strike?", a: "After a first moderation strike, a warning stays on the account and you can submit an appeal. After a second active strike, the account is automatically frozen until admin review and admin decides an outcome." },
       { q: "Where can I see my strike status and appeal history?", a: "Your dashboard shows active strike notices, and the appeals page shows your submitted appeals and admin decisions." },
       { q: "Can bars save posts and follow sellers or bars?", a: "Yes. Bars can save Stories posts and follow sellers or bars to keep important content easier to find." },
-      { q: "Who can a bar message?", a: "Bars can reply to buyers or sellers who contacted the bar first. Buyers and sellers can start conversations with bars. Bulk messaging is disabled." }
+      { q: "Who can a bar message?", a: "Bars can reply to buyers or sellers who contacted the bar first. Buyers and sellers can start conversations with bars. Bulk messaging is disabled." },
+      { id: "phone", q: "Why do you need my phone number?", a: "International carriers (DHL, FedEx, UPS, EMS) require a phone number on every shipment so they can contact the recipient if they have a delivery problem — for example, a missing apartment number, customs question, or signature requirement. We pass it only to the carrier on the shipping label. We do not call you, we don't text you marketing, and we don't share it with sellers or third parties. If the carrier does need to reach you, it'll be a delivery-related question only." }
     ],
     sellerStandardsEyebrow: "Seller Policy",
     sellerStandardsTitle: "Seller Standards",
@@ -173,7 +174,8 @@ const HELP_I18N = {
       { q: "ดูสถานะสไตรก์และประวัติการอุทธรณ์ได้ที่ไหน?", a: "แดชบอร์ดจะแสดงการแจ้งเตือนสไตรก์ และหน้าศูนย์อุทธรณ์จะแสดงประวัติคำอุทธรณ์และผลการพิจารณาจากแอดมิน" },
       { q: "บาร์สามารถบันทึกโพสต์และติดตามผู้ขายหรือบาร์ได้ไหม?", a: "ได้ บาร์สามารถบันทึกโพสต์ใน Stories และติดตามทั้งผู้ขายและบาร์เพื่อกลับมาดูเนื้อหาสำคัญได้ง่ายขึ้น" },
       { q: "บาร์ส่งข้อความหาใครได้บ้าง?", a: "บาร์สามารถตอบกลับผู้ซื้อหรือผู้ขายที่ทักหาบาร์ก่อนเท่านั้น โดยผู้ซื้อและผู้ขายสามารถเริ่มบทสนทนากับบาร์ได้ ระบบไม่รองรับการส่งแบบเลือกหลายคน (bulk)" },
-      { q: "ถ้าผู้ขายสองคนบล็อกผู้ซื้อจะเกิดอะไรขึ้น?", a: "หากผู้ซื้อถูกผู้ขายบล็อกครบสองคน บัญชีผู้ซื้อนั้นจะถูกบล็อกจากการใช้งานเว็บไซต์" }
+      { q: "ถ้าผู้ขายสองคนบล็อกผู้ซื้อจะเกิดอะไรขึ้น?", a: "หากผู้ซื้อถูกผู้ขายบล็อกครบสองคน บัญชีผู้ซื้อนั้นจะถูกบล็อกจากการใช้งานเว็บไซต์" },
+      { id: "phone", q: "ทำไมต้องใช้เบอร์โทรศัพท์ของฉัน?", a: "บริษัทขนส่งระหว่างประเทศ (DHL, FedEx, UPS, EMS) กำหนดให้แต่ละพัสดุมีเบอร์โทรของผู้รับ เพื่อให้ติดต่อได้หากเกิดปัญหาในการจัดส่ง เช่น ที่อยู่ไม่ครบ ปัญหาทางศุลกากร หรือการเซ็นรับพัสดุ เราจะใช้เบอร์เฉพาะที่ใบนำส่งของผู้ให้บริการขนส่งเท่านั้น เราไม่โทรหาคุณ ไม่ส่ง SMS โฆษณา และไม่แชร์เบอร์ให้กับผู้ขายหรือบุคคลที่สาม" }
     ],
     sellerStandardsEyebrow: "นโยบายผู้ขาย",
     sellerStandardsTitle: "มาตรฐานผู้ขาย",
@@ -269,7 +271,8 @@ const HELP_I18N = {
       { q: "Strike status နဲ့ appeal history ကို ဘယ်မှာကြည့်နိုင်မလဲ?", a: "Dashboard တွင် active strike notice ကိုမြင်နိုင်ပြီး appeals page တွင် တင်ထားသော appeal များနှင့် admin ဆုံးဖြတ်ချက်များကို ကြည့်နိုင်ပါသည်။" },
       { q: "Bar က post save လုပ်ပြီး seller/bar ကို follow လုပ်နိုင်လား?", a: "လုပ်နိုင်ပါတယ်။ Bar များသည် Stories post များကို save လုပ်နိုင်ပြီး seller နှင့် bar နှစ်မျိုးလုံးကို follow လုပ်နိုင်ပါသည်။" },
       { q: "Bar က ဘယ်သူတွေကို message ပို့နိုင်လဲ?", a: "Bar များသည် bar ကိုအရင်ဆက်သွယ်ထားသော buyer သို့မဟုတ် seller များကိုသာ ပြန်လည် message ပို့နိုင်ပါသည်။ Buyer နှင့် seller များက bar ကို စတင်ဆက်သွယ်နိုင်ပါသည်။ Bulk messaging ကိုမခွင့်ပြုပါ။" },
-      { q: "Seller နှစ်ယောက်က buyer ကို block လုပ်ရင်ဘာဖြစ်မလဲ?", a: "Buyer တစ်ယောက်ကို seller နှစ်ယောက် block လုပ်ပါက အဆိုပါ buyer account ကို site မှ block လုပ်ပါသည်။" }
+      { q: "Seller နှစ်ယောက်က buyer ကို block လုပ်ရင်ဘာဖြစ်မလဲ?", a: "Buyer တစ်ယောက်ကို seller နှစ်ယောက် block လုပ်ပါက အဆိုပါ buyer account ကို site မှ block လုပ်ပါသည်။" },
+      { id: "phone", q: "ဖုန်းနံပါတ် ဘာကြောင့်လိုအပ်တာလဲ?", a: "နိုင်ငံတကာ carrier (DHL, FedEx, UPS, EMS) တွေက ပစ္စည်းတိုင်းအတွက် လက်ခံသူရဲ့ ဖုန်းနံပါတ်ကို တောင်းပါတယ် — ပို့ပစ္စည်းပြဿနာ၊ customs မေးခွန်း သို့မဟုတ် လက်မှတ်ထိုးခြင်း လိုအပ်ပါက ဆက်သွယ်နိုင်ဖို့ပါ။ Carrier ရဲ့ shipping label မှာသာ အသုံးပြုပါတယ်။ ကျွန်တော်တို့က သင့်ကို မဖုန်းခေါ်ပါ၊ marketing SMS မပို့ပါ၊ seller သို့မဟုတ် တတိယပါတီနှင့် မမျှဝေပါ။" }
     ],
     sellerStandardsEyebrow: "Seller Policy",
     sellerStandardsTitle: "Seller စံနှုန်းများ",
@@ -364,7 +367,8 @@ const HELP_I18N = {
       { q: "Где посмотреть статус страйков и историю апелляций?", a: "На дашборде отображаются активные уведомления о страйках, а на странице апелляций — поданные апелляции и решения администратора." },
       { q: "Могут ли бары сохранять посты и подписываться на продавцов или бары?", a: "Да. Бары могут сохранять посты Stories и подписываться как на продавцов, так и на бары." },
       { q: "Кому бар может писать сообщения?", a: "Бар может отвечать только покупателям или продавцам, которые написали бару первыми. Покупатели и продавцы могут сами начинать диалог с баром. Массовая рассылка отключена." },
-      { q: "Что будет, если два продавца заблокируют покупателя?", a: "Если покупателя заблокируют два продавца, аккаунт покупателя блокируется на сайте." }
+      { q: "Что будет, если два продавца заблокируют покупателя?", a: "Если покупателя заблокируют два продавца, аккаунт покупателя блокируется на сайте." },
+      { id: "phone", q: "Зачем вам мой номер телефона?", a: "Международные службы доставки (DHL, FedEx, UPS, EMS) требуют номер телефона получателя в каждой посылке, чтобы связаться с вами при проблемах с доставкой — недостающий номер квартиры, вопросы таможни, требование подписи и т. п. Мы передаём номер только в этикетку транспортной компании. Мы не звоним вам, не отправляем рекламные SMS и не передаём номер продавцам или третьим лицам." }
     ],
     sellerStandardsEyebrow: "Политика продавцов",
     sellerStandardsTitle: "Стандарты продавца",
@@ -1245,7 +1249,11 @@ export function FaqPage({ uiLanguage = "en", navigate }) {
   const renderFaqCard = (faq) => {
     const actions = getFaqActions(faq);
     return (
-      <div key={faq.q} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-rose-100">
+      <div
+        key={faq.q}
+        id={faq.id || undefined}
+        className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-rose-100 scroll-mt-24"
+      >
         <h3 className="text-lg font-semibold">{faq.q}</h3>
         <p className="mt-2 text-sm leading-7 text-slate-600">{faq.a}</p>
         {actions.length > 0 ? (
@@ -2068,16 +2076,20 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                         {(() => {
                           const showingShipping = Boolean(showShippingFormById[request.id]);
                           const shippingDraft = requestShippingDraftById[request.id] || {
-                            address: currentUser?.address || "",
+                            addressLine1: currentUser?.addressLine1 || currentUser?.address || "",
+                            addressLine2: currentUser?.addressLine2 || "",
+                            city: currentUser?.city || "",
+                            stateProvince: currentUser?.stateProvince || currentUser?.region || "",
                             postalCode: currentUser?.postalCode || "",
                             country: currentUser?.country || "",
+                            phone: currentUser?.phone || "",
                           };
                           const updateShipping = (patch) => setRequestShippingDraftById((prev) => ({
                             ...prev,
                             [request.id]: { ...shippingDraft, ...patch },
                           }));
                           if (!showingShipping) {
-                            const hasSavedAddress = Boolean(String(currentUser?.address || "").trim());
+                            const hasSavedAddress = Boolean(String(currentUser?.addressLine1 || currentUser?.address || "").trim());
                             return (
                               <div className="mt-2 space-y-2">
                                 <div className="rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-600 ring-1 ring-slate-200">
@@ -2113,34 +2125,76 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                               </div>
                             );
                           }
-                          const trimmedAddress = String(shippingDraft.address || "").trim();
+                          const trimmedLine1 = String(shippingDraft.addressLine1 || shippingDraft.address || "").trim();
+                          const trimmedLine2 = String(shippingDraft.addressLine2 || "").trim();
+                          const trimmedCity = String(shippingDraft.city || "").trim();
+                          const trimmedState = String(shippingDraft.stateProvince || "").trim();
                           const trimmedPostal = String(shippingDraft.postalCode || "").trim();
                           const trimmedCountry = String(shippingDraft.country || "").trim();
-                          const canSubmit = !negotiationBusy && trimmedAddress && trimmedPostal && trimmedCountry;
+                          const trimmedPhone = String(shippingDraft.phone || "").trim();
+                          const canSubmit = !negotiationBusy
+                            && trimmedLine1
+                            && trimmedCity
+                            && trimmedPostal
+                            && trimmedCountry
+                            && trimmedPhone;
                           return (
                             <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
                               <div className="text-xs font-semibold text-emerald-800">Shipping address</div>
-                              <p className="mt-0.5 text-[11px] text-slate-600">Where should this order be shipped? You can edit any field before paying.</p>
+                              <p className="mt-0.5 text-[11px] text-slate-600">Where should this order be shipped? You can edit any field before paying. We'll save these to your profile so next time it auto-fills.</p>
                               <div className="mt-2 grid gap-2">
                                 <input
-                                  value={shippingDraft.address}
-                                  onChange={(event) => updateShipping({ address: event.target.value })}
-                                  placeholder="Street address"
+                                  value={shippingDraft.addressLine1 || shippingDraft.address || ""}
+                                  onChange={(event) => updateShipping({ addressLine1: event.target.value, address: event.target.value })}
+                                  placeholder="Address line 1 (street, building, house number)"
+                                  className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                />
+                                <input
+                                  value={shippingDraft.addressLine2 || ""}
+                                  onChange={(event) => updateShipping({ addressLine2: event.target.value })}
+                                  placeholder="Address line 2 (apt, suite, unit, floor) — optional"
                                   className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs"
                                 />
                                 <div className="grid grid-cols-2 gap-2">
                                   <input
-                                    value={shippingDraft.postalCode}
-                                    onChange={(event) => updateShipping({ postalCode: event.target.value })}
-                                    placeholder="Postal code"
+                                    value={shippingDraft.city || ""}
+                                    onChange={(event) => updateShipping({ city: event.target.value })}
+                                    placeholder="City"
                                     className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
                                   />
                                   <input
-                                    value={shippingDraft.country}
+                                    value={shippingDraft.stateProvince || ""}
+                                    onChange={(event) => updateShipping({ stateProvince: event.target.value })}
+                                    placeholder="State / Province"
+                                    className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <input
+                                    value={shippingDraft.postalCode || ""}
+                                    onChange={(event) => updateShipping({ postalCode: event.target.value })}
+                                    placeholder="Postal / ZIP code"
+                                    className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                  />
+                                  <input
+                                    value={shippingDraft.country || ""}
                                     onChange={(event) => updateShipping({ country: event.target.value })}
                                     placeholder="Country"
                                     className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
                                   />
+                                </div>
+                                <div>
+                                  <input
+                                    type="tel"
+                                    value={shippingDraft.phone || ""}
+                                    onChange={(event) => updateShipping({ phone: event.target.value })}
+                                    placeholder="Phone number (e.g. +66 8X XXX XXXX)"
+                                    className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                  />
+                                  <p className="mt-1 text-[10px] text-slate-500">
+                                    Required by international carriers (DHL/FedEx/UPS) — they may need to reach you about delivery.
+                                    We won't call you. <a href="/faqs#phone" className="font-semibold text-rose-600 hover:underline">Why?</a>
+                                  </p>
                                 </div>
                               </div>
                               <div className="mt-2 flex flex-wrap gap-2">
@@ -2153,9 +2207,14 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                                       "accept",
                                       {
                                         shipping: {
-                                          address: trimmedAddress,
+                                          addressLine1: trimmedLine1,
+                                          addressLine2: trimmedLine2,
+                                          address: trimmedLine1,
+                                          city: trimmedCity,
+                                          stateProvince: trimmedState,
                                           postalCode: trimmedPostal,
                                           country: trimmedCountry,
+                                          phone: trimmedPhone,
                                         },
                                       },
                                       () => {

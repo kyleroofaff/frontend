@@ -11744,10 +11744,13 @@ export function CheckoutPage({
   };
   const trimmedEmail = String(buyerEmail || "").trim();
   const trimmedFullName = String(checkoutForm.fullName || "").trim();
-  const trimmedAddress = String(checkoutForm.address || "").trim();
+  const trimmedAddressLine1 = String(checkoutForm.addressLine1 || checkoutForm.address || "").trim();
+  const trimmedAddressLine2 = String(checkoutForm.addressLine2 || "").trim();
+  const trimmedAddress = trimmedAddressLine1;
   const trimmedCity = String(checkoutForm.city || "").trim();
-  const trimmedRegion = String(checkoutForm.region || "").trim();
+  const trimmedRegion = String(checkoutForm.stateProvince || checkoutForm.region || "").trim();
   const trimmedCountry = String(checkoutForm.country || "").trim();
+  const trimmedPhone = String(checkoutForm.phone || "").trim();
   const countryDisplayName = shippingCountryOptions.find((c) => c.code === trimmedCountry)?.name || trimmedCountry;
   const trimmedPostalCode = String(checkoutForm.postalCode || "").trim();
   const checkoutAddressMeta = getAddressConventionMeta(checkoutForm.country);
@@ -11756,10 +11759,11 @@ export function CheckoutPage({
   const stepOneComplete = canContinueToDelivery;
   const stepTwoComplete = Boolean(
     trimmedCountry
-    && trimmedAddress
+    && trimmedAddressLine1
     && trimmedCity
     && (!checkoutAddressMeta.regionRequired || trimmedRegion)
     && trimmedPostalCode
+    && trimmedPhone
     && shippingSupported
   );
   const walletShortfall = Math.max(0, Number((total - Number(currentWalletBalance || 0)).toFixed(2)));
@@ -11951,16 +11955,28 @@ export function CheckoutPage({
                   </label>
                   {attemptedStepTwoContinue && !trimmedCountry ? <div className="text-xs text-rose-600">Destination country is required.</div> : null}
                   <label className="text-sm font-medium text-slate-700">
-                    Street address
+                    Address line 1
                     <input
                       ref={stepTwoAddressRef}
-                      value={checkoutForm.address}
-                      onChange={(e) => updateCheckoutField("address", e.target.value)}
+                      value={checkoutForm.addressLine1 || checkoutForm.address || ""}
+                      onChange={(e) => {
+                        updateCheckoutField("addressLine1", e.target.value);
+                        updateCheckoutField("address", e.target.value);
+                      }}
                       className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeAddress ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
-                      placeholder="Street address"
+                      placeholder="Street, building, house number"
                     />
                   </label>
-                  {attemptedStepTwoContinue && !trimmedAddress ? <div className="text-xs text-rose-600">Street address is required.</div> : null}
+                  {attemptedStepTwoContinue && !trimmedAddressLine1 ? <div className="text-xs text-rose-600">Address line 1 is required.</div> : null}
+                  <label className="text-sm font-medium text-slate-700">
+                    Address line 2 <span className="text-xs font-normal text-slate-400">(optional)</span>
+                    <input
+                      value={checkoutForm.addressLine2 || ""}
+                      onChange={(e) => updateCheckoutField("addressLine2", e.target.value)}
+                      className="mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3"
+                      placeholder="Apartment, suite, unit, floor"
+                    />
+                  </label>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <label className="text-sm font-medium text-slate-700">
                       City
@@ -11973,20 +11989,23 @@ export function CheckoutPage({
                       />
                     </label>
                     <label className="text-sm font-medium text-slate-700">
-                      {checkoutAddressMeta.regionLabel}
+                      State / Province
                       <input
                         ref={stepTwoRegionRef}
-                        value={checkoutForm.region || ""}
-                        onChange={(e) => updateCheckoutField("region", e.target.value)}
+                        value={checkoutForm.stateProvince || checkoutForm.region || ""}
+                        onChange={(e) => {
+                          updateCheckoutField("stateProvince", e.target.value);
+                          updateCheckoutField("region", e.target.value);
+                        }}
                         className={`mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3 ${shakeRegion ? "animate-[checkout-shake_0.35s_ease-in-out]" : ""}`}
                         placeholder={checkoutAddressMeta.regionPlaceholder}
                       />
                     </label>
                   </div>
                   {attemptedStepTwoContinue && !trimmedCity ? <div className="text-xs text-rose-600">City is required.</div> : null}
-                  {attemptedStepTwoContinue && checkoutAddressMeta.regionRequired && !trimmedRegion ? <div className="text-xs text-rose-600">{checkoutAddressMeta.regionLabel} is required.</div> : null}
+                  {attemptedStepTwoContinue && checkoutAddressMeta.regionRequired && !trimmedRegion ? <div className="text-xs text-rose-600">State/Province is required.</div> : null}
                   <label className="text-sm font-medium text-slate-700">
-                    {checkoutAddressMeta.postalLabel}
+                    Postal / ZIP code
                     <input
                       ref={stepTwoPostalCodeRef}
                       value={checkoutForm.postalCode || ""}
@@ -11995,17 +12014,36 @@ export function CheckoutPage({
                       placeholder={checkoutAddressMeta.postalPlaceholder}
                     />
                   </label>
-                  {attemptedStepTwoContinue && !trimmedPostalCode ? <div className="text-xs text-rose-600">{checkoutAddressMeta.postalLabel} is required.</div> : null}
+                  {attemptedStepTwoContinue && !trimmedPostalCode ? <div className="text-xs text-rose-600">Postal/ZIP code is required.</div> : null}
+                  <label className="text-sm font-medium text-slate-700">
+                    Phone number
+                    <input
+                      type="tel"
+                      value={checkoutForm.phone || ""}
+                      onChange={(e) => updateCheckoutField("phone", e.target.value)}
+                      className="mt-1 min-h-[44px] w-full rounded-2xl border border-slate-200 px-4 py-3"
+                      placeholder="+66 8X XXX XXXX"
+                    />
+                    <span className="mt-1 block text-xs text-slate-500">
+                      Required by international carriers (DHL/FedEx/UPS) so they can reach you about delivery.
+                      We won't call you — see our <a href="/faqs#phone" className="font-semibold text-rose-600 hover:underline">FAQ on this</a>.
+                    </span>
+                  </label>
+                  {attemptedStepTwoContinue && !trimmedPhone ? <div className="text-xs text-rose-600">Phone number is required.</div> : null}
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                     <div className="font-semibold text-slate-900">Delivery preview</div>
                     <div className="mt-2 grid gap-1">
                       <div><span className="font-medium">Name:</span> {trimmedFullName || "Add your name in Step 1"}</div>
                       <div><span className="font-medium">Email:</span> {trimmedEmail || "Add your email in Step 1"}</div>
-                      <div><span className="font-medium">Address:</span> {trimmedAddress || "Enter street address"}</div>
+                      <div><span className="font-medium">Address line 1:</span> {trimmedAddressLine1 || "Enter line 1"}</div>
+                      {trimmedAddressLine2 ? (
+                        <div><span className="font-medium">Address line 2:</span> {trimmedAddressLine2}</div>
+                      ) : null}
                       <div><span className="font-medium">City:</span> {trimmedCity || "Enter city"}</div>
-                      <div><span className="font-medium">{checkoutAddressMeta.regionLabel}:</span> {trimmedRegion || `Enter ${checkoutAddressMeta.regionPlaceholder}`}</div>
-                      <div><span className="font-medium">{checkoutAddressMeta.postalLabel}:</span> {trimmedPostalCode || `Enter ${checkoutAddressMeta.postalPlaceholder}`}</div>
+                      <div><span className="font-medium">State/Province:</span> {trimmedRegion || "Enter state/province"}</div>
+                      <div><span className="font-medium">Postal/ZIP:</span> {trimmedPostalCode || "Enter postal/ZIP"}</div>
                       <div><span className="font-medium">Country:</span> {countryDisplayName || "Select destination country"}</div>
+                      <div><span className="font-medium">Phone:</span> {trimmedPhone || "Enter phone number"}</div>
                       <div><span className="font-medium">Method:</span> {checkoutForm.shippingMethod === "express" ? "Express" : "Standard"}</div>
                     </div>
                   </div>
@@ -12092,6 +12130,9 @@ export function CheckoutPage({
                         stepTwoPostalCodeRef.current?.focus();
                         return;
                       }
+                      if (!trimmedPhone) {
+                        return;
+                      }
                         if (!shippingSupported) {
                           triggerShake(setShakeCountry);
                           stepTwoCountryRef.current?.focus();
@@ -12135,7 +12176,11 @@ export function CheckoutPage({
                         <button type="button" onClick={() => setCheckoutStep(1)} className="ml-2 text-xs font-semibold text-rose-700">Edit</button>
                       </div>
                       <div>
-                        <span className="font-medium">Ship to:</span> {trimmedAddress || "No address"}, {trimmedCity || "No city"}, {trimmedRegion || checkoutAddressMeta.regionPlaceholder}, {trimmedPostalCode || checkoutAddressMeta.postalPlaceholder}, {countryDisplayName || "No country"}
+                        <span className="font-medium">Ship to:</span> {[trimmedAddressLine1, trimmedAddressLine2, trimmedCity, trimmedRegion, trimmedPostalCode, countryDisplayName].filter(Boolean).join(", ") || "No address"}
+                        <button type="button" onClick={() => setCheckoutStep(2)} className="ml-2 text-xs font-semibold text-rose-700">Edit</button>
+                      </div>
+                      <div>
+                        <span className="font-medium">Phone:</span> {trimmedPhone || "No phone"}
                         <button type="button" onClick={() => setCheckoutStep(2)} className="ml-2 text-xs font-semibold text-rose-700">Edit</button>
                       </div>
                       <div><span className="font-medium">Shipping:</span> {checkoutForm.shippingMethod === "express" ? "Express" : "Standard"} ({formatPriceTHB(shippingFee)})</div>
@@ -13615,10 +13660,11 @@ export function AccountPage({
                 </div>
                 <div className="mt-4 space-y-3 text-sm text-slate-600">
                   <div>{accountForm.name || tx("fullName")}</div>
-                  <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-rose-600" /> {accountForm.address || tx("noAddressSaved")}</div>
+                  <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-rose-600" /> {accountForm.addressLine1 || accountForm.address || tx("noAddressSaved")}</div>
+                  {accountForm.addressLine2 ? <div className="pl-6 text-sm text-slate-500">{accountForm.addressLine2}</div> : null}
                   <div>
                     {accountForm.city || tx("cityFallback")}
-                    {accountForm.region ? `, ${accountForm.region}` : ""}
+                    {(accountForm.stateProvince || accountForm.region) ? `, ${accountForm.stateProvince || accountForm.region}` : ""}
                   </div>
                   <div>{accountForm.postalCode || tx("postalCodeFallback")}</div>
                   <div>{accountForm.country || tx("countryFallback")}</div>
@@ -13638,7 +13684,19 @@ export function AccountPage({
                 <div className="mt-5 grid gap-4">
                   <input value={accountForm.name} onChange={(e) => updateAccountField("name", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("fullName")} />
                   <input value={accountForm.email} onChange={(e) => updateAccountField("email", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("emailPlaceholder")} />
-                  <input value={accountForm.phone} onChange={(e) => updateAccountField("phone", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={`${tx("phone")} (optional)`} />
+                  <label className="grid gap-1">
+                    <input
+                      type="tel"
+                      value={accountForm.phone}
+                      onChange={(e) => updateAccountField("phone", e.target.value)}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                      placeholder={`${tx("phone")} (e.g. +66 8X XXX XXXX)`}
+                    />
+                    <span className="text-xs text-slate-500">
+                      Required by international carriers (DHL/FedEx/UPS) for delivery contact. We won't call you —
+                      see <a href="/faqs#phone" className="font-semibold text-rose-600 hover:underline">why we ask</a>.
+                    </span>
+                  </label>
                   {currentUser.role === "buyer" ? (
                     <label className="grid gap-2 text-sm text-slate-700">
                       <span className="font-medium">{accountText.timeFormat}</span>
@@ -13658,12 +13716,34 @@ export function AccountPage({
                       <option key={c.code} value={c.code}>{c.name}</option>
                     ))}
                   </select>
-                  <textarea value={accountForm.address} onChange={(e) => updateAccountField("address", e.target.value)} className="min-h-[120px] rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("address")} />
+                  <input
+                    value={accountForm.addressLine1 || accountForm.address || ""}
+                    onChange={(e) => {
+                      updateAccountField("addressLine1", e.target.value);
+                      updateAccountField("address", e.target.value);
+                    }}
+                    className="rounded-2xl border border-slate-200 px-4 py-3"
+                    placeholder="Address line 1 (street, building, house number)"
+                  />
+                  <input
+                    value={accountForm.addressLine2 || ""}
+                    onChange={(e) => updateAccountField("addressLine2", e.target.value)}
+                    className="rounded-2xl border border-slate-200 px-4 py-3"
+                    placeholder="Address line 2 — apartment, suite, unit (optional)"
+                  />
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <input value={accountForm.city} onChange={(e) => updateAccountField("city", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={tx("city")} />
-                    <input value={accountForm.region || ""} onChange={(e) => updateAccountField("region", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={accountAddressMeta.regionPlaceholder} />
+                    <input
+                      value={accountForm.stateProvince || accountForm.region || ""}
+                      onChange={(e) => {
+                        updateAccountField("stateProvince", e.target.value);
+                        updateAccountField("region", e.target.value);
+                      }}
+                      className="rounded-2xl border border-slate-200 px-4 py-3"
+                      placeholder="State / Province"
+                    />
                   </div>
-                  <input value={accountForm.postalCode || ""} onChange={(e) => updateAccountField("postalCode", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder={accountAddressMeta.postalPlaceholder} />
+                  <input value={accountForm.postalCode || ""} onChange={(e) => updateAccountField("postalCode", e.target.value)} className="rounded-2xl border border-slate-200 px-4 py-3" placeholder="Postal / ZIP code" />
                   {currentUser.role === "seller" ? (
                     <>
                       <div className="col-span-full mt-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Profile details (shown publicly)</div>
