@@ -838,6 +838,8 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'Back to Sellers',
     myAccount: 'My Account',
     followersLabel: 'Followers',
+    reportThisSeller: 'Report this seller',
+    reportThisBar: 'Report this bar',
     heightLabel: 'Height',
     weightLabel: 'Weight',
     hairColorLabel: 'Hair color',
@@ -984,6 +986,8 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'กลับไปหน้าผู้ขาย',
     myAccount: 'บัญชีของฉัน',
     followersLabel: 'ผู้ติดตาม',
+    reportThisSeller: 'รายงานผู้ขายนี้',
+    reportThisBar: 'รายงานบาร์นี้',
     heightLabel: 'ส่วนสูง',
     weightLabel: 'น้ำหนัก',
     hairColorLabel: 'สีผม',
@@ -1130,6 +1134,8 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'Sellers သို့ ပြန်ရန်',
     myAccount: 'ကျွန်ုပ်၏အကောင့်',
     followersLabel: 'Followers',
+    reportThisSeller: 'ဤ seller ကို report လုပ်ပါ',
+    reportThisBar: 'ဤ bar ကို report လုပ်ပါ',
     heightLabel: 'အရပ်',
     weightLabel: 'ကိုယ်အလေးချိန်',
     hairColorLabel: 'ဆံပင်အရောင်',
@@ -1276,6 +1282,8 @@ const PUBLIC_SITE_I18N = {
     backToSellers: 'Назад к продавцам',
     myAccount: 'Мой аккаунт',
     followersLabel: 'Подписчики',
+    reportThisSeller: 'Пожаловаться на продавца',
+    reportThisBar: 'Пожаловаться на бар',
     heightLabel: 'Рост',
     weightLabel: 'Вес',
     hairColorLabel: 'Цвет волос',
@@ -18319,6 +18327,17 @@ export default function ThailandPantiesMarketSite() {
                 <h2 className="mt-5 text-3xl font-bold tracking-tight">{selectedBar.name}</h2>
                 <p className="mt-2 text-slate-500">{selectedBar.location || (selectedBar.mapEmbedUrl ? '' : publicText.locationComingSoon)}</p>
                 <p className="mt-4 leading-7 text-slate-600">{selectedBar.about || publicText.barProfileSoon}</p>
+                {currentUser ? (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/safety-report?type=bar&id=${encodeURIComponent(selectedBar.id)}&name=${encodeURIComponent(selectedBar.name || '')}`)}
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"
+                    >
+                      {publicText.reportThisBar || 'Report this bar'}
+                    </button>
+                  </div>
+                ) : null}
                 {(currentUser?.role === 'buyer' || (currentUser?.role === 'seller' && String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim() === selectedBar.id)) ? (
                   <div className="mt-4">
                     <button
@@ -18509,8 +18528,19 @@ export default function ThailandPantiesMarketSite() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                  {publicText.followersLabel}: {sellerFollowerCountById[selectedSeller.id] || 0}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {publicText.followersLabel}: {sellerFollowerCountById[selectedSeller.id] || 0}
+                  </span>
+                  {currentUser && currentUser.sellerId !== selectedSeller.id ? (
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/safety-report?type=seller&id=${encodeURIComponent(selectedSeller.id)}&name=${encodeURIComponent(selectedSeller.name || '')}`)}
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"
+                    >
+                      {publicText.reportThisSeller || 'Report this seller'}
+                    </button>
+                  ) : null}
                 </div>
                 <p className="mt-5 leading-7 text-slate-600">{selectedSeller.bio}</p>
                 {(selectedSeller.height || selectedSeller.weight || selectedSeller.hairColor || selectedSeller.braSize || selectedSeller.pantySize) ? (

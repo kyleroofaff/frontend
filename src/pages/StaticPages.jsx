@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Globe, HeartHandshake, Shield } from "lucide-react";
 import { PageShell, ProductImage } from "../components/site/SitePrimitives.jsx";
 import { COLOR_OPTIONS, CONDITION_OPTIONS, CUSTOM_REQUEST_FEE_THB, DAYS_WORN_OPTIONS, FABRIC_OPTIONS, formatPriceTHB, localizeOptionLabel, MESSAGE_FEE_THB, MIN_CUSTOM_REQUEST_PURCHASE_THB, SCENT_LEVEL_OPTIONS, SHARED_SIZE_OPTIONS, STYLE_FILTER_OPTIONS, HAIR_COLOR_OPTIONS, formatHeight, formatWeight } from "../productOptions.js";
@@ -2853,12 +2853,28 @@ export function SafetyReportPage({ uiLanguage = "en", currentUser, submitSafetyR
   const [pageLanguage, setPageLanguage] = useState(uiLanguage);
   const locale = HELP_I18N[pageLanguage] ? pageLanguage : "en";
   const formText = SAFETY_REPORT_FORM_I18N[locale] || SAFETY_REPORT_FORM_I18N.en;
+  const urlParams = useMemo(() => {
+    try {
+      return new URLSearchParams(window.location.search);
+    } catch {
+      return new URLSearchParams();
+    }
+  }, []);
+  const prefillType = urlParams.get("type") || "";
+  const prefillId = urlParams.get("id") || "";
+  const prefillName = urlParams.get("name") || "";
+  const prefillTargetHandle = useMemo(() => {
+    if (prefillType && prefillId) {
+      return prefillName ? `${prefillName} (${prefillType} ID: ${prefillId})` : `${prefillType} ID: ${prefillId}`;
+    }
+    return "";
+  }, [prefillType, prefillId, prefillName]);
   const [form, setForm] = useState({
     name: currentUser?.name || "",
     email: currentUser?.email || "",
-    reportType: "harassment",
-    targetHandle: "",
-    contextDetails: "",
+    reportType: prefillType ? "other" : "harassment",
+    targetHandle: prefillTargetHandle,
+    contextDetails: prefillType === "seller" ? "Reporting seller profile:\n\n" : prefillType === "bar" ? "Reporting bar profile:\n\n" : "",
   });
   const [statusMessage, setStatusMessage] = useState("");
   useEffect(() => {

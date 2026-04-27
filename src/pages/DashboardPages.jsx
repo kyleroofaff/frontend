@@ -4939,10 +4939,17 @@ export function BarMessagesPage({
                             <button
                               type="button"
                               onClick={() => {
+                                const wasOpen = messageReportOpenById[message.id];
                                 setMessageReportOpenById((prev) => ({ ...prev, [message.id]: !prev[message.id] }));
                                 setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
                                 if (!messageReportReasonById[message.id]) {
                                   setMessageReportReasonById((prev) => ({ ...prev, [message.id]: "off_platform_contact" }));
+                                }
+                                if (!wasOpen) {
+                                  setTimeout(() => {
+                                    const el = document.getElementById(`seller-msg-report-${message.id}`);
+                                    if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                                  }, 50);
                                 }
                               }}
                               className="text-[11px] font-semibold text-rose-700"
@@ -4951,7 +4958,7 @@ export function BarMessagesPage({
                             </button>
                           )}
                           {messageReportOpenById[message.id] && !reportedOpenMessageIds.has(message.id) ? (
-                            <div className="mt-2 space-y-2 rounded-xl border border-rose-200 bg-white p-3">
+                            <div id={`seller-msg-report-${message.id}`} className="mt-2 space-y-2 rounded-xl border border-rose-200 bg-white p-3">
                               <div className="text-[11px] font-semibold text-slate-600">{tx("reportReasonLabel")}</div>
                               <select
                                 value={messageReportReasonById[message.id] || "off_platform_contact"}
@@ -14208,10 +14215,17 @@ export function BuyerMessagesPage({
                         <button
                           type="button"
                           onClick={() => {
+                            const wasOpen = messageReportOpenById[message.id];
                             setMessageReportOpenById((prev) => ({ ...prev, [message.id]: !prev[message.id] }));
                             setMessageReportErrorById((prev) => ({ ...prev, [message.id]: "" }));
                             if (!messageReportReasonById[message.id]) {
                               setMessageReportReasonById((prev) => ({ ...prev, [message.id]: "off_platform_contact" }));
+                            }
+                            if (!wasOpen) {
+                              setTimeout(() => {
+                                const el = document.getElementById(`buyer-msg-report-${message.id}`);
+                                if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                              }, 50);
                             }
                           }}
                           className="text-[11px] font-semibold text-rose-700"
@@ -14220,7 +14234,7 @@ export function BuyerMessagesPage({
                         </button>
                       )}
                       {messageReportOpenById[message.id] && !reportedOpenMessageIds.has(message.id) ? (
-                        <div className="mt-2 space-y-2 rounded-xl border border-rose-200 bg-white p-3">
+                        <div id={`buyer-msg-report-${message.id}`} className="mt-2 space-y-2 rounded-xl border border-rose-200 bg-white p-3">
                           <div className="text-[11px] font-semibold text-slate-600">{tx("reportReasonLabel")}</div>
                           <select
                             value={messageReportReasonById[message.id] || "off_platform_contact"}
