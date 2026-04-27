@@ -4437,7 +4437,7 @@ function pruneDemoMarketplaceData(dbState) {
   const sellerPostIds = new Set(sellerPosts.map((post) => String(post?.id || '')));
 
   const customRequests = Array.isArray(dbState.customRequests)
-    ? dbState.customRequests.filter((request) => hasUser(request?.buyerId) && hasSeller(request?.sellerId))
+    ? dbState.customRequests.filter((request) => hasUser(request?.buyerUserId) && hasSeller(request?.sellerId))
     : [];
   const customRequestIds = new Set(customRequests.map((request) => String(request?.id || '')));
 
