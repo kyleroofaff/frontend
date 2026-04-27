@@ -12663,7 +12663,6 @@ export default function ThailandPantiesMarketSite() {
           if (apiPayload?.db) {
             setDb(normalizeDbState(apiPayload.db, appMode));
           }
-          onError?.('');
           onSuccess?.();
           return;
         }
