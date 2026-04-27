@@ -5620,6 +5620,7 @@ export default function ThailandPantiesMarketSite() {
     preferredDetails: '',
     shippingCountry: '',
     requestBody: '',
+    proposedPriceThb: '',
   });
   const [sellerCustomRequestMessage, setSellerCustomRequestMessage] = useState('');
   const [sellerCustomRequestMessageTone, setSellerCustomRequestMessageTone] = useState('');
@@ -19115,6 +19116,18 @@ export default function ThailandPantiesMarketSite() {
                       className="mt-3 min-h-[120px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
                       placeholder={`${publicText.describeRequestForPrefix} ${selectedSeller.name}`}
                     />
+                    <label className="mt-3 grid gap-1 text-sm text-slate-600">
+                      <input
+                        type="number"
+                        min={MIN_CUSTOM_REQUEST_PURCHASE_THB}
+                        step="1"
+                        value={sellerCustomRequestDraft.proposedPriceThb}
+                        onChange={(event) => setSellerCustomRequestDraft((prev) => ({ ...prev, proposedPriceThb: event.target.value }))}
+                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                        placeholder={`Propose a price (THB) — optional, min ${MIN_CUSTOM_REQUEST_PURCHASE_THB}`}
+                      />
+                      <span className="text-[11px] text-slate-500">Leave blank if you're not sure how much it should cost.</span>
+                    </label>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <button
                         onClick={async () => {
@@ -19131,11 +19144,13 @@ export default function ThailandPantiesMarketSite() {
                                 preferredDetails: '',
                                 shippingCountry: '',
                                 requestBody: sellerCustomRequestDraft.requestBody,
+                                proposedPriceThb: sellerCustomRequestDraft.proposedPriceThb,
                               },
                               () => {
                                 setSellerCustomRequestDraft((prev) => ({
                                   ...prev,
                                   requestBody: '',
+                                  proposedPriceThb: '',
                                 }));
                                 setSellerCustomRequestMessage(publicText.customRequestSubmitted);
                                 setSellerCustomRequestMessageTone('success');

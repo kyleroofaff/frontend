@@ -123,6 +123,29 @@ Zone-based flat-rate shipping (THB). See `.cursor/rules/shipping-rates.mdc` for 
 - **API**: `GET /api/shipping/rates` (public, no auth).
 - **To update rates**: edit the JSON config + mirror in `SHIPPING_ZONES`, bump `rates_last_updated`, push & redeploy both repos.
 
+## Fulfillment workflow (orders + custom requests)
+
+Single state machine for both product orders and accepted custom-request quotes:
+`processing → fulfilled → shipped → delivered`.
+
+- **Seller**: `POST /api/orders/:orderId/fulfill` flips `processing → fulfilled` (taken to bar / ready to ship). Buyer gets the `order_ready_to_ship` push.
+- **Bar (or solo seller)**: `POST /api/orders/:orderId/tracking` flips `fulfilled → shipped`. Mandatory: non-empty `trackingNumber` + a real carrier slug ("Not set" is rejected). Affiliated orders are bar-only; non-affiliated orders are seller-only. Buyer gets the `order_shipped` push.
+- **AfterShip webhook**: `POST /api/aftership/webhook` flips `shipped → delivered` and dispatches `order_delivered`. See **AfterShip webhook** below.
+- **Custom requests**: when a quote is accepted, the backend synthesises an `order_cr_<requestId>` row (`paymentStatus=paid`, `fulfillmentStatus=processing`, `sellerId`, `customRequestId`) using the buyer's address from the Accept & pay form (falling back to their saved address). Same fulfillment rules then apply.
+- **Stuck-order admin alert**: `backend/src/services/stuckFulfillmentSweep.js` runs at boot + every 6 h and flags orders that have sat in `fulfilled` for > 5 days (one-shot per order via `adminStuckAlertedAt`).
+
+## AfterShip webhook
+
+**Status: env var generated and stored on the Droplet, but the webhook is NOT yet registered in the AfterShip dashboard (waiting on a plan upgrade).** Until then, orders won't auto-flip from `shipped → delivered` — everything else (registering trackings, buyer "Check Status" checkpoints, ship-side push notifications) still works.
+
+- **Endpoint**: `POST https://api.thailandpanties.com/api/aftership/webhook` (mounted under `/api`).
+- **Auth**: backend reads `AFTERSHIP_WEBHOOK_SECRET` and accepts it via header `x-aftership-secret`, header `aftership-hmac-sha256`, or `?secret=` query string (in that order).
+- **Subscribe to** the `Delivered` event at minimum; the backend ignores any other tag.
+- **Re-register pending in the AfterShip dashboard**: Settings → Notifications → Webhooks → Add Webhook. Use the URL above and add a custom header `x-aftership-secret: <value of AFTERSHIP_WEBHOOK_SECRET>`. If the plan tier doesn't expose custom headers, append `?secret=<value>` to the URL.
+- **Smoke test once registered**: AfterShip's "Send test event" should return `200 OK`. The body will look like `{"ok":true,"ignored":true,"reason":"no matching order"}` for synthetic test trackings — that confirms auth + reachability.
+- **Secret value**: stored in `/opt/tp/deploy/.env.backend` on the Droplet (also backed up at `.env.backend.bak.aftership`). Never commit it.
+- **Note**: only orders whose tracking was registered via our backend (`POST /api/orders/:orderId/tracking`, which writes `aftershipTrackingId` onto the order) match webhook events. Trackings created directly inside AfterShip's UI won't match anything.
+
 ---
 
-*Last updated: shipping 3% zone rates (see `shipping-rates.mdc`); production smoke checklist (API paths, AfterShip, Bankful).*
+*Last updated: AfterShip webhook plumbing (env wired, dashboard registration pending); fulfillment workflow (`processing → fulfilled → shipped → delivered`) for both orders and custom requests; stuck-order admin sweep.*
