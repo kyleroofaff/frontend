@@ -6482,22 +6482,24 @@ export default function ThailandPantiesMarketSite() {
       if (s.affiliatedBarId === currentUser.barId) affiliatedSellerIds.add(s.id);
     }
     if (affiliatedSellerIds.size === 0) return [];
-    return orders.filter((order) =>
-      (order.items || []).some((itemId) => {
+    return orders.filter((order) => {
+      if (order.sellerId && affiliatedSellerIds.has(order.sellerId)) return true;
+      return (order.items || []).some((itemId) => {
         const product = products.find((p) => p.id === itemId);
         return product && affiliatedSellerIds.has(product.sellerId);
-      })
-    ).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      });
+    }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [currentUser, sellers, orders, products]);
   const sellerOrders = useMemo(() => {
     if (!currentUser || currentUser.role !== 'seller' || !currentUser.sellerId) return [];
     const sellerProductIds = new Set(
       products.filter((p) => p.sellerId === currentUser.sellerId).map((p) => p.id)
     );
-    if (sellerProductIds.size === 0) return [];
-    return orders.filter((order) =>
-      (order.items || []).some((itemId) => sellerProductIds.has(itemId))
-    ).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    return orders.filter((order) => {
+      if (order.sellerId && order.sellerId === currentUser.sellerId) return true;
+      if (sellerProductIds.size === 0) return false;
+      return (order.items || []).some((itemId) => sellerProductIds.has(itemId));
+    }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [currentUser, products, orders]);
   const currentWalletBalance = Number(currentUser?.walletBalance || 0);
   const buyerLedger = useMemo(() => {
@@ -13365,6 +13367,16 @@ export default function ThailandPantiesMarketSite() {
           users: (next.users || []).map((u) => (byId.has(u.id) ? { ...u, ...byId.get(u.id) } : u)),
         };
       }
+      const incomingOrder = apiPayload.order;
+      if (incomingOrder && incomingOrder.id) {
+        const existsOrder = (next.orders || []).some((o) => o.id === incomingOrder.id);
+        next = {
+          ...next,
+          orders: existsOrder
+            ? (next.orders || []).map((o) => (o.id === incomingOrder.id ? { ...o, ...incomingOrder } : o))
+            : [incomingOrder, ...(next.orders || [])],
+        };
+      }
       return next;
     });
   }
@@ -13484,32 +13496,38 @@ export default function ThailandPantiesMarketSite() {
     let serverAcceptMeta = null;
 
     if (action === 'accept' && apiAuthToken) {
+      const shipping = payload?.shipping || {};
+      const acceptBody = {
+        shippingAddress: String(shipping.address || '').trim(),
+        shippingPostalCode: String(shipping.postalCode || '').trim(),
+        shippingCountry: String(shipping.country || '').trim(),
+      };
       try {
-        const { ok, payload } = await apiRequestJson(
+        const { ok, payload: apiPayload } = await apiRequestJson(
           `/api/custom-requests/${encodeURIComponent(requestId)}/accept`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: {},
+            body: acceptBody,
             idempotencyScope: `custom_accept_${requestId}`,
             stableIdempotency: true,
           }
         );
         if (!ok) {
-          const requiredTopUp = Number(payload?.requiredTopUp || 0);
-          const shortfall = Number(payload?.shortfall || 0);
+          const requiredTopUp = Number(apiPayload?.requiredTopUp || 0);
+          const shortfall = Number(apiPayload?.shortfall || 0);
           if (requiredTopUp > 0 || shortfall > 0) {
             const computedRequiredTopUp = requiredTopUp > 0 ? requiredTopUp : getRequiredTopUpAmount(shortfall);
             onError?.(`Insufficient wallet balance. Please top up at least ${formatPriceTHB(computedRequiredTopUp)} to continue.`);
             return;
           }
-          onError?.(String(payload?.error || 'Could not process payment. Please try again.'));
+          onError?.(String(apiPayload?.error || 'Could not process payment. Please try again.'));
           return;
         } else {
           serverAcceptMeta = {
-            alreadyProcessed: Boolean(payload?.alreadyProcessed),
+            alreadyProcessed: Boolean(apiPayload?.alreadyProcessed),
           };
-          applyNegotiationApiResult(payload);
+          applyNegotiationApiResult(apiPayload);
         }
       } catch {
         onError?.('Could not connect to payment service. Please try again.');
@@ -21287,6 +21305,7 @@ export default function ThailandPantiesMarketSite() {
             buyerRecentSellerIds={buyerRecentSellerIds}
             barMap={barMap}
             notifications={notifications}
+            orders={orders}
           />
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}

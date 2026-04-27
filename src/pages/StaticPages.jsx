@@ -1570,7 +1570,7 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [] }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [] }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
   const buyerUnreadDirectMessageCount = useMemo(() => {
@@ -1641,6 +1641,8 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
   const [requestProposeNoteById, setRequestProposeNoteById] = useState({});
   const [requestNegotiationBusyById, setRequestNegotiationBusyById] = useState({});
   const [showOriginalRequestMessageById, setShowOriginalRequestMessageById] = useState({});
+  const [requestShippingDraftById, setRequestShippingDraftById] = useState({});
+  const [showShippingFormById, setShowShippingFormById] = useState({});
   const resolveRequestMessageBody = (message) => {
     const original = String(message?.bodyOriginal || message?.body || "");
     const translations = message?.translations || {};
@@ -2046,44 +2048,123 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                       <div className="mt-2 text-xs text-slate-700">You proposed {formatPriceTHB(quotedPrice)}. Waiting for seller.</div>
                     ) : status === "proposed" ? (
                       <>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          <button
-                            disabled={negotiationBusy}
-                            onClick={() => {
-                              setBusy(true);
-                              respondToCustomRequestPrice(
-                                request.id,
-                                "accept",
-                                {},
-                                () => onOk(t.quoteAcceptedPaid),
-                                (message) => {
-                                  const walletBalance = Number(currentUser?.walletBalance || 0);
-                                  const shortfall = Number((quotedPrice - walletBalance).toFixed(2));
-                                  if (shortfall > 0) {
-                                    const requiredTopUp = getRequiredTopUpAmount(shortfall);
-                                    onErr(`You need ${formatPriceTHB(quotedPrice)} to accept this quote. Top up at least ${formatPriceTHB(requiredTopUp)} and try again.`);
-                                    openWalletTopUpForFlow?.(shortfall, "/custom-requests", "custom_request_quote");
-                                    return;
-                                  }
-                                  onErr(message || "");
-                                },
-                              );
-                            }}
-                            className={`rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white ${negotiationBusy ? "opacity-60" : ""}`}
-                          >
-                            {t.acceptPay} {formatPriceTHB(quotedPrice)}
-                          </button>
-                          <button
-                            disabled={negotiationBusy}
-                            onClick={() => {
-                              setBusy(true);
-                              buyerRespondToQuote?.(request.id, "decline", {}, () => onOk(t.quoteDeclined), onErr);
-                            }}
-                            className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
-                          >
-                            {t.decline}
-                          </button>
-                        </div>
+                        {(() => {
+                          const showingShipping = Boolean(showShippingFormById[request.id]);
+                          const shippingDraft = requestShippingDraftById[request.id] || {
+                            address: currentUser?.address || "",
+                            postalCode: currentUser?.postalCode || "",
+                            country: currentUser?.country || "Thailand",
+                          };
+                          const updateShipping = (patch) => setRequestShippingDraftById((prev) => ({
+                            ...prev,
+                            [request.id]: { ...shippingDraft, ...patch },
+                          }));
+                          if (!showingShipping) {
+                            return (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                <button
+                                  disabled={negotiationBusy}
+                                  onClick={() => {
+                                    setRequestShippingDraftById((prev) => ({
+                                      ...prev,
+                                      [request.id]: prev[request.id] || shippingDraft,
+                                    }));
+                                    setShowShippingFormById((prev) => ({ ...prev, [request.id]: true }));
+                                  }}
+                                  className={`rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white ${negotiationBusy ? "opacity-60" : ""}`}
+                                >
+                                  {t.acceptPay} {formatPriceTHB(quotedPrice)}
+                                </button>
+                                <button
+                                  disabled={negotiationBusy}
+                                  onClick={() => {
+                                    setBusy(true);
+                                    buyerRespondToQuote?.(request.id, "decline", {}, () => onOk(t.quoteDeclined), onErr);
+                                  }}
+                                  className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+                                >
+                                  {t.decline}
+                                </button>
+                              </div>
+                            );
+                          }
+                          const trimmedAddress = String(shippingDraft.address || "").trim();
+                          const trimmedPostal = String(shippingDraft.postalCode || "").trim();
+                          const trimmedCountry = String(shippingDraft.country || "").trim();
+                          const canSubmit = !negotiationBusy && trimmedAddress && trimmedPostal && trimmedCountry;
+                          return (
+                            <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+                              <div className="text-xs font-semibold text-emerald-800">Shipping address</div>
+                              <p className="mt-0.5 text-[11px] text-slate-600">Where should this order be shipped? You can edit any field before paying.</p>
+                              <div className="mt-2 grid gap-2">
+                                <input
+                                  value={shippingDraft.address}
+                                  onChange={(event) => updateShipping({ address: event.target.value })}
+                                  placeholder="Street address"
+                                  className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                />
+                                <div className="grid grid-cols-2 gap-2">
+                                  <input
+                                    value={shippingDraft.postalCode}
+                                    onChange={(event) => updateShipping({ postalCode: event.target.value })}
+                                    placeholder="Postal code"
+                                    className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                  />
+                                  <input
+                                    value={shippingDraft.country}
+                                    onChange={(event) => updateShipping({ country: event.target.value })}
+                                    placeholder="Country"
+                                    className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                                  />
+                                </div>
+                              </div>
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                <button
+                                  disabled={!canSubmit}
+                                  onClick={() => {
+                                    setBusy(true);
+                                    respondToCustomRequestPrice(
+                                      request.id,
+                                      "accept",
+                                      {
+                                        shipping: {
+                                          address: trimmedAddress,
+                                          postalCode: trimmedPostal,
+                                          country: trimmedCountry,
+                                        },
+                                      },
+                                      () => {
+                                        setShowShippingFormById((prev) => ({ ...prev, [request.id]: false }));
+                                        onOk(t.quoteAcceptedPaid);
+                                      },
+                                      (message) => {
+                                        const walletBalance = Number(currentUser?.walletBalance || 0);
+                                        const shortfall = Number((quotedPrice - walletBalance).toFixed(2));
+                                        if (shortfall > 0) {
+                                          const requiredTopUp = getRequiredTopUpAmount(shortfall);
+                                          onErr(`You need ${formatPriceTHB(quotedPrice)} to accept this quote. Top up at least ${formatPriceTHB(requiredTopUp)} and try again.`);
+                                          openWalletTopUpForFlow?.(shortfall, "/custom-requests", "custom_request_quote");
+                                          return;
+                                        }
+                                        onErr(message || "");
+                                      },
+                                    );
+                                  }}
+                                  className={`rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white ${!canSubmit ? "cursor-not-allowed opacity-60" : ""}`}
+                                >
+                                  Confirm & pay {formatPriceTHB(quotedPrice)}
+                                </button>
+                                <button
+                                  disabled={negotiationBusy}
+                                  onClick={() => setShowShippingFormById((prev) => ({ ...prev, [request.id]: false }))}
+                                  className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })()}
                         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                           <input
                             type="number"
@@ -2115,7 +2196,43 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                     ) : status === "countered" ? (
                       <div className="mt-2 text-xs text-slate-700">{t.waitingCounter} {formatPriceTHB(buyerCounterPrice || quotedPrice)}.</div>
                     ) : status === "accepted" ? (
-                      <div className="mt-2 text-xs font-semibold text-emerald-700">Accepted · Paid {formatPriceTHB(quotedPrice)}</div>
+                      (() => {
+                        const linkedOrder = (orders || []).find((o) => o && o.customRequestId === request.id);
+                        const fulfillmentStatus = String(linkedOrder?.fulfillmentStatus || "processing").toLowerCase();
+                        const tracking = String(linkedOrder?.trackingNumber || "").trim();
+                        const carrier = String(linkedOrder?.trackingCarrier || "").trim();
+                        return (
+                          <div className="mt-2 space-y-2">
+                            <div className="text-xs font-semibold text-emerald-700">Accepted · Paid {formatPriceTHB(quotedPrice)}</div>
+                            {linkedOrder ? (
+                              <div className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs text-slate-700">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="font-semibold">Fulfillment:</span>
+                                  {fulfillmentStatus === "processing" ? (
+                                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">Awaiting seller drop-off</span>
+                                  ) : fulfillmentStatus === "fulfilled" ? (
+                                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">Ready to ship</span>
+                                  ) : fulfillmentStatus === "shipped" ? (
+                                    <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-800">Shipped</span>
+                                  ) : fulfillmentStatus === "delivered" ? (
+                                    <span className="rounded-full bg-emerald-200 px-2 py-0.5 text-[11px] font-semibold text-emerald-900">Delivered</span>
+                                  ) : (
+                                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700">{fulfillmentStatus || "processing"}</span>
+                                  )}
+                                </div>
+                                {(fulfillmentStatus === "shipped" || fulfillmentStatus === "delivered") && tracking ? (
+                                  <div className="mt-1">
+                                    Tracking: <span className="font-semibold">{tracking}</span>{carrier && carrier !== "Not set" ? ` · Carrier: ${carrier}` : ""}
+                                  </div>
+                                ) : null}
+                                {[linkedOrder.shippingAddress, linkedOrder.shippingPostalCode, linkedOrder.shippingCountry].filter(Boolean).join(", ") ? (
+                                  <div className="mt-1 text-[11px] text-slate-500">Ship to: {[linkedOrder.shippingAddress, linkedOrder.shippingPostalCode, linkedOrder.shippingCountry].filter(Boolean).join(", ")}</div>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })()
                     ) : status === "declined" ? (
                       <div className="mt-2 text-xs text-slate-500">This negotiation is closed.</div>
                     ) : null
