@@ -84,6 +84,8 @@ import { getRequiredTopUpAmount, isValidWalletTopUpAmount, MIN_WALLET_TOP_UP_THB
 
 const StoriesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.StoriesPage })));
 const SellerDashboardPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerDashboardPage })));
+const SellerOrdersPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerOrdersPage })));
+const BarOrdersPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BarOrdersPage })));
 const SellerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.SellerMessagesPage })));
 const BuyerMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BuyerMessagesPage })));
 const BarMessagesPage = lazy(() => import('./pages/DashboardPages.jsx').then((module) => ({ default: module.BarMessagesPage })));
@@ -5153,6 +5155,8 @@ function parseRoute(pathname) {
   if (pathname === '/checkout/success') return { name: 'checkout-success' };
   if (pathname === '/admin') return { name: 'admin' };
   if (pathname === '/seller-dashboard') return { name: 'account' };
+  if (pathname === '/seller-orders') return { name: 'seller-orders' };
+  if (pathname === '/bar-orders') return { name: 'bar-orders' };
   if (pathname === '/seller-messages') return { name: 'seller-messages' };
   if (pathname === '/buyer-messages') return { name: 'buyer-messages' };
   if (pathname === '/bar-messages') return { name: 'bar-messages' };
@@ -6493,14 +6497,19 @@ export default function ThailandPantiesMarketSite() {
       if (s.affiliatedBarId === currentUser.barId) affiliatedSellerIds.add(s.id);
     }
     if (affiliatedSellerIds.size === 0) return [];
+    const userById = new Map((users || []).map((u) => [u.id, u]));
     return orders.filter((order) => {
       if (order.sellerId && affiliatedSellerIds.has(order.sellerId)) return true;
       return (order.items || []).some((itemId) => {
         const product = products.find((p) => p.id === itemId);
         return product && affiliatedSellerIds.has(product.sellerId);
       });
+    }).map((order) => {
+      const buyer = order.buyerUserId ? userById.get(order.buyerUserId) : null;
+      const buyerDisplayName = String(buyer?.name || order.buyerName || order.buyerEmail || '').trim();
+      return { ...order, buyerDisplayName };
     }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-  }, [currentUser, sellers, orders, products]);
+  }, [currentUser, sellers, orders, products, users]);
   const sellerOrders = useMemo(() => {
     if (!currentUser || currentUser.role !== 'seller' || !currentUser.sellerId) return [];
     const sellerProductIds = new Set(
@@ -6517,6 +6526,12 @@ export default function ThailandPantiesMarketSite() {
       return { ...order, buyerDisplayName };
     }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [currentUser, products, orders, users]);
+  const barUnreadOrdersCount = useMemo(() => {
+    if (currentUser?.role !== 'bar') return 0;
+    return (notifications || []).filter((n) => (
+      n.userId === currentUser.id && !n.read && n.type === 'order'
+    )).length;
+  }, [notifications, currentUser]);
   const currentWalletBalance = Number(currentUser?.walletBalance || 0);
   const buyerLedger = useMemo(() => {
     if (!currentUser) return [];
@@ -19651,13 +19666,10 @@ export default function ThailandPantiesMarketSite() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      const ordersSection = typeof document !== 'undefined' ? document.getElementById('bar-orders') : null;
-                      if (ordersSection) ordersSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }}
+                    onClick={() => navigate('/bar-orders')}
                     className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-rose-700 sm:w-auto"
                   >
-                    Orders ({barOrders.length})
+                    Orders {barUnreadOrdersCount > 0 ? `(${barUnreadOrdersCount} new)` : `(${barOrders.length})`}
                   </button>
                   <label className="col-span-2 mt-1 flex items-center justify-end gap-2 text-sm text-slate-600 sm:col-auto sm:ml-auto sm:mt-0">
                     {barT.language}
@@ -20279,6 +20291,30 @@ export default function ThailandPantiesMarketSite() {
             updatingOrderId={updatingOrderId}
           />
           </>
+        ) : null}
+        {routeInfo.name === 'seller-orders' && currentUser?.role === 'seller' ? (
+          <SellerOrdersPage
+            currentUser={currentUser}
+            currentSellerProfile={currentSellerProfile}
+            sellerOrders={sellerOrders}
+            updateOrderShipment={updateOrderShipment}
+            markOrderFulfilled={markOrderFulfilled}
+            updatingOrderId={updatingOrderId}
+            notifications={notifications}
+            markNotificationsReadForConversation={markNotificationsReadForConversation}
+            navigate={navigate}
+          />
+        ) : null}
+        {routeInfo.name === 'bar-orders' && currentUser?.role === 'bar' ? (
+          <BarOrdersPage
+            currentUser={currentUser}
+            barOrders={barOrders}
+            updateOrderShipment={updateOrderShipment}
+            updatingOrderId={updatingOrderId}
+            notifications={notifications}
+            markNotificationsReadForConversation={markNotificationsReadForConversation}
+            navigate={navigate}
+          />
         ) : null}
         {routeInfo.name === 'seller-messages' ? (
           <SellerMessagesPage

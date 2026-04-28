@@ -2766,6 +2766,14 @@ export function SellerDashboardPage({
       && String(n.conversationId || "").startsWith("custom_request_")
     )).length;
   }, [notifications, currentUser]);
+  const sellerOrdersBadgeCount = useMemo(() => {
+    if (currentUser?.role !== "seller") return 0;
+    return (notifications || []).filter((n) => (
+      n.userId === currentUser.id
+      && n.type === "order"
+      && !n.read
+    )).length;
+  }, [notifications, currentUser]);
   const inAppAllEnabled =
     (currentUser?.notificationPreferences?.message !== false)
     && (currentUser?.notificationPreferences?.engagement !== false);
@@ -2955,6 +2963,13 @@ export function SellerDashboardPage({
               className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
             >
               {t("messagesTab")} {sellerUnreadConversationCount > 0 ? `(${sellerUnreadConversationCount})` : ""}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/seller-orders")}
+              className="min-h-[44px] rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700"
+            >
+              Orders {sellerOrdersBadgeCount > 0 ? `(${sellerOrdersBadgeCount} new)` : (sellerOrders || []).length > 0 ? `(${(sellerOrders || []).length})` : ""}
             </button>
             <button
               type="button"
@@ -4552,6 +4567,360 @@ export function StoriesWorkspacePage({
         </>
       )}
     </section>
+  );
+}
+
+function OrdersPageShell({
+  role,
+  currentUser,
+  isAffiliated,
+  orders,
+  updateOrderShipment,
+  markOrderFulfilled,
+  updatingOrderId,
+  notifications,
+  markNotificationsReadForConversation,
+  navigate,
+  pageTitle,
+}) {
+  const sortedOrders = useMemo(() => {
+    return [...(orders || [])].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [orders]);
+  const [showArchived, setShowArchived] = useState(false);
+  const filteredOrders = useMemo(() => {
+    return showArchived
+      ? sortedOrders.filter((o) => ["delivered", "cancelled"].includes(String(o.fulfillmentStatus || "").toLowerCase()))
+      : sortedOrders.filter((o) => !["delivered", "cancelled"].includes(String(o.fulfillmentStatus || "").toLowerCase()));
+  }, [sortedOrders, showArchived]);
+  const archivedCount = useMemo(
+    () => sortedOrders.filter((o) => ["delivered", "cancelled"].includes(String(o.fulfillmentStatus || "").toLowerCase())).length,
+    [sortedOrders],
+  );
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  useEffect(() => {
+    if (selectedOrderId) {
+      const exists = filteredOrders.some((o) => o.id === selectedOrderId);
+      if (!exists) setSelectedOrderId(null);
+      return;
+    }
+    if (filteredOrders.length > 0 && typeof window !== "undefined" && window.innerWidth >= 768) {
+      setSelectedOrderId(filteredOrders[0].id);
+    }
+  }, [filteredOrders, selectedOrderId]);
+  const selectedOrder = useMemo(() => filteredOrders.find((o) => o.id === selectedOrderId) || null, [filteredOrders, selectedOrderId]);
+  useEffect(() => {
+    if (!selectedOrderId || typeof markNotificationsReadForConversation !== "function") return;
+    markNotificationsReadForConversation(`order_${selectedOrderId}`);
+  }, [selectedOrderId, markNotificationsReadForConversation]);
+
+  const [draftByOrderId, setDraftByOrderId] = useState({});
+  const draft = (selectedOrder && draftByOrderId[selectedOrder.id]) || {};
+
+  const unreadCountByOrderId = useMemo(() => {
+    const map = {};
+    (notifications || [])
+      .filter((n) => n.userId === currentUser?.id && !n.read && n.type === "order")
+      .forEach((n) => {
+        const id = String(n.conversationId || "").replace(/^order_/, "");
+        if (id) map[id] = (map[id] || 0) + 1;
+      });
+    return map;
+  }, [notifications, currentUser]);
+
+  const renderStatusPill = (status) => {
+    const s = String(status || "processing").toLowerCase();
+    const palette = {
+      processing: "bg-amber-50 text-amber-800 ring-amber-200",
+      fulfilled: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+      shipped: "bg-indigo-50 text-indigo-800 ring-indigo-200",
+      delivered: "bg-slate-100 text-slate-700 ring-slate-200",
+      cancelled: "bg-rose-50 text-rose-700 ring-rose-200",
+    }[s] || "bg-slate-50 text-slate-700 ring-slate-200";
+    return (
+      <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ${palette} capitalize`}>{s}</span>
+    );
+  };
+
+  const renderActions = () => {
+    if (!selectedOrder) return null;
+    const status = String(selectedOrder.fulfillmentStatus || "processing").toLowerCase();
+    const isPaid = selectedOrder.paymentStatus === "paid";
+    if (!isPaid) {
+      return <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">Waiting for payment to clear before fulfillment is available.</div>;
+    }
+    if (status === "cancelled") {
+      return <div className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-800">This order was cancelled by the buyer. Do not ship.</div>;
+    }
+    if (status === "delivered") {
+      return <div className="rounded-xl bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">Delivered.</div>;
+    }
+    if (status === "processing") {
+      if (role === "seller") {
+        return (
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-slate-700">{isAffiliated ? "Take this order to your bar, then mark it ready." : "When the package is ready to ship, mark it as fulfilled."}</div>
+            <button
+              onClick={() => markOrderFulfilled?.(selectedOrder.id)}
+              disabled={updatingOrderId === selectedOrder.id}
+              className={`rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 ${updatingOrderId === selectedOrder.id ? "cursor-not-allowed opacity-60" : "hover:bg-emerald-100"}`}
+            >
+              {updatingOrderId === selectedOrder.id ? "Saving..." : (isAffiliated ? "Mark fulfilled (taken to bar)" : "Mark fulfilled (ready to ship)")}
+            </button>
+          </div>
+        );
+      }
+      return <div className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800">Awaiting seller to mark fulfilled. They will hand it off to your bar.</div>;
+    }
+    if (status === "fulfilled") {
+      const canShip = role === "bar" || (role === "seller" && !isAffiliated);
+      if (!canShip) {
+        return <div className="rounded-xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">Awaiting bar to ship.</div>;
+      }
+      const trackingNumber = draft.trackingNumber ?? selectedOrder.trackingNumber ?? "";
+      const trackingCarrier = draft.trackingCarrier ?? selectedOrder.trackingCarrier ?? "Not set";
+      return (
+        <div className="grid gap-3 md:grid-cols-[1fr_0.95fr_auto] md:items-end">
+          <label className="text-sm text-slate-700">
+            Tracking code
+            <input
+              value={trackingNumber}
+              onChange={(event) => setDraftByOrderId((prev) => ({
+                ...prev,
+                [selectedOrder.id]: {
+                  trackingNumber: event.target.value,
+                  trackingCarrier: prev[selectedOrder.id]?.trackingCarrier ?? selectedOrder.trackingCarrier ?? "Not set",
+                },
+              }))}
+              placeholder="e.g. TH1234567890"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="text-sm text-slate-700">
+            Carrier
+            <select
+              value={trackingCarrier}
+              onChange={(event) => setDraftByOrderId((prev) => ({
+                ...prev,
+                [selectedOrder.id]: {
+                  trackingNumber: prev[selectedOrder.id]?.trackingNumber ?? selectedOrder.trackingNumber ?? "",
+                  trackingCarrier: event.target.value,
+                },
+              }))}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+            >
+              {TRACKING_CARRIER_OPTIONS.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </label>
+          <button
+            onClick={() => {
+              const nextTracking = String(trackingNumber).trim();
+              const nextCarrier = String(trackingCarrier).trim();
+              if (!nextTracking || !nextCarrier || nextCarrier === "Not set") return;
+              updateOrderShipment?.(selectedOrder.id, "shipped", nextTracking, nextCarrier);
+            }}
+            disabled={
+              updatingOrderId === selectedOrder.id
+              || !String(trackingNumber).trim()
+              || !String(trackingCarrier).trim()
+              || trackingCarrier === "Not set"
+            }
+            className={`rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 ${updatingOrderId === selectedOrder.id ? "cursor-not-allowed opacity-60" : ""} disabled:cursor-not-allowed disabled:opacity-60`}
+          >
+            {updatingOrderId === selectedOrder.id ? "Saving..." : "Mark shipped"}
+          </button>
+        </div>
+      );
+    }
+    if (status === "shipped") {
+      return (
+        <div className="rounded-xl bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
+          {selectedOrder.trackingNumber
+            ? <>Tracking: <span className="font-semibold">{selectedOrder.trackingNumber}</span>{selectedOrder.trackingCarrier && selectedOrder.trackingCarrier !== "Not set" ? ` · Carrier: ${selectedOrder.trackingCarrier}` : ""}</>
+            : "Marked shipped."}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 md:pb-16 md:py-16">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-500">Orders</div>
+          <h2 className="mt-1 text-3xl font-bold tracking-tight">{pageTitle || "Orders"}</h2>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => navigate?.(role === "bar" ? "/bar-dashboard" : "/seller-dashboard")}
+            className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700"
+          >
+            Back to dashboard
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-[320px_1fr] md:items-start">
+        <div className={`${selectedOrderId ? "hidden md:block" : "block"} max-h-[78vh] overflow-y-auto rounded-2xl bg-white p-2 shadow-sm ring-1 ring-rose-100`}>
+          <div className="flex items-center justify-between gap-2 px-2 py-1">
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{showArchived ? "Archived" : "Active"}</div>
+            <button
+              type="button"
+              onClick={() => { setShowArchived((prev) => !prev); setSelectedOrderId(null); }}
+              className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-600 hover:bg-slate-50"
+            >
+              {showArchived ? "Show active" : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
+            </button>
+          </div>
+          {filteredOrders.length === 0 ? (
+            <div className="px-2 py-3 text-sm text-slate-500">{showArchived ? "No archived orders." : "No active orders yet."}</div>
+          ) : (
+            <div className="space-y-1">
+              {filteredOrders.map((order) => {
+                const isSelected = selectedOrderId === order.id;
+                const buyerLabel = order.buyerDisplayName || order.buyerName || order.buyerEmail || "Buyer";
+                const initials = (buyerLabel || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join("").toUpperCase() || "?";
+                const itemSummary = order.customRequestId
+                  ? "Custom request"
+                  : `${(order.items || []).length} item${(order.items || []).length === 1 ? "" : "s"}`;
+                const unread = unreadCountByOrderId[order.id] || 0;
+                return (
+                  <button
+                    key={order.id}
+                    type="button"
+                    onClick={() => setSelectedOrderId(order.id)}
+                    className={`w-full rounded-xl px-3 py-2 text-left transition ${isSelected ? "bg-rose-50 ring-1 ring-rose-200" : "hover:bg-slate-50"}`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-700">{initials}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="truncate text-sm font-semibold text-slate-800">{buyerLabel}</div>
+                          {unread > 0 ? (
+                            <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">{unread}</span>
+                          ) : null}
+                        </div>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-slate-500">
+                          {renderStatusPill(order.fulfillmentStatus)}
+                          <span className="truncate">{formatDateTimeNoSeconds(order.createdAt || Date.now())}</span>
+                        </div>
+                        <div className="mt-1 truncate text-xs text-slate-600">{itemSummary} · {formatPriceTHB(order.total)}</div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {selectedOrder ? (
+          <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-rose-100">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order</div>
+                <h3 className="mt-1 text-xl font-bold text-slate-900">{selectedOrder.id}</h3>
+                <div className="mt-1 text-xs text-slate-500">{formatDateTimeNoSeconds(selectedOrder.createdAt || Date.now())}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-semibold text-rose-700">{formatPriceTHB(selectedOrder.total)}</div>
+                <div className="mt-1 flex flex-wrap items-center justify-end gap-1 text-xs text-slate-500">
+                  {renderStatusPill(selectedOrder.fulfillmentStatus)}
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 capitalize">{selectedOrder.paymentStatus || "pending"}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Buyer</div>
+                <div className="mt-0.5">{selectedOrder.buyerDisplayName || selectedOrder.buyerName || selectedOrder.buyerEmail || "Buyer"}</div>
+                <div className="mt-0.5 text-xs text-slate-500">{selectedOrder.customRequestId ? `Custom request #${selectedOrder.customRequestId}` : `${(selectedOrder.items || []).length} item${(selectedOrder.items || []).length === 1 ? "" : "s"}`}</div>
+              </div>
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Ship to</div>
+                {role === "seller" && isAffiliated ? (
+                  <div className="mt-0.5 text-xs text-slate-500">Your bar handles shipping, so the buyer's address isn't shown here.</div>
+                ) : (
+                  <div className="mt-0.5 whitespace-pre-line">
+                    {[
+                      selectedOrder.shippingAddressLine1 || selectedOrder.shippingAddress,
+                      selectedOrder.shippingAddressLine2,
+                      [selectedOrder.shippingCity, selectedOrder.shippingState].filter(Boolean).join(", "),
+                      selectedOrder.shippingPostalCode,
+                      selectedOrder.shippingCountry,
+                      selectedOrder.shippingPhone ? `Phone: ${selectedOrder.shippingPhone}` : "",
+                    ].filter(Boolean).join("\n") || "Not provided"}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5">{renderActions()}</div>
+          </div>
+        ) : (
+          <div className="hidden rounded-2xl bg-white p-6 text-sm text-slate-500 shadow-sm ring-1 ring-rose-100 md:block">Pick an order on the left to manage fulfillment.</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export function SellerOrdersPage({
+  currentUser,
+  currentSellerProfile,
+  sellerOrders,
+  updateOrderShipment,
+  markOrderFulfilled,
+  updatingOrderId,
+  notifications,
+  markNotificationsReadForConversation,
+  navigate,
+}) {
+  const isAffiliated = Boolean(currentSellerProfile?.affiliatedBarId);
+  return (
+    <OrdersPageShell
+      role="seller"
+      currentUser={currentUser}
+      isAffiliated={isAffiliated}
+      orders={sellerOrders}
+      updateOrderShipment={updateOrderShipment}
+      markOrderFulfilled={markOrderFulfilled}
+      updatingOrderId={updatingOrderId}
+      notifications={notifications}
+      markNotificationsReadForConversation={markNotificationsReadForConversation}
+      navigate={navigate}
+      pageTitle="Your orders"
+    />
+  );
+}
+
+export function BarOrdersPage({
+  currentUser,
+  barOrders,
+  updateOrderShipment,
+  updatingOrderId,
+  notifications,
+  markNotificationsReadForConversation,
+  navigate,
+}) {
+  return (
+    <OrdersPageShell
+      role="bar"
+      currentUser={currentUser}
+      isAffiliated={false}
+      orders={barOrders}
+      updateOrderShipment={updateOrderShipment}
+      markOrderFulfilled={null}
+      updatingOrderId={updatingOrderId}
+      notifications={notifications}
+      markNotificationsReadForConversation={markNotificationsReadForConversation}
+      navigate={navigate}
+      pageTitle="Bar orders"
+    />
   );
 }
 
