@@ -7504,6 +7504,18 @@ export default function ThailandPantiesMarketSite() {
                 changed = true;
               }
             }
+            // Server-emitted notifications (counter offers, quote acceptances,
+            // declines, etc.) need to land in the local cache too. Union-by-id
+            // so we don't clobber a notification the user just marked as read.
+            const serverNotifs = Array.isArray(payload.db.notifications) ? payload.db.notifications : [];
+            if (serverNotifs.length > 0) {
+              const localNotifIds = new Set((merged.notifications || []).map((n) => String(n?.id || '')));
+              const newNotifs = serverNotifs.filter((n) => n?.id && !localNotifIds.has(String(n.id)));
+              if (newNotifs.length > 0) {
+                merged.notifications = [...(merged.notifications || []), ...newNotifs];
+                changed = true;
+              }
+            }
             const serverCustomRequests = Array.isArray(payload.db.customRequests) ? payload.db.customRequests : [];
             if (serverCustomRequests.length > 0) {
               const localReqMap = new Map((merged.customRequests || []).map((r) => [String(r?.id || ''), r]));
@@ -21668,6 +21680,7 @@ export default function ThailandPantiesMarketSite() {
             resendOrderReceipt={resendOrderReceipt}
             fetchOrderTracking={fetchOrderTracking}
             cancelBuyerOrder={cancelBuyerOrder}
+            payoutItems={payoutItems}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />

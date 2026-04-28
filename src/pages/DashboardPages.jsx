@@ -12886,6 +12886,7 @@ export function AccountPage({
   fetchOrderTracking,
   cancelBuyerOrder,
   exchangeRate,
+  payoutItems,
   uiLanguage = "en",
   navigate
 }) {
@@ -12983,6 +12984,84 @@ export function AccountPage({
   const detailPageSize = 10;
   const checkoutRequiredTopUpAmount = getRequiredTopUpAmount(walletTopUpContext?.topupRequired || 0);
   const checkoutReturnPath = String(walletTopUpContext?.returnTo || "").trim();
+
+  // Seller / admin payout summary used by the role-gated cards below.
+  // Mirrors the backend contract in marketplaceController.js:
+  //   PAYOUT_HOLD_DAYS = 14, PAYOUT_SCHEDULE = "monthly",
+  //   PAYOUT_MIN_THRESHOLD_THB = 100,
+  //   PAYOUT_ELIGIBLE_TYPES = {message_fee, order_sale_earning, order_bar_commission}.
+  // Admin commissions accrue directly to the wallet (no payout run), so they
+  // are summarised separately on a per-month basis.
+  const PAYOUT_HOLD_DAYS_LOCAL = 14;
+  const PAYOUT_MIN_THRESHOLD_THB_LOCAL = 100;
+  const payoutSummary = useMemo(() => {
+    if (!currentUser) return null;
+    const holdMs = PAYOUT_HOLD_DAYS_LOCAL * 24 * 60 * 60 * 1000;
+    const holdCutoffMs = Date.now() - holdMs;
+    const eligibleTypes = new Set(["message_fee", "order_sale_earning", "order_bar_commission"]);
+    const paidSourceTxIds = new Set();
+    (payoutItems || []).forEach((item) => {
+      if (item?.status !== "sent") return;
+      (item?.sourceTxIds || []).forEach((txId) => {
+        if (txId) paidSourceTxIds.add(String(txId));
+      });
+    });
+    const userLedger = (buyerLedger || []).filter((entry) => entry?.userId === currentUser.id);
+
+    let sellerMatured = 0;
+    let sellerPending = 0;
+    if (currentUser.role === "seller" || currentUser.role === "bar") {
+      userLedger.forEach((entry) => {
+        const amount = Number(entry?.amount || 0);
+        if (!Number.isFinite(amount) || amount <= 0) return;
+        if (!eligibleTypes.has(String(entry?.type || ""))) return;
+        if (paidSourceTxIds.has(String(entry?.id || ""))) return;
+        const createdAtMs = new Date(entry?.createdAt || 0).getTime();
+        if (!Number.isFinite(createdAtMs) || createdAtMs <= 0) return;
+        if (createdAtMs < holdCutoffMs) sellerMatured += amount;
+        else sellerPending += amount;
+      });
+    }
+
+    let adminThisMonthTotal = 0;
+    let adminMaturedThisMonth = 0;
+    let adminPendingThisMonth = 0;
+    if (currentUser.role === "admin") {
+      const nowDate = new Date();
+      const monthStartMs = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), 1, 0, 0, 0, 0);
+      const monthEndMs = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth() + 1, 0, 23, 59, 59, 999);
+      userLedger.forEach((entry) => {
+        if (String(entry?.type || "") !== "order_platform_commission") return;
+        const amount = Number(entry?.amount || 0);
+        if (!Number.isFinite(amount) || amount <= 0) return;
+        const createdAtMs = new Date(entry?.createdAt || 0).getTime();
+        if (!Number.isFinite(createdAtMs) || createdAtMs < monthStartMs || createdAtMs > monthEndMs) return;
+        adminThisMonthTotal += amount;
+        if (createdAtMs < holdCutoffMs) adminMaturedThisMonth += amount;
+        else adminPendingThisMonth += amount;
+      });
+    }
+
+    // Next seller/bar payout: end-of-current-UTC-month + 14 day hold.
+    const today = new Date();
+    const monthEndUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+    const nextPayoutDate = new Date(monthEndUtc.getTime() + holdMs);
+    // Next admin settle marker: end-of-next-UTC-month + 14 day hold.
+    const nextMonthEndUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 2, 0, 23, 59, 59, 999));
+    const nextSettleDate = new Date(nextMonthEndUtc.getTime() + holdMs);
+    const formatPayoutDate = (date) => date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+
+    return {
+      sellerMatured: Number(sellerMatured.toFixed(2)),
+      sellerPending: Number(sellerPending.toFixed(2)),
+      sellerNextPayoutLabel: formatPayoutDate(nextPayoutDate),
+      adminThisMonthTotal: Number(adminThisMonthTotal.toFixed(2)),
+      adminMaturedThisMonth: Number(adminMaturedThisMonth.toFixed(2)),
+      adminPendingThisMonth: Number(adminPendingThisMonth.toFixed(2)),
+      adminNextSettleLabel: formatPayoutDate(nextSettleDate),
+    };
+  }, [currentUser, buyerLedger, payoutItems]);
+
   useEffect(() => {
     if (!checkoutRequiredTopUpAmount) return;
     setCustomTopUpAmount(String(Math.ceil(checkoutRequiredTopUpAmount)));
@@ -13661,6 +13740,38 @@ export function AccountPage({
                 <div className="mt-4 rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">
                   {tx("availableBalance")}: <span className="font-bold">{formatPriceTHB(currentWalletBalance)}</span>
                 </div>
+                {currentUser.role === "seller" && payoutSummary ? (
+                  <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Available at next payout</div>
+                    <div className="mt-2 text-2xl font-bold">{formatPriceTHB(payoutSummary.sellerMatured)}</div>
+                    <div className="mt-1 text-xs text-emerald-800">
+                      Pending hold: <span className="font-semibold">{formatPriceTHB(payoutSummary.sellerPending)}</span>
+                      <span className="ml-1 text-emerald-700">(released after the {PAYOUT_HOLD_DAYS_LOCAL}-day hold)</span>
+                    </div>
+                    <div className="mt-1 text-xs text-emerald-800">Next payout: <span className="font-semibold">{payoutSummary.sellerNextPayoutLabel}</span></div>
+                    {payoutSummary.sellerMatured > 0 && payoutSummary.sellerMatured < PAYOUT_MIN_THRESHOLD_THB_LOCAL ? (
+                      <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+                        Below {formatPriceTHB(PAYOUT_MIN_THRESHOLD_THB_LOCAL)} threshold; will roll into the next run.
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+                {currentUser.role === "admin" && payoutSummary ? (
+                  <div className="mt-3 rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">This month's commission</div>
+                    <div className="mt-2 text-2xl font-bold">{formatPriceTHB(payoutSummary.adminThisMonthTotal)}</div>
+                    <div className="mt-1 text-xs text-indigo-800">
+                      Matured this month: <span className="font-semibold">{formatPriceTHB(payoutSummary.adminMaturedThisMonth)}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-indigo-800">
+                      Pending hold: <span className="font-semibold">{formatPriceTHB(payoutSummary.adminPendingThisMonth)}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-indigo-800">Next month settles on <span className="font-semibold">{payoutSummary.adminNextSettleLabel}</span></div>
+                    <div className="mt-2 text-[11px] leading-5 text-indigo-700">
+                      Platform commissions accrue directly to your wallet; the maturity readout is informational.
+                    </div>
+                  </div>
+                ) : null}
                 {checkoutRequiredTopUpAmount > 0 ? (
                   <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                     <div>You need {formatPriceTHB(checkoutRequiredTopUpAmount)} to complete your checkout.</div>
