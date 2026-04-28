@@ -10064,10 +10064,13 @@ export default function ThailandPantiesMarketSite() {
     setCheckoutForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function updateSellerProfileField(key, value) {
+  // useCallback'd because this is passed to DashboardPages effects whose
+  // dep arrays include the function itself; without a stable ref those
+  // effects re-run on every render of App.
+  const updateSellerProfileField = useCallback((key, value) => {
     setSellerProfileMessage('');
     setSellerProfileDraft((prev) => ({ ...prev, [key]: value }));
-  }
+  }, []);
 
   function updateSellerAffiliationRequestDraftMessage(value) {
     setSellerAffiliationRequestDraft((prev) => ({
@@ -12349,36 +12352,76 @@ export default function ThailandPantiesMarketSite() {
     navigate(`/bar-messages?conversationId=${encodeURIComponent(conversationId)}`);
   }
 
-  function markNotificationsReadForConversation(conversationId) {
+  // Per-conversation throttle: we never need to POST /read for the same
+  // conversation more than once every few seconds. This is defence-in-depth
+  // against any future render-loop regression that would otherwise fire the
+  // endpoint hundreds of times per second.
+  const lastMarkReadAtRef = useRef({});
+  const MARK_READ_THROTTLE_MS = 3000;
+
+  // useCallback'd with stable deps so dependent effects (e.g. the one in
+  // CustomRequestsPage that runs on selectedRequestId change) don't see a
+  // fresh function reference every render. A naked function declaration here
+  // would melt the API: the effect would re-run on every parent render,
+  // call setDb, re-render, get a new function ref, re-run again, ad infinitum.
+  const markNotificationsReadForConversation = useCallback((conversationId) => {
     if (!currentUser || !conversationId) return;
     const parsedBarConversation = parseBarConversationId(conversationId);
-    setDb((prev) => ({
-      ...prev,
-      notifications: (prev.notifications || []).map((notification) =>
-        notification.userId === currentUser.id && notification.conversationId === conversationId
-          ? { ...notification, read: true }
-          : notification,
-      ),
-      messages: (prev.messages || []).map((message) => {
+    setDb((prev) => {
+      let mutated = false;
+      const nextNotifications = (prev.notifications || []).map((notification) => {
+        if (
+          notification.userId === currentUser.id
+          && notification.conversationId === conversationId
+          && !notification.read
+        ) {
+          mutated = true;
+          return { ...notification, read: true };
+        }
+        return notification;
+      });
+      const nextMessages = (prev.messages || []).map((message) => {
         if (message.conversationId !== conversationId) return message;
         if (parsedBarConversation) {
-          if (currentUser.role === 'bar') return { ...message, readByBar: true };
-          if (currentUser.role === 'buyer' || currentUser.role === 'seller') return { ...message, readByParticipant: true };
+          if (currentUser.role === 'bar') {
+            if (message.readByBar) return message;
+            mutated = true;
+            return { ...message, readByBar: true };
+          }
+          if (currentUser.role === 'buyer' || currentUser.role === 'seller') {
+            if (message.readByParticipant) return message;
+            mutated = true;
+            return { ...message, readByParticipant: true };
+          }
           return message;
         }
-        if (currentUser.role === 'buyer') return { ...message, readByBuyer: true };
-        if (currentUser.role === 'seller') return { ...message, readBySeller: true };
+        if (currentUser.role === 'buyer') {
+          if (message.readByBuyer) return message;
+          mutated = true;
+          return { ...message, readByBuyer: true };
+        }
+        if (currentUser.role === 'seller') {
+          if (message.readBySeller) return message;
+          mutated = true;
+          return { ...message, readBySeller: true };
+        }
         return message;
-      }),
-    }));
+      });
+      if (!mutated) return prev;
+      return { ...prev, notifications: nextNotifications, messages: nextMessages };
+    });
     if (backendStatus === 'connected' && apiAuthToken) {
+      const now = Date.now();
+      const lastAt = lastMarkReadAtRef.current[conversationId] || 0;
+      if (now - lastAt < MARK_READ_THROTTLE_MS) return;
+      lastMarkReadAtRef.current[conversationId] = now;
       const url = `${API_BASE_URL}/api/messages/conversations/${encodeURIComponent(conversationId)}/read`;
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiAuthToken}` },
       }).catch(() => {});
     }
-  }
+  }, [currentUser?.id, currentUser?.role, backendStatus, apiAuthToken]);
 
   async function sendBuyerMessageToConversation(sellerId, conversationId, body, onSuccess, onError) {
     if (!currentUser || currentUser.role !== 'buyer') {
