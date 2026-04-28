@@ -19024,6 +19024,19 @@ export default function ThailandPantiesMarketSite() {
                   <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                     {publicText.followersLabel}: {sellerFollowerCountById[selectedSeller.id] || 0}
                   </span>
+                  {currentUser?.role === 'buyer' ? (() => {
+                    const isLiked = (sellerFollows || []).some((f) => f.sellerId === selectedSeller.id && f.followerUserId === currentUser.id);
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => toggleSellerFollow(selectedSeller.id)}
+                        className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold ${isLiked ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-700'}`}
+                        aria-pressed={isLiked}
+                      >
+                        {isLiked ? 'Liked' : 'Like'}
+                      </button>
+                    );
+                  })() : null}
                   {currentUser && currentUser.sellerId !== selectedSeller.id ? (
                     <button
                       type="button"

@@ -2752,7 +2752,10 @@ export function SellerDashboardPage({
     () =>
       (sellerCustomRequests || []).filter((request) => {
         if (request?.archivedAt) return false;
-        const status = String(request?.status || "open");
+        const quoteStatus = String(request?.quoteStatus || "").toLowerCase();
+        if (quoteStatus === "accepted" || quoteStatus === "declined") return false;
+        const status = String(request?.status || "open").toLowerCase();
+        if (status === "accepted" || status === "declined" || status === "cancelled") return false;
         return status === "open" || status === "reviewing";
       }).length,
     [sellerCustomRequests],
@@ -12941,6 +12944,7 @@ export function AccountPage({
   const [receiptCooldownNow, setReceiptCooldownNow] = useState(Date.now());
   const [showAllOrderHistory, setShowAllOrderHistory] = useState(false);
   const [orderHistoryPage, setOrderHistoryPage] = useState(1);
+  const [showArchivedBuyerOrders, setShowArchivedBuyerOrders] = useState(false);
   const [showAllBillingLedger, setShowAllBillingLedger] = useState(false);
   const [billingLedgerPage, setBillingLedgerPage] = useState(1);
   const [buyerConversationBarFilter, setBuyerConversationBarFilter] = useState("all");
@@ -13344,6 +13348,20 @@ export function AccountPage({
     };
   };
   const accountAddressMeta = getAddressConventionMeta(accountForm.country);
+  const isArchivedOrderStatus = (order) => {
+    const s = String(order?.fulfillmentStatus || "").toLowerCase();
+    return s === "delivered" || s === "cancelled";
+  };
+  const archivedBuyerOrderCount = useMemo(
+    () => recentBuyerOrders.filter(isArchivedOrderStatus).length,
+    [recentBuyerOrders],
+  );
+  const trackedBuyerOrders = useMemo(
+    () => (showArchivedBuyerOrders
+      ? recentBuyerOrders.filter(isArchivedOrderStatus)
+      : recentBuyerOrders.filter((o) => !isArchivedOrderStatus(o))),
+    [recentBuyerOrders, showArchivedBuyerOrders],
+  );
   const orderHistoryPageCount = Math.max(1, Math.ceil(recentBuyerOrders.length / detailPageSize));
   const visibleOrderHistory = showAllOrderHistory
     ? recentBuyerOrders.slice((orderHistoryPage - 1) * detailPageSize, orderHistoryPage * detailPageSize)
@@ -13743,11 +13761,21 @@ export function AccountPage({
               </details>
 
               <div id="buyer-orders" className="rounded-3xl bg-white p-5 shadow-md ring-1 ring-rose-100 sm:p-6">
-                <h3 className="text-xl font-semibold">{accountText.orderTracking}</h3>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-xl font-semibold">{showArchivedBuyerOrders ? "Archived orders" : accountText.orderTracking}</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowArchivedBuyerOrders((prev) => !prev)}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
+                    title={showArchivedBuyerOrders ? "Show active" : "Show archived"}
+                  >
+                    {showArchivedBuyerOrders ? "Show active" : `Archived${archivedBuyerOrderCount ? ` (${archivedBuyerOrderCount})` : ""}`}
+                  </button>
+                </div>
                 <div className="mt-5 space-y-4">
-                  {recentBuyerOrders.length === 0 ? (
-                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{accountText.noOrders}</div>
-                  ) : recentBuyerOrders.map((order) => (
+                  {trackedBuyerOrders.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">{showArchivedBuyerOrders ? "No archived orders." : accountText.noOrders}</div>
+                  ) : trackedBuyerOrders.map((order) => (
                     <div key={order.id} className="rounded-2xl border border-rose-100 p-4">
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
