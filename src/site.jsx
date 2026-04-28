@@ -2172,6 +2172,48 @@ const FOOTER_I18N = {
   },
 };
 
+// Parse the `Retry-After` header (RFC 7231: either delta-seconds or HTTP-date).
+function parseRetryAfterSeconds(response) {
+  try {
+    const header = response?.headers?.get?.('Retry-After')
+      || response?.headers?.get?.('retry-after');
+    if (!header) return null;
+    const raw = String(header).trim();
+    if (!raw) return null;
+    const seconds = Number(raw);
+    if (Number.isFinite(seconds) && seconds >= 0) {
+      return Math.ceil(seconds);
+    }
+    const dateMs = Date.parse(raw);
+    if (Number.isFinite(dateMs)) {
+      return Math.max(0, Math.ceil((dateMs - Date.now()) / 1000));
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function formatRetryAfterDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '';
+  const intSeconds = Math.ceil(seconds);
+  if (intSeconds < 60) return `${intSeconds}s`;
+  const minutes = Math.ceil(intSeconds / 60);
+  return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+}
+
+function buildRateLimitMessage(text, retryAfterSeconds) {
+  const fallback = 'Too many requests. Please wait a moment and try again.';
+  const fallbackWithRetry = (retry) => `Too many requests. Please wait ${retry} and try again.`;
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+    const retry = formatRetryAfterDuration(retryAfterSeconds);
+    const template = String(text?.tooManyRequestsRetry || '').trim();
+    if (template) return template.replace('{retry}', retry);
+    return fallbackWithRetry(retry);
+  }
+  return String(text?.tooManyRequests || fallback);
+}
+
 const LOGIN_I18N = {
   en: {
     title: 'Sign in',
@@ -2191,6 +2233,9 @@ const LOGIN_I18N = {
     welcomeBack: 'Welcome back',
     loginResponseInvalid: 'Login response is invalid. Please try again.',
     loginOffline: 'Login is unavailable while API is offline. Please try again in a moment.',
+    tooManyRequests: 'Too many requests. Please wait a moment and try again.',
+    tooManyRequestsRetry: 'Too many requests. Please wait {retry} and try again.',
+    requestTimedOut: 'The request timed out. Please try again.',
     resendEnterEmail: 'Enter your email first, then click resend verification.',
     resendOffline: 'Email verification resend is unavailable while API is offline.',
     resendFailed: 'Could not resend verification email.',
@@ -2249,6 +2294,9 @@ const LOGIN_I18N = {
     welcomeBack: 'ยินดีต้อนรับกลับ',
     loginResponseInvalid: 'ข้อมูลตอบกลับจากการเข้าสู่ระบบไม่ถูกต้อง โปรดลองอีกครั้ง',
     loginOffline: 'ไม่สามารถเข้าสู่ระบบได้ในขณะนี้ เนื่องจาก API ออฟไลน์ โปรดลองอีกครั้งในอีกสักครู่',
+    tooManyRequests: 'คำขอมากเกินไป โปรดรอสักครู่แล้วลองอีกครั้ง',
+    tooManyRequestsRetry: 'คำขอมากเกินไป โปรดรอ {retry} แล้วลองอีกครั้ง',
+    requestTimedOut: 'คำขอหมดเวลา โปรดลองอีกครั้ง',
     resendEnterEmail: 'กรอกอีเมลก่อน แล้วกดส่งอีเมลยืนยันอีกครั้ง',
     resendOffline: 'ไม่สามารถส่งอีเมลยืนยันอีกครั้งได้ในขณะนี้ เนื่องจาก API ออฟไลน์',
     resendFailed: 'ไม่สามารถส่งอีเมลยืนยันอีกครั้งได้',
@@ -2307,6 +2355,9 @@ const LOGIN_I18N = {
     welcomeBack: 'ပြန်လည်ကြိုဆိုပါသည်',
     loginResponseInvalid: 'ဝင်ရောက်မှုတုံ့ပြန်ချက် မမှန်ကန်ပါ။ ထပ်ကြိုးစားပါ။',
     loginOffline: 'API အော့ဖ်လိုင်းဖြစ်နေသောကြောင့် ယခု ဝင်၍မရပါ။ ခဏနောက် ထပ်ကြိုးစားပါ။',
+    tooManyRequests: 'တောင်းဆိုမှု များလွန်းသည်။ ခဏစောင့်ပြီး ထပ်ကြိုးစားပါ။',
+    tooManyRequestsRetry: 'တောင်းဆိုမှု များလွန်းသည်။ {retry} စောင့်ပြီး ထပ်ကြိုးစားပါ။',
+    requestTimedOut: 'တောင်းဆိုမှု အချိန်ကုန်သွားသည်။ ထပ်ကြိုးစားပါ။',
     resendEnterEmail: 'ပထမဦးစွာ အီးမေးလ်ထည့်ပြီးနောက် verification ကို ပြန်ပို့ပါ။',
     resendOffline: 'API အော့ဖ်လိုင်းဖြစ်နေသောကြောင့် verification email ကို ပြန်ပို့မရပါ။',
     resendFailed: 'verification email ကို ပြန်ပို့မရပါ။',
@@ -2365,6 +2416,9 @@ const LOGIN_I18N = {
     welcomeBack: 'С возвращением',
     loginResponseInvalid: 'Некорректный ответ сервера при входе. Попробуйте снова.',
     loginOffline: 'Вход недоступен, пока API офлайн. Пожалуйста, попробуйте чуть позже.',
+    tooManyRequests: 'Слишком много запросов. Пожалуйста, подождите немного и попробуйте снова.',
+    tooManyRequestsRetry: 'Слишком много запросов. Пожалуйста, подождите {retry} и попробуйте снова.',
+    requestTimedOut: 'Истекло время ожидания запроса. Попробуйте снова.',
     resendEnterEmail: 'Сначала введите email, затем нажмите повторную отправку подтверждения.',
     resendOffline: 'Повторная отправка письма подтверждения недоступна, пока API офлайн.',
     resendFailed: 'Не удалось повторно отправить письмо подтверждения.',
@@ -6068,6 +6122,8 @@ export default function ThailandPantiesMarketSite() {
     headers = {},
     idempotencyScope = '',
     stableIdempotency = false,
+    timeoutMs = 25000,
+    signal: externalSignal,
   } = {}) {
     const nextHeaders = { ...headers };
     if (body !== undefined) {
@@ -6085,11 +6141,43 @@ export default function ThailandPantiesMarketSite() {
         apiIdempotencyKeysRef.current[idempotencyScope] = stableKey;
       }
     }
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      method,
-      headers: getApiHeaders(nextHeaders),
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
+    // Enforce a per-request timeout so a hung backend or a flaky network
+    // can't leave the UI stuck on a "Sending..." spinner forever. The
+    // timeout combines with any caller-supplied AbortSignal.
+    const timeoutController = new AbortController();
+    const timer = (Number.isFinite(timeoutMs) && timeoutMs > 0)
+      ? setTimeout(() => timeoutController.abort(), timeoutMs)
+      : null;
+    const onExternalAbort = () => timeoutController.abort();
+    if (externalSignal) {
+      if (externalSignal.aborted) timeoutController.abort();
+      else externalSignal.addEventListener('abort', onExternalAbort, { once: true });
+    }
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}${path}`, {
+        method,
+        headers: getApiHeaders(nextHeaders),
+        signal: timeoutController.signal,
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      });
+    } catch (error) {
+      if (timer) clearTimeout(timer);
+      if (externalSignal) externalSignal.removeEventListener?.('abort', onExternalAbort);
+      const aborted = error?.name === 'AbortError';
+      const timedOut = aborted && !externalSignal?.aborted;
+      return {
+        ok: false,
+        status: 0,
+        payload: {},
+        retryAfterSeconds: null,
+        timedOut,
+        aborted,
+        networkError: !aborted,
+      };
+    }
+    if (timer) clearTimeout(timer);
+    if (externalSignal) externalSignal.removeEventListener?.('abort', onExternalAbort);
     const payload = await response.json().catch(() => ({}));
     if (stableIdempotency && idempotencyScope && response.ok) {
       delete apiIdempotencyKeysRef.current[idempotencyScope];
@@ -6097,7 +6185,16 @@ export default function ThailandPantiesMarketSite() {
     if (response.status === 401 || response.status === 403) {
       setApiAuthToken('');
     }
-    return { ok: response.ok, status: response.status, payload };
+    const retryAfterSeconds = response.status === 429 ? parseRetryAfterSeconds(response) : null;
+    return {
+      ok: response.ok,
+      status: response.status,
+      payload,
+      retryAfterSeconds,
+      timedOut: false,
+      aborted: false,
+      networkError: false,
+    };
   }
 
   function urlBase64ToUint8Array(base64String) {
@@ -8717,6 +8814,14 @@ export default function ThailandPantiesMarketSite() {
         }
         if (!authResponse.ok) {
           setApiAuthToken('');
+          if (authResponse.status === 429) {
+            const retryAfter = parseRetryAfterSeconds(authResponse)
+              ?? Number(authPayload?.retryAfterSeconds)
+              ?? null;
+            setAuthError(buildRateLimitMessage(loginText, retryAfter));
+            setAuthSuccess('');
+            return;
+          }
           const serverError = String(authPayload?.error || '').trim();
           setAuthError(serverError || loginText.invalidCredentials);
           setAuthSuccess('');
@@ -12763,7 +12868,7 @@ export default function ThailandPantiesMarketSite() {
     if (backendStatus === 'connected' && apiAuthToken) {
       try {
         const idScope = `custom_request_create_${currentUser.id}_${sellerId}_${requestBody}_${hasProposedPrice ? proposedPriceNum : 0}`;
-        const { ok, payload: apiPayload } = await apiRequestJson('/api/custom-requests', {
+        const apiResult = await apiRequestJson('/api/custom-requests', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: {
@@ -12778,11 +12883,22 @@ export default function ThailandPantiesMarketSite() {
           idempotencyScope: idScope,
           stableIdempotency: true,
         });
+        const { ok, status, payload: apiPayload, retryAfterSeconds, timedOut } = apiResult || {};
         if (ok) {
           if (apiPayload?.db) {
             setDb(normalizeDbState(apiPayload.db, appMode));
           }
           onSuccess?.();
+          return;
+        }
+        // 429: do NOT fall through to the local-only path — that would charge the
+        // buyer wallet client-side without the server ever creating the request.
+        if (status === 429) {
+          onError?.(buildRateLimitMessage(loginText, retryAfterSeconds));
+          return;
+        }
+        if (timedOut) {
+          onError?.(loginText.requestTimedOut || 'The request timed out. Please try again.');
           return;
         }
         const requiredTopUp = Number(apiPayload?.requiredTopUp || 0);
@@ -12792,8 +12908,16 @@ export default function ThailandPantiesMarketSite() {
           onError?.(`You need at least ${formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} in your wallet to send a custom request. Please top up at least ${formatPriceTHB(computedRequiredTopUp)}.`);
           return;
         }
+        // Other API errors with a server message — surface it instead of silently falling back.
+        const serverError = String(apiPayload?.error || '').trim();
+        if (serverError) {
+          onError?.(serverError);
+          return;
+        }
       } catch {
-        // Fall back to local flow if API is temporarily unavailable.
+        // Fall back to local flow only if apiRequestJson itself threw (it normally
+        // shouldn't — it returns shaped errors). Network errors return ok:false above
+        // and will fall through to the local fallback below for true offline support.
       }
     }
     const sellerUser = users.find((user) => user.role === 'seller' && user.sellerId === sellerId);
