@@ -7361,35 +7361,32 @@ export default function ThailandPantiesMarketSite() {
           setDb((prev) => {
             let changed = false;
             let merged = { ...prev };
+            // Users / sellers / bars are Postgres-authoritative. Reconcile from
+            // the server view: shallow-merge per-id so client-only fields
+            // survive, and drop local-only ghosts (stale demo seed users from
+            // older localStorage snapshots, accounts deleted server-side, etc.)
+            // so the cache can never shadow the real account list.
             const serverUsers = Array.isArray(payload.db.users) ? payload.db.users : [];
             if (serverUsers.length > 0) {
-              const localUserIds = new Set((prev.users || []).map((u) => u.id));
-              const newUsers = serverUsers.filter((u) => u?.id && !localUserIds.has(u.id));
-              if (newUsers.length > 0) {
-                merged.users = [...prev.users, ...newUsers];
-                changed = true;
-              }
+              const localUserMap = new Map((prev.users || []).map((u) => [String(u?.id || ''), u]));
+              merged.users = serverUsers
+                .filter((u) => u?.id)
+                .map((srv) => {
+                  const local = localUserMap.get(String(srv.id));
+                  return local ? { ...local, ...srv } : srv;
+                });
+              changed = true;
             }
             const serverBars = Array.isArray(payload.db.bars) ? payload.db.bars : [];
             if (serverBars.length > 0) {
               const localBarMap = new Map((merged.bars || []).map((b) => [String(b?.id || ''), b]));
-              let barsUpdated = false;
-              serverBars.forEach((serverBar) => {
-                if (!serverBar?.id || isLiveJunkBarRecord(serverBar)) return;
-                const id = String(serverBar.id);
-                const local = localBarMap.get(id);
-                if (!local) {
-                  localBarMap.set(id, serverBar);
-                  barsUpdated = true;
-                } else {
-                  localBarMap.set(id, { ...local, ...serverBar });
-                  barsUpdated = true;
-                }
-              });
-              if (barsUpdated) {
-                merged.bars = Array.from(localBarMap.values());
-                changed = true;
-              }
+              merged.bars = serverBars
+                .filter((b) => b?.id && !isLiveJunkBarRecord(b))
+                .map((srv) => {
+                  const local = localBarMap.get(String(srv.id));
+                  return local ? { ...local, ...srv } : srv;
+                });
+              changed = true;
             }
             const barIds = new Set((merged.bars || []).map((b) => String(b?.id || '')));
             const missingBars = (merged.users || [])
@@ -7414,23 +7411,13 @@ export default function ThailandPantiesMarketSite() {
             const serverSellers = Array.isArray(payload.db.sellers) ? payload.db.sellers : [];
             if (serverSellers.length > 0) {
               const localSellerMap = new Map((merged.sellers || []).map((s) => [String(s?.id || ''), s]));
-              let sellersUpdated = false;
-              serverSellers.forEach((serverSeller) => {
-                if (!serverSeller?.id) return;
-                const id = String(serverSeller.id);
-                const local = localSellerMap.get(id);
-                if (!local) {
-                  localSellerMap.set(id, serverSeller);
-                  sellersUpdated = true;
-                } else {
-                  localSellerMap.set(id, { ...local, ...serverSeller });
-                  sellersUpdated = true;
-                }
-              });
-              if (sellersUpdated) {
-                merged.sellers = Array.from(localSellerMap.values());
-                changed = true;
-              }
+              merged.sellers = serverSellers
+                .filter((s) => s?.id)
+                .map((srv) => {
+                  const local = localSellerMap.get(String(srv.id));
+                  return local ? { ...local, ...srv } : srv;
+                });
+              changed = true;
             }
             const serverReqs = Array.isArray(payload.db.barAffiliationRequests) ? payload.db.barAffiliationRequests : [];
             if (serverReqs.length > 0) {
