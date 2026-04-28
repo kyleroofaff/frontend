@@ -1596,7 +1596,7 @@ const CUSTOM_REQUESTS_I18N = {
   },
 };
 
-export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, buyerCancelCustomRequest, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [], markNotificationsReadForConversation, softDeleteMessage }) {
+export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, sellerCustomRequests, customRequestMessagesByRequestId, submitCustomRequest, sendCustomRequestMessage, respondToCustomRequestPrice, buyerRespondToQuote, sellerRespondToQuote, buyerCancelCustomRequest, openWalletTopUpForFlow, navigate, uiLanguage = "en", buyerRecentSellerIds = [], barMap = {}, notifications = [], orders = [], markNotificationsReadForConversation, softDeleteMessage, toggleCustomRequestBuyerImageUpload }) {
   const isSellerView = currentUser?.role === "seller";
   const isBuyerView = currentUser?.role === "buyer";
   const buyerUnreadDirectMessageCount = useMemo(() => {
@@ -2057,13 +2057,25 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => navigate?.(reportPath)}
-                    className="shrink-0 rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
-                  >
-                    Report
-                  </button>
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    {isSellerView && toggleCustomRequestBuyerImageUpload ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleCustomRequestBuyerImageUpload(request.id, !request.buyerImageUploadEnabled)}
+                        className={`rounded-lg border px-3 py-1 text-xs font-semibold ${request.buyerImageUploadEnabled ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-slate-300 bg-white text-slate-600"}`}
+                        title={request.buyerImageUploadEnabled ? "Buyer images: enabled" : "Buyer images: disabled"}
+                      >
+                        Buyer images: {request.buyerImageUploadEnabled ? "On" : "Off"}
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => navigate?.(reportPath)}
+                      className="rounded-lg border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700"
+                    >
+                      Report
+                    </button>
+                  </div>
                 </div>
 
                 {request.requestBody ? (
@@ -2668,14 +2680,14 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                       </button>
                     ) : null}
                   </div>
-                  {isBuyerView ? (
+                  {(isBuyerView || isSellerView) ? (
                     <div className="mt-2">
-                      {request.buyerImageUploadEnabled ? (
+                      {(isSellerView || (isBuyerView && request.buyerImageUploadEnabled)) ? (
                         <>
                           <div className="flex flex-wrap items-center gap-2">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,video/*"
                               multiple
                               onChange={(event) => handleRequestImageDraftSelect(request.id, event.target.files)}
                               className="max-w-full rounded-lg border border-dashed border-rose-300 px-2 py-1 text-[11px]"
@@ -2686,10 +2698,13 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                                 onClick={() => setRequestImageDraftById((prev) => ({ ...prev, [request.id]: [] }))}
                                 className="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700"
                               >
-                                Clear images
+                                Clear attachments
                               </button>
                             ) : null}
                           </div>
+                          {isSellerView ? (
+                            <div className="mt-1 text-[11px] text-slate-500">Attach images or videos.</div>
+                          ) : null}
                           {(requestImageDraftById[request.id] || []).length > 0 ? (
                             <div className="mt-2 grid grid-cols-2 gap-2">
                               {(requestImageDraftById[request.id] || []).map((image) => (

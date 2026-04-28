@@ -12422,7 +12422,7 @@ export default function ThailandPantiesMarketSite() {
     }
   }, [currentUser?.id, currentUser?.role, backendStatus, apiAuthToken]);
 
-  async function sendBuyerMessageToConversation(sellerId, conversationId, body, onSuccess, onError) {
+  async function sendBuyerMessageToConversation(sellerId, conversationId, body, onSuccess, onError, mediaFile) {
     if (!currentUser || currentUser.role !== 'buyer') {
       const message = loginText.loginBuyerToMessage || 'Please login as a buyer to send messages.';
       onError?.(message);
@@ -12437,9 +12437,11 @@ export default function ThailandPantiesMarketSite() {
       onError?.(`You need ${formatPriceTHB(MESSAGE_FEE_THB)} to send a message. Please top up at least ${formatPriceTHB(requiredTopUp)} and try again.`);
       return;
     }
+    const mediaUrl = mediaFile && typeof mediaFile.url === 'string' ? mediaFile.url : '';
+    const mediaType = mediaFile && typeof mediaFile.type === 'string' ? mediaFile.type : 'image';
     if (backendStatus === 'connected' && apiAuthToken) {
       try {
-        const idScope = `buyer_message_${currentUser.id}_${conversationId}_${String(body || '').trim()}`;
+        const idScope = `buyer_message_${currentUser.id}_${conversationId}_${String(body || '').trim()}_${mediaUrl ? mediaUrl.slice(0, 32) : ''}`;
         const { ok, payload } = await apiRequestJson('/api/messages/buyer-send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -12447,6 +12449,7 @@ export default function ThailandPantiesMarketSite() {
             sellerId,
             conversationId,
             body: String(body || '').trim(),
+            ...(mediaUrl ? { mediaUrl, mediaType } : {}),
           },
           idempotencyScope: idScope,
           stableIdempotency: true,
@@ -12508,6 +12511,7 @@ export default function ThailandPantiesMarketSite() {
       bodyOriginal: messageText,
       sourceLanguage,
       translations,
+      ...(mediaUrl ? { mediaUrl, mediaType } : {}),
       feeCharged: MESSAGE_FEE_THB,
       createdAt: now,
       readByBuyer: true,
@@ -12731,7 +12735,7 @@ export default function ThailandPantiesMarketSite() {
     );
   }
 
-  async function sendBuyerDashboardMessage() {
+  async function sendBuyerDashboardMessage(mediaFile) {
     if (!buyerDashboardConversationId) return;
     const sellerId = buyerDashboardConversationId.split('__')[1];
     await sendBuyerMessageToConversation(
@@ -12740,6 +12744,7 @@ export default function ThailandPantiesMarketSite() {
       buyerDashboardMessageDraft,
       () => setBuyerDashboardMessageDraft(''),
       setBuyerDashboardMessageError,
+      mediaFile,
     );
   }
 
@@ -13470,6 +13475,69 @@ export default function ThailandPantiesMarketSite() {
       onSuccess?.();
     } else if (actionError) {
       onError?.(actionError);
+    }
+  }
+
+  // Per-conversation buyer image permission toggle for regular DM threads.
+  // Optimistically updates the seller's imagePermissions map on db.users,
+  // calls PATCH /api/auth/me/image-permissions, and reverts on failure.
+  async function toggleConversationBuyerImageUpload(conversationId, allowed, onSuccess, onError) {
+    if (!currentUser || currentUser.role !== 'seller') {
+      onError?.('Only sellers can change buyer upload permissions.');
+      return;
+    }
+    const normalizedConvoId = String(conversationId || '').trim();
+    if (!normalizedConvoId) {
+      onError?.('Missing conversation id.');
+      return;
+    }
+    const allowFlag = Boolean(allowed);
+    const previousMap = (currentUser.imagePermissions && typeof currentUser.imagePermissions === 'object')
+      ? { ...currentUser.imagePermissions }
+      : {};
+    const optimisticMap = { ...previousMap };
+    if (allowFlag) optimisticMap[normalizedConvoId] = true;
+    else delete optimisticMap[normalizedConvoId];
+    setDb((prev) => ({
+      ...prev,
+      users: (prev.users || []).map((entry) => (
+        entry.id === currentUser.id ? { ...entry, imagePermissions: optimisticMap } : entry
+      )),
+    }));
+    try {
+      const { ok, payload } = await apiRequestJson('/api/auth/me/image-permissions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: { conversationId: normalizedConvoId, allowed: allowFlag },
+      });
+      if (!ok) {
+        setDb((prev) => ({
+          ...prev,
+          users: (prev.users || []).map((entry) => (
+            entry.id === currentUser.id ? { ...entry, imagePermissions: previousMap } : entry
+          )),
+        }));
+        onError?.(String(payload?.error || 'Could not update image permission.'));
+        return;
+      }
+      const serverMap = payload?.imagePermissions && typeof payload.imagePermissions === 'object'
+        ? payload.imagePermissions
+        : optimisticMap;
+      setDb((prev) => ({
+        ...prev,
+        users: (prev.users || []).map((entry) => (
+          entry.id === currentUser.id ? { ...entry, imagePermissions: serverMap } : entry
+        )),
+      }));
+      onSuccess?.();
+    } catch (error) {
+      setDb((prev) => ({
+        ...prev,
+        users: (prev.users || []).map((entry) => (
+          entry.id === currentUser.id ? { ...entry, imagePermissions: previousMap } : entry
+        )),
+      }));
+      onError?.('Could not update image permission. Please try again.');
     }
   }
 
@@ -20472,6 +20540,8 @@ export default function ThailandPantiesMarketSite() {
             updateOrderShipment={updateOrderShipment}
             markOrderFulfilled={markOrderFulfilled}
             updatingOrderId={updatingOrderId}
+            payoutItems={payoutItems}
+            buyerLedger={buyerLedger}
           />
           </>
         ) : null}
@@ -20522,6 +20592,7 @@ export default function ThailandPantiesMarketSite() {
             sellerLanguage={currentUser?.preferredLanguage || 'en'}
             currentUser={currentUser}
             softDeleteMessage={softDeleteMessage}
+            toggleConversationBuyerImageUpload={toggleConversationBuyerImageUpload}
             navigate={navigate}
           />
         ) : null}
@@ -21681,6 +21752,7 @@ export default function ThailandPantiesMarketSite() {
             fetchOrderTracking={fetchOrderTracking}
             cancelBuyerOrder={cancelBuyerOrder}
             payoutItems={payoutItems}
+            users={users}
             uiLanguage={uiLanguage}
             navigate={navigate}
           />
@@ -21739,6 +21811,7 @@ export default function ThailandPantiesMarketSite() {
             orders={orders}
             markNotificationsReadForConversation={markNotificationsReadForConversation}
             softDeleteMessage={softDeleteMessage}
+            toggleCustomRequestBuyerImageUpload={toggleCustomRequestBuyerImageUpload}
           />
         ) : null}
         {routeInfo.name === 'find' ? <FindPage products={availableProducts} sellerMap={sellerMap} navigate={navigate} uiLanguage={uiLanguage} /> : null}

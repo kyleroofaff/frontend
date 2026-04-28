@@ -291,6 +291,12 @@ const ACCOUNT_PAGE_I18N = {
     reportSubmitFailed: "Unable to submit report right now.",
     purchaseHistoryHelp: "Your purchase history will appear here after checkout.",
     markNotificationsRead: "Mark notifications read",
+    emailNotifications: "Email notifications",
+    browserNotifications: "Browser notifications",
+    onLabel: "On",
+    offLabel: "Off",
+    pushNotSupported: "Push notifications are not supported by this browser.",
+    pushBlockedEnableSettings: "Browser notifications are blocked. Enable notifications in browser settings.",
     notifications: "Notifications",
     notificationsHelp: "Stay on top of messages, activity, and order updates.",
     notificationDiscreetMode: "Discreet notification text",
@@ -441,6 +447,12 @@ const ACCOUNT_PAGE_I18N = {
     reportSubmitFailed: "ไม่สามารถส่งรายงานได้ในขณะนี้",
     purchaseHistoryHelp: "ประวัติการซื้อของคุณจะแสดงที่นี่หลังชำระเงิน",
     markNotificationsRead: "ทำเครื่องหมายการแจ้งเตือนว่าอ่านแล้ว",
+    emailNotifications: "การแจ้งเตือนอีเมล",
+    browserNotifications: "การแจ้งเตือนเบราว์เซอร์",
+    onLabel: "เปิด",
+    offLabel: "ปิด",
+    pushNotSupported: "เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือนแบบพุช",
+    pushBlockedEnableSettings: "เบราว์เซอร์บล็อกการแจ้งเตือนอยู่ โปรดเปิดใช้งานในการตั้งค่าเบราว์เซอร์",
     noWalletActivity: "ยังไม่มีกิจกรรมในกระเป๋าเงิน",
     availableBalance: "ยอดคงเหลือที่ใช้ได้",
     walletHelp: "ข้อความและข้อความคำขอพิเศษจะหัก",
@@ -579,6 +591,12 @@ const ACCOUNT_PAGE_I18N = {
     reportSubmitFailed: "ယခုအချိန်တွင် report မပို့နိုင်ပါ။",
     purchaseHistoryHelp: "checkout ပြီးနောက် သင့်ဝယ်ယူမှတ်တမ်းကို ဒီနေရာတွင် ပြသပါမည်။",
     markNotificationsRead: "အသိပေးချက်အားလုံး ဖတ်ပြီးဟုမှတ်ပါ",
+    emailNotifications: "အီးမေးလ် အသိပေးချက်",
+    browserNotifications: "ဘရောက်ဇာ အသိပေးချက်",
+    onLabel: "ဖွင့်",
+    offLabel: "ပိတ်",
+    pushNotSupported: "ဤဘရောက်ဇာတွင် push notification မပံ့ပိုးပါ",
+    pushBlockedEnableSettings: "ဘရောက်ဇာ notification များကို ပိတ်ထားသည်။ ဘရောက်ဇာ setting တွင် ဖွင့်ပေးပါ",
     noWalletActivity: "wallet လှုပ်ရှားမှု မရှိသေးပါ။",
     availableBalance: "အသုံးပြုနိုင်သည့် လက်ကျန်",
     walletHelp: "မက်ဆေ့ချ်နှင့် custom request မက်ဆေ့ချ်များသည်",
@@ -717,6 +735,12 @@ const ACCOUNT_PAGE_I18N = {
     reportSubmitFailed: "Сейчас не удалось отправить жалобу.",
     purchaseHistoryHelp: "После оформления заказа здесь появится история ваших покупок.",
     markNotificationsRead: "Отметить уведомления прочитанными",
+    emailNotifications: "Email-уведомления",
+    browserNotifications: "Уведомления браузера",
+    onLabel: "Вкл",
+    offLabel: "Выкл",
+    pushNotSupported: "Push-уведомления не поддерживаются этим браузером.",
+    pushBlockedEnableSettings: "Уведомления браузера заблокированы. Включите их в настройках браузера.",
     noWalletActivity: "Активности кошелька пока нет.",
     availableBalance: "Доступный баланс",
     walletHelp: "Сообщения и сообщения по кастомным запросам списывают",
@@ -2459,6 +2483,8 @@ export function SellerDashboardPage({
   updateOrderShipment,
   markOrderFulfilled,
   updatingOrderId,
+  payoutItems,
+  buyerLedger,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
@@ -2748,6 +2774,43 @@ export function SellerDashboardPage({
     sellerPostAnalytics?.totalGrossRevenue
     ?? Number((unlockRevenue + grossMessageFees + grossOrderRevenue).toFixed(2))
   );
+  const PAYOUT_HOLD_DAYS_DASH = 14;
+  const PAYOUT_MIN_THRESHOLD_THB_DASH = 100;
+  const sellerDashPayoutSummary = useMemo(() => {
+    if (!currentUser) return null;
+    const holdMs = PAYOUT_HOLD_DAYS_DASH * 24 * 60 * 60 * 1000;
+    const holdCutoffMs = Date.now() - holdMs;
+    const eligibleTypes = new Set(["message_fee", "order_sale_earning", "order_bar_commission"]);
+    const paidSourceTxIds = new Set();
+    (payoutItems || []).forEach((item) => {
+      if (item?.status !== "sent") return;
+      (item?.sourceTxIds || []).forEach((txId) => {
+        if (txId) paidSourceTxIds.add(String(txId));
+      });
+    });
+    const userLedger = (buyerLedger || []).filter((entry) => entry?.userId === currentUser.id);
+    let matured = 0;
+    let pending = 0;
+    userLedger.forEach((entry) => {
+      const amount = Number(entry?.amount || 0);
+      if (!Number.isFinite(amount) || amount <= 0) return;
+      if (!eligibleTypes.has(String(entry?.type || ""))) return;
+      if (paidSourceTxIds.has(String(entry?.id || ""))) return;
+      const createdAtMs = new Date(entry?.createdAt || 0).getTime();
+      if (!Number.isFinite(createdAtMs) || createdAtMs <= 0) return;
+      if (createdAtMs < holdCutoffMs) matured += amount;
+      else pending += amount;
+    });
+    const today = new Date();
+    const monthEndUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+    const nextPayoutDate = new Date(monthEndUtc.getTime() + holdMs);
+    const nextLabel = nextPayoutDate.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return {
+      matured: Number(matured.toFixed(2)),
+      pending: Number(pending.toFixed(2)),
+      nextLabel,
+    };
+  }, [currentUser, buyerLedger, payoutItems]);
   const openSellerRequestCount = useMemo(
     () =>
       (sellerCustomRequests || []).filter((request) => {
@@ -3018,7 +3081,7 @@ export function SellerDashboardPage({
           </div>
           <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ring-1 ring-rose-100">
             <div className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-700">{t("earnings")}</div>
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
               <div className="rounded-xl border border-slate-200 bg-white p-3">
                 <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{t("grossEarnings")}</div>
                 <div className="mt-1 text-2xl font-semibold text-slate-900">{formatPriceTHB(grossEarnings)}</div>
@@ -3028,6 +3091,20 @@ export function SellerDashboardPage({
                 <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("netEarnings")}</div>
                 <div className="mt-1 text-2xl font-semibold text-emerald-800">{formatPriceTHB(netEarnings)}</div>
                 <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
+              </div>
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">Available at next payout</div>
+                <div className="mt-1 text-2xl font-semibold text-emerald-900">{formatPriceTHB(sellerDashPayoutSummary?.matured || 0)}</div>
+                <div className="mt-1 text-xs text-emerald-800">
+                  Pending hold: <span className="font-semibold">{formatPriceTHB(sellerDashPayoutSummary?.pending || 0)}</span>
+                  <span className="ml-1 text-emerald-700">(released after the {PAYOUT_HOLD_DAYS_DASH}-day hold)</span>
+                </div>
+                <div className="mt-1 text-xs text-emerald-800">Next payout: <span className="font-semibold">{sellerDashPayoutSummary?.nextLabel || "—"}</span></div>
+                {sellerDashPayoutSummary && sellerDashPayoutSummary.matured > 0 && sellerDashPayoutSummary.matured < PAYOUT_MIN_THRESHOLD_THB_DASH ? (
+                  <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+                    Below {formatPriceTHB(PAYOUT_MIN_THRESHOLD_THB_DASH)} threshold; will roll into the next run.
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -4949,6 +5026,7 @@ export function SellerMessagesPage({
   sellerLanguage,
   currentUser,
   softDeleteMessage,
+  toggleConversationBuyerImageUpload,
   navigate
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
@@ -5093,9 +5171,25 @@ export function SellerMessagesPage({
           <div className="rounded-2xl bg-white p-4 ring-1 ring-rose-100">
             {safeSellerActiveConversationMessages.length === 0 ? <div className="text-sm text-slate-500">{t("selectConversation")}</div> : (
               <>
-                <div className="mb-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
+                <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">{activeSellerConversationInitials}</span>
                   <span>{t("chattingWith")}: {activeSellerConversationLabel}</span>
+                  {!isActiveBarThread && typeof toggleConversationBuyerImageUpload === "function" && sellerActiveConversationId ? (() => {
+                    const currentMap = (currentUser?.imagePermissions && typeof currentUser.imagePermissions === "object")
+                      ? currentUser.imagePermissions
+                      : {};
+                    const enabled = currentMap[sellerActiveConversationId] === true;
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => toggleConversationBuyerImageUpload(sellerActiveConversationId, !enabled)}
+                        className={`ml-auto rounded-lg border px-2.5 py-1 text-[11px] font-semibold ${enabled ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-slate-300 bg-white text-slate-600"}`}
+                        title={enabled ? "Buyer images: enabled" : "Buyer images: disabled"}
+                      >
+                        Allow buyer images: {enabled ? "On" : "Off"}
+                      </button>
+                    );
+                  })() : null}
                 </div>
                 <div ref={sellerMessagesContainerRef} className="max-h-64 space-y-3 overflow-y-auto">
                   {safeSellerActiveConversationMessages.map((message) => {
@@ -6228,6 +6322,38 @@ export function AdminPage({
   const [socialFilter, setSocialFilter] = useState("all");
   const [socialVisibleCount, setSocialVisibleCount] = useState(10);
   const [reportVisibleCount, setReportVisibleCount] = useState(8);
+  const ADMIN_PAYOUT_HOLD_DAYS = 14;
+  const adminCommissionSummary = useMemo(() => {
+    if (!currentUser || currentUser.role !== "admin") return null;
+    const holdMs = ADMIN_PAYOUT_HOLD_DAYS * 24 * 60 * 60 * 1000;
+    const holdCutoffMs = Date.now() - holdMs;
+    const nowDate = new Date();
+    const monthStartMs = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), 1, 0, 0, 0, 0);
+    const monthEndMs = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth() + 1, 0, 23, 59, 59, 999);
+    let total = 0;
+    let matured = 0;
+    let pending = 0;
+    (walletTransactions || []).forEach((entry) => {
+      if (entry?.userId !== currentUser.id) return;
+      if (String(entry?.type || "") !== "order_platform_commission") return;
+      const amount = Number(entry?.amount || 0);
+      if (!Number.isFinite(amount) || amount <= 0) return;
+      const createdAtMs = new Date(entry?.createdAt || 0).getTime();
+      if (!Number.isFinite(createdAtMs) || createdAtMs < monthStartMs || createdAtMs > monthEndMs) return;
+      total += amount;
+      if (createdAtMs < holdCutoffMs) matured += amount;
+      else pending += amount;
+    });
+    const nextMonthEndUtc = new Date(Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth() + 2, 0, 23, 59, 59, 999));
+    const nextSettleDate = new Date(nextMonthEndUtc.getTime() + holdMs);
+    const nextLabel = nextSettleDate.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return {
+      total: Number(total.toFixed(2)),
+      matured: Number(matured.toFixed(2)),
+      pending: Number(pending.toFixed(2)),
+      nextLabel,
+    };
+  }, [currentUser, walletTransactions]);
   const [emailTemplateDrafts, setEmailTemplateDrafts] = useState({});
   const [emailToneByTemplateKey, setEmailToneByTemplateKey] = useState({});
   const [selectedEmailTemplateKey, setSelectedEmailTemplateKey] = useState(null);
@@ -8609,6 +8735,29 @@ export function AdminPage({
       ) : (
         <div className="text-[15px] leading-6 text-slate-800">
           <SectionTitle eyebrow="Admin dashboard" title="Operations center!" subtitle="Manage seller approvals, users, listings, payments, and social moderation from one workspace." />
+          {adminCommissionSummary ? (
+            <div className="mb-6 rounded-3xl border border-indigo-200 bg-indigo-50 p-5 text-sm text-indigo-900">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">This month's commission</div>
+              <div className="mt-2 text-3xl font-bold">{formatPriceTHB(adminCommissionSummary.total)}</div>
+              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                <div className="rounded-xl border border-indigo-200 bg-white/60 px-3 py-2">
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">Matured this month</div>
+                  <div className="mt-1 text-lg font-semibold text-indigo-900">{formatPriceTHB(adminCommissionSummary.matured)}</div>
+                </div>
+                <div className="rounded-xl border border-indigo-200 bg-white/60 px-3 py-2">
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">Pending hold</div>
+                  <div className="mt-1 text-lg font-semibold text-indigo-900">{formatPriceTHB(adminCommissionSummary.pending)}</div>
+                </div>
+                <div className="rounded-xl border border-indigo-200 bg-white/60 px-3 py-2">
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">Next settles on</div>
+                  <div className="mt-1 text-sm font-semibold text-indigo-900">{adminCommissionSummary.nextLabel}</div>
+                </div>
+              </div>
+              <div className="mt-3 text-[11px] leading-5 text-indigo-700">
+                Platform commissions accrue directly to your wallet; the maturity readout is informational.
+              </div>
+            </div>
+          ) : null}
           <div className="mb-6 rounded-3xl border border-rose-100 bg-white p-5">
             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">Current workspace</div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -12887,6 +13036,7 @@ export function AccountPage({
   cancelBuyerOrder,
   exchangeRate,
   payoutItems,
+  users,
   uiLanguage = "en",
   navigate
 }) {
@@ -12928,6 +13078,7 @@ export function AccountPage({
   const [trackingDataByOrderId, setTrackingDataByOrderId] = useState({});
   const [trackingLoadingOrderId, setTrackingLoadingOrderId] = useState(null);
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
+  const [buyerDmDraftMedia, setBuyerDmDraftMedia] = useState(null);
   const [customRequestReplyDraftById, setCustomRequestReplyDraftById] = useState({});
   const [customRequestImageDraftById, setCustomRequestImageDraftById] = useState({});
   const [customRequestCounterDraftById, setCustomRequestCounterDraftById] = useState({});
@@ -15029,8 +15180,70 @@ export function BuyerMessagesPage({
                 className="min-h-[110px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
                 placeholder={tx("writeMessage")}
               />
+              {(() => {
+                if (!buyerDashboardConversationId) return null;
+                const dmSellerId = String(buyerDashboardConversationId).split("__")[1] || "";
+                const dmSellerUser = (users || []).find((entry) => entry?.role === "seller" && String(entry?.sellerId || "") === dmSellerId);
+                const sellerAllowsImages = Boolean(
+                  dmSellerUser
+                  && dmSellerUser.imagePermissions
+                  && typeof dmSellerUser.imagePermissions === "object"
+                  && dmSellerUser.imagePermissions[buyerDashboardConversationId] === true,
+                );
+                if (!sellerAllowsImages) {
+                  return (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-600">
+                      Image upload is currently disabled. Please ask the seller to enable image uploads for this thread.
+                    </div>
+                  );
+                }
+                const handleSelectMedia = async (fileList) => {
+                  const file = (fileList && fileList[0]) || null;
+                  if (!file) {
+                    setBuyerDmDraftMedia(null);
+                    return;
+                  }
+                  const dataUrl = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+                    reader.onerror = () => resolve("");
+                    reader.readAsDataURL(file);
+                  });
+                  if (!dataUrl) return;
+                  const isVideo = String(file.type || "").startsWith("video/");
+                  setBuyerDmDraftMedia({ url: dataUrl, type: isVideo ? "video" : "image", name: file.name || "attachment" });
+                };
+                return (
+                  <div className="space-y-2 rounded-xl border border-dashed border-rose-200 bg-rose-50/40 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        onChange={(event) => handleSelectMedia(event.target.files)}
+                        className="max-w-full rounded-lg border border-dashed border-rose-300 px-2 py-1 text-[11px]"
+                      />
+                      {buyerDmDraftMedia ? (
+                        <button
+                          type="button"
+                          onClick={() => setBuyerDmDraftMedia(null)}
+                          className="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700"
+                        >
+                          Clear attachment
+                        </button>
+                      ) : null}
+                    </div>
+                    {buyerDmDraftMedia ? (
+                      <div className="text-[11px] text-slate-600">Ready to send: <span className="font-semibold">{buyerDmDraftMedia.name}</span></div>
+                    ) : null}
+                  </div>
+                );
+              })()}
               <button
-                onClick={sendBuyerDashboardMessage}
+                onClick={() => {
+                  const mediaToSend = buyerDmDraftMedia;
+                  sendBuyerDashboardMessage(mediaToSend);
+                  setBuyerDmDraftMedia(null);
+                }}
                 disabled={!buyerDashboardConversationId || !buyerDashboardMessageDraft.trim()}
                 className="w-full rounded-2xl bg-rose-500 px-5 py-3 font-semibold text-white hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-60"
               >
