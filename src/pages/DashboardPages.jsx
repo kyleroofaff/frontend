@@ -68,6 +68,10 @@ function onlyDigits(value) {
   return String(value || "").replace(/\D+/g, "");
 }
 
+function extractRequestIdFromConv(conv) {
+  return String(conv || "").replace(/^(custom_request_)+/, "");
+}
+
 function toPromptPayMobileTarget(mobileNumber) {
   const digits = onlyDigits(mobileNumber);
   if (!digits) return "";
@@ -2877,13 +2881,29 @@ export function SellerDashboardPage({
   );
   const sellerUnreadCustomRequestCount = useMemo(() => {
     if (currentUser?.role !== "seller") return 0;
-    return (notifications || []).filter((n) => (
-      n.userId === currentUser.id
-      && (n.type === "custom_request" || n.type === "message")
-      && !n.read
-      && String(n.conversationId || "").startsWith("custom_request_")
-    )).length;
-  }, [notifications, currentUser]);
+    const liveRequestIds = new Set(
+      (sellerCustomRequests || [])
+        .filter((request) => {
+          if (request?.archivedAt) return false;
+          const quoteStatus = String(request?.quoteStatus || "").toLowerCase();
+          if (quoteStatus === "cancelled") return false;
+          const status = String(request?.status || "").toLowerCase();
+          if (status === "cancelled") return false;
+          return true;
+        })
+        .map((request) => extractRequestIdFromConv(request?.id))
+        .filter(Boolean),
+    );
+    return (notifications || []).filter((n) => {
+      if (n.userId !== currentUser.id) return false;
+      if (n.type !== "custom_request" && n.type !== "message") return false;
+      if (n.read) return false;
+      const conv = String(n.conversationId || "");
+      if (!conv.startsWith("custom_request_")) return false;
+      const requestId = extractRequestIdFromConv(conv);
+      return liveRequestIds.has(requestId);
+    }).length;
+  }, [notifications, currentUser, sellerCustomRequests]);
   const sellerOrdersBadgeCount = useMemo(() => {
     if (currentUser?.role !== "seller") return 0;
     return (notifications || []).filter((n) => (
@@ -5660,7 +5680,8 @@ export function StoriesPage({
   isSellerPostPrivate,
   unlockPrivatePost,
   navigate,
-  notifications
+  notifications,
+  buyerCustomRequests,
 }) {
   const locale = SELLER_I18N[sellerLanguage] ? sellerLanguage : "en";
   const t = (key) => SELLER_I18N[locale]?.[key] || SELLER_I18N.en[key] || key;
@@ -5675,13 +5696,29 @@ export function StoriesPage({
   }, [notifications, currentUser]);
   const buyerUnreadCustomRequestMessageCount = useMemo(() => {
     if (currentUser?.role !== "buyer") return 0;
-    return (notifications || []).filter((n) => (
-      n.userId === currentUser.id
-      && (n.type === "custom_request" || n.type === "message")
-      && !n.read
-      && String(n.conversationId || "").startsWith("custom_request_")
-    )).length;
-  }, [notifications, currentUser]);
+    const liveRequestIds = new Set(
+      (buyerCustomRequests || [])
+        .filter((request) => {
+          if (request?.archivedAt) return false;
+          const quoteStatus = String(request?.quoteStatus || "").toLowerCase();
+          if (quoteStatus === "cancelled") return false;
+          const status = String(request?.status || "").toLowerCase();
+          if (status === "cancelled") return false;
+          return true;
+        })
+        .map((request) => extractRequestIdFromConv(request?.id))
+        .filter(Boolean),
+    );
+    return (notifications || []).filter((n) => {
+      if (n.userId !== currentUser.id) return false;
+      if (n.type !== "custom_request" && n.type !== "message") return false;
+      if (n.read) return false;
+      const conv = String(n.conversationId || "");
+      if (!conv.startsWith("custom_request_")) return false;
+      const requestId = extractRequestIdFromConv(conv);
+      return liveRequestIds.has(requestId);
+    }).length;
+  }, [notifications, currentUser, buyerCustomRequests]);
   const userNameById = useMemo(() => {
     const map = {};
     (users || []).forEach((u) => { if (u?.id) map[u.id] = u.name || ''; });
@@ -6378,6 +6415,11 @@ export function AdminPage({
   const adminPageLocale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
   const tx = (key) => ACCOUNT_PAGE_I18N[adminPageLocale]?.[key] || ACCOUNT_PAGE_I18N.en[key] || key;
   const ADMIN_PAYOUT_HOLD_DAYS = 14;
+  const ADMIN_REVENUE_TYPES = new Set([
+    "message_fee",
+    "order_platform_commission",
+    "post_unlock",
+  ]);
   const adminCommissionSummary = useMemo(() => {
     if (!currentUser || currentUser.role !== "admin") return null;
     const holdMs = ADMIN_PAYOUT_HOLD_DAYS * 24 * 60 * 60 * 1000;
@@ -6390,7 +6432,7 @@ export function AdminPage({
     let pending = 0;
     (walletTransactions || []).forEach((entry) => {
       if (entry?.userId !== currentUser.id) return;
-      if (String(entry?.type || "") !== "order_platform_commission") return;
+      if (!ADMIN_REVENUE_TYPES.has(String(entry?.type || ""))) return;
       const amount = Number(entry?.amount || 0);
       if (!Number.isFinite(amount) || amount <= 0) return;
       const createdAtMs = new Date(entry?.createdAt || 0).getTime();
@@ -13233,11 +13275,16 @@ export function AccountPage({
     let adminMaturedThisMonth = 0;
     let adminPendingThisMonth = 0;
     if (currentUser.role === "admin") {
+      const ADMIN_REVENUE_TYPES = new Set([
+        "message_fee",
+        "order_platform_commission",
+        "post_unlock",
+      ]);
       const nowDate = new Date();
       const monthStartMs = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), 1, 0, 0, 0, 0);
       const monthEndMs = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth() + 1, 0, 23, 59, 59, 999);
       userLedger.forEach((entry) => {
-        if (String(entry?.type || "") !== "order_platform_commission") return;
+        if (!ADMIN_REVENUE_TYPES.has(String(entry?.type || ""))) return;
         const amount = Number(entry?.amount || 0);
         if (!Number.isFinite(amount) || amount <= 0) return;
         const createdAtMs = new Date(entry?.createdAt || 0).getTime();
@@ -13366,13 +13413,26 @@ export function AccountPage({
       ).length,
     [buyerUnreadMessageNotifications],
   );
-  const buyerUnreadCustomRequestMessageCount = useMemo(
-    () =>
-      buyerUnreadMessageNotifications.filter(
-        (notification) => String(notification.conversationId || "").startsWith("custom_request_"),
-      ).length,
-    [buyerUnreadMessageNotifications],
-  );
+  const buyerUnreadCustomRequestMessageCount = useMemo(() => {
+    const liveRequestIds = new Set(
+      (buyerCustomRequests || [])
+        .filter((request) => {
+          if (request?.archivedAt) return false;
+          const quoteStatus = String(request?.quoteStatus || "").toLowerCase();
+          if (quoteStatus === "cancelled") return false;
+          const status = String(request?.status || "").toLowerCase();
+          if (status === "cancelled") return false;
+          return true;
+        })
+        .map((request) => extractRequestIdFromConv(request?.id))
+        .filter(Boolean),
+    );
+    return buyerUnreadMessageNotifications.filter((notification) => {
+      const conv = String(notification.conversationId || "");
+      if (!conv.startsWith("custom_request_")) return false;
+      return liveRequestIds.has(extractRequestIdFromConv(conv));
+    }).length;
+  }, [buyerUnreadMessageNotifications, buyerCustomRequests]);
   const buyerUnreadSellerReplyCount = buyerUnreadDirectMessageCount + buyerUnreadCustomRequestMessageCount;
   const buyerNotifications = useMemo(() => {
     if (currentUser?.role !== "buyer") return [];
@@ -14830,19 +14890,36 @@ export function BuyerMessagesPage({
   navigate,
   notifications,
   softDeleteMessage,
+  buyerCustomRequests,
 }) {
   const locale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
   const accountText = ACCOUNT_PAGE_I18N[locale];
   const tx = (key) => ACCOUNT_PAGE_I18N[locale]?.[key] || ACCOUNT_PAGE_I18N.en[key] || key;
   const buyerUnreadCustomRequestMessageCount = useMemo(() => {
     if (currentUser?.role !== "buyer") return 0;
-    return (notifications || []).filter((n) => (
-      n.userId === currentUser.id
-      && (n.type === "custom_request" || n.type === "message")
-      && !n.read
-      && String(n.conversationId || "").startsWith("custom_request_")
-    )).length;
-  }, [notifications, currentUser]);
+    const liveRequestIds = new Set(
+      (buyerCustomRequests || [])
+        .filter((request) => {
+          if (request?.archivedAt) return false;
+          const quoteStatus = String(request?.quoteStatus || "").toLowerCase();
+          if (quoteStatus === "cancelled") return false;
+          const status = String(request?.status || "").toLowerCase();
+          if (status === "cancelled") return false;
+          return true;
+        })
+        .map((request) => extractRequestIdFromConv(request?.id))
+        .filter(Boolean),
+    );
+    return (notifications || []).filter((n) => {
+      if (n.userId !== currentUser.id) return false;
+      if (n.type !== "custom_request" && n.type !== "message") return false;
+      if (n.read) return false;
+      const conv = String(n.conversationId || "");
+      if (!conv.startsWith("custom_request_")) return false;
+      const requestId = extractRequestIdFromConv(conv);
+      return liveRequestIds.has(requestId);
+    }).length;
+  }, [notifications, currentUser, buyerCustomRequests]);
   const [buyerConversationBarFilter, setBuyerConversationBarFilter] = useState("all");
   const [showOriginalMessageById, setShowOriginalMessageById] = useState({});
   const [messageReportOpenById, setMessageReportOpenById] = useState({});

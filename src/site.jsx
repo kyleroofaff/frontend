@@ -19012,6 +19012,7 @@ export default function ThailandPantiesMarketSite() {
             unlockPrivatePost={unlockPrivatePost}
             navigate={navigate}
             notifications={notifications}
+            buyerCustomRequests={buyerCustomRequests}
           />
         ) : null}
 
@@ -20625,6 +20626,7 @@ export default function ThailandPantiesMarketSite() {
             navigate={navigate}
             notifications={notifications}
             softDeleteMessage={softDeleteMessage}
+            buyerCustomRequests={buyerCustomRequests}
           />
         ) : null}
         {routeInfo.name === 'bar-messages' ? (

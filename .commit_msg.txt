@@ -1,0 +1,1 @@
+fix(admin-card): include message_fee + post_unlock + commission in admin commission/payout summaries; fix(buyer-badge): mark CR notifications read on explicit click instead of auto-select; fix(badge-dedupe): exclude archived/cancelled CRs from seller + buyer unread CR counts (3 sites); feat(buyer-form): show tire-kicker note under Send Request button (en/th/my/ru)

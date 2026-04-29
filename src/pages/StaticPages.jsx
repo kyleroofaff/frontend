@@ -1419,6 +1419,7 @@ const CUSTOM_REQUESTS_I18N = {
     needWalletSubmitSuffix: "in your wallet to submit this request.",
     awaitingBuyerPayment: "awaiting buyer payment",
     sellerFeed: "Stories",
+    tireKickerNote: "Unfortunately there are a lot of tire kickers so custom request messages have to be charged at the same rate as regular messages.",
   },
   th: {
     eyebrow: "ตลาด",
@@ -1477,6 +1478,7 @@ const CUSTOM_REQUESTS_I18N = {
     profile: "โปรไฟล์",
     messages: "ข้อความ",
     customRequests: "คำขอพิเศษ",
+    tireKickerNote: "เนื่องจากมีผู้ที่ไม่จริงจังจำนวนมาก ข้อความคำขอพิเศษจึงต้องเรียกเก็บในอัตราเดียวกับข้อความปกติ",
   },
   my: {
     eyebrow: "စျေးကွက်",
@@ -1535,6 +1537,7 @@ const CUSTOM_REQUESTS_I18N = {
     profile: "ပရိုဖိုင်",
     messages: "မက်ဆေ့ချ်များ",
     customRequests: "custom request များ",
+    tireKickerNote: "ဝယ်မည့်ဟန်ဆောင်သူများ များပြားသောကြောင့် custom request message များကို ပုံမှန် message များနှင့် နှုန်းတူ ကောက်ခံရပါသည်။",
   },
   ru: {
     eyebrow: "Маркетплейс",
@@ -1593,6 +1596,7 @@ const CUSTOM_REQUESTS_I18N = {
     profile: "Профиль",
     messages: "Сообщения",
     customRequests: "Индивидуальные запросы",
+    tireKickerNote: "К сожалению, много людей просто интересуются без намерения покупать, поэтому сообщения по индивидуальным запросам оплачиваются по той же ставке, что и обычные сообщения.",
   },
 };
 
@@ -1662,10 +1666,6 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
     () => visibleRequests.find((r) => r.id === selectedRequestId) || null,
     [visibleRequests, selectedRequestId],
   );
-  useEffect(() => {
-    if (!selectedRequestId || typeof markNotificationsReadForConversation !== "function") return;
-    markNotificationsReadForConversation(`custom_request_${selectedRequestId}`);
-  }, [selectedRequestId, markNotificationsReadForConversation]);
   const [requestForm, setRequestForm] = useState({
     sellerId: (buyerRecentSellerIds && buyerRecentSellerIds[0]) || (sellers || [])[0]?.id || "",
     buyerName: currentUser?.name || "",
@@ -1943,6 +1943,7 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
               ) : null}
             </div>
             {!canAffordNewRequest ? <div className="text-xs text-amber-700">{t.needWalletSubmitPrefix} {formatPriceTHB(CUSTOM_REQUEST_FEE_THB)} {t.needWalletSubmitSuffix}</div> : null}
+            <p className="mt-2 text-xs leading-5 text-slate-500 italic">{t.tireKickerNote}</p>
           </div>
         </div>
       ) : null}
@@ -1980,7 +1981,12 @@ export function CustomRequestsPage({ currentUser, sellers, buyerCustomRequests, 
                   <button
                     key={request.id}
                     type="button"
-                    onClick={() => setSelectedRequestId(request.id)}
+                    onClick={() => {
+                      setSelectedRequestId(request.id);
+                      if (typeof markNotificationsReadForConversation === "function") {
+                        markNotificationsReadForConversation(`custom_request_${request.id}`);
+                      }
+                    }}
                     className={`w-full rounded-xl px-3 py-2 text-left transition ${isSelected ? "bg-rose-50 ring-1 ring-rose-200" : "hover:bg-slate-50"}`}
                   >
                     <div className="flex items-start gap-2">
