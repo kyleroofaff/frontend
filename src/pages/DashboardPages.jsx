@@ -2533,6 +2533,7 @@ export function SellerDashboardPage({
   giftCatalog,
   giftPurchases,
   giftFulfillmentTasks,
+  updateGiftFulfillmentTaskStatus,
   startEditProduct,
   editingProductId,
   sellerOrders,
@@ -3748,6 +3749,37 @@ export function SellerDashboardPage({
                 </div>
               </div>
             </details>
+
+          {(giftFulfillmentTasks || []).filter((t) => String(t.sellerId) === String(currentSellerId)).length > 0 ? (
+            <div className="mt-8 rounded-3xl border border-amber-100 bg-amber-50/60 p-5 shadow-sm ring-1 ring-amber-100">
+              <h3 className="text-xl font-semibold text-amber-950">Gift fulfillment</h3>
+              <p className="mt-1 text-xs text-amber-900/85">
+                For physical gifts you source or prepare: when ready, send the buyer a photo proof in{' '}
+                <button type="button" className="font-semibold text-rose-700 underline" onClick={() => navigate('/messages')}>Messages</button>, then mark your task complete.
+                Drink deliveries assigned to your bar appear on the bar dashboard for staff.
+              </p>
+              <ul className="mt-4 space-y-2">
+                {(giftFulfillmentTasks || []).filter((t) => String(t.sellerId) === String(currentSellerId)).map((tsk) => (
+                  <li key={tsk.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-100 bg-white px-3 py-2 text-sm">
+                    <div>
+                      <span className="font-medium capitalize">{String(tsk.taskType || '').replace(/_/g, ' ') || 'gift'}</span>
+                      <span className="ml-2 text-xs text-slate-500">{tsk.assigneeType === 'bar' ? '(bar delivers)' : '(your task)'}</span>
+                      <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${tsk.status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-50 text-emerald-700'}`}>{tsk.status}</span>
+                    </div>
+                    {tsk.assigneeType === 'seller' && tsk.status === 'pending' && typeof updateGiftFulfillmentTaskStatus === 'function' ? (
+                      <button
+                        type="button"
+                        className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white"
+                        onClick={() => updateGiftFulfillmentTaskStatus(tsk.id, 'completed')}
+                      >
+                        Mark complete
+                      </button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           {/* Gifts Received */}
           {(giftPurchases || []).filter((p) => p.sellerId === currentSellerId).length > 0 && (

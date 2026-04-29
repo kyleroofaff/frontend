@@ -6197,6 +6197,36 @@ export default function ThailandPantiesMarketSite() {
     };
   }
 
+  async function changeSiteLanguage(rawValue) {
+    const lang = normalizeAuthLanguage(rawValue);
+    setAuthLanguage(lang);
+    if (!session?.userId) return;
+    setDb((prev) => ({
+      ...prev,
+      users: (prev.users || []).map((u) => (
+        u.id === session.userId ? { ...u, preferredLanguage: lang } : u
+      )),
+    }));
+    if (backendStatus !== 'connected' || !apiAuthToken) return;
+    try {
+      const res = await apiRequestJson('/api/auth/language', {
+        method: 'PATCH',
+        body: { language: lang },
+      });
+      const pl = String(res.payload?.preferredLanguage || '').trim().toLowerCase();
+      if (res.ok && res.payload?.ok && SUPPORTED_AUTH_LANGUAGES.includes(pl)) {
+        setDb((prev) => ({
+          ...prev,
+          users: (prev.users || []).map((u) => (
+            u.id === session.userId ? { ...u, preferredLanguage: pl } : u
+          )),
+        }));
+      }
+    } catch {
+      /* local preferredLanguage already set */
+    }
+  }
+
   function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -8454,7 +8484,7 @@ export default function ThailandPantiesMarketSite() {
       return post?.sellerId === currentSellerId;
     });
     const unlockCount = unlockedRows.length;
-    const unlockRevenue = unlockedRows.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+    const unlockRevenueLegacy = unlockedRows.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
     const sellerUserId = users.find((user) => user.sellerId === currentSellerId)?.id;
     const sellerPayoutRatio = String(sellerMap[currentSellerId]?.affiliatedBarId || '').trim() ? SALE_SPLIT.sellerWithBar : SALE_SPLIT.sellerWithoutBar;
     const messageRevenue = (walletTransactions || [])
@@ -8463,6 +8493,16 @@ export default function ThailandPantiesMarketSite() {
     const orderRevenue = (walletTransactions || [])
       .filter((entry) => entry.userId === sellerUserId && entry.type === 'order_sale_earning' && Number(entry.amount || 0) > 0)
       .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+    const unlockRevenueFromWallet = sellerUserId
+      ? (walletTransactions || [])
+        .filter((entry) => entry.userId === sellerUserId && entry.type === 'post_unlock' && Number(entry.amount || 0) > 0)
+        .reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
+      : 0;
+    /** Prefer wallet credited amounts; otherwise approximate seller share of gross unlock totals (same ratio as other marketplace splits). */
+    const unlockRevenue =
+      unlockRevenueFromWallet > 0
+        ? Number(unlockRevenueFromWallet.toFixed(2))
+        : Number(((unlockRevenueLegacy * sellerPayoutRatio)).toFixed(2));
     const grossMessageFees = Number((messageRevenue / sellerPayoutRatio).toFixed(2));
     const grossOrderSalesRevenue = Number((orderRevenue / sellerPayoutRatio).toFixed(2));
     const unlocksByPost = {};
@@ -8737,9 +8777,10 @@ export default function ThailandPantiesMarketSite() {
         window.localStorage.setItem('tlm-session', JSON.stringify({ userId: user.id }));
       }
       if (user.role === 'buyer' && backendStatus === 'connected' && apiAuthToken) {
-        apiRequestJson(`${API_BASE_URL}/api/post-unlocks`, {
+        apiRequestJson('/api/post-unlocks', {
           headers: getApiHeaders(),
-        }).then((payload) => {
+        }).then((res) => {
+          const payload = res.payload || {};
           if (payload?.unlocks) {
             setDb((prev) => {
               const existingIds = new Set((prev.postUnlocks || []).map((u) => u.id));
@@ -11395,6 +11436,7 @@ export default function ThailandPantiesMarketSite() {
   function canViewSellerPost(post) {
     if (!post) return false;
     const hasUnlock = currentUser && postUnlocks.some((entry) => entry.postId === post.id && entry.buyerUserId === currentUser.id);
+    /* Soft-deleted posts: buyers who already paid/unlocked retain access so refunds are not invalidated by deletion. Admins/sellers retain moderation visibility. */
     if (post.deletedAt) {
       if (currentUser?.role === 'admin') return true;
       if (currentUser?.role === 'seller' && currentUser.sellerId === post.sellerId) return true;
@@ -11779,26 +11821,26 @@ export default function ThailandPantiesMarketSite() {
       return;
     }
     try {
-      const response = await apiRequestJson(`${API_BASE_URL}/api/post-unlocks`, {
+      const res = await apiRequestJson('/api/post-unlocks', {
         method: 'POST',
-        headers: getApiHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ postId }),
+        body: { postId },
       });
-      if (response?.ok || response?.alreadyUnlocked) {
-        if (response.unlock) {
+      const payload = res.payload || {};
+      if (res.ok && (payload.ok || payload.alreadyUnlocked)) {
+        if (payload.unlock) {
           setDb((prev) => ({
             ...prev,
-            postUnlocks: [response.unlock, ...(prev.postUnlocks || [])],
+            postUnlocks: [payload.unlock, ...(prev.postUnlocks || [])],
             users: (prev.users || []).map((u) =>
               u.id === currentUser.id
-                ? { ...u, walletBalance: response.walletBalance ?? u.walletBalance }
-                : u
+                ? { ...u, walletBalance: payload.walletBalance ?? u.walletBalance }
+                : u,
             ),
           }));
         }
         if (typeof window !== 'undefined') window.alert(`${loginText.postUnlockedPrefix || 'Post unlocked for'} ${formatPriceTHB(unlockPrice)}.`);
       } else {
-        const errMsg = response?.error || 'Failed to unlock post.';
+        const errMsg = payload?.error || 'Failed to unlock post.';
         if (typeof window !== 'undefined') window.alert(errMsg);
       }
     } catch {
@@ -15657,6 +15699,7 @@ export default function ThailandPantiesMarketSite() {
         return;
       }
     }
+    /* Offline-only checkout fallback: mirrors server payCheckoutWithWallet() in backend/src/services/walletCommerce.js when API is unreachable. */
     const orderId = `order_${Date.now()}`;
     const now = new Date().toISOString();
     const purchasedItemIds = cartItems.map((item) => item.id);
@@ -16414,6 +16457,37 @@ export default function ThailandPantiesMarketSite() {
     } catch (err) {
       setGiftModal((prev) => ({ ...prev, sending: false, error: 'Something went wrong. Please try again.' }));
     }
+  }
+
+  async function updateGiftFulfillmentTaskStatus(taskId, status) {
+    if (!taskId || !currentUser?.id) return;
+    if (backendStatus === 'connected' && apiAuthToken) {
+      try {
+        const res = await apiRequestJson(`/api/gifts/fulfillment/${encodeURIComponent(taskId)}`, {
+          method: 'PATCH',
+          body: { status },
+        });
+        const task = res.payload?.task;
+        if (res.ok && task) {
+          setDb((prev) => ({
+            ...prev,
+            giftFulfillmentTasks: (prev.giftFulfillmentTasks || []).map((t) =>
+              t.id === taskId ? { ...t, ...task } : t
+            ),
+          }));
+          return;
+        }
+      } catch {
+        return;
+      }
+    }
+    const now = new Date().toISOString();
+    setDb((prev) => ({
+      ...prev,
+      giftFulfillmentTasks: (prev.giftFulfillmentTasks || []).map((t) =>
+        t.id === taskId ? { ...t, status, updatedAt: now, updatedBy: currentUser.id } : t
+      ),
+    }));
   }
 
   function upsertBundleProduct(bundleDraft, onSuccess, onError) {
@@ -18314,7 +18388,7 @@ export default function ThailandPantiesMarketSite() {
           <div className="flex shrink-0 items-center gap-2">
             <select
               value={uiLanguage}
-              onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+              onChange={(event) => changeSiteLanguage(event.target.value)}
               className="hidden rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 sm:block"
               aria-label="Language"
             >
@@ -18431,7 +18505,7 @@ export default function ThailandPantiesMarketSite() {
                   <span className="text-xs font-semibold text-slate-500">Language</span>
                   <select
                     value={uiLanguage}
-                    onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                    onChange={(event) => changeSiteLanguage(event.target.value)}
                     className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600"
                     aria-label="Language"
                   >
@@ -18483,7 +18557,7 @@ export default function ThailandPantiesMarketSite() {
                 </label>
                 <select
                   value={authLanguage}
-                  onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                  onChange={(event) => changeSiteLanguage(event.target.value)}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
                   aria-label={loginText.language}
                 >
@@ -18964,7 +19038,7 @@ export default function ThailandPantiesMarketSite() {
                 </label>
                 <select
                   value={authLanguage}
-                  onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                  onChange={(event) => changeSiteLanguage(event.target.value)}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
                   aria-label={loginText.language}
                 >
@@ -19936,6 +20010,35 @@ export default function ThailandPantiesMarketSite() {
                     </select>
                   </label>
                 </div>
+                {(db.giftFulfillmentTasks || []).filter(
+                  (tsk) => String(tsk.barId || '') === String(currentUser?.barId || '') && tsk.assigneeType === 'bar' && tsk.status === 'pending',
+                ).length > 0 ? (
+                  <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-slate-800">
+                    <div className="font-semibold text-amber-900">Gift delivery tasks</div>
+                    <p className="mt-1 text-xs text-amber-900/90">
+                      Deliver paid drink or gift orders for affiliated sellers, then mark complete. Send the buyer a delivery photo via{' '}
+                      <button type="button" className="font-semibold text-rose-700 underline" onClick={() => navigate('/bar-messages')}>Messages</button>.
+                    </p>
+                    <ul className="mt-3 space-y-2">
+                      {(db.giftFulfillmentTasks || []).filter(
+                        (tsk) => String(tsk.barId || '') === String(currentUser?.barId || '') && tsk.assigneeType === 'bar' && tsk.status === 'pending',
+                      ).map((tsk) => (
+                        <li key={tsk.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-100 bg-white px-3 py-2">
+                          <span className="text-xs text-slate-600">
+                            {String(tsk.taskType || 'gift')} · <span className="font-mono">{tsk.id.slice(-10)}</span>
+                          </span>
+                          <button
+                            type="button"
+                            className="rounded-lg bg-rose-600 px-2.5 py-1 text-xs font-semibold text-white"
+                            onClick={() => updateGiftFulfillmentTaskStatus(tsk.id, 'completed')}
+                          >
+                            Mark delivered
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-rose-100 bg-slate-50 px-4 py-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
                     <Bell className="h-4 w-4 text-rose-600" />
@@ -20535,6 +20638,7 @@ export default function ThailandPantiesMarketSite() {
             giftCatalog={db.giftCatalog || []}
             giftPurchases={db.giftPurchases || []}
             giftFulfillmentTasks={db.giftFulfillmentTasks || []}
+            updateGiftFulfillmentTaskStatus={updateGiftFulfillmentTaskStatus}
             startEditProduct={(productId) => { startEditProduct(productId); navigate('/seller-upload'); }}
             editingProductId={editingProductId}
             sellerOrders={sellerOrders}
@@ -21086,7 +21190,7 @@ export default function ThailandPantiesMarketSite() {
                 {loginText.language}
                 <select
                   value={authLanguage}
-                  onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                  onChange={(event) => changeSiteLanguage(event.target.value)}
                   className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
                 >
                   <option value="en">{localizeOptionLabel("English", authLanguage)}</option>
@@ -21311,7 +21415,7 @@ export default function ThailandPantiesMarketSite() {
                     {registerText.language}
                     <select
                       value={authLanguage}
-                      onChange={(event) => setAuthLanguage(normalizeAuthLanguage(event.target.value))}
+                      onChange={(event) => changeSiteLanguage(event.target.value)}
                       className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"
                     >
                       <option value="en">{localizeOptionLabel("English", authLanguage)}</option>
