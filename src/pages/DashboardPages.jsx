@@ -312,6 +312,14 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedPrefix: "Added",
     walletAddedSuffix: "to your wallet.",
     walletPresetHelp: "Minimum top-up is 500 baht.",
+    availableAtNextPayout: "Available at next payout",
+    pendingHold: "Pending hold",
+    releasedAfterHold: "(released after the {n}-day hold)",
+    nextPayout: "Next payout",
+    belowThresholdRollover: "Below {amount} threshold; will roll into the next run.",
+    thisMonthsCommission: "This month's commission",
+    maturedThisMonth: "Matured this month",
+    commissionFooterNote: "Platform commissions accrue directly to your wallet; the maturity readout is informational.",
     favoritesHelp: "Favorite sellers for quick profile and messaging access.",
     noFavorites: "No favorite sellers yet. Use Favorite in the quick finder or Follow in stories.",
     favoriteBarsHelp: "Follow bars to keep their stories posts close and easy to find.",
@@ -462,6 +470,14 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedPrefix: "เพิ่ม",
     walletAddedSuffix: "เข้าสู่กระเป๋าเงินของคุณแล้ว",
     walletPresetHelp: "ยอดเติมขั้นต่ำคือ 500 บาท",
+    availableAtNextPayout: "พร้อมจ่ายในรอบถัดไป",
+    pendingHold: "รอครบกำหนด",
+    releasedAfterHold: "(ปล่อยหลังพักไว้ {n} วัน)",
+    nextPayout: "รอบจ่ายถัดไป",
+    belowThresholdRollover: "ต่ำกว่าเกณฑ์ {amount}; จะยกไปรอบถัดไป",
+    thisMonthsCommission: "ค่าคอมมิชชันเดือนนี้",
+    maturedThisMonth: "ครบกำหนดในเดือนนี้",
+    commissionFooterNote: "ค่าคอมมิชชันแพลตฟอร์มจะเข้ากระเป๋าเงินของคุณโดยตรง ส่วนตัวเลขครบกำหนดเป็นข้อมูลเพื่อการอ้างอิง",
     favoritesHelp: "บันทึกผู้ขายไว้เพื่อเข้าถึงโปรไฟล์และข้อความได้รวดเร็ว",
     noFavorites: "ยังไม่มีผู้ขายที่ชื่นชอบ ใช้ Favorite ใน quick finder หรือ Follow ในเรื่องราว",
     watchedProductsHelp: "กดถูกใจสินค้าเพื่อกลับมาดูได้ภายหลังจากหน้ารายการหรือหน้าสินค้า",
@@ -606,6 +622,14 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedPrefix: "ထည့်ပြီး",
     walletAddedSuffix: "သင့် wallet ထဲသို့ ရောက်ရှိပါပြီ။",
     walletPresetHelp: "အနည်းဆုံး top-up ပမာဏသည် 500 ဘတ် ဖြစ်သည်။",
+    availableAtNextPayout: "လာမည့်ထုတ်ပေးမှုတွင်ရရှိနိုင်",
+    pendingHold: "ဆိုင်းငံ့စောင့်နေဆဲ",
+    releasedAfterHold: "({n}ရက် ဆိုင်းငံ့ပြီးနောက် ထုတ်ပေးသည်)",
+    nextPayout: "လာမည့်ထုတ်ပေးမှု",
+    belowThresholdRollover: "သတ်မှတ်ပမာဏ {amount} အောက်တွင်ရှိ၍ နောက်ထုတ်ပေးမှုသို့ ရွှေ့ပေးမည်",
+    thisMonthsCommission: "ယခုလ commission",
+    maturedThisMonth: "ယခုလတွင် ရင့်မှည့်ပြီး",
+    commissionFooterNote: "Platform commission များသည် သင့် wallet သို့ တိုက်ရိုက် ဝင်ရောက်သည်။ ရင့်မှည့်မှုဖော်ပြချက်သည် သတင်းအချက်အလက်အဖြစ်သာ ပြသခြင်းဖြစ်သည်။",
     favoritesHelp: "profile နှင့် messaging ကို မြန်မြန်ဝင်ကြည့်ရန် seller များကို bookmark လုပ်ပါ။",
     noFavorites: "အကြိုက်ဆုံး seller မရှိသေးပါ။ quick finder တွင် Favorite သို့မဟုတ် stories တွင် Follow ကို သုံးပါ။",
     watchedProductsHelp: "Listing နှင့် product စာမျက်နှာများမှ ပြန်ကြည့်ချင်သော product များကို Like လုပ်ထားနိုင်သည်။",
@@ -750,6 +774,14 @@ const ACCOUNT_PAGE_I18N = {
     walletAddedPrefix: "Добавлено",
     walletAddedSuffix: "в ваш кошелек.",
     walletPresetHelp: "Минимальное пополнение — 500 бат.",
+    availableAtNextPayout: "Доступно к следующей выплате",
+    pendingHold: "В ожидании",
+    releasedAfterHold: "(выпускается после {n}-дневного удержания)",
+    nextPayout: "Следующая выплата",
+    belowThresholdRollover: "Меньше порога {amount}; перенесётся на следующий запуск",
+    thisMonthsCommission: "Комиссия за этот месяц",
+    maturedThisMonth: "Созрело в этом месяце",
+    commissionFooterNote: "Комиссия платформы поступает прямо в ваш кошелёк; индикатор созревания носит информационный характер.",
     favoritesHelp: "Добавляйте продавцов в закладки для быстрого доступа к профилю и сообщениям.",
     noFavorites: "Пока нет избранных продавцов. Используйте Favorite в быстром поиске или Follow в историях.",
     watchedProductsHelp: "Отмечайте товары Like, чтобы быстро возвращаться к ним со страниц каталога и товара.",
@@ -1549,6 +1581,11 @@ const SELLER_I18N = {
     grossEarningsHelp: "Before platform/bar fee allocation.",
     netEarnings: "Net earnings",
     netEarningsHelp: "Amount credited to your wallet.",
+    availableAtNextPayout: "Available at next payout",
+    pendingHold: "Pending hold",
+    releasedAfterHold: "(released after the {n}-day hold)",
+    nextPayout: "Next payout",
+    belowThresholdRollover: "Below {amount} threshold; will roll into the next run.",
     scheduledPosts: "Scheduled posts",
     likes: "Likes",
     engagement7Day: "7-day engagement",
@@ -1788,6 +1825,11 @@ const SELLER_I18N = {
     grossEarningsHelp: "ก่อนหักส่วนแบ่งแพลตฟอร์ม/บาร์",
     netEarnings: "รายได้สุทธิ",
     netEarningsHelp: "ยอดที่เข้ากระเป๋าเงินของคุณ",
+    availableAtNextPayout: "พร้อมจ่ายในรอบถัดไป",
+    pendingHold: "รอครบกำหนด",
+    releasedAfterHold: "(ปล่อยหลังพักไว้ {n} วัน)",
+    nextPayout: "รอบจ่ายถัดไป",
+    belowThresholdRollover: "ต่ำกว่าเกณฑ์ {amount}; จะยกไปรอบถัดไป",
     scheduledPosts: "โพสต์ที่ตั้งเวลาไว้",
     likes: "ถูกใจ",
     engagement7Day: "การมีส่วนร่วม 7 วัน",
@@ -2026,6 +2068,11 @@ const SELLER_I18N = {
     grossEarningsHelp: "platform/bar fee ခွဲဝေမတိုင်မီ",
     netEarnings: "စစ်ဝင်ငွေ",
     netEarningsHelp: "သင့် wallet သို့ ထည့်သွင်းသောပမာဏ",
+    availableAtNextPayout: "လာမည့်ထုတ်ပေးမှုတွင်ရရှိနိုင်",
+    pendingHold: "ဆိုင်းငံ့စောင့်နေဆဲ",
+    releasedAfterHold: "({n}ရက် ဆိုင်းငံ့ပြီးနောက် ထုတ်ပေးသည်)",
+    nextPayout: "လာမည့်ထုတ်ပေးမှု",
+    belowThresholdRollover: "သတ်မှတ်ပမာဏ {amount} အောက်တွင်ရှိ၍ နောက်ထုတ်ပေးမှုသို့ ရွှေ့ပေးမည်",
     scheduledPosts: "အချိန်ဇယားတင်ထားသော post များ",
     likes: "ကြိုက်နှစ်သက်မှု",
     engagement7Day: "၇ ရက်အတွင်း engagement",
@@ -2264,6 +2311,11 @@ const SELLER_I18N = {
     grossEarningsHelp: "До распределения комиссии платформы/бара.",
     netEarnings: "Чистый доход",
     netEarningsHelp: "Сумма, зачисленная в ваш кошелек.",
+    availableAtNextPayout: "Доступно к следующей выплате",
+    pendingHold: "В ожидании",
+    releasedAfterHold: "(выпускается после {n}-дневного удержания)",
+    nextPayout: "Следующая выплата",
+    belowThresholdRollover: "Меньше порога {amount}; перенесётся на следующий запуск",
     scheduledPosts: "Запланированные посты",
     likes: "Лайки",
     engagement7Day: "Вовлеченность за 7 дней",
@@ -3093,16 +3145,16 @@ export function SellerDashboardPage({
                 <div className="mt-1 text-xs text-emerald-700">{t("netEarningsHelp")}</div>
               </div>
               <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">Available at next payout</div>
+                <div className="text-[11px] uppercase tracking-[0.12em] text-emerald-700">{t("availableAtNextPayout")}</div>
                 <div className="mt-1 text-2xl font-semibold text-emerald-900">{formatPriceTHB(sellerDashPayoutSummary?.matured || 0)}</div>
                 <div className="mt-1 text-xs text-emerald-800">
-                  Pending hold: <span className="font-semibold">{formatPriceTHB(sellerDashPayoutSummary?.pending || 0)}</span>
-                  <span className="ml-1 text-emerald-700">(released after the {PAYOUT_HOLD_DAYS_DASH}-day hold)</span>
+                  {t("pendingHold")}: <span className="font-semibold">{formatPriceTHB(sellerDashPayoutSummary?.pending || 0)}</span>
+                  <span className="ml-1 text-emerald-700">{t("releasedAfterHold").replace("{n}", String(PAYOUT_HOLD_DAYS_DASH))}</span>
                 </div>
-                <div className="mt-1 text-xs text-emerald-800">Next payout: <span className="font-semibold">{sellerDashPayoutSummary?.nextLabel || "—"}</span></div>
+                <div className="mt-1 text-xs text-emerald-800">{t("nextPayout")}: <span className="font-semibold">{sellerDashPayoutSummary?.nextLabel || "—"}</span></div>
                 {sellerDashPayoutSummary && sellerDashPayoutSummary.matured > 0 && sellerDashPayoutSummary.matured < PAYOUT_MIN_THRESHOLD_THB_DASH ? (
                   <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
-                    Below {formatPriceTHB(PAYOUT_MIN_THRESHOLD_THB_DASH)} threshold; will roll into the next run.
+                    {t("belowThresholdRollover").replace("{amount}", formatPriceTHB(PAYOUT_MIN_THRESHOLD_THB_DASH))}
                   </div>
                 ) : null}
               </div>
@@ -6317,11 +6369,14 @@ export function AdminPage({
   giftPurchases,
   giftFulfillmentTasks,
   updateGiftCatalogItem,
+  uiLanguage = "en",
 }) {
   const [socialSearch, setSocialSearch] = useState("");
   const [socialFilter, setSocialFilter] = useState("all");
   const [socialVisibleCount, setSocialVisibleCount] = useState(10);
   const [reportVisibleCount, setReportVisibleCount] = useState(8);
+  const adminPageLocale = ACCOUNT_PAGE_I18N[uiLanguage] ? uiLanguage : "en";
+  const tx = (key) => ACCOUNT_PAGE_I18N[adminPageLocale]?.[key] || ACCOUNT_PAGE_I18N.en[key] || key;
   const ADMIN_PAYOUT_HOLD_DAYS = 14;
   const adminCommissionSummary = useMemo(() => {
     if (!currentUser || currentUser.role !== "admin") return null;
@@ -6344,8 +6399,8 @@ export function AdminPage({
       if (createdAtMs < holdCutoffMs) matured += amount;
       else pending += amount;
     });
-    const nextMonthEndUtc = new Date(Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth() + 2, 0, 23, 59, 59, 999));
-    const nextSettleDate = new Date(nextMonthEndUtc.getTime() + holdMs);
+    const monthEndUtc = new Date(Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+    const nextSettleDate = new Date(monthEndUtc.getTime() + holdMs);
     const nextLabel = nextSettleDate.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
     return {
       total: Number(total.toFixed(2)),
@@ -8737,24 +8792,24 @@ export function AdminPage({
           <SectionTitle eyebrow="Admin dashboard" title="Operations center!" subtitle="Manage seller approvals, users, listings, payments, and social moderation from one workspace." />
           {adminCommissionSummary ? (
             <div className="mb-6 rounded-3xl border border-indigo-200 bg-indigo-50 p-5 text-sm text-indigo-900">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">This month's commission</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">{tx("thisMonthsCommission")}</div>
               <div className="mt-2 text-3xl font-bold">{formatPriceTHB(adminCommissionSummary.total)}</div>
               <div className="mt-2 grid gap-2 sm:grid-cols-3">
                 <div className="rounded-xl border border-indigo-200 bg-white/60 px-3 py-2">
-                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">Matured this month</div>
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">{tx("maturedThisMonth")}</div>
                   <div className="mt-1 text-lg font-semibold text-indigo-900">{formatPriceTHB(adminCommissionSummary.matured)}</div>
                 </div>
                 <div className="rounded-xl border border-indigo-200 bg-white/60 px-3 py-2">
-                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">Pending hold</div>
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">{tx("pendingHold")}</div>
                   <div className="mt-1 text-lg font-semibold text-indigo-900">{formatPriceTHB(adminCommissionSummary.pending)}</div>
                 </div>
                 <div className="rounded-xl border border-indigo-200 bg-white/60 px-3 py-2">
-                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">Next settles on</div>
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-indigo-700">{tx("nextPayout")}</div>
                   <div className="mt-1 text-sm font-semibold text-indigo-900">{adminCommissionSummary.nextLabel}</div>
                 </div>
               </div>
               <div className="mt-3 text-[11px] leading-5 text-indigo-700">
-                Platform commissions accrue directly to your wallet; the maturity readout is informational.
+                {tx("commissionFooterNote")}
               </div>
             </div>
           ) : null}
@@ -13193,13 +13248,12 @@ export function AccountPage({
       });
     }
 
-    // Next seller/bar payout: end-of-current-UTC-month + 14 day hold.
+    // Next seller/bar payout AND admin settle marker: end-of-current-UTC-month + 14 day hold.
+    // Both should reflect when this month's earnings/commissions actually settle.
     const today = new Date();
     const monthEndUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0, 23, 59, 59, 999));
     const nextPayoutDate = new Date(monthEndUtc.getTime() + holdMs);
-    // Next admin settle marker: end-of-next-UTC-month + 14 day hold.
-    const nextMonthEndUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 2, 0, 23, 59, 59, 999));
-    const nextSettleDate = new Date(nextMonthEndUtc.getTime() + holdMs);
+    const nextSettleDate = nextPayoutDate;
     const formatPayoutDate = (date) => date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
     return {
@@ -13893,33 +13947,33 @@ export function AccountPage({
                 </div>
                 {currentUser.role === "seller" && payoutSummary ? (
                   <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Available at next payout</div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{tx("availableAtNextPayout")}</div>
                     <div className="mt-2 text-2xl font-bold">{formatPriceTHB(payoutSummary.sellerMatured)}</div>
                     <div className="mt-1 text-xs text-emerald-800">
-                      Pending hold: <span className="font-semibold">{formatPriceTHB(payoutSummary.sellerPending)}</span>
-                      <span className="ml-1 text-emerald-700">(released after the {PAYOUT_HOLD_DAYS_LOCAL}-day hold)</span>
+                      {tx("pendingHold")}: <span className="font-semibold">{formatPriceTHB(payoutSummary.sellerPending)}</span>
+                      <span className="ml-1 text-emerald-700">{tx("releasedAfterHold").replace("{n}", String(PAYOUT_HOLD_DAYS_LOCAL))}</span>
                     </div>
-                    <div className="mt-1 text-xs text-emerald-800">Next payout: <span className="font-semibold">{payoutSummary.sellerNextPayoutLabel}</span></div>
+                    <div className="mt-1 text-xs text-emerald-800">{tx("nextPayout")}: <span className="font-semibold">{payoutSummary.sellerNextPayoutLabel}</span></div>
                     {payoutSummary.sellerMatured > 0 && payoutSummary.sellerMatured < PAYOUT_MIN_THRESHOLD_THB_LOCAL ? (
                       <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
-                        Below {formatPriceTHB(PAYOUT_MIN_THRESHOLD_THB_LOCAL)} threshold; will roll into the next run.
+                        {tx("belowThresholdRollover").replace("{amount}", formatPriceTHB(PAYOUT_MIN_THRESHOLD_THB_LOCAL))}
                       </div>
                     ) : null}
                   </div>
                 ) : null}
                 {currentUser.role === "admin" && payoutSummary ? (
                   <div className="mt-3 rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">This month's commission</div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">{tx("thisMonthsCommission")}</div>
                     <div className="mt-2 text-2xl font-bold">{formatPriceTHB(payoutSummary.adminThisMonthTotal)}</div>
                     <div className="mt-1 text-xs text-indigo-800">
-                      Matured this month: <span className="font-semibold">{formatPriceTHB(payoutSummary.adminMaturedThisMonth)}</span>
+                      {tx("maturedThisMonth")}: <span className="font-semibold">{formatPriceTHB(payoutSummary.adminMaturedThisMonth)}</span>
                     </div>
                     <div className="mt-1 text-xs text-indigo-800">
-                      Pending hold: <span className="font-semibold">{formatPriceTHB(payoutSummary.adminPendingThisMonth)}</span>
+                      {tx("pendingHold")}: <span className="font-semibold">{formatPriceTHB(payoutSummary.adminPendingThisMonth)}</span>
                     </div>
-                    <div className="mt-1 text-xs text-indigo-800">Next month settles on <span className="font-semibold">{payoutSummary.adminNextSettleLabel}</span></div>
+                    <div className="mt-1 text-xs text-indigo-800">{tx("nextPayout")}: <span className="font-semibold">{payoutSummary.adminNextSettleLabel}</span></div>
                     <div className="mt-2 text-[11px] leading-5 text-indigo-700">
-                      Platform commissions accrue directly to your wallet; the maturity readout is informational.
+                      {tx("commissionFooterNote")}
                     </div>
                   </div>
                 ) : null}

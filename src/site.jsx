@@ -20945,6 +20945,7 @@ export default function ThailandPantiesMarketSite() {
             giftPurchases={db.giftPurchases || []}
             giftFulfillmentTasks={db.giftFulfillmentTasks || []}
             updateGiftCatalogItem={updateGiftCatalogItem}
+            uiLanguage={currentUser?.preferredLanguage || uiLanguage || 'en'}
           />
         ) : null}
 
