@@ -2276,6 +2276,9 @@ const LOGIN_I18N = {
     unlockWalletRequiredSuffix: 'in your wallet to unlock this post.',
     unlockConfirmPrefix: 'Unlock this post for',
     unlockConfirmSuffix: '? This will be deducted from your wallet.',
+    unlockConfirmTitle: 'Unlock private post',
+    unlockConfirmCta: 'Unlock',
+    unlockConfirmCancel: 'Cancel',
     postUnlockedPrefix: 'Post unlocked for',
   },
   th: {
@@ -2339,6 +2342,9 @@ const LOGIN_I18N = {
     unlockWalletRequiredSuffix: 'ในวอลเล็ตเพื่อปลดล็อกโพสต์นี้',
     unlockConfirmPrefix: 'ปลดล็อกโพสต์นี้ในราคา',
     unlockConfirmSuffix: 'ใช่ไหม? ยอดนี้จะถูกหักจากวอลเล็ตของคุณ',
+    unlockConfirmTitle: 'ปลดล็อกโพสต์ส่วนตัว',
+    unlockConfirmCta: 'ปลดล็อก',
+    unlockConfirmCancel: 'ยกเลิก',
     postUnlockedPrefix: 'ปลดล็อกโพสต์แล้ว สำหรับ',
   },
   my: {
@@ -2402,6 +2408,9 @@ const LOGIN_I18N = {
     unlockWalletRequiredSuffix: 'လိုအပ်သည်။',
     unlockConfirmPrefix: 'ဤ post ကို',
     unlockConfirmSuffix: 'ဖြင့် unlock လုပ်မှာ ဟုတ်ပါသလား? ဤပမာဏကို သင့် wallet မှ နုတ်ယူပါမည်။',
+    unlockConfirmTitle: 'private post ကို unlock လုပ်မည်',
+    unlockConfirmCta: 'Unlock လုပ်မည်',
+    unlockConfirmCancel: 'မလုပ်တော့ပါ',
     postUnlockedPrefix: 'post ကို unlock လုပ်ပြီးပါပြီ -',
   },
   ru: {
@@ -2465,6 +2474,9 @@ const LOGIN_I18N = {
     unlockWalletRequiredSuffix: 'в кошельке.',
     unlockConfirmPrefix: 'Разблокировать этот пост за',
     unlockConfirmSuffix: '? Сумма будет списана с вашего кошелька.',
+    unlockConfirmTitle: 'Разблокировать приватный пост',
+    unlockConfirmCta: 'Разблокировать',
+    unlockConfirmCancel: 'Отмена',
     postUnlockedPrefix: 'Пост разблокирован за',
   },
 };
@@ -5719,6 +5731,16 @@ export default function ThailandPantiesMarketSite() {
     birthMonth: null,
   });
   const [sellerProfileMessage, setSellerProfileMessage] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState(null);
+  const requestConfirm = useCallback((options) => new Promise((resolve) => {
+    setConfirmDialog({ ...(options || {}), resolve });
+  }), []);
+  const closeConfirmDialog = useCallback((result) => {
+    setConfirmDialog((prev) => {
+      if (prev?.resolve) prev.resolve(Boolean(result));
+      return null;
+    });
+  }, []);
   const [isSavingSellerProfile, setIsSavingSellerProfile] = useState(false);
   const [sellerProfileSaveSuccess, setSellerProfileSaveSuccess] = useState(false);
   const [sellerAffiliationRequestDraft, setSellerAffiliationRequestDraft] = useState({
@@ -11503,7 +11525,7 @@ export default function ThailandPantiesMarketSite() {
     return true;
   }
 
-  function addSellerPostComment(postId, body) {
+  function addSellerPostComment(postId, body, options = {}) {
     if (!currentUser) {
       setSellerProfileMessage(loginText.loginToCommentPosts || 'Please login to comment on posts.');
       return false;
@@ -11512,30 +11534,131 @@ export default function ThailandPantiesMarketSite() {
       setSellerProfileMessage(sellerStatus('accountActiveToComment'));
       return false;
     }
-    if (currentUser.role !== 'buyer') {
-      setSellerProfileMessage(sellerStatus('onlyBuyerPaidComments'));
-      return false;
-    }
     const post = sellerPosts.find((candidate) => candidate.id === postId);
     if (!post || !canViewSellerPost(post)) return false;
     const trimmedBody = String(body || '').trim();
     if (!trimmedBody) return false;
-    const commentFee = MESSAGE_FEE_THB;
-    if (Number(currentUser.walletBalance || 0) < commentFee) {
+
+    const isPrivate = isSellerPostPrivate(post);
+    const sellerUser = users.find((entry) => entry.sellerId === post.sellerId);
+    const sellerUserId = sellerUser?.id;
+    const isPostSeller = currentUser.role === 'seller' && currentUser.sellerId === post.sellerId;
+    const isAdmin = currentUser.role === 'admin';
+    const hasUnlock = currentUser.role === 'buyer'
+      && postUnlocks.some((entry) => entry.postId === postId && entry.buyerUserId === currentUser.id);
+
+    if (isPrivate) {
+      const allowed = isPostSeller || isAdmin || (currentUser.role === 'buyer' && hasUnlock);
+      if (!allowed) {
+        setSellerProfileMessage(sellerStatus('onlyBuyerPaidComments'));
+        return false;
+      }
+    } else if (currentUser.role !== 'buyer') {
+      setSellerProfileMessage(sellerStatus('onlyBuyerPaidComments'));
+      return false;
+    }
+
+    let threadKey;
+    if (isPrivate) {
+      if (currentUser.role === 'buyer') {
+        threadKey = `${postId}:${currentUser.id}`;
+      } else if (options && options.threadKey) {
+        threadKey = options.threadKey;
+      } else {
+        setSellerProfileMessage(loginText.privateCommentPickThread || 'Pick a buyer thread to reply to.');
+        return false;
+      }
+    }
+
+    const commentFee = isPrivate ? 0 : MESSAGE_FEE_THB;
+    if (commentFee > 0 && Number(currentUser.walletBalance || 0) < commentFee) {
       setSellerProfileMessage(sellerStatus('walletNeededToComment', { amount: formatPriceTHB(commentFee) }));
       return false;
     }
     const createdAt = new Date().toISOString();
-    const sellerUser = users.find((entry) => entry.sellerId === post.sellerId);
-    const sellerUserId = sellerUser?.id;
+    const buyerThreadOwnerId = isPrivate
+      ? (currentUser.role === 'buyer' ? currentUser.id : (threadKey ? threadKey.split(':')[1] : null))
+      : null;
     setDb((prev) => {
+      const recipient = (prev.users || []).find((entry) => entry.id === sellerUserId);
+
+      const newComment = {
+        id: `post_comment_${Date.now()}`,
+        postId,
+        senderUserId: currentUser.id,
+        senderRole: currentUser.role,
+        body: trimmedBody.slice(0, 400),
+        feeCharged: commentFee,
+        visibility: isPrivate ? 'private' : 'public',
+        ...(isPrivate ? { threadKey } : {}),
+        createdAt,
+      };
+
+      // Notification: for private posts, seller is notified when buyer comments;
+      // buyer (the thread owner) is notified when seller/admin replies.
+      let notificationsBase = prev.notifications || [];
+      if (isPrivate) {
+        if (currentUser.role === 'buyer'
+          && sellerUserId
+          && sellerUserId !== currentUser.id
+          && shouldSendNotificationForType(recipient, 'engagement')) {
+          notificationsBase = [
+            {
+              id: `notif_${Date.now()}`,
+              userId: sellerUserId,
+              type: 'engagement',
+              text: `${currentUser.name || 'A buyer'} commented privately on your Stories post.`,
+              read: false,
+              createdAt,
+            },
+            ...notificationsBase,
+          ];
+        } else if ((isPostSeller || isAdmin) && buyerThreadOwnerId && buyerThreadOwnerId !== currentUser.id) {
+          const buyerRecipient = (prev.users || []).find((entry) => entry.id === buyerThreadOwnerId);
+          if (shouldSendNotificationForType(buyerRecipient, 'engagement')) {
+            notificationsBase = [
+              {
+                id: `notif_${Date.now()}`,
+                userId: buyerThreadOwnerId,
+                type: 'engagement',
+                text: `${currentUser.name || 'The seller'} replied to your private comment.`,
+                read: false,
+                createdAt,
+              },
+              ...notificationsBase,
+            ];
+          }
+        }
+      } else if (sellerUserId
+        && sellerUserId !== currentUser.id
+        && shouldSendNotificationForType(recipient, 'engagement')) {
+        notificationsBase = [
+          {
+            id: `notif_${Date.now()}`,
+            userId: sellerUserId,
+            type: 'engagement',
+            text: `${currentUser.name || 'A user'} commented on your Stories post.`,
+            read: false,
+            createdAt,
+          },
+          ...notificationsBase,
+        ];
+      }
+
+      if (commentFee <= 0) {
+        return {
+          ...prev,
+          sellerPostComments: [newComment, ...(prev.sellerPostComments || [])],
+          notifications: notificationsBase,
+        };
+      }
+
       const buyerBefore = Number((prev.users || []).find((entry) => entry.id === currentUser.id)?.walletBalance || 0);
       const buyerAfter = Number((buyerBefore - commentFee).toFixed(2));
       const payout = calculateSellerRevenueSplit(prev, {
         sellerId: post.sellerId,
         grossAmount: commentFee,
       });
-      const recipient = (prev.users || []).find((entry) => entry.id === sellerUserId);
       const base = {
         ...prev,
         users: (prev.users || []).map((user) => {
@@ -11553,18 +11676,7 @@ export default function ThailandPantiesMarketSite() {
           }
           return user;
         }),
-        sellerPostComments: [
-        {
-          id: `post_comment_${Date.now()}`,
-          postId,
-          senderUserId: currentUser.id,
-          senderRole: currentUser.role,
-          body: trimmedBody.slice(0, 400),
-          feeCharged: commentFee,
-          createdAt,
-        },
-        ...(prev.sellerPostComments || []),
-      ],
+        sellerPostComments: [newComment, ...(prev.sellerPostComments || [])],
         walletTransactions: [
           ...(payout.sellerUserId && payout.sellerAmount > 0 && payout.sellerUserId !== currentUser.id
             ? [{
@@ -11606,19 +11718,7 @@ export default function ThailandPantiesMarketSite() {
           },
           ...(prev.walletTransactions || []),
         ],
-        notifications: sellerUserId && sellerUserId !== currentUser.id && shouldSendNotificationForType(recipient, 'engagement')
-        ? [
-            {
-              id: `notif_${Date.now()}`,
-              userId: sellerUserId,
-              type: 'engagement',
-              text: `${currentUser.name || 'A user'} commented on your Stories post.`,
-              read: false,
-              createdAt,
-            },
-            ...(prev.notifications || []),
-          ]
-        : prev.notifications,
+        notifications: notificationsBase,
       };
       return appendLowBalanceEmailIfNeeded(base, {
         userId: currentUser.id,
@@ -11627,6 +11727,19 @@ export default function ThailandPantiesMarketSite() {
       });
     });
     return true;
+  }
+
+  function canViewSellerPostComment(comment, post) {
+    if (!comment || !post) return false;
+    if (!comment.visibility || comment.visibility === 'public') return true;
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return true;
+    if (currentUser.id === comment.senderUserId) return true;
+    if (currentUser.role === 'seller' && currentUser.sellerId === post.sellerId) return true;
+    if (currentUser.role === 'buyer' && comment.threadKey) {
+      return comment.threadKey === `${post.id}:${currentUser.id}`;
+    }
+    return false;
   }
 
   function deleteSellerPostComment(commentId) {
@@ -11828,10 +11941,13 @@ export default function ThailandPantiesMarketSite() {
       }
       return;
     }
-    if (typeof window !== 'undefined') {
-      const confirmMsg = `${loginText.unlockConfirmPrefix || 'Unlock this post for'} ${formatPriceTHB(unlockPrice)}${loginText.unlockConfirmSuffix || '? This will be deducted from your wallet.'}`;
-      if (!window.confirm(confirmMsg)) return;
-    }
+    const confirmed = await requestConfirm({
+      title: loginText.unlockConfirmTitle || 'Unlock private post',
+      body: `${loginText.unlockConfirmPrefix || 'Unlock this post for'} ${formatPriceTHB(unlockPrice)}${loginText.unlockConfirmSuffix || '? This will be deducted from your wallet.'}`,
+      confirmLabel: loginText.unlockConfirmCta || 'Unlock',
+      cancelLabel: loginText.unlockConfirmCancel || 'Cancel',
+    });
+    if (!confirmed) return;
     try {
       const res = await apiRequestJson('/api/post-unlocks', {
         method: 'POST',
@@ -11840,15 +11956,33 @@ export default function ThailandPantiesMarketSite() {
       const payload = res.payload || {};
       if (res.ok && (payload.ok || payload.alreadyUnlocked)) {
         if (payload.unlock) {
-          setDb((prev) => ({
-            ...prev,
-            postUnlocks: [payload.unlock, ...(prev.postUnlocks || [])],
-            users: (prev.users || []).map((u) =>
-              u.id === currentUser.id
-                ? { ...u, walletBalance: payload.walletBalance ?? u.walletBalance }
-                : u,
-            ),
-          }));
+          setDb((prev) => {
+            const existingSaved = prev.sellerSavedPosts || [];
+            const alreadySaved = existingSaved.some((entry) => (
+              entry.postId === postId
+              && entry.userId === currentUser.id
+              && (entry.feedType || 'seller') === 'seller'
+            ));
+            return {
+              ...prev,
+              postUnlocks: [payload.unlock, ...(prev.postUnlocks || [])],
+              users: (prev.users || []).map((u) =>
+                u.id === currentUser.id
+                  ? { ...u, walletBalance: payload.walletBalance ?? u.walletBalance }
+                  : u,
+              ),
+              sellerSavedPosts: alreadySaved ? existingSaved : [
+                {
+                  id: `saved_post_${Date.now()}`,
+                  postId,
+                  userId: currentUser.id,
+                  feedType: 'seller',
+                  createdAt: new Date().toISOString(),
+                },
+                ...existingSaved,
+              ],
+            };
+          });
         }
         if (typeof window !== 'undefined') window.alert(`${loginText.postUnlockedPrefix || 'Post unlocked for'} ${formatPriceTHB(unlockPrice)}.`);
       } else {
@@ -19107,6 +19241,7 @@ export default function ThailandPantiesMarketSite() {
             toggleSavedSellerPost={toggleSavedSellerPost}
             sellerLanguage={uiLanguage}
             canViewSellerPost={canViewSellerPost}
+            canViewSellerPostComment={canViewSellerPostComment}
             isSellerPostPrivate={isSellerPostPrivate}
             unlockPrivatePost={unlockPrivatePost}
             navigate={navigate}
@@ -22035,6 +22170,48 @@ export default function ThailandPantiesMarketSite() {
               <button type="button" onClick={() => { if (walletStatus !== 'processing') setSellerPageTopUpOpen(false); }} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button>
               <button type="button" onClick={submitSellerPageTopUp} disabled={walletStatus === 'processing'} className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60">
                 {walletStatus === 'processing' ? 'Processing...' : 'Continue to payment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {confirmDialog ? (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-dialog-title"
+          onClick={() => closeConfirmDialog(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl border border-rose-100 bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {confirmDialog.title ? (
+              <div id="confirm-dialog-title" className="text-base font-semibold text-rose-700">
+                {confirmDialog.title}
+              </div>
+            ) : null}
+            {confirmDialog.body ? (
+              <div className="mt-2 text-sm leading-6 text-slate-700">
+                {confirmDialog.body}
+              </div>
+            ) : null}
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => closeConfirmDialog(false)}
+                className="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50"
+              >
+                {confirmDialog.cancelLabel || 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={() => closeConfirmDialog(true)}
+                className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
+              >
+                {confirmDialog.confirmLabel || 'Confirm'}
               </button>
             </div>
           </div>

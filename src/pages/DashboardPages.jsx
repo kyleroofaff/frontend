@@ -5708,6 +5708,7 @@ export function StoriesPage({
   toggleSavedSellerPost,
   sellerLanguage,
   canViewSellerPost,
+  canViewSellerPostComment,
   isSellerPostPrivate,
   unlockPrivatePost,
   navigate,
@@ -5793,13 +5794,33 @@ export function StoriesPage({
     });
     return map;
   }, [sellerPostLikes]);
+  const sellerPostsById = useMemo(() => {
+    const map = {};
+    (sellerPosts || []).forEach((entry) => { map[entry.id] = entry; });
+    return map;
+  }, [sellerPosts]);
   const commentsByPostId = useMemo(() => {
     const map = {};
+    const filterFn = typeof canViewSellerPostComment === 'function' ? canViewSellerPostComment : () => true;
     (sellerPostComments || []).forEach((entry) => {
+      const post = sellerPostsById[entry.postId];
+      if (!post) return;
+      if (!filterFn(entry, post)) return;
       if (!map[entry.postId]) map[entry.postId] = [];
       map[entry.postId].push(entry);
     });
     return map;
+  }, [sellerPostComments, sellerPostsById, canViewSellerPostComment]);
+  const privateThreadsByPostId = useMemo(() => {
+    const map = {};
+    (sellerPostComments || []).forEach((entry) => {
+      if (!entry || entry.visibility !== 'private' || !entry.threadKey) return;
+      if (!map[entry.postId]) map[entry.postId] = new Set();
+      map[entry.postId].add(entry.threadKey);
+    });
+    const out = {};
+    Object.entries(map).forEach(([postId, set]) => { out[postId] = Array.from(set); });
+    return out;
   }, [sellerPostComments]);
   const followedSellerIds = useMemo(
     () =>
@@ -6171,87 +6192,173 @@ export function StoriesPage({
               </div>
               {!canViewSellerPost(post) && <p className="mt-3 text-xs font-medium text-rose-600/70">Private post. Unlock to view.</p>}
               {post.caption ? <p className={`${!canViewSellerPost(post) ? 'mt-1' : 'mt-3'} text-sm leading-6 text-slate-700`}>{post.caption}</p> : null}
-              {canViewSellerPost(post) ? (
-                <div className="mt-3 rounded-2xl bg-slate-50 p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <button
-                      onClick={() => toggleSellerPostLike(post.id)}
-                      className={`rounded-xl border px-3 py-1 text-xs font-semibold ${((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
-                    >
-                      {((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? t("unlike") : t("like")} · {(likesByPostId[post.id] || []).length}
-                    </button>
-                    <div className="text-xs text-slate-500">
-                      {(commentsByPostId[post.id] || []).length} {t("comments")}
-                    </div>
-                  </div>
-                  <div className="mt-2 max-h-28 space-y-1 overflow-y-auto">
-                    {(commentsByPostId[post.id] || []).length === 0 ? (
-                      <div className="text-xs text-slate-500">{t("noCommentsYet")}</div>
-                    ) : (commentsByPostId[post.id] || []).map((comment) => (
-                      <div key={comment.id} className="rounded-lg bg-white px-2 py-1 text-xs text-slate-700 ring-1 ring-rose-100">
-                        <div className="flex items-center justify-between gap-2">
-                          <span><span className="font-semibold text-slate-600">{userNameById[comment.senderUserId] || comment.senderRole}</span>: {comment.body}</span>
-                          <div className="flex items-center gap-1">
-                            {unresolvedCommentReportCounts[comment.id] ? (
-                              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                                {unresolvedCommentReportCounts[comment.id]} report(s)
-                              </span>
-                            ) : null}
-                            {currentUser && currentUser.role !== "admin" && currentUser.id !== comment.senderUserId ? (
-                              <button
-                                onClick={() => {
-                                  if (typeof window === "undefined") return;
-                                  const reason = window.prompt("Why are you reporting this comment?", "Inappropriate comment");
-                                  if (!reason || !reason.trim()) return;
-                                  reportSellerPostComment(comment.id, reason.trim());
-                                }}
-                                disabled={reportingSellerPostCommentId === comment.id}
-                                className={`rounded-lg border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ${reportingSellerPostCommentId === comment.id ? "cursor-not-allowed opacity-60" : ""}`}
-                              >
-                                {reportingSellerPostCommentId === comment.id ? "Reporting..." : "Report"}
-                              </button>
-                            ) : null}
-                            {currentUser && (currentUser.role === "admin" || currentUser.id === comment.senderUserId) ? (
-                              <button
-                                onClick={() => deleteSellerPostComment(comment.id)}
-                                className="rounded-lg border border-rose-200 px-2 py-0.5 text-[10px] font-semibold text-rose-700"
-                              >
-                                {t("deleteComment")}
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
+              {canViewSellerPost(post) ? (() => {
+                const isPrivatePost = typeof isSellerPostPrivate === 'function' ? isSellerPostPrivate(post) : false;
+                const isPostSeller = currentUser?.role === 'seller' && currentUser.sellerId === post.sellerId;
+                const isAdmin = currentUser?.role === 'admin';
+                const visibleComments = commentsByPostId[post.id] || [];
+                const renderCommentRow = (comment) => (
+                  <div key={comment.id} className="rounded-lg bg-white px-2 py-1 text-xs text-slate-700 ring-1 ring-rose-100">
+                    <div className="flex items-center justify-between gap-2">
+                      <span><span className="font-semibold text-slate-600">{userNameById[comment.senderUserId] || comment.senderRole}</span>: {comment.body}</span>
+                      <div className="flex items-center gap-1">
+                        {unresolvedCommentReportCounts[comment.id] ? (
+                          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                            {unresolvedCommentReportCounts[comment.id]} report(s)
+                          </span>
+                        ) : null}
+                        {currentUser && currentUser.role !== "admin" && currentUser.id !== comment.senderUserId ? (
+                          <button
+                            onClick={() => {
+                              if (typeof window === "undefined") return;
+                              const reason = window.prompt("Why are you reporting this comment?", "Inappropriate comment");
+                              if (!reason || !reason.trim()) return;
+                              reportSellerPostComment(comment.id, reason.trim());
+                            }}
+                            disabled={reportingSellerPostCommentId === comment.id}
+                            className={`rounded-lg border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ${reportingSellerPostCommentId === comment.id ? "cursor-not-allowed opacity-60" : ""}`}
+                          >
+                            {reportingSellerPostCommentId === comment.id ? "Reporting..." : "Report"}
+                          </button>
+                        ) : null}
+                        {currentUser && (currentUser.role === "admin" || currentUser.id === comment.senderUserId) ? (
+                          <button
+                            onClick={() => deleteSellerPostComment(comment.id)}
+                            className="rounded-lg border border-rose-200 px-2 py-0.5 text-[10px] font-semibold text-rose-700"
+                          >
+                            {t("deleteComment")}
+                          </button>
+                        ) : null}
                       </div>
-                    ))}
-                  </div>
-                  {currentUser ? (
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        value={commentDraftByPostId[post.id] || ""}
-                        onChange={(event) => setCommentDraftByPostId((prev) => ({ ...prev, [post.id]: event.target.value }))}
-                        className="flex-1 rounded-xl border border-slate-200 px-2 py-1 text-xs"
-                        maxLength={400}
-                        placeholder={t("writeComment")}
-                      />
-                      <button
-                        onClick={() => {
-                          const posted = addSellerPostComment(post.id, commentDraftByPostId[post.id] || "");
-                          if (posted) {
-                            setCommentDraftByPostId((prev) => ({ ...prev, [post.id]: "" }));
-                          }
-                        }}
-                        disabled={!(commentDraftByPostId[post.id] || "").trim()}
-                        className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${!(commentDraftByPostId[post.id] || "").trim() ? "cursor-not-allowed opacity-60" : ""}`}
-                      >
-                        {t("postComment")} ({formatPriceTHB(MESSAGE_FEE_THB)})
-                      </button>
                     </div>
-                  ) : (
-                    <div className="mt-2 text-[11px] text-slate-500">{t("loginToEngage")}</div>
-                  )}
-                  {currentUser ? <div className="mt-1 text-[11px] text-slate-500">{t("commentLimit")}: {(commentDraftByPostId[post.id] || "").length}/400</div> : null}
-                </div>
-              ) : null}
+                  </div>
+                );
+                const renderComposer = (draftKey, threadKey, feeLabel) => {
+                  if (!currentUser) return <div className="mt-2 text-[11px] text-slate-500">{t("loginToEngage")}</div>;
+                  const draftValue = commentDraftByPostId[draftKey] || "";
+                  return (
+                    <>
+                      <div className="mt-2 flex gap-2">
+                        <input
+                          value={draftValue}
+                          onChange={(event) => setCommentDraftByPostId((prev) => ({ ...prev, [draftKey]: event.target.value }))}
+                          className="flex-1 rounded-xl border border-slate-200 px-2 py-1 text-xs"
+                          maxLength={400}
+                          placeholder={t("writeComment")}
+                        />
+                        <button
+                          onClick={() => {
+                            const opts = threadKey ? { threadKey } : undefined;
+                            const posted = addSellerPostComment(post.id, draftValue, opts);
+                            if (posted) {
+                              setCommentDraftByPostId((prev) => ({ ...prev, [draftKey]: "" }));
+                            }
+                          }}
+                          disabled={!draftValue.trim()}
+                          className={`rounded-xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 ${!draftValue.trim() ? "cursor-not-allowed opacity-60" : ""}`}
+                        >
+                          {t("postComment")} ({feeLabel})
+                        </button>
+                      </div>
+                      <div className="mt-1 text-[11px] text-slate-500">{t("commentLimit")}: {draftValue.length}/400</div>
+                    </>
+                  );
+                };
+
+                if (isPrivatePost) {
+                  if (isPostSeller || isAdmin) {
+                    const groups = new Map();
+                    visibleComments.forEach((entry) => {
+                      const key = entry.threadKey || `${post.id}:unknown`;
+                      if (!groups.has(key)) groups.set(key, []);
+                      groups.get(key).push(entry);
+                    });
+                    const groupEntries = Array.from(groups.entries());
+                    const threadCount = groupEntries.length;
+                    const threadCountLabel = threadCount === 1 ? "1 thread" : `${threadCount} threads`;
+                    return (
+                      <div className="mt-3 rounded-2xl bg-slate-50 p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <button
+                            onClick={() => toggleSellerPostLike(post.id)}
+                            className={`rounded-xl border px-3 py-1 text-xs font-semibold ${((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                          >
+                            {((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? t("unlike") : t("like")} · {(likesByPostId[post.id] || []).length}
+                          </button>
+                          <div className="text-xs text-slate-500">{threadCountLabel} (private)</div>
+                        </div>
+                        {threadCount === 0 ? (
+                          <div className="mt-2 text-xs text-slate-500">{t("noCommentsYet")}</div>
+                        ) : (
+                          <div className="mt-2 space-y-3">
+                            {groupEntries.map(([threadKey, comments]) => {
+                              const buyerUserId = threadKey.includes(":") ? threadKey.split(":")[1] : null;
+                              const buyerName = (buyerUserId && userNameById[buyerUserId]) || "Buyer";
+                              const draftKey = `${post.id}::${threadKey}`;
+                              return (
+                                <div key={threadKey} className="rounded-2xl border border-rose-100 bg-white p-2">
+                                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-rose-600">
+                                    {`Thread · ${buyerName}`}
+                                  </div>
+                                  <div className="max-h-28 space-y-1 overflow-y-auto">
+                                    {comments.map(renderCommentRow)}
+                                  </div>
+                                  {renderComposer(draftKey, threadKey, "Free")}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  // Buyer with unlock viewing private post: only their own thread.
+                  const myThreadKey = `${post.id}:${currentUser?.id}`;
+                  const myComments = visibleComments.filter((entry) => entry.threadKey === myThreadKey);
+                  return (
+                    <div className="mt-3 rounded-2xl bg-slate-50 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <button
+                          onClick={() => toggleSellerPostLike(post.id)}
+                          className={`rounded-xl border px-3 py-1 text-xs font-semibold ${((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                        >
+                          {((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? t("unlike") : t("like")} · {(likesByPostId[post.id] || []).length}
+                        </button>
+                        <div className="text-xs text-slate-500">Your thread ({myComments.length}) · private</div>
+                      </div>
+                      <div className="mt-2 max-h-28 space-y-1 overflow-y-auto">
+                        {myComments.length === 0 ? (
+                          <div className="text-xs text-slate-500">{t("noCommentsYet")}</div>
+                        ) : myComments.map(renderCommentRow)}
+                      </div>
+                      {renderComposer(post.id, undefined, "Free")}
+                    </div>
+                  );
+                }
+
+                // Public post: keep existing flat rendering with paid composer.
+                return (
+                  <div className="mt-3 rounded-2xl bg-slate-50 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <button
+                        onClick={() => toggleSellerPostLike(post.id)}
+                        className={`rounded-xl border px-3 py-1 text-xs font-semibold ${((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? "border-rose-300 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-700"}`}
+                      >
+                        {((likesByPostId[post.id] || []).some((entry) => entry.userId === currentUser?.id)) ? t("unlike") : t("like")} · {(likesByPostId[post.id] || []).length}
+                      </button>
+                      <div className="text-xs text-slate-500">
+                        {visibleComments.length} {t("comments")}
+                      </div>
+                    </div>
+                    <div className="mt-2 max-h-28 space-y-1 overflow-y-auto">
+                      {visibleComments.length === 0 ? (
+                        <div className="text-xs text-slate-500">{t("noCommentsYet")}</div>
+                      ) : visibleComments.map(renderCommentRow)}
+                    </div>
+                    {renderComposer(post.id, undefined, formatPriceTHB(MESSAGE_FEE_THB))}
+                  </div>
+                );
+              })() : null}
               <div className="mt-3 flex items-center justify-between gap-3">
                 {unresolvedReportCounts[post.id] ? (
                   <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700">
