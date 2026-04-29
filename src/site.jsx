@@ -2274,6 +2274,8 @@ const LOGIN_I18N = {
     unlockOnlyBuyer: 'Only buyer accounts can unlock private posts.',
     unlockWalletRequiredPrefix: 'You need at least',
     unlockWalletRequiredSuffix: 'in your wallet to unlock this post.',
+    unlockConfirmPrefix: 'Unlock this post for',
+    unlockConfirmSuffix: '? This will be deducted from your wallet.',
     postUnlockedPrefix: 'Post unlocked for',
   },
   th: {
@@ -2335,6 +2337,8 @@ const LOGIN_I18N = {
     unlockOnlyBuyer: 'เฉพาะบัญชีผู้ซื้อเท่านั้นที่ปลดล็อกโพสต์ส่วนตัวได้',
     unlockWalletRequiredPrefix: 'คุณต้องมียอดเงินอย่างน้อย',
     unlockWalletRequiredSuffix: 'ในวอลเล็ตเพื่อปลดล็อกโพสต์นี้',
+    unlockConfirmPrefix: 'ปลดล็อกโพสต์นี้ในราคา',
+    unlockConfirmSuffix: 'ใช่ไหม? ยอดนี้จะถูกหักจากวอลเล็ตของคุณ',
     postUnlockedPrefix: 'ปลดล็อกโพสต์แล้ว สำหรับ',
   },
   my: {
@@ -2396,6 +2400,8 @@ const LOGIN_I18N = {
     unlockOnlyBuyer: 'private posts များကို buyer အကောင့်သာ unlock လုပ်နိုင်သည်။',
     unlockWalletRequiredPrefix: 'ဤ post ကို unlock လုပ်ရန် သင့် wallet တွင် အနည်းဆုံး',
     unlockWalletRequiredSuffix: 'လိုအပ်သည်။',
+    unlockConfirmPrefix: 'ဤ post ကို',
+    unlockConfirmSuffix: 'ဖြင့် unlock လုပ်မှာ ဟုတ်ပါသလား? ဤပမာဏကို သင့် wallet မှ နုတ်ယူပါမည်။',
     postUnlockedPrefix: 'post ကို unlock လုပ်ပြီးပါပြီ -',
   },
   ru: {
@@ -2457,6 +2463,8 @@ const LOGIN_I18N = {
     unlockOnlyBuyer: 'Только аккаунты покупателей могут открывать приватные посты.',
     unlockWalletRequiredPrefix: 'Для разблокировки этого поста нужно как минимум',
     unlockWalletRequiredSuffix: 'в кошельке.',
+    unlockConfirmPrefix: 'Разблокировать этот пост за',
+    unlockConfirmSuffix: '? Сумма будет списана с вашего кошелька.',
     postUnlockedPrefix: 'Пост разблокирован за',
   },
 };
@@ -11820,6 +11828,10 @@ export default function ThailandPantiesMarketSite() {
       }
       return;
     }
+    if (typeof window !== 'undefined') {
+      const confirmMsg = `${loginText.unlockConfirmPrefix || 'Unlock this post for'} ${formatPriceTHB(unlockPrice)}${loginText.unlockConfirmSuffix || '? This will be deducted from your wallet.'}`;
+      if (!window.confirm(confirmMsg)) return;
+    }
     try {
       const res = await apiRequestJson('/api/post-unlocks', {
         method: 'POST',
@@ -16143,14 +16155,27 @@ export default function ThailandPantiesMarketSite() {
           if (response.ok && payload?.post) {
             createdPost = payload.post;
             persistedToSeed = true;
-          } else if (response.status === 404 && payload?.error === 'Seller not found.') {
-            persistedToSeed = false;
           } else {
-            persistedToSeed = false;
+            /* Backend was reachable but the POST failed (auth, validation,
+               or transient server error). Surface the failure rather than
+               saving a phantom post-local-... entry that no buyer can
+               unlock — that produced "Post not found." for buyers. */
+            const errMsg = payload?.error || `Could not save post (HTTP ${response.status}). Please try again.`;
+            setSellerProfileMessage(localizeSellerApiError(errMsg, 'publishPostFailed'));
+            if (typeof window !== 'undefined') window.alert(errMsg);
+            setCreatingSellerPost(false);
+            return;
           }
         } catch (err) {
           console.warn('[createSellerPost] API sync failed:', err);
-          persistedToSeed = false;
+          /* Network error while the user thought we were online — same
+             reasoning: don't save a fake local post that the rest of the
+             system cannot see. Alert and let them retry. */
+          const errMsg = 'Could not reach the server. Please check your connection and try again.';
+          setSellerProfileMessage(localizeSellerApiError(errMsg, 'publishPostFailed'));
+          if (typeof window !== 'undefined') window.alert(errMsg);
+          setCreatingSellerPost(false);
+          return;
         }
       } else {
         console.warn('[createSellerPost] Skipping API call, backendStatus:', backendStatus);
